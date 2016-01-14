@@ -29,6 +29,7 @@ setup(
               'baidubce.http',
               'baidubce.services',
               'baidubce.services.bos',
+              'baidubce.services.bmr',
               'baidubce.services.media'],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
