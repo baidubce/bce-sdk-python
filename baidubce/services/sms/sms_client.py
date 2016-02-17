@@ -107,11 +107,3 @@ def sign_wrapper(headers_to_sign):
                                   headers_to_sign=headers_to_sign)
     return _wrapper
 
-
-    if reducer is not None:
-        streaming_step['reducer'] = reducer
-    if arguments is not None:
-        streaming_step['arguments'] = arguments
-
-    return streaming_step
-
