@@ -20,4 +20,4 @@ HTTP is available in case users need it.
 from utils import Expando
 
 HTTP = Expando({'name': 'http', 'default_port': 80})
-HTTPS = Expando({'name': 'https', 'default_port': 403})
+HTTPS = Expando({'name': 'https', 'default_port': 443})
