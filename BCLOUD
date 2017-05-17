@@ -1,2 +1,1 @@
-VERSION="0.8.14"
 BUILD_SUBMITTER -u . -c "cd baidu/bce-sdk/python && mkdir output && sh build.sh" -o output -m "baidu/bce-sdk/python"

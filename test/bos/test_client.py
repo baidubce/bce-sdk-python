@@ -412,10 +412,23 @@ class TestCopyObject(TestClient):
         finally:
             self.assertIsNotNone(err)
 
-    def test_copy_object_ia(self):
-        """test copy_object standard ia"""
-        # test copy object standard ia
+    def test_copy_object_with_storage_class(self):
+        """test copy_object with storage class"""
+        # prepare an object
         response = self.bos.put_object_from_string(self.BUCKET, self.KEY, "This is a string.")
+
+        # test copy object cold
+        response = self.bos.copy_object(source_bucket_name=self.BUCKET,
+                                        source_key=self.KEY,
+                                        target_bucket_name=self.BUCKET,
+                                        target_key="test_target_key_cold",
+                                        storage_class=storage_class.COLD)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+                                                 key='test_target_key_cold')
+        self.assertEqual(response.metadata.bce_storage_class, "COLD")
+
+        # test copy object standard ia
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
                                         target_bucket_name=self.BUCKET,
@@ -424,8 +437,8 @@ class TestCopyObject(TestClient):
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_ia')
-        # copy not apply standard ia
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
+
         # test copy object default
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
@@ -435,6 +448,7 @@ class TestCopyObject(TestClient):
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_default')
         self.assertIsNone(response.metadata.bce_storage_class)
+
         # test copy object standard
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
@@ -444,7 +458,8 @@ class TestCopyObject(TestClient):
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_standard')
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
+
         # test copy object invalid storage class
         err = None
         try:
@@ -467,6 +482,11 @@ class TestCopyObject(TestClient):
                                  target_bucket_name=self.BUCKET,
                                  target_key="test_target_key_case",
                                  storage_class=" STANDARD_Ia ")
+            self.bos.copy_object(source_bucket_name=self.BUCKET,
+                                 source_key=self.KEY,
+                                 target_bucket_name=self.BUCKET,
+                                 target_key="test_target_key_case",
+                                 storage_class=" cOLd ")
         except ValueError as e:
             err = e
         finally:
@@ -931,8 +951,18 @@ class TestPutObject(TestClient):
         finally:
             self.assertIsNotNone(err)
 
-    def test_put_object_from_string_ia(self):
-        """test put_object_from_string standard_ia"""
+    def test_put_object_from_string_with_storage_class(self):
+        """test put_object_from_string with storage class"""
+        # test cold
+        response = self.bos.put_object_from_string(bucket=self.BUCKET, 
+                                                   key="testcold", 
+                                                   data='Hello World', 
+                                                   storage_class=storage_class.COLD)
+        self.check_headers(response)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testcold')
+        self.assertEqual(response.metadata.bce_storage_class, "COLD")
+
         # test standard ia
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
                                                    key="testia", 
@@ -942,6 +972,7 @@ class TestPutObject(TestClient):
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
+
         # test default storage class
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
                                                    key="testdefault", 
@@ -959,6 +990,7 @@ class TestPutObject(TestClient):
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='teststandard')
         self.assertIsNone(response.metadata.bce_storage_class)
+
         # test invalid storage class
         err = None
         try:
@@ -990,9 +1022,19 @@ class TestPutObject(TestClient):
         response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
         self.check_headers(response, ["etag"])
 
-    def test_put_object_from_file_ia(self):
-        """test put_object_from_file standard ia"""
+    def test_put_object_from_file_with_storage_class(self):
+        """test put_object_from_file with storage class"""
         self.get_file(5)
+        # test cold
+        response = self.bos.put_object_from_file(bucket=self.BUCKET, 
+                                                 key="testcold", 
+                                                 file_name=self.FILENAME, 
+                                                 storage_class=storage_class.COLD)
+        self.check_headers(response)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testcold')
+        self.assertEqual(response.metadata.bce_storage_class, "COLD")
+
         # test standard ia
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
                                                  key="testia", 
@@ -1002,6 +1044,7 @@ class TestPutObject(TestClient):
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
+
         # test default storage class
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
                                                  key="testdefault", 
@@ -1111,8 +1154,9 @@ class TestMultiUploadFile(TestClient):
         self.assertTrue(hasattr(response, "key"))
         self.assertTrue(hasattr(response, "location"))
 
-    def test_multi_upload_file_ia(self):
-        """test multi upload standard ia"""
+    def test_multi_upload_file_with_storage_class(self):
+        """test multi upload with storage class"""
+        # test ia
         response = self.bos.initiate_multipart_upload(bucket_name=self.BUCKET, 
                                                       key=self.KEY,
                                                       storage_class=storage_class.STANDARD_IA)
@@ -1150,6 +1194,45 @@ class TestMultiUploadFile(TestClient):
         for obj in response.contents:
             if obj.key == self.KEY:
                 self.assertEqual(obj.storage_class, "STANDARD_IA")
+        
+        # test cold
+        response = self.bos.initiate_multipart_upload(bucket_name=self.BUCKET, 
+                                                      key=self.KEY,
+                                                      storage_class=storage_class.COLD)
+        upload_id = response.upload_id
+        self.get_file(5)
+        part_list = []
+        response = self.bos.upload_part_from_file(bucket_name=self.BUCKET,
+                                                  key=self.KEY,
+                                                  upload_id=upload_id,
+                                                  part_number=1,
+                                                  part_size=os.path.getsize(self.FILENAME),
+                                                  file_name=self.FILENAME,
+                                                  offset = 0)
+        part_list.append({"partNumber": 1, "eTag": response.metadata.etag})
+
+        response = self.bos.list_multipart_uploads(bucket_name=self.BUCKET)
+        for upload in response.uploads:
+            self.assertEqual(upload.storage_class, "COLD")
+
+        response = self.bos.list_parts(bucket_name=self.BUCKET, 
+                                       key=self.KEY, 
+                                       upload_id=upload_id)
+        self.assertEqual(response.storage_class, "COLD")
+
+        self.bos.complete_multipart_upload(bucket_name=self.BUCKET,
+                                           key=self.KEY,
+                                           upload_id=upload_id,
+                                           part_list=part_list)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(response.metadata.bce_storage_class, "COLD")
+
+        # test list object
+        response = self.bos.list_objects(bucket_name=self.BUCKET)
+        for obj in response.contents:
+            if obj.key == self.KEY:
+                self.assertEqual(obj.storage_class, "COLD")
 
 
 class TestAbortMultipartUpload(TestClient):
