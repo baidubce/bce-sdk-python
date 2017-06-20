@@ -25,6 +25,9 @@ from baidubce.retry_policy import NoRetryPolicy
 
 # online
 HOST="bj.bcebos.com"
+
+DISPLAY_NAME = 'PASSPORT:1504517149'
+
 ACCESS_KEY="c768a425b245497babf09c2b466b6176"
 SECRET_KEY="8bd9d94c621b4de6ad781a5018b70bbe"
 

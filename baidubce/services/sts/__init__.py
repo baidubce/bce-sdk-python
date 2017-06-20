@@ -1,4 +1,4 @@
-# Copyright 2014 Baidu, Inc.
+# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -11,12 +11,7 @@
 # and limitations under the License.
 
 """
-This module defines some common string constants.
+This module defines some constants for STS
 """
 
-import protocol
-
-SDK_VERSION = '0.8.16'
-DEFAULT_SERVICE_DOMAIN = 'bcebos.com'
-URL_PREFIX = '/v1'
-DEFAULT_ENCODING = 'UTF-8'
+URL_PREFIX = "/v1/"

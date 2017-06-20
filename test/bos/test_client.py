@@ -412,6 +412,32 @@ class TestCopyObject(TestClient):
         finally:
             self.assertIsNotNone(err)
 
+    def test_copy_object_user_headers(self):
+        """test copy_object user headers"""
+        user_headers = {"Cache-Control":"private", 
+                        "Content-Disposition":"attachment; filename=\"abc.txt\"", 
+                        "Expires":"123456"}
+        copy_object_user_headers = {"x-bce-copy-source-if-none-match":
+                                    "e15ebeefb866b641557c325069b6b2a"}
+
+        response = self.bos.put_object_from_string(self.BUCKET, 
+                                                   "test_target_key_user_headers_src", 
+                                                   "This is a string.", 
+                                                   user_headers=user_headers)
+        response = self.bos.copy_object(source_bucket_name=self.BUCKET,
+                                        source_key="test_target_key_user_headers_src",
+                                        target_bucket_name=self.BUCKET,
+                                        target_key="test_target_key_user_headers_dsc",
+                                        user_headers=user_headers,
+                                        copy_object_user_headers=copy_object_user_headers)
+
+        response = self.bos.get_object(bucket_name=self.BUCKET, 
+                                       key='test_target_key_user_headers_dsc')
+       
+        self.assertEqual(response.metadata.expires, "123456")
+        self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
+        self.assertEqual(response.metadata.cache_control, 'private')
+
     def test_copy_object_with_storage_class(self):
         """test copy_object with storage class"""
         # prepare an object
@@ -931,6 +957,17 @@ class TestListParts(TestClient):
             self.assertEqual(item.last_modified, time2)
 
 
+class TestDeleteMultipleObjects(TestClient):
+    """test delete_multiple_objects"""
+    def test_delete_multiple_objects(self):
+        """test delete_multiple_objects function normally"""
+        self.bos.put_object_from_string(self.BUCKET, 'hello1', 'Hello World')
+        self.bos.put_object_from_string(self.BUCKET, 'hello2', u'hello world')
+        key_list = ['hello1', 'hello2']
+        response = self.bos.delete_multiple_objects(self.BUCKET, key_list)
+        self.check_headers(response)
+
+
 class TestPutObject(TestClient):
     """test put_object"""
     def test_put_object_from_string(self):
@@ -950,6 +987,23 @@ class TestPutObject(TestClient):
             err = e
         finally:
             self.assertIsNotNone(err)
+
+    def test_put_object_user_headers(self):
+        """test put_object_from_string user headers"""
+        user_headers = {"Cache-Control":"private", 
+                        "Content-Disposition":"attachment; filename=\"abc.txt\"", 
+                        "Expires":"123456"}
+        response = self.bos.put_object_from_string(bucket=self.BUCKET,
+                                                   key="test_put_user_headers",
+                                                   data='Hello World',
+                                                   user_headers=user_headers)
+        self.check_headers(response)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+                                                 key='test_put_user_headers')
+        self.assertEqual(response.metadata.expires, "123456")
+        self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
+        self.assertEqual(response.metadata.cache_control, 'private')
 
     def test_put_object_from_string_with_storage_class(self):
         """test put_object_from_string with storage class"""
@@ -1021,6 +1075,26 @@ class TestPutObject(TestClient):
         self.get_file(20)
         response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
         self.check_headers(response, ["etag"])
+
+    def test_put_object_from_file_user_headers(self):
+        """test put_object_from_file user headers"""
+
+        user_headers = {"Cache-Control":"private", 
+                        "Content-Disposition":"attachment; filename=\"abc.txt\"", 
+                        "Expires":"123456"}
+
+        self.get_file(5)
+        response = self.bos.put_object_from_file(bucket=self.BUCKET,
+                                                 key="test_put_file_user_headers",
+                                                 file_name=self.FILENAME,
+                                                 user_headers=user_headers)
+        self.check_headers(response)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+                                                 key='test_put_file_user_headers')
+        self.assertEqual(response.metadata.expires, "123456")
+        self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
+        self.assertEqual(response.metadata.cache_control, 'private')
 
     def test_put_object_from_file_with_storage_class(self):
         """test put_object_from_file with storage class"""
@@ -1107,6 +1181,50 @@ class TestPutObject(TestClient):
             self.assertIsNotNone(err)
 
 
+class TestAppendObject(TestClient):
+    """test append object"""
+    def test_append_object_from_string(self):
+        """
+        test append_object_from_string
+        """
+        response = self.bos.append_object_from_string(bucket_name=self.BUCKET,
+                                                      key="test_append_object_from_string",
+                                                      data="aaa")
+        self.check_headers(response)
+
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len("aaa"))
+
+        response = self.bos.append_object_from_string(bucket_name=self.BUCKET,
+                                                      key="test_append_object_from_string",
+                                                      data='bbb',
+                                                      offset=int(next_offset))
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len("aaabbb"))
+
+        response = self.bos.get_object_as_string(bucket_name=self.BUCKET, 
+                                                 key="test_append_object_from_string")
+        self.assertEqual(response, 'aaabbb')
+
+        response = self.bos.get_object(bucket_name=self.BUCKET,
+                                       key="test_append_object_from_string")
+        self.assertEqual(response.metadata.bce_object_type, 'Appendable')
+
+        # test append offset not match
+        err = None
+        try:
+            self.bos.append_object_from_string(bucket_name=self.BUCKET,
+                                               key="test_append_object_from_string",
+                                               data='ccc',
+                                               offset=(int(next_offset)-1))
+        except Exception as e:
+            err = e
+        except BceServerError as bse:
+            err = bse
+        finally:
+            self.assertIsNotNone(err)
+
+
 class TestMultiUploadFile(TestClient):
     """test multi_upload_file"""
     def test_multi_upload_file(self):
@@ -1153,6 +1271,38 @@ class TestMultiUploadFile(TestClient):
         self.assertTrue(hasattr(response, "bucket"))
         self.assertTrue(hasattr(response, "key"))
         self.assertTrue(hasattr(response, "location"))
+
+    def test_multi_upload_file_user_headers(self):
+        """test multi upload user headers"""
+        user_headers = {"Cache-Control":"private", 
+                        "Content-Disposition":"attachment; filename=\"abc.txt\"", 
+                        "Expires":"123456"}
+
+        response = self.bos.initiate_multipart_upload(bucket_name=self.BUCKET, 
+                                                      key=self.KEY,
+                                                      user_headers=user_headers)
+        upload_id = response.upload_id
+        self.get_file(5)
+        part_list = []
+        response = self.bos.upload_part_from_file(bucket_name=self.BUCKET,
+                                                  key=self.KEY,
+                                                  upload_id=upload_id,
+                                                  part_number=1,
+                                                  part_size=os.path.getsize(self.FILENAME),
+                                                  file_name=self.FILENAME,
+                                                  offset = 0)
+        part_list.append({"partNumber": 1, "eTag": response.metadata.etag})
+
+        self.bos.complete_multipart_upload(bucket_name=self.BUCKET,
+                                           key=self.KEY,
+                                           upload_id=upload_id,
+                                           part_list=part_list)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=self.KEY)
+
+        self.assertEqual(response.metadata.expires, "123456")
+        self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
+        self.assertEqual(response.metadata.cache_control, 'private')
 
     def test_multi_upload_file_with_storage_class(self):
         """test multi upload with storage class"""
@@ -1235,6 +1385,56 @@ class TestMultiUploadFile(TestClient):
                 self.assertEqual(obj.storage_class, "COLD")
 
 
+class TestUploadPartCopy(TestClient):
+    """test upload_part_copy"""
+    def test_upload_part_copy(self):
+        """test upload part copy"""
+        self.get_file(20)
+        self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
+        #self.bos.put_object_from_string(self.BUCKET, self.KEY, 'hello')
+        response = self.bos.initiate_multipart_upload(self.BUCKET, 
+                                                      'copy', 
+                                                      storage_class=storage_class.STANDARD)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "upload_id"))
+        self.assertTrue(hasattr(response, "bucket"))
+        self.assertTrue(hasattr(response, "key"))
+
+        upload_id = response.upload_id
+        self.check_headers(response)
+        response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
+        self.check_headers(response)
+        left_size = int(response.metadata.content_length)
+        part_number = 1
+        part_list = []
+        offset = 0
+        while left_size > 0:
+            part_size = 5 * 1024 * 1024
+            if left_size < part_size:
+                part_size = left_size
+            response = self.bos.upload_part_copy(self.BUCKET,
+                                                 self.KEY,
+                                                 self.BUCKET,
+                                                 'copy',
+                                                 upload_id,
+                                                 part_number,
+                                                 part_size,
+                                                 offset)
+            left_size -= part_size
+            offset += part_size
+            part_list.append({'partNumber': part_number,
+                              'eTag': response.etag})
+            part_number += 1
+
+        response = self.bos.complete_multipart_upload(self.BUCKET, 'copy', upload_id=upload_id,
+                                                      part_list=part_list)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "etag"))
+        self.assertTrue(hasattr(response, "lastModified"))
+        self.assertTrue(hasattr(response, "key"))
+        self.assertTrue(hasattr(response, "location"))
+
+
 class TestAbortMultipartUpload(TestClient):
     """test abort_multipart upload"""
     def test_abort_multipart_upload(self):
@@ -1244,6 +1444,111 @@ class TestAbortMultipartUpload(TestClient):
         upload_id = response.upload_id
         self.bos.abort_multipart_upload(self.BUCKET, self.KEY, upload_id)
         self.check_headers(response)
+
+
+class TestPutBucketLogging(TestClient):
+    """test put_bucket_logging"""
+    def test_put_bucket_logging(self):
+        """test put_bucket_logging function normally"""
+        response = self.bos.put_bucket_logging(self.BUCKET, self.BUCKET, 'log-')
+        self.check_headers(response)
+
+
+class TestGetBucketLogging(TestClient):
+    """test get_bucket_logging"""
+    def test_get_bucket_logging(self):
+        """test get_bucket_logging function normally"""
+        self.bos.put_bucket_logging(self.BUCKET, self.BUCKET, 'log-')
+        response = self.bos.get_bucket_logging(self.BUCKET)
+        self.check_headers(response)
+        self.assertEqual(response.status, 'enabled')
+        self.assertEqual(response.target_bucket, self.BUCKET)
+        self.assertEqual(response.target_prefix, 'log-')
+        self.bos.delete_bucket_logging(self.BUCKET)
+        response = self.bos.get_bucket_logging(self.BUCKET)
+        self.assertEqual(response.status, 'disabled')
+
+
+class TestPutBucketLifecycle(TestClient):
+    """test put_bucket_lifecycle"""
+    def test_put_bucket_lifecycle(self):
+        """test put_bucket_lifecycle function normally"""
+        rule = {}
+        rule['id'] = 'rule1'
+        rule['status'] = 'enabled'
+        rule['action'] = {}
+        rule['action']['name'] = 'Transition'
+        rule['action']['storageClass'] = 'STANDARD_IA'
+        rule['resource'] = [self.BUCKET + '/*']
+        rule['condition'] = {}
+        rule['condition']['time'] = {"dateGreaterThan": '2017-04-07T00:00:00Z'}
+        rules = []
+        rules.append(rule)
+        response = self.bos.put_bucket_lifecycle(self.BUCKET, rules)
+        self.check_headers(response)
+
+
+class TestGetBucketLifecycle(TestClient):
+    """test get_bucket_lifecycle"""
+    def test_get_bucket_lifecycle(self):
+        """test get_bucket_lifecycle function normally"""
+        rule = {}
+        rule['id'] = 'rule1'
+        rule['status'] = 'enabled'
+        rule['action'] = {}
+        rule['action']['name'] = 'Transition'
+        rule['action']['storageClass'] = 'STANDARD_IA'
+        rule['resource'] = [self.BUCKET + '/*']
+        rule['condition'] = {}
+        rule['condition']['time'] = {"dateGreaterThan": '2017-04-07T00:00:00Z'}
+        rules = []
+        rules.append(rule)
+        response = self.bos.put_bucket_lifecycle(self.BUCKET, rules)
+        self.check_headers(response)
+        response = self.bos.get_bucket_lifecycle(self.BUCKET)
+        self.check_headers(response)
+        self.assertEqual(response.rule[0].status, 'enabled')
+        self.assertEqual(response.rule[0].action.name, 'Transition')
+        self.assertEqual(response.rule[0].action.storage_class, 'STANDARD_IA')
+        self.assertEqual(response.rule[0].resource, [self.BUCKET + '/*'])
+        self.assertEqual(response.rule[0].id, 'rule1')
+        self.assertEqual(response.rule[0].condition.time.date_greater_than, '2017-04-07T00:00:00Z')
+
+
+class TestPutBucketCors(TestClient):
+    """test put_bucket_cors"""
+    def test_put_bucket_cors(self):
+        """test put_bucket_cors function normally"""
+        conf = {}
+        conf['allowedOrigins'] = ['http://www.boluor.com']
+        conf['allowedMethods'] = ['GET', 'HEAD', 'DELETE']
+        conf['allowedHeaders'] = ['Authorization', 'x-bce-test', 'x-bce-test2']
+        conf['maxAgeSeconds'] = 3600
+        cors_confs = []
+        cors_confs.append(conf)
+        response = self.bos.put_bucket_cors(self.BUCKET, cors_confs)
+        self.check_headers(response)
+
+
+class TestGetBucketCors(TestClient):
+    """test get_bucket_cors"""
+    def test_get_bucket_cors(self):
+        """test get_bucket_cors function normally"""
+        conf = {}
+        conf['allowedOrigins'] = ['http://www.boluor.com']
+        conf['allowedMethods'] = ['GET', 'HEAD', 'DELETE']
+        conf['allowedHeaders'] = ['Authorization', 'x-bce-test', 'x-bce-test2']
+        conf['maxAgeSeconds'] = 3600
+        cors_confs = [conf]
+        response = self.bos.put_bucket_cors(self.BUCKET, cors_confs)
+        self.check_headers(response)
+        response = self.bos.get_bucket_cors(self.BUCKET)
+        self.check_headers(response)
+        self.assertEqual(response.cors_configuration[0].allowed_origins[0], 'http://www.boluor.com')
+        self.assertEqual(response.cors_configuration[0].allowed_methods, ['GET', 'HEAD', 'DELETE'])
+        self.assertEqual(response.cors_configuration[0].allowed_headers, 
+                         ['Authorization', 'x-bce-test', 'x-bce-test2'])
+        self.assertEqual(response.cors_configuration[0].max_age_seconds, 3600)
 
 
 class TestAuthorization(unittest.TestCase):
@@ -1798,6 +2103,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestListObjects))
     runner.run(unittest.makeSuite(TestListParts))
     runner.run(unittest.makeSuite(TestPutObject))
+    runner.run(unittest.makeSuite(TestAppendObject))
     runner.run(unittest.makeSuite(TestMultiUploadFile))
     runner.run(unittest.makeSuite(TestAuthorization))
     runner.run(unittest.makeSuite(TestAbortMultipartUpload))
@@ -1808,7 +2114,15 @@ def run_test():
     runner.run(unittest.makeSuite(TestBceClientConfiguration))
     runner.run(unittest.makeSuite(TestGetRangeHeaderDict))
     runner.run(unittest.makeSuite(TestDecorator))
-
+    runner.run(unittest.makeSuite(TestDeleteMultipleObjects))
+    runner.run(unittest.makeSuite(TestPutBucketLogging))
+    runner.run(unittest.makeSuite(TestGetBucketLogging))
+    runner.run(unittest.makeSuite(TestUploadPartCopy))
+    runner.run(unittest.makeSuite(TestPutBucketLifecycle))
+    runner.run(unittest.makeSuite(TestGetBucketLifecycle))
+    runner.run(unittest.makeSuite(TestPutBucketCors))
+    runner.run(unittest.makeSuite(TestGetBucketCors))
+ 
 run_test()
 cov.stop()
 cov.save()

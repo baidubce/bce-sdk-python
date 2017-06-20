@@ -18,6 +18,8 @@ This module defines string constants for HTTP headers
 
 AUTHORIZATION = "Authorization"
 
+CACHE_CONTROL = "Cache-Control"
+
 CONTENT_DISPOSITION = "Content-Disposition"
 
 CONTENT_ENCODING = "Content-Encoding"
@@ -60,6 +62,14 @@ BCE_COPY_SOURCE = "x-bce-copy-source"
 
 BCE_COPY_SOURCE_IF_MATCH = "x-bce-copy-source-if-match"
 
+BCE_COPY_SOURCE_IF_MODIFIED_SINCE = "x-bce-copy-source-if-modified-since"
+
+BCE_COPY_SOURCE_IF_NONE_MATCH = "x-bce-copy-source-if-none-match"
+
+BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE = "x-bce-copy-source-if-unmodified-since"
+
+BCE_COPY_SOURCE_RANGE = "x-bce-copy-source-range"
+
 BCE_DATE = "x-bce-date"
 
 BCE_USER_METADATA_PREFIX = "x-bce-meta-"
@@ -71,3 +81,7 @@ BCE_REQUEST_ID = "x-bce-request-id"
 BOS_DEBUG_ID = "x-bce-bos-debug-id"
 
 BOS_STORAGE_CLASS = "x-bce-storage-class"
+
+# STS HTTP Headers
+
+STS_SECURITY_TOKEN = "x-bce-security-token"

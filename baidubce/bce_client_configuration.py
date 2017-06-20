@@ -30,7 +30,8 @@ class BceClientConfiguration(object):
                  connection_timeout_in_mills=None,
                  send_buf_size=None,
                  recv_buf_size=None,
-                 retry_policy=None):
+                 retry_policy=None,
+                 security_token=None):
         self.credentials = credentials
         self.endpoint = endpoint
         self.protocol = protocol
@@ -42,6 +43,7 @@ class BceClientConfiguration(object):
             self.retry_policy = BackOffRetryPolicy()
         else:
             self.retry_policy = retry_policy
+        self.security_token = security_token
 
     def merge_non_none_values(self, other):
         """

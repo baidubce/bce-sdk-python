@@ -238,7 +238,110 @@ class BosClient(BceBaseClient):
                                  path,
                                  utils.get_canonical_querystring(params, False))
 
+    @required(bucket_name=(str, unicode), rules=(list, dict))
+    def put_bucket_lifecycle(self, 
+                             bucket_name,
+                             rules,
+                             config=None):
+        """
+        Put Bucket Lifecycle
+       
+        :type bucket: string
+        :param bucket: None
+
+        :type rules: list
+        :param rules: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.PUT, 
+                                  bucket_name,
+                                  params={'lifecycle': ''},
+                                  body=json.dumps({'rule': rules}),
+                                  config=config)
+
     @required(bucket_name=(str, unicode))
+    def get_bucket_lifecycle(self, bucket_name, config=None):
+        """
+        Get Bucket Lifecycle
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.GET, 
+                                  bucket_name, 
+                                  params={'lifecycle': ''},
+                                  config=config) 
+
+    @required(bucket_name=(str, unicode))
+    def delete_bucket_lifecycle(self, bucket_name, config=None):
+        """
+        Delete Bucket Lifecycle
+        
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={'lifecycle': ''},
+                                  config=config)       
+    
+    @required(bucket_name=(str, unicode), cors_configuration=list)
+    def put_bucket_cors(self, 
+                        bucket_name,
+                        cors_configuration,
+                        config=None):
+        """
+        Put Bucket Cors
+        :type bucket: string
+        :param bucket: None
+
+        :type cors_configuration: list
+        :param cors_configuration: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.PUT,
+                                  bucket_name,
+                                  params={'cors': ''},
+                                  body=json.dumps({'corsConfiguration': cors_configuration}),
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))
+    def get_bucket_cors(self, bucket_name, config=None):
+        """
+        Get Bucket Cors
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.GET,
+                                  bucket_name,
+                                  params={'cors': ''},
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))
+    def delete_bucket_cors(self, bucket_name, config=None):
+        """
+        Delete Bucket Cors
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={'cors': ''},
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))        
     def list_objects(self, bucket_name,
                      max_keys=1000, prefix=None, marker=None, delimiter=None,
                      config=None):
@@ -425,6 +528,103 @@ class BosClient(BceBaseClient):
               data=object,
               content_length=(int, long),
               content_md5=str)
+    def append_object(self, bucket_name, key, data,
+                     content_md5,
+                     content_length,
+                     offset=None,
+                     content_type=None,
+                     user_metadata=None,
+                     content_sha256=None,
+                     storage_class=storage_class.STANDARD,
+                     user_headers=None,
+                     config=None):
+        """
+        Put an appendable object to BOS or add content to an appendable object
+
+        :type bucket: string
+        :param bucket: None
+
+        :type key: string
+        :param key: None
+
+        :type content_length: long
+        :type offset: long
+        :return:
+            **HTTP Response**
+        """
+        headers = self._prepare_object_headers(
+            content_length=content_length,
+            content_md5=content_md5,
+            content_type=content_type,
+            content_sha256=content_sha256,
+            user_metadata=user_metadata,
+            storage_class=storage_class,
+            user_headers=user_headers)
+
+        if content_length > bos.MAX_APPEND_OBJECT_LENGTH:
+            raise ValueError('Object length should be less than %d. '
+                             'Use multi-part upload instead.' % bos.MAX_APPEND_OBJECT_LENGTH)
+
+        params = {'append': ''}
+        if offset is not None:
+            params['offset'] = offset
+
+        return self._send_request(
+            http_methods.POST,
+            bucket_name,
+            key,
+            body=data,
+            headers=headers,
+            params=params,
+            config=config)
+
+    @required(bucket_name=(str, unicode),
+                           key=str,
+                           data=(str, unicode))
+    def append_object_from_string(self, bucket_name, key, data,
+                                  content_md5=None,
+                                  offset=None,
+                                  content_type=None,
+                                  user_metadata=None,
+                                  content_sha256=None,
+                                  storage_class=storage_class.STANDARD,
+                                  user_headers=None,
+                                  config=None):
+        """
+        Create an appendable object and put content of string to the object
+        or add content of string to an appendable object
+        """
+        if isinstance(data, unicode):
+            data = data.encode(baidubce.DEFAULT_ENCODING)
+
+        fp = None
+        try:
+            fp = cStringIO.StringIO(data)
+            if content_md5 is None:
+                content_md5 = utils.get_md5_from_fp(
+                    fp, buf_size=self._get_config_parameter(config, 'recv_buf_size'))
+
+            return self.append_object(bucket_name=bucket_name,
+                                      key=key,
+                                      data=fp,
+                                      content_md5=content_md5,
+                                      content_length=len(data),
+                                      offset=offset,
+                                      content_type=content_type,
+                                      user_metadata=user_metadata,
+                                      content_sha256=content_sha256,
+                                      storage_class=storage_class,
+                                      user_headers=user_headers,
+                                      config=config)
+        finally:
+            if fp is not None:
+                fp.close()
+
+    @required(bucket_name=(str, unicode),
+              key=str,
+              data=object,
+              content_length=(int, long),
+              content_md5=str)
     def put_object(self, bucket_name, key, data,
                    content_length,
                    content_md5,
@@ -432,6 +632,7 @@ class BosClient(BceBaseClient):
                    content_sha256=None,
                    user_metadata=None,
                    storage_class=storage_class.STANDARD,
+                   user_headers=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -457,7 +658,8 @@ class BosClient(BceBaseClient):
             content_type=content_type,
             content_sha256=content_sha256,
             user_metadata=user_metadata,
-            storage_class=storage_class)
+            storage_class=storage_class,
+            user_headers=user_headers)
 
         buf_size = self._get_config_parameter(config, 'recv_buf_size')
 
@@ -480,6 +682,7 @@ class BosClient(BceBaseClient):
                                content_sha256=None,
                                user_metadata=None,
                                storage_class=storage_class.STANDARD,
+                               user_headers=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -514,6 +717,7 @@ class BosClient(BceBaseClient):
                                    content_sha256=content_sha256,
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
+                                   user_headers=user_headers,
                                    config=config)
         finally:
             if fp is not None:
@@ -527,6 +731,7 @@ class BosClient(BceBaseClient):
                              content_sha256=None,
                              user_metadata=None,
                              storage_class=storage_class.STANDARD,
+                             user_headers=None,
                              config=None):
 
         """
@@ -565,6 +770,7 @@ class BosClient(BceBaseClient):
                                    content_sha256=content_sha256,
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
+                                   user_headers=user_headers,
                                    config=config)
         finally:
             fp.close()
@@ -580,6 +786,8 @@ class BosClient(BceBaseClient):
                     content_type=None,
                     user_metadata=None,
                     storage_class=storage_class.STANDARD,
+                    user_headers=None,
+                    copy_object_user_headers=None,
                     config=None):
         """
         Copy one object to another object
@@ -601,7 +809,8 @@ class BosClient(BceBaseClient):
         headers = self._prepare_object_headers(
             content_type=content_type,
             user_metadata=user_metadata,
-            storage_class=storage_class)
+            storage_class=storage_class,
+            user_headers=user_headers)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
             '/%s/%s' % (source_bucket_name, source_key), False)
         if etag is not None:
@@ -610,6 +819,12 @@ class BosClient(BceBaseClient):
             headers[http_headers.BCE_COPY_METADATA_DIRECTIVE] = 'replace'
         else:
             headers[http_headers.BCE_COPY_METADATA_DIRECTIVE] = 'copy'
+
+        if copy_object_user_headers is not None:
+            try:
+                headers = BosClient._get_user_header(headers, copy_object_user_headers, True)
+            except Exception as e:
+                raise e
 
         return self._send_request(
             http_methods.PUT,
@@ -634,11 +849,88 @@ class BosClient(BceBaseClient):
         """
         return self._send_request(http_methods.DELETE, bucket_name, key, config=config)
 
-    @required(bucket_name=(str, unicode), key=str)
+    @required(bucket_name=(str, unicode), key_list=list)
+    def delete_multiple_objects(self, bucket_name, key_list, config=None):
+        """
+        Delete Multiple Objects
+
+        :type bucket: string
+        :param bucket: None
+
+        :type key_list: string list
+        :param key_list: None
+        :return:
+            **HttpResponse Class**
+        """
+        key_list_json = [{'key': k} for k in key_list]
+        return self._send_request(http_methods.POST, 
+                                  bucket_name, 
+                                  body=json.dumps({'objects': key_list_json}),
+                                  params={'delete': ''},
+                                  config=config)
+
+    @required(source_bucket=(str, unicode),
+              target_bucket=(str, unicode),
+              target_prefix=(str, unicode))
+    def put_bucket_logging(self,
+                          source_bucket,
+                          target_bucket,
+                          target_prefix=None,
+                          config=None):
+        """
+        Put Bucket Logging
+
+        :type source_bucket: string
+        :param source_bucket: None
+
+        :type target_bucket: string
+        :param target_bucket: None
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.PUT, 
+                                  source_bucket, 
+                                  params={'logging': ''}, 
+                                  body=json.dumps({'targetBucket': target_bucket, 
+                                                  'targetPrefix': target_prefix}),
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))
+    def get_bucket_logging(self, bucket_name, config=None):
+        """
+        Get Bucket Logging
+
+        :type bucket_name: string
+        :param bucket_name: None
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                                  bucket_name,
+                                  params={'logging': ''},
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))
+    def delete_bucket_logging(self, bucket_name, config=None):
+        """
+        Delete Bucket Logging
+
+        :type bucket_name: string
+        :param bucket_name: None
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={'logging': ''},
+                                  config=config)
+
+    @required(bucket_name=(str, unicode))    
     def initiate_multipart_upload(self, 
                                   bucket_name, 
                                   key, 
-                                  storage_class=storage_class.STANDARD, 
+                                  storage_class=storage_class.STANDARD,
+                                  user_headers=None,
                                   config=None):
         """
         Initialize multi_upload_file.
@@ -654,6 +946,12 @@ class BosClient(BceBaseClient):
         headers = {}
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
+
+        if user_headers is not None:
+            try:
+                headers = BosClient._get_user_header(headers, user_headers, False)
+            except Exception as e:
+                raise e
 
         return self._send_request(
             http_methods.POST,
@@ -723,6 +1021,62 @@ class BosClient(BceBaseClient):
             headers=headers,
             params={'partNumber': part_number, 'uploadId': upload_id},
             config=config)
+
+    @required(source_bucket_name=(str, unicode),
+              source_key=str,
+              target_bucket_name=(str, unicode),
+              target_key=str,
+              upload_id=(str, unicode),
+              part_number=int,
+              part_size=(int, long),
+              offset=(int, long))
+    def upload_part_copy(self, 
+                         source_bucket_name, source_key, 
+                         target_bucket_name, target_key,
+                         upload_id, part_number, part_size, offset,
+                         etag=None,
+                         content_type=None,
+                         user_metadata=None,
+                         config=None):
+        """
+        Copy part.
+
+        :type source_bucket_name: string
+        :param source_bucket_name: None
+
+        :type source_key: string
+        :param source_key: None
+
+        :type target_bucket_name: string
+        :param target_bucket_name: None
+
+        :type target_key: string
+        :param target_key: None
+
+        :type upload_id: string
+        :param upload_id: None
+
+        :return:
+            **HttpResponse**
+        """
+
+        headers = self._prepare_object_headers(
+                         content_type=content_type,
+                         user_metadata=user_metadata)
+        headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
+                         "/%s/%s" % (source_bucket_name, source_key), False)
+        range = """bytes=%d-%d""" % (offset, offset + part_size - 1)
+        headers[http_headers.BCE_COPY_SOURCE_RANGE] = range
+        if etag is not None:
+            headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
+        
+        return self._send_request(
+            http_methods.PUT,
+            target_bucket_name,
+            target_key,
+            headers=headers,
+            params={'partNumber': part_number, 'uploadId': upload_id},
+            config=config)    
 
     @required(bucket_name=(str, unicode),
               key=str,
@@ -940,7 +1294,8 @@ class BosClient(BceBaseClient):
             content_sha256=None,
             etag=None,
             user_metadata=None,
-            storage_class=None):
+            storage_class=None,
+            user_headers=None):
         headers = {}
 
         if content_length is not None:
@@ -980,6 +1335,35 @@ class BosClient(BceBaseClient):
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
 
+        if user_headers is not None:
+            try:
+                headers = BosClient._get_user_header(headers, user_headers, False)
+            except Exception as e:
+                raise e
+
+        return headers
+
+
+    @staticmethod
+    def _get_user_header(headers, user_headers, is_copy=False):
+        if not isinstance(user_headers, dict):
+            raise TypeError('user_headers should be of type dict.')
+
+        if not is_copy:
+            user_headers_set = set([http_headers.CACHE_CONTROL,
+                                    http_headers.CONTENT_ENCODING,
+                                    http_headers.CONTENT_DISPOSITION,
+                                    http_headers.EXPIRES])
+        else:
+            user_headers_set = set([http_headers.BCE_COPY_SOURCE_IF_NONE_MATCH,
+                                    http_headers.BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE,
+                                    http_headers.BCE_COPY_SOURCE_IF_MODIFIED_SINCE])
+
+        for k, v in user_headers.items():
+            k = utils.convert_to_standard_string(k)
+            v = utils.convert_to_standard_string(v)
+            if k in user_headers_set:
+                headers[k] = v
         return headers
 
     def _get_config_parameter(self, config, attr):
@@ -1013,6 +1397,10 @@ class BosClient(BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
 
+        if config.security_token is not None:
+            headers = headers or {}
+            headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
+            
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
