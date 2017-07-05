@@ -27,10 +27,12 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bmr import bmr_client as bmr
 
+
 class MockHttpResponse(object):
     """
     Mock HttpResponse
     """
+
     def __init__(self, status, content=None, header_list=None):
         self.status = status
         self.content = content
@@ -63,48 +65,55 @@ class TestBmrClient(unittest.TestCase):
     """
     Test class for bmr sdk client
     """
+
     def setUp(self):
         HOST = 'bmr.bce-api.baidu.com'
         AK = 'ak'
         SK = 'sk'
         config = BceClientConfiguration(
-                         credentials=BceCredentials(AK, SK), 
-                         endpoint=HOST
-                     )
+            credentials=BceCredentials(AK, SK),
+            endpoint=HOST
+        )
         self.bmr_client = bmr.BmrClient(config)
-    
+
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_create_cluster(self, send_http_request):
         """
         test case for create_cluster
         """
         mock_http_response = MockHttpResponse(
-                201,
-                content=json.dumps({'clusterId': 'c003'}),
-                header_list=[
-                    ('x-bce-request-id', 'create01'), 
-                    ('content-type', 'application/json;charset=UTF-8')
-                ])
+            201,
+            content=json.dumps({'clusterId': 'c003'}),
+            header_list=[
+                ('x-bce-request-id', 'create01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ])
         send_http_request.return_value = mock_http_response
         res = self.bmr_client.create_cluster(
-                'hadoop',
-                '0.1.0',
-                [
-                    bmr.instance_group(
-                        'Master',
-                        'g.small',
-                        1,
-                        'ig-master'),
-                    bmr.instance_group(
-                        'Core',
-                        'g.small',
-                        2,
-                        'ig-core')
-                ],
-                auto_terminate=True,
-                log_uri='bos://path/to/log',
-                name='cluster03')
+            'hadoop',
+            '0.1.0',
+            [
+                bmr.instance_group(
+                    'Master',
+                    'g.small',
+                    1,
+                    'ig-master'),
+                bmr.instance_group(
+                    'Core',
+                    'g.small',
+                    2,
+                    'ig-core')
+            ],
+            auto_terminate=True,
+            log_uri='bos://path/to/log',
+            name='cluster03')
         self.assertEqual(res.cluster_id, 'c003')
+
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_scale_cluster(self, send_http_request):
+        """
+        test case for scale cluster
+        """
 
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_list_cluster(self, send_http_request):
@@ -157,12 +166,12 @@ class TestBmrClient(unittest.TestCase):
             'marker': '003'
         }
         mock_http_response = MockHttpResponse(
-                200,
-                content=json.dumps(res_body),
-                header_list=[
-                    ('x-bce-request-id', 'list01'), 
-                    ('content-type', 'application/json;charset=UTF-8')
-                ]
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'list01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
         )
         send_http_request.return_value = mock_http_response
         res = self.bmr_client.list_clusters(max_keys=2, marker='001')
@@ -194,7 +203,7 @@ class TestBmrClient(unittest.TestCase):
             200,
             content=json.dumps(res_body),
             header_list=[
-                ('x-bce-request-id', 'describe01'), 
+                ('x-bce-request-id', 'describe01'),
                 ('content-type', 'application/json;charset=UTF-8')
             ]
         )
@@ -211,7 +220,7 @@ class TestBmrClient(unittest.TestCase):
             201,
             content=json.dumps({'stepIds': ['j001', 'j002']}),
             header_list=[
-                ('x-bce-request-id', 'create02'), 
+                ('x-bce-request-id', 'create02'),
                 ('content-type', 'application/json;charset=UTF-8')
             ]
         )
@@ -245,7 +254,7 @@ class TestBmrClient(unittest.TestCase):
             ]
         )
         self.assertEqual(res.step_ids, ['j001', 'j002'])
-        
+
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_list_steps(self, send_http_request):
         """
@@ -300,7 +309,7 @@ class TestBmrClient(unittest.TestCase):
             200,
             content=json.dumps(res_body),
             header_list=[
-                ('x-bce-request-id', 'list02'), 
+                ('x-bce-request-id', 'list02'),
                 ('content-type', 'application/json;charset=UTF-8')
             ]
         )
@@ -336,7 +345,7 @@ class TestBmrClient(unittest.TestCase):
             200,
             content=json.dumps(res_body),
             header_list=[
-                ('x-bce-request-id', 'describe02'), 
+                ('x-bce-request-id', 'describe02'),
                 ('content-type', 'application/json;charset=UTF-8')
             ]
         )
@@ -344,6 +353,71 @@ class TestBmrClient(unittest.TestCase):
         res = self.bmr_client.get_step('c001', 'j001')
         self.assertEqual(res.status.state, 'Completed')
 
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_list_instances(self, send_http_request):
+        """
+        test case for list_instances
+        """
+        res_body = {
+            'instances': [
+                {
+                    'id': '001',
+                    'privateIpAddress': '192.168.12.55',
+                    'publicIpAddress': '180.76.145.145',
+                },
+                {
+                    'id': '002',
+                    'privateIpAddress': '192.168.160.42',
+                    'publicIpAddress': '180.76.236.132'
+                }
+            ]
+        }
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'list02'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        res = self.bmr_client.list_instances('c001', 'i001')
+        self.assertEqual(res.instances[1].id, '002')
+
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_list_instance_groups(self, send_http_request):
+        """
+        test case for list instance groups
+        """
+        res_body = {
+            'instanceGroups': [
+                {
+                    'id': '001',
+                    'instanceType': 'batch.g.small',
+                    'name': 'ng431212c-master',
+                    'requestedInstanceCount': 1,
+                    'type': 'MASTER'
+                },
+                {
+                    'id': '002',
+                    'instanceType': 'batch.g.small',
+                    'name': 'ng207f29a-core',
+                    'requestedInstanceCount': 2,
+                    'type': 'CORE'
+                }
+            ]
+        }
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'list03'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        res = self.bmr_client.list_instance_groups('c001')
+        self.assertEqual(res.instance_groups[1].id, '002')
 
 if __name__ == '__main__':
     unittest.main()

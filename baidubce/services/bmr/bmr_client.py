@@ -59,7 +59,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         Create cluster
 
         :param image_type: the type of virtual machine image
-        :type image_type: ENUM {'hadoop', 'spark'}
+        :type image_type: string
 
         :param image_version: the version of virtual machine image
         :type image_version: string
@@ -99,10 +99,10 @@ class BmrClient(bce_base_client.BceBaseClient):
         List clusters
 
         :param marker: 
-        :type params: string
+        :type marker: string
 
         :param max_keys: max records returned.
-        :type params: int
+        :type max_keys: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse 
@@ -146,6 +146,37 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/%s' % cluster_id
         return self._send_request(http_methods.DELETE, path)
 
+    @required(cluster_id=(str, unicode),
+              instance_group_id=(str, unicode),
+              instance_count=int)
+    def scale_cluster(self, cluster_id, instance_group_id, instance_count):
+        """
+        Scale cluster
+        :param cluster_id: cluster id
+        :type cluster_id: string
+
+        :param instance_group_id: instance group id
+        :type instance_group_id: string
+
+        :param instance_count: instance count
+        :type instance_count: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = "/cluster/%s/instanceGroup" % cluster_id
+        params = None
+        body = {
+            "instanceGroups": [
+                {
+                    "id": instance_group_id,
+                    "instanceCount": instance_count
+                }
+            ]
+        }
+        return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body))
+
+
     @required(cluster_id=(str, unicode), steps=list)
     def add_steps(self, cluster_id, steps, client_token=None):
         """
@@ -178,10 +209,10 @@ class BmrClient(bce_base_client.BceBaseClient):
         :type cluster_id: string
 
         :param marker: 
-        :type params: string
+        :type marker: string
 
         :param max_keys: max records returned.
-        :type params: int
+        :type max_keys: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse 
@@ -212,6 +243,37 @@ class BmrClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse 
         """
         path = '/cluster/%s/step/%s' % (cluster_id, step_id)
+        return self._send_request(http_methods.GET, path)
+
+    @required(cluster_id=(str, unicode), instance_group_id=(str, unicode))
+    def list_instances(self, cluster_id, instance_group_id):
+        """
+        List instances
+
+        :param cluster_id: cluster id
+        :type cluster_id: string
+
+        :param instance_group_id: instance group id
+        :type instance_group_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = '/cluster/%s/instanceGroup/%s/instance' % (cluster_id, instance_group_id)
+        return self._send_request(http_methods.GET, path)
+
+    @required(cluster_id=(str, unicode))
+    def list_instance_groups(self, cluster_id):
+        """
+        List instance groups
+
+        :param cluster_id: cluster id
+        :type cluster_id: string
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = '/cluster/%s/instanceGroup' % cluster_id
         return self._send_request(http_methods.GET, path)
 
     def _merge_config(self, config=None):
@@ -247,10 +309,10 @@ def instance_group(group_type, instance_type, instance_count, name=None):
     Construct instance group
 
     :param group_type: instance group type
-    :type group_type: ENUM {'Master', 'Core'}
+    :type group_type: ENUM {'Master', 'Core', 'Task'}
 
     :param instance_type
-    :type instance_type: ENUM {'g.small', 'c.large', 'm.medium', 's.medium'}
+    :type instance_type: ENUM {'g.small', 'c.large', 'm.medium', 's.medium', 'c.2xlarge'}
 
     :param instance_count
     :type instance_count: int
@@ -274,7 +336,7 @@ def application(name, version, properties=None):
     Construct application
 
     :param name: application type 
-    :type name: ENUM {'hive', 'pig', 'hbase', 'hue'}
+    :type name: ENUM {'hadoop', 'spark', 'hive', 'pig', 'hbase', 'hue', 'zeppelin', 'kafka', 'mahout'}
 
     :param version: application version
     :type version: string 
@@ -296,13 +358,13 @@ def step(step_type, action_on_failure, properties, name=None):
     Create step
 
     :param step_type: the type of step
-    :type step_type: Enum {'Java','Streaming','Hive','Pig'}
+    :type step_type: Enum {'Java','Streaming','Hive','Pig', 'Spark'}
 
     :param action_on_failure
     :type actionOnFailure: Enum {'Continue','TerminateCluster','CancelAndWait'}
 
     :param properties: step properties
-    :type properties: map
+    :type properties: dict
 
     :param name: the name of the step
     :type name: string
@@ -438,3 +500,28 @@ def hive_step_properties(script, arguments=None, input=None, output=None):
     if output is not None:
         hive_step['output'] = output
     return hive_step
+
+
+def spark_step_properties(jar, submitOptions, arguments=None):
+    """
+    Create spark step properties
+
+    :param jar: the path of .jar file
+    :type jar: string
+
+    :param main_class: the package path for main class
+    :param arguments: string
+
+    :param arguments: arguments for the step
+    :type arguments: string
+
+    :return:
+    :rtype map
+    """
+    spark_step = {
+        'jar': jar,
+        'submitOptions': submitOptions
+    }
+    if arguments is not None:
+        spark_step['arguments'] = arguments
+    return spark_step
