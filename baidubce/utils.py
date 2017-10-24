@@ -21,6 +21,7 @@ import hashlib
 import base64
 import string
 import urlparse
+from Crypto.Cipher import AES
 
 import baidubce
 from baidubce.http import http_headers
@@ -455,3 +456,15 @@ def parse_host_port(endpoint, default_protocol):
         port = parse_result.port
 
     return protocol, host, port
+
+
+def aes128_encrypt_16char_key(adminpass, secretkey):
+    """
+    encrypt admin password by AES128
+    """
+    pad_it = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
+    key = secretkey[0:16]
+    mode = AES.MODE_ECB
+    cryptor = AES.new(key, mode, key)
+    cipheradminpass = cryptor.encrypt(pad_it(adminpass)).encode('hex')
+    return cipheradminpass
