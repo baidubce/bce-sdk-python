@@ -224,6 +224,7 @@ class TestBmrClient(unittest.TestCase):
                 ('content-type', 'application/json;charset=UTF-8')
             ]
         )
+        additional_files = [bmr.additional_file("bos://path/to/remote1", "local1")]
         send_http_request.return_value = mock_http_response
         res = self.bmr_client.add_steps(
             'c001',
@@ -236,8 +237,9 @@ class TestBmrClient(unittest.TestCase):
                     'properties': bmr.java_step_properties(
                         'bos://path/to/jar',
                         'WordCount',
-                        'bos://path/to/input, bos://path/to/output'
-                    )
+                        arguments='bos://path/to/input, bos://path/to/output'
+                    ),
+                    'additional_files': additional_files
                 },
                 {
                     'name': 'job02',
@@ -248,8 +250,9 @@ class TestBmrClient(unittest.TestCase):
                         'bos://path/to/script',
                         input='bos://path/to/input',
                         output='bos://path/to/output',
-                        arguments='arg1 arg2'
-                    )
+                        arguments='arg1 arg2',
+                    ),
+                    'additional_files': additional_files
                 }
             ]
         )

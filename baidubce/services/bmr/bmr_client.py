@@ -353,7 +353,7 @@ def application(name, version, properties=None):
     return application     
        
 
-def step(step_type, action_on_failure, properties, name=None):
+def step(step_type, action_on_failure, properties, name=None, additional_files=None):
     """
     Create step
 
@@ -368,6 +368,9 @@ def step(step_type, action_on_failure, properties, name=None):
 
     :param name: the name of the step
     :type name: string
+
+    :param additional_files: list of step additional file
+    :type additional_files: list
     """
     step = {
         'actionOnFailure': action_on_failure,
@@ -376,6 +379,8 @@ def step(step_type, action_on_failure, properties, name=None):
     }
     if name is not None:
         step['name'] = name
+    if additional_files is not None and len(additional_files) > 0:
+        step['additionalFiles'] = additional_files
     return step
 
 
@@ -436,7 +441,6 @@ def streaming_step_properties(input, output, mapper, reducer=None, arguments=Non
         streaming_step['reducer'] = reducer
     if arguments is not None:
         streaming_step['arguments'] = arguments
-
     return streaming_step
 
 
@@ -510,7 +514,7 @@ def spark_step_properties(jar, submitOptions, arguments=None):
     :type jar: string
 
     :param main_class: the package path for main class
-    :param arguments: string
+    :type main_class: string
 
     :param arguments: arguments for the step
     :type arguments: string
@@ -525,3 +529,22 @@ def spark_step_properties(jar, submitOptions, arguments=None):
     if arguments is not None:
         spark_step['arguments'] = arguments
     return spark_step
+
+
+def additional_file(remote, local):
+    """
+    Create step additional file
+
+    :param remote: the remote file of the additional file
+    :type remote: string
+
+    :param local: the local file of the additional file
+    :type local: string
+
+    :return:
+    :rtype map
+    """
+    return {
+        'remote': remote,
+        'local': local,
+    }
