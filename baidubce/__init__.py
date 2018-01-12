@@ -16,7 +16,7 @@ This module defines some common string constants.
 
 import protocol
 
-SDK_VERSION = '0.8.16'
+SDK_VERSION = '0.8.18'
 DEFAULT_SERVICE_DOMAIN = 'bcebos.com'
 URL_PREFIX = '/v1'
 DEFAULT_ENCODING = 'UTF-8'
