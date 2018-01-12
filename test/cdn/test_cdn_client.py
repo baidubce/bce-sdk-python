@@ -230,7 +230,7 @@ class TestCdnClient(unittest.TestCase):
         no endTime->time by now
         no startTime->24hour before endTime
         no period->3600
-        no withDistribution->false
+        no withRegion->false
         """
         error = None
         try:
@@ -253,7 +253,7 @@ class TestCdnClient(unittest.TestCase):
         no endTime->time by now
         no startTime->24hour before endTime
         no period->3600
-        no withDistribution->false
+        no withRegion->false
         """
         error = None
         try:
@@ -333,11 +333,6 @@ class TestCdnClient(unittest.TestCase):
         """
         error = None
         try:
-            params = {}
-            params['domain'] = 'opencdn3.sys-qa.com'
-            params['startTime'] = '2017-01-16T12:00:00Z'
-            params['endTime'] = '2017-01-16T14:00:00Z'
-            params['period'] = 3600
             response = self.cdn_client.get_domain_topn_url_stat(
                                     domain = 'opencdn3.sys-qa.com',
                                     startTime = '2017-01-16T12:00:00Z',
