@@ -143,7 +143,9 @@ class CdnClient(bce_base_client.BceBaseClient):
             config=config)
 
     @required(domain=str)
-    def get_domain_config_history(self, domain, startTime=None, endTime=None, marker=None, config=None):
+    def get_domain_config_history(self, domain,
+                                  startTime=None, endTime=None,
+                                  marker=None, config=None):
         """
         get history configuration of the domain
         :param domain: the domain name
@@ -355,7 +357,7 @@ class CdnClient(bce_base_client.BceBaseClient):
             config=config)
 
     @required(domain=str, request_auth=dict)
-    def set_request_auth(self, domain, requestAuth, config=None):
+    def set_domain_request_auth(self, domain, requestAuth, config=None):
         """
         set request auth
         :param domain: the domain
