@@ -142,6 +142,37 @@ class CdnClient(bce_base_client.BceBaseClient):
             '/domain/' + domain + '/config',
             config=config)
 
+    @required(domain=str)
+    def get_domain_config_history(self, domain, startTime=None, endTime=None, marker=None, config=None):
+        """
+        get history configuration of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param startTime: start time of this query
+        :type startTime: string
+        :param endTime: end time of this query
+        :type endTime: string
+        :param marker: previous return vlaue nextMarker which is this caller return
+        :type marker: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if startTime is not None:
+            params['startTime'] = startTime
+        if endTime is not None:
+            params['endTime'] = endTime
+        if marker is not None:
+            params['marker'] = marker
+
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/history',
+            params=params,
+            config=config)
+
     def set_domain_origin(self, domain, origin, config=None):
         """
         update origin address of the domain
@@ -282,6 +313,27 @@ class CdnClient(bce_base_client.BceBaseClient):
             body=json.dumps({'ipACL': acl}),
             config=config)
 
+    @required(domain=str, https=dict)
+    def set_domain_https(self, domain, https, config=None):
+        """
+        set request ip access control
+        :param domain: the domain name
+        :type domain: string
+        :param https: https config
+        :type https: dict
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+
+        return self._send_request(
+            http_methods.PUT, '/domain/' + domain + '/config',
+            params={'https': ''},
+            body=json.dumps({'https': https}),
+            config=config)
+
     @required(domain=str, limitRate=int)
     def set_domain_limit_rate(self, domain, limitRate, config=None):
         """
@@ -300,6 +352,26 @@ class CdnClient(bce_base_client.BceBaseClient):
             http_methods.PUT, '/domain/' + domain + '/config',
             params={'limitRate': ''},
             body=json.dumps({'limitRate': limitRate}),
+            config=config)
+
+    @required(domain=str, request_auth=dict)
+    def set_request_auth(self, domain, requestAuth, config=None):
+        """
+        set request auth
+        :param domain: the domain
+        :type domain: string
+        :param requestAuth: request auth config
+        :type requestAuth: dict
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+
+        """
+        return self._send_request(
+            http_methods.PUT, '/domain/' + domain + '/config',
+            params={'requestAuth': ''},
+            body=json.dumps({'requestAuth': requestAuth}),
             config=config)
 
     def get_domain_pv_stat(self, domain=None,

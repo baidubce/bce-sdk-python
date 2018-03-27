@@ -116,6 +116,19 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
+    def test_get_domain_config_history(self):
+        """
+        test_get_domain_config_history
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_config_history('opencdn3.sys-qa.com')
+            print response
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
     def test_set_domain_origin(self):
         """
         test_set_domain_origin
@@ -127,6 +140,23 @@ class TestCdnClient(unittest.TestCase):
                         {'peer': '1.2.3.5', 'host': 'www.origin_host.com'}
                      ]
             response = self.cdn_client.set_domain_origin('opencdn3.sys-qa.com', origin)
+            print response
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_https(self):
+        """
+        test_set_domain_https
+        """
+        error = None
+        try:
+            https = {
+                    'enabled': True,
+                    'certId': 'cert-rm45x46isit4',
+                    }
+            response = self.cdn_client.set_domain_https('opencdn3.sys-qa.com', https)
             print response
         except BceServerError as e:
             error = e
@@ -217,6 +247,27 @@ class TestCdnClient(unittest.TestCase):
             limitRate = 1024
             response = self.cdn_client.set_domain_limit_rate('opencdn3.sys-qa.com', limitRate)
             print response
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_request_auth(self):
+        """
+        test_set_request_auth
+        """
+        error = None
+        try:
+            request_auth = {
+                "type": "c",
+                "key1": "secretekey1",
+                "key2": "secretekey2",
+                "timeout": 300,
+                "whiteList": ["/crossdomain.xml"],
+                "signArg": "sign",
+                "timeArg": "t"
+            }
+            self.cdn_client.set_request_auth('opencdn3.sys-qa.com', request_auth)
         except BceServerError as e:
             error = e
         finally:
