@@ -116,19 +116,6 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
-    def test_get_domain_config_history(self):
-        """
-        test_get_domain_config_history
-        """
-        error = None
-        try:
-            response = self.cdn_client.get_domain_config_history('opencdn3.sys-qa.com')
-            print response
-        except BceServerError as e:
-            error = e
-        finally:
-            self.assertIsNone(error)
-
     def test_set_domain_origin(self):
         """
         test_set_domain_origin
