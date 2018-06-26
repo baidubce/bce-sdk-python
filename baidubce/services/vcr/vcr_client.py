@@ -36,11 +36,16 @@ class VcrClient(bce_base_client.BceBaseClient):
         bce_base_client.BceBaseClient.__init__(self, config)
 
     @required(source=(str, unicode))
-    def put_media(self, source, preset=None, notification=None, config=None):
+    def put_media(self, source, auth=None, description=None,
+                  preset=None, notification=None, config=None):
         """
         Check a media.
         :param source: media source
         :type source: string or unicode
+        :param auth: media source auth param
+        :type auth: string or unicode
+        :param description: media description
+        :type description: string or unicode
         :param preset: analyze preset name
         :type preset: string or unicode
         :param notification: notification name
@@ -50,6 +55,10 @@ class VcrClient(bce_base_client.BceBaseClient):
         body = {
             'source': source
         }
+        if auth is not None:
+            body['auth'] = auth
+        if description is not None:
+            body['description'] = description
         if preset is not None:
             body['preset'] = preset
         if notification is not None:
@@ -112,25 +121,39 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(source=(str, unicode))
-    def put_image(self, source, config=None):
+    def put_image(self, source, preset=None, config=None):
         """
         :param source: media source
         :type source: string or unicode
+        :param preset: analyze preset name
+        :type preset: string or unicode
         :return: **Http Response**
         """
+        body = {
+            'source': source
+        }
+        if preset is not None:
+            body['preset'] = preset
         return self._send_request(http_methods.PUT, '/v1/image',
-                                  body=json.dumps({'source': source}),
+                                  body=json.dumps(body),
                                   config=config)
 
     @required(text=(str, unicode))
-    def put_text(self, text, config=None):
+    def put_text(self, text, preset=None, config=None):
         """
         :param text: string
         :type text: text to check
+        :param preset: analyze preset name
+        :type preset: string or unicode
         :return: **Http Response**
         """
+        body = {
+            'text': text
+        }
+        if preset is not None:
+            body['preset'] = preset
         return self._send_request(http_methods.PUT, '/v1/text',
-                                  body=json.dumps({'text': text}),
+                                  body=json.dumps(body),
                                   config=config)
 
     @staticmethod
