@@ -11,12 +11,7 @@
 # and limitations under the License.
 
 """
-This module defines some common string constants.
+This module defines some constants for paddle serving
 """
 
-import protocol
-
-SDK_VERSION = '0.8.21'
-DEFAULT_SERVICE_DOMAIN = 'bcebos.com'
-URL_PREFIX = '/v1'
-DEFAULT_ENCODING = 'UTF-8'
+URL_PREFIX = "/v1/serving"
