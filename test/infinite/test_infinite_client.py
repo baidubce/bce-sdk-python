@@ -11,7 +11,7 @@
 # and limitations under the License.
 
 """
-Unit tests for paddleserving client.
+Unit tests for infinite client.
 """
 
 import unittest
@@ -25,7 +25,7 @@ sys.path.append(file_path + '/../../')
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.services.paddleserving import paddleserving_client as paddleserving
+from baidubce.services.infinite import infinite_client as infinite
 
 class MockHttpResponse(object):
     """
@@ -60,9 +60,9 @@ class MockHttpResponse(object):
         return
 
 
-class TestPaddleServingClient(unittest.TestCase):
+class TestInfiniteClient(unittest.TestCase):
     """
-    Test class for paddleserving sdk client
+    Test class for infinite sdk client
     """
 
     def setUp(self):
@@ -73,7 +73,7 @@ class TestPaddleServingClient(unittest.TestCase):
             credentials=BceCredentials(AK, SK),
             endpoint=HOST
         )
-        self.paddleserving_client = paddleserving.PaddleServingClient(config)
+        self.infinite_client = infinite.InfiniteClient(config)
 
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_predict(self, send_http_request):
@@ -94,7 +94,7 @@ class TestPaddleServingClient(unittest.TestCase):
         file_name = os.path.normpath(os.path.dirname(__file__)) + '/what.jpg'
         with open(file_name, 'rb') as f:
             payload = f.read()
-        res = self.paddleserving_client.predict(
+        res = self.infinite_client.predict(
             endpoint_name='ep1',
             body=payload,
             content_type='application/x-image')
@@ -121,7 +121,7 @@ class TestPaddleServingClient(unittest.TestCase):
         file_name = os.path.normpath(os.path.dirname(__file__)) + '/what.jpg'
         with open(file_name, 'rb') as f:
             payload = f.read()
-        res = self.paddleserving_client.predict(
+        res = self.infinite_client.predict(
             endpoint_name='ep1',
             variant_name="v1",
             body=payload,
@@ -147,14 +147,14 @@ class TestPaddleServingClient(unittest.TestCase):
             ])
         send_http_request.return_value = mock_http_response
         
-        res = self.paddleserving_client.get_endpoint_list()
+        res = self.infinite_client.get_endpoint_list()
         data = json.loads(res.Body)
         self.assertEqual(data['endpoint_list'], ep_list)
 
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
-    def test_get_variant_info(self, send_http_request):
+    def test_get_endpoint_info(self, send_http_request):
         """
-        test case for get_variant_info
+        test case for get_endpoint_info
         """
         res_data = {}
         res_data['endpoint_uuid'] = 'ep1_uuid'
@@ -179,7 +179,7 @@ class TestPaddleServingClient(unittest.TestCase):
             ])
         send_http_request.return_value = mock_http_response
         
-        res = self.paddleserving_client.get_variant_info(endpoint_name='ep1')
+        res = self.infinite_client.get_endpoint_info(endpoint_name='ep1')
         data = json.loads(res.Body)
         self.assertEqual(data['endpoint_name'], 'ep1')
         self.assertEqual(data['endpoint_uuid'], 'ep1_uuid')

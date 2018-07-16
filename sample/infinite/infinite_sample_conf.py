@@ -12,7 +12,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Configuration for paddle serving samples.
+Configuration for infinite samples.
 """
 
 import logging
@@ -23,8 +23,8 @@ HOST = 'Host'
 AK = 'Your AK'
 SK = 'Your SK'
 
-logger = logging.getLogger('baidubce.services.paddleserving.paddleserving_client')
-fh = logging.FileHandler('paddleserving_sample.log')
+logger = logging.getLogger('baidubce.services.infinite.infinite_client')
+fh = logging.FileHandler('infinite_sample.log')
 fh.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

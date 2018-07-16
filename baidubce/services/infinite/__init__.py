@@ -11,7 +11,7 @@
 # and limitations under the License.
 
 """
-This module defines some constants for paddle serving
+This module defines some constants for infinite
 """
 
-URL_PREFIX = "/v1/serving"
+URL_PREFIX = "/v1/endpoints"

@@ -15,7 +15,7 @@
 
 
 """
-This module provides a client class for paddle serving.
+This module provides a client class for infinite.
 """
 
 import copy
@@ -32,7 +32,7 @@ from baidubce.http import http_headers
 from baidubce.http import http_content_types
 from baidubce.http import http_methods
 from baidubce.utils import required
-from baidubce.services import paddleserving
+from baidubce.services import infinite
 import httplib
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
@@ -56,9 +56,9 @@ def _parse_http_response(http_response, response):
     raise bse
 
 
-class PaddleServingClient(BceBaseClient):
+class InfiniteClient(BceBaseClient):
     """
-    Paddle Serving sdk client
+    Infinite sdk client
     """
     def __init__(self, config=None):
         BceBaseClient.__init__(self, config)
@@ -92,6 +92,7 @@ class PaddleServingClient(BceBaseClient):
         params = {}
         if variant_name is not None:
             params['variant'] = variant_name
+        params['action'] = 'predict'
 
         default_encoding = baidubce.DEFAULT_ENCODING
         content_type = content_type + '; charset=' + default_encoding
@@ -102,8 +103,7 @@ class PaddleServingClient(BceBaseClient):
 
         return self._send_request(
                 http_method=http_methods.POST,
-                function_name=endpoint_name,
-                key='predict',
+                function_name=endpoint_name + '/invocations',
                 body=body,
                 headers=headers,
                 params=params,
@@ -138,6 +138,7 @@ class PaddleServingClient(BceBaseClient):
         params = {}
         if variant_name is not None:
             params['variant'] = variant_name
+        params['action'] = 'debug'
         
         default_encoding = baidubce.DEFAULT_ENCODING
         content_type = content_type + '; charset=' + default_encoding
@@ -148,8 +149,7 @@ class PaddleServingClient(BceBaseClient):
 
         return self._send_request(
                 http_method=http_methods.POST,
-                function_name=endpoint_name,
-                key='debug',
+                function_name=endpoint_name + '/invocations',
                 body=body,
                 headers=headers,
                 params=params,
@@ -174,13 +174,13 @@ class PaddleServingClient(BceBaseClient):
         }
         return self._send_request(
                 http_method=http_methods.GET,
-                key='endpoint_list',
+                function_name='list',
                 headers=headers,
                 config=config)
 
-    def get_variant_info(self, endpoint_name, config=None):
+    def get_endpoint_info(self, endpoint_name, config=None):
         """
-        get variant info
+        get endpoint info
         
         :param endpoint_name: endpoint name
         :type endpoint_name: string
@@ -209,14 +209,13 @@ class PaddleServingClient(BceBaseClient):
         }
         return self._send_request(
                 http_method=http_methods.GET,
-                function_name=endpoint_name,
-                key="variant_info",
+                function_name=endpoint_name + '/info',
                 headers=headers,
                 config=config)
     
     @staticmethod
-    def _get_path(config, function_name=None, key=None):
-        return utils.append_uri(paddleserving.URL_PREFIX, function_name, key)
+    def _get_path(config, function_name=None):
+        return utils.append_uri(infinite.URL_PREFIX, function_name)
 
     def _merge_config(self, config):
         if config is None:
@@ -228,12 +227,12 @@ class PaddleServingClient(BceBaseClient):
             return new_config
 
     def _send_request(
-            self, http_method, function_name=None, key=None,
+            self, http_method, function_name=None,
             body=None, headers=None, params=None,
             config=None,
             body_parser=None):
         config = self._merge_config(config)
-        path = PaddleServingClient._get_path(config, function_name, key)
+        path = InfiniteClient._get_path(config, function_name)
         if body_parser is None:
             body_parser = _parse_http_response
         return bce_http_client.send_request(

@@ -37,7 +37,7 @@ setup(
               'baidubce.services.cdn',
               'baidubce.services.sts',
               'baidubce.services.cfc',
-              'baidubce.services.paddleserving'],
+              'baidubce.services.infinite'],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
     author='',
