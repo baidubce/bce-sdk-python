@@ -66,14 +66,14 @@ if __name__ == "__main__":
     __logger.debug("[Sample CFC] create_response:%s", create_response)
 
     # get function use brn
-    brn = create_response.function_brn
-    get_function_response = cfc_client.get_function(create_response.function_brn)
+    brn = create_response.FunctionBrn
+    get_function_response = cfc_client.get_function(create_response.FunctionBrn)
     __logger.debug("[Sample CFC] get_function response:%s", get_function_response)
 
     # list functions
     list_functions_response = cfc_client.list_functions()
-    for k in list_functions_response.functions:
-        __logger.debug("[Sample CFC] function name:%s", k.function_name)
+    for k in list_functions_response.Functions:
+        __logger.debug("[Sample CFC] function name:%s", k.FunctionName)
 
     # invocations function return  httplib.httpresponse
     invocations_response = cfc_client.invocations(brn, log_type="Tail")
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     __logger.debug("[Sample CFC] update_function_code_response:%s", update_function_code_response)
 
     # invocations function with body args return  httplib.httpresponse
-    invocations_response = cfc_client.invocations(update_function_code_response.function_brn,
+    invocations_response = cfc_client.invocations(update_function_code_response.FunctionBrn,
                                                   body={"a": " baidu"})
     __logger.debug("[Sample CFC] invocations_response:%s", invocations_response.read())
 
@@ -123,9 +123,9 @@ if __name__ == "__main__":
 
     response = cfc_client.get_alias(brn, alias_name="my_alias")
     __logger.debug("[Sample CFC] get_alias:%s", response)
-    alias_brn = response.alias_brn
+    alias_brn = response.AliasBrn
 
-    response = cfc_client.invocations(response.function_name, qualifier="my_alias",
+    response = cfc_client.invocations(response.FunctionName, qualifier="my_alias",
                                       body={"a": " baidu"})
     __logger.debug("[Sample CFC] invocations alias_brn :%s", response.read())
 

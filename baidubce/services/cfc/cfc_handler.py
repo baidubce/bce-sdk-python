@@ -18,6 +18,27 @@ import httplib
 import json
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
+from baidubce import utils
+
+
+def parse_json(http_response, response):
+    """If the body is not empty, convert it to a python object and set as the value of
+    response.body. http_response is always closed if no error occurs.
+
+    :param http_response: the http_response object returned by HTTPConnection.getresponse()
+    :type http_response: httplib.HTTPResponse
+
+    :param response: general response object which will be returned to the caller
+    :type response: baidubce.BceResponse
+
+    :return: always true
+    :rtype bool
+    """
+    body = http_response.read()
+    if body:
+        response.__dict__.update(json.loads(body, object_hook=dict_to_python_object).__dict__)
+    http_response.close()
+    return True
 
 
 def parse_error(http_response, response):
@@ -52,3 +73,16 @@ def parse_error(http_response, response):
         bse = BceServerError(http_response.reason, request_id=response.metadata.bce_request_id)
     bse.status_code = http_response.status
     raise bse
+
+
+def dict_to_python_object(d):
+    """
+
+    :param d:
+    :return:
+    """
+    attr = {}
+    for k, v in d.items():
+        k = (str(k))
+        attr[k] = v
+    return utils.Expando(attr)

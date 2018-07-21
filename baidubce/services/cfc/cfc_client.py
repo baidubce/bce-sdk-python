@@ -655,7 +655,7 @@ class CfcClient(bce_base_client.BceBaseClient):
             body_parser=None, special=False):
         config = self._merge_config(self, config)
         if body_parser is None:
-            body_parser = handler.parse_json
+            body_parser = cfc_handler.parse_json
         headers = {}
         headers[http_headers.CONTENT_TYPE] = http_content_types.JSON
         return self.send_request(config, bce_v1_signer.sign,
