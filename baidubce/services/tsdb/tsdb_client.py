@@ -65,12 +65,11 @@ class TsdbClient(BceBaseClient):
         list metrics
 
         :return: a list of metric
-        :rtype: list
+        :rtype: baidubce.bce_response.BceResponse
         """
 
         path = '/v1/metric'
-        response = self._send_request(http_methods.GET, path=path)
-        return response.metrics
+        return self._send_request(http_methods.GET, path=path)
 
     def get_fields(self, metric):
         """
@@ -80,11 +79,10 @@ class TsdbClient(BceBaseClient):
         :param metric:
 
         :return: field dict. {field1:{type: 'Number'},field2:{type: 'String'}}
-        :rtype: dict
+        :rtype: baidubce.bce_response.BceResponse
         """
         path = '/v1/metric/' + metric + '/field'
-        response = self._send_request(http_methods.GET, path=path)
-        return response.fields
+        return self._send_request(http_methods.GET, path=path)
 
     def get_tags(self, metric):
         """
@@ -94,11 +92,10 @@ class TsdbClient(BceBaseClient):
         :param metric:
 
         :return: {tagk1:[tagk11,tagk21,..],tagk2:[tagk21,tagk22,..]..}
-        :rtype: dict
+        :rtype: baidubce.bce_response.BceResponse
         """
         path = '/v1/metric/' + metric + '/tag'
-        response = self._send_request(http_methods.GET, path=path)
-        return response.tags
+        return self._send_request(http_methods.GET, path=path)
 
     def get_datapoints(self, query_list, disable_presampling=False):
         """
@@ -110,14 +107,13 @@ class TsdbClient(BceBaseClient):
         :type disable_presampling: boolean
 
         :return: a list of result dict
-        :rtype: list
+        :rtype: baidubce.bce_response.BceResponse
         """
 
         path = '/v1/datapoint'
         params = {'query': '', 'disablePresampling': disable_presampling}
         body = json.dumps({"queries": query_list})
-        response = self._send_request(http_methods.PUT, path=path, params=params, body=body)
-        return response.results
+        return self._send_request(http_methods.PUT, path=path, params=params, body=body)
     
     def get_rows_with_sql(self, statement):
         """
@@ -127,16 +123,12 @@ class TsdbClient(BceBaseClient):
         :type statement: string
 
         :return: {rows:[[],[],...], columns: []}
-        :rtype: dict
+        :rtype: baidubce.bce_response.BceResponse
         """
 
         path = '/v1/row'
         params = {'sql': statement}
-        response = self._send_request(http_methods.GET, path=path, params=params)
-        return {
-            'rows': response.rows,
-            'columns': response.columns
-        }
+        return self._send_request(http_methods.GET, path=path, params=params)
 
     def generate_pre_signed_url(self,
                                 query_list,

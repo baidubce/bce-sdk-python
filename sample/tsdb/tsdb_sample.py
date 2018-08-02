@@ -54,8 +54,7 @@ if __name__ == "__main__":
         "value": 1
     }]
     try:
-        tsdb_client.write_datapoints(datapoints)  #if write fail, it will throw a exception
-        print 'single filed datapoint write success'
+        print tsdb_client.write_datapoints(datapoints)  #if write fail, it will throw a exception
     except BaseException as e:
         print e
 
@@ -81,8 +80,7 @@ if __name__ == "__main__":
     }]
 
     try:
-        tsdb_client.write_datapoints(datapoints)
-        print 'multiple fields write success'
+        print tsdb_client.write_datapoints(datapoints)
     except BaseException as e:
         print e
 
@@ -91,16 +89,16 @@ if __name__ == "__main__":
     ######################################################################################################
 
     # get metrics
-    metrics = tsdb_client.get_metrics()
-    print metrics
+    result = tsdb_client.get_metrics()
+    print result.metrics
 
     # get fields
-    fields = tsdb_client.get_fields('wind')
-    print fields
+    result = tsdb_client.get_fields('wind')
+    print result.fields
 
     # get tags
-    tags = tsdb_client.get_tags('wind')
-    print tags
+    result = tsdb_client.get_tags('wind')
+    print result.tags
 
     # single field query datapoints
     query_list = [{
@@ -125,7 +123,7 @@ if __name__ == "__main__":
         }]
     }]
     result = tsdb_client.get_datapoints(query_list)
-    print result
+    print result.results
 
     # multiple fields query datapoints
     query_list = [{
@@ -150,7 +148,7 @@ if __name__ == "__main__":
         }]
     }]
     result = tsdb_client.get_datapoints(query_list)
-    print result
+    print result.results
 
     # query datapoints with fill
     query_list = [{
@@ -181,20 +179,34 @@ if __name__ == "__main__":
     }]
 
     result = tsdb_client.get_datapoints(query_list)
-    print result
+    print result.results
 
-    # query datapoints with partition page 
+    # query datapoints with partition page
+    query_list = [{
+        "metric": "wind",
+        "field": "direction",
+        "filters": {
+            "start": 1531985300000,
+            "end": 1531985400000,
+            "tags": {
+                "city": ["ShangHai"]
+            }
+        },
+        "limit": 1
+    }]
+    count = 0
     while True:
-        if len(query_list) >0:
+        count += 1
+        if len(query_list) > 0:
             result = tsdb_client.get_datapoints(query_list)
-            print result
+            print count, result.results
         else:
             print 'end query'
             break
         next_query = []
         for i in range(len(query_list)):
-            if result[i].truncated:
-                query_list[i].marker = result[i].nextMarker
+            if result.results[i].truncated:
+                query_list[i]['marker'] = result.results[i].next_marker
                 next_query.append(query_list[i])
         query_list = next_query
 

@@ -67,7 +67,7 @@ class TsdbAdminClient(BceBaseClient):
         :type coupon_name: type
 
         :return: {database_id:,charge:,expired_time:order_id:}
-        :rtype: dict
+        :rtype: baidubce.bce_response.BceResponse
         """
         
         path = "/v1/database"
@@ -80,13 +80,7 @@ class TsdbAdminClient(BceBaseClient):
             "purchaseLength": purchase_length,
             "couponName": coupon_name
             })
-        response = self._send_request(http_methods.POST, path=path, body=body, params=params)
-        return {
-            "database_id": response.database_id,
-            "charge": response.charge,
-            "expired_time": response.expired_time,
-            "order_id": response.order_id
-        }
+        return self._send_request(http_methods.POST, path=path, body=body, params=params)
 
     def delete_database(self, database_id):
         """
@@ -96,11 +90,10 @@ class TsdbAdminClient(BceBaseClient):
         :type database_id: string
 
         :return: bce_request_id
-        :rtype: string
+        :rtype: baidubce.bce_response.BceResponses
         """
         path = '/v1/database/' + database_id
-        response = self._send_request(http_methods.DELETE, path)
-        return response
+        return self._send_request(http_methods.DELETE, path)
 
     def get_database(self, database_id):
         """
@@ -109,35 +102,23 @@ class TsdbAdminClient(BceBaseClient):
         :param database_id: database id to delete
         :type database_id: string
         
-        :return: a database dict
-        :rtype: dict
+        :return: database info
+        :rtype: baidubce.bce_response.BceResponse
         """
 
         path = '/v1/database/' + database_id
-        response = self._send_request(http_methods.GET, path)
-        return {
-            'database_id': response.database_id,
-            'database_name': response.database_name,
-            'description': response.description,
-            'endpoint': response.endpoint,
-            'quota': response.quota,
-            'status': response.status,
-            'auto_export': response.auto_export,
-            'create_time': response.create_time,
-            'expired_time': response.expired_time
-        }
+        return self._send_request(http_methods.GET, path)
 
     def get_all_databases(self):
         """
         get all databases
         
-        :return: a list of database dict
-        :rtype: list
+        :return: database dict
+        :rtype: baidubce.bce_response.BceResponse
         """
 
         path = '/v1/database'
-        response = self._send_request(http_methods.GET, path)
-        return response.databases
+        return self._send_request(http_methods.GET, path)
 
     def _merge_config(self, config):
         if config is None:
