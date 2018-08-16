@@ -29,6 +29,7 @@ from baidubce.http import handler
 from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
+from baidubce.services.tsdb import tsdb_handler
 
 
 
@@ -58,7 +59,13 @@ class TsdbClient(BceBaseClient):
         if use_gzip:
             body = self._gzip_compress(body)
             headers[http_headers.CONTENT_ENCODING] = 'gzip'
-        return self._send_request(http_methods.POST, path=path, body=body, headers=headers)
+        return self._send_request(
+                http_methods.POST,
+                path=path,
+                body=body,
+                headers=headers,
+                body_parser=tsdb_handler.parse_json
+            )
     
     def get_metrics(self):
         """
@@ -69,7 +76,7 @@ class TsdbClient(BceBaseClient):
         """
 
         path = '/v1/metric'
-        return self._send_request(http_methods.GET, path=path)
+        return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_fields(self, metric):
         """
@@ -82,7 +89,7 @@ class TsdbClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
         path = '/v1/metric/' + metric + '/field'
-        return self._send_request(http_methods.GET, path=path)
+        return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_tags(self, metric):
         """
@@ -95,7 +102,7 @@ class TsdbClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
         path = '/v1/metric/' + metric + '/tag'
-        return self._send_request(http_methods.GET, path=path)
+        return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_datapoints(self, query_list, disable_presampling=False):
         """
@@ -113,7 +120,8 @@ class TsdbClient(BceBaseClient):
         path = '/v1/datapoint'
         params = {'query': '', 'disablePresampling': disable_presampling}
         body = json.dumps({"queries": query_list})
-        return self._send_request(http_methods.PUT, path=path, params=params, body=body)
+        return self._send_request(http_methods.PUT, path=path, params=params,
+                body=body, body_parser=tsdb_handler.parse_json)
     
     def get_rows_with_sql(self, statement):
         """
@@ -128,7 +136,8 @@ class TsdbClient(BceBaseClient):
 
         path = '/v1/row'
         params = {'sql': statement}
-        return self._send_request(http_methods.GET, path=path, params=params)
+        return self._send_request(http_methods.GET, path=path, params=params,
+                body_parser=tsdb_handler.parse_json)
 
     def generate_pre_signed_url(self,
                                 query_list,

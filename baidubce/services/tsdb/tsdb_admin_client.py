@@ -27,6 +27,7 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.utils import required
+from baidubce.services.tsdb import tsdb_handler
 
 
 _logger = logging.getLogger(__name__)
@@ -80,7 +81,8 @@ class TsdbAdminClient(BceBaseClient):
             "purchaseLength": purchase_length,
             "couponName": coupon_name
             })
-        return self._send_request(http_methods.POST, path=path, body=body, params=params)
+        return self._send_request(http_methods.POST, path=path, body=body,
+                params=params, body_parser=tsdb_handler.parse_json)
 
     def delete_database(self, database_id):
         """
@@ -93,7 +95,7 @@ class TsdbAdminClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponses
         """
         path = '/v1/database/' + database_id
-        return self._send_request(http_methods.DELETE, path)
+        return self._send_request(http_methods.DELETE, path, body_parser=tsdb_handler.parse_json)
 
     def get_database(self, database_id):
         """
@@ -107,7 +109,7 @@ class TsdbAdminClient(BceBaseClient):
         """
 
         path = '/v1/database/' + database_id
-        return self._send_request(http_methods.GET, path)
+        return self._send_request(http_methods.GET, path, body_parser=tsdb_handler.parse_json)
 
     def get_all_databases(self):
         """
@@ -118,7 +120,7 @@ class TsdbAdminClient(BceBaseClient):
         """
 
         path = '/v1/database'
-        return self._send_request(http_methods.GET, path)
+        return self._send_request(http_methods.GET, path, body_parser=tsdb_handler.parse_json)
 
     def _merge_config(self, config):
         if config is None:
