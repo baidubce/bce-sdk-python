@@ -97,6 +97,41 @@ class CfcClient(bce_base_client.BceBaseClient):
             params=params,
             config=config, special=True)
 
+    def invoke(self, function_name, invocation_type="RequestResponse",
+                    log_type="None", body=None, qualifier=None, config=None):
+        """
+        invoking function
+
+        :param function_name  (required) The cfc function name. You can specify a function name (function_name)
+                                or you can specify Baidu Resource Name (BRN) of the function (for example,
+                                brn:bce:cfc:bj:account-id:function:function_name). Cfc also allows you
+                                to specify a simple BRN (for example, account_id:function_name). The length of BRN is
+                                limited to 1 to 140 characters. The function name is limited to 64 characters in length.
+        :type function_name string
+
+        :param invocation_type: (required)  Event/RequestResponse/DryRun
+        :type invocation_type string
+
+        :param  log_type: None / Tail You can set this optional parameter to Tail in the request only if you
+                         specify the InvocationType parameter with value RequestResponse. In this case,CFC
+                         returns the base64-encoded last 4 KB of log data produced by your cfc function in
+                         the x-bce-log-result header.
+        :type log_type string
+
+        :param qualifier Minimum length of 1. Maximum length of 128. You can use function versions or function aliases.
+                         If you don't, the default is $LATEST.
+        :type qualifier string
+
+        :param body: json
+
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: httplib.httpresponse
+        """
+        return self.invocations(function_name, invocation_type, log_type, body, qualifier, config)
+
     def create_function(self, function_name, description=None, environment=None,
                         handler=None, memory_size=128, region='bj',
                         zip_file=None, publish=False, run_time='python2',
