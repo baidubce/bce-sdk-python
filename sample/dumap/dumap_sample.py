@@ -48,7 +48,6 @@ def test_place_search(dumap_client):
     # josn 解析
     body = json.loads(response.body)
     print body["status"]
-    print body["results"][0]["name"]
 
 
 def test_geocoder(dumap_client):
