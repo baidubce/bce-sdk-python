@@ -14,6 +14,8 @@
 This module defines a common configuration class for BCE.
 """
 
+from future.utils import iteritems
+from builtins import str
 import baidubce.protocol
 import baidubce.region
 from baidubce.retry_policy import BackOffRetryPolicy
@@ -51,7 +53,7 @@ class BceClientConfiguration(object):
         :param other:
         :return:
         """
-        for k, v in other.__dict__.items():
+        for k, v in iteritems(other.__dict__):
             if v is not None:
                 self.__dict__[k] = v
 

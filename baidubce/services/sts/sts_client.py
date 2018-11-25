@@ -14,13 +14,14 @@
 This module provides a client for STS.
 """
 
-import cStringIO
+from future.utils import iteritems
 import copy
-import httplib
+import http.client
 import os
 import json
 import logging
 import shutil
+from builtins import str
 
 import baidubce
 from baidubce import bce_client_configuration
@@ -71,13 +72,13 @@ class StsClient(BceBaseClient):
 
         if duration_seconds is not None:
             if isinstance(duration_seconds, int):
-                params = {'durationSeconds': duration_seconds}
+                params = {b'durationSeconds': duration_seconds}
 
         if acl is None:
             body = None
         else:
             if not isinstance(acl, dict):
-                raise TypeError('acl should be dict')
+                raise TypeError(b'acl should be dict')
             if 'id' in acl:
                 body = json.dumps(acl)
             else:
@@ -92,7 +93,7 @@ class StsClient(BceBaseClient):
     @staticmethod
     def _dump_acl_object(acl):
         result = {}
-        for k, v in acl.__dict__.items():
+        for k, v in iteritems(acl.__dict__):
             if not k.startswith('_'):
                 result[k] = v
         return result
@@ -113,7 +114,7 @@ class StsClient(BceBaseClient):
                       config=None,
                       body_parser=None):
         config = self._merge_config(config)
-        path = sts.URL_PREFIX + "sessionToken"
+        path = sts.URL_PREFIX + b"sessionToken"
         if body_parser is None:
             body_parser = handler.parse_json
 

@@ -15,6 +15,7 @@ This module provide base class for BCE service clients.
 """
 
 import copy
+from builtins import str
 
 import baidubce
 from baidubce import bce_client_configuration
@@ -48,13 +49,13 @@ class BceBaseClient(object):
         if self.config.endpoint:
             return self.config.endpoint
         if self.region_supported:
-            return '%s://%s.%s.%s' % (
+            return b'%s://%s.%s.%s' % (
                 self.config.protocol,
                 self.service_id,
                 self.config.region,
                 baidubce.DEFAULT_SERVICE_DOMAIN)
         else:
-            return '%s://%s.%s' % (
+            return b'%s://%s.%s' % (
                 self.config.protocol,
                 self.service_id,
                 baidubce.DEFAULT_SERVICE_DOMAIN)

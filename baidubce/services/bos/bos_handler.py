@@ -14,25 +14,25 @@
 This module provides general http handler functions for processing http responses from bos services.
 """
 
-import httplib
 import json
 from baidubce import utils
 from baidubce.exception import BceServerError
 from baidubce.http import handler
+from builtins import str
 
 def parse_copy_object_response(http_response, response):
     """
     response parser for copy object
     """
-    TRANSFER_ENCODING = 'transfer-encoding'
+    TRANSFER_ENCODING = b'transfer-encoding'
     headers_list = {k: v for k, v in http_response.getheaders()}
-    if headers_list.get(TRANSFER_ENCODING, 'not exist') == 'chunked':
+    if headers_list.get(TRANSFER_ENCODING, b'not exist') == b'chunked':
         body = http_response.read()
         if body:
             d = json.loads(body)
-            if 'code' in d:
+            if b'code' in d:
                 http_response.close()
-                raise BceServerError(d['message'], code=d['code'], request_id=d['requestId'])
+                raise BceServerError(d[b'message'], code=d[b'code'], request_id=d[b'requestId'])
             else:
                 response.__dict__.update(
                     json.loads(body, object_hook=utils.dict_to_python_object).__dict__)

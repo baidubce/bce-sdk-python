@@ -17,7 +17,8 @@ connections can use more system resources because of the extra work to encrypt n
 HTTP is available in case users need it.
 """
 
-from utils import Expando
+from .utils import Expando
+from builtins import str
 
-HTTP = Expando({'name': 'http', 'default_port': 80})
-HTTPS = Expando({'name': 'https', 'default_port': 443})
+HTTP = Expando({b'name': b'http', b'default_port': 80})
+HTTPS = Expando({b'name': b'https', b'default_port': 443})

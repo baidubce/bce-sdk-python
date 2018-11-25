@@ -13,15 +13,16 @@
 """
 This module provide http request function for bce services.
 """
-
+from future.utils import iteritems, iterkeys, itervalues
 import logging
-import httplib
+import http.client
 import sys
 import time
 import traceback
-import urlparse
+from builtins import str
 
 import baidubce
+from baidubce import compat
 from baidubce import utils
 from baidubce.bce_response import BceResponse
 from baidubce.exception import BceHttpClientError
@@ -42,27 +43,27 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis):
     :type connection_timeout_in_millis int
     """
     if protocol.name == baidubce.protocol.HTTP.name:
-        return httplib.HTTPConnection(
+        return http.client.HTTPConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     elif protocol.name == baidubce.protocol.HTTPS.name:
-        return httplib.HTTPSConnection(
+        return http.client.HTTPSConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     else:
         raise ValueError(
-            'Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
+            b'Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
 
 
 def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
     conn.putrequest(http_method, uri, skip_host=True, skip_accept_encoding=True)
 
-    for k, v in headers.items():
+    for k, v in iteritems(headers):
         k = utils.convert_to_standard_string(k)
         v = utils.convert_to_standard_string(v)
         conn.putheader(k, v)
     conn.endheaders()
 
     if body:
-        if isinstance(body, (str, unicode)):
+        if isinstance(body, (bytes,str)):
             conn.send(body)
         else:
             total = int(headers[http_headers.CONTENT_LENGTH])
@@ -74,7 +75,7 @@ def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
                 buf = body.read(size)
                 if not buf:
                     raise BceClientError(
-                        'Insufficient data, only %d bytes available while %s is %d' % (
+                        b'Insufficient data, only %d bytes available while %s is %d' % (
                             sent, http_headers.CONTENT_LENGTH, total))
                 conn.send(buf)
                 sent += len(buf)
@@ -88,8 +89,8 @@ def check_headers(headers):
     :param headers:
     :return:
     """
-    for k, v in headers.iteritems():
-        if isinstance(v, (str, unicode)) and '\n' in v:
+    for k, v in iteritems(headers):
+        if isinstance(v, (bytes,str)) and '\n' in v:
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))
 
 
@@ -115,12 +116,12 @@ def send_request(
     :return:
     :rtype: baidubce.BceResponse
     """
-    _logger.debug('%s request start: %s %s, %s, %s',
+    _logger.debug(b'%s request start: %s %s, %s, %s',
                   http_method, path, headers, params, body)
 
     headers = headers or {}
 
-    user_agent = 'bce-sdk-python/%s/%s/%s' % (
+    user_agent = b'bce-sdk-python/%s/%s/%s' % (
         baidubce.SDK_VERSION, sys.version, sys.platform)
     user_agent = user_agent.replace('\n', '')
     headers[http_headers.USER_AGENT] = user_agent
@@ -129,31 +130,31 @@ def send_request(
         should_get_new_date = True
     headers[http_headers.HOST] = config.endpoint
 
-    if isinstance(body, unicode):
+    if isinstance(body, str):
         body = body.encode(baidubce.DEFAULT_ENCODING)
     if not body:
         headers[http_headers.CONTENT_LENGTH] = 0
-    elif isinstance(body, str):
+    elif isinstance(body, bytes):
         headers[http_headers.CONTENT_LENGTH] = len(body)
     elif http_headers.CONTENT_LENGTH not in headers:
-        raise ValueError('No %s is specified.' % http_headers.CONTENT_LENGTH)
+        raise ValueError(b'No %s is specified.' % http_headers.CONTENT_LENGTH)
 
     # store the offset of fp body
     offset = None
-    if hasattr(body, "tell") and hasattr(body, "seek"):
+    if hasattr(body, b"tell") and hasattr(body, b"seek"):
         offset = body.tell()
 
     protocol, host, port = utils.parse_host_port(config.endpoint, config.protocol)
 
     headers[http_headers.HOST] = host
     if port != config.protocol.default_port:
-        headers[http_headers.HOST] += ':' + str(port)
+        headers[http_headers.HOST] += b':' + bytes(port)
     headers[http_headers.AUTHORIZATION] = sign_function(
         config.credentials, http_method, path, headers, params)
 
     encoded_params = utils.get_canonical_querystring(params, False)
     if len(encoded_params) > 0:
-        uri = path + '?' + encoded_params
+        uri = path + b'?' + encoded_params
     else:
         uri = path
     check_headers(headers)
@@ -181,7 +182,7 @@ def send_request(
 
             headers_list = http_response.getheaders()
             _logger.debug(
-                'request return: status=%d, headers=%s' % (http_response.status, headers_list))
+                b'request return: status=%d, headers=%s' % (http_response.status, headers_list))
 
             response = BceResponse()
             response.set_metadata_from_headers(dict(headers_list))
@@ -196,15 +197,15 @@ def send_request(
                 conn.close()
 
             # insert ">>>>" before all trace back lines and then save it
-            errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().splitlines()))
+            errors.append((b'\n').join(b'>>>>' + line for line in traceback.format_exc().splitlines()))
 
             if config.retry_policy.should_retry(e, retries_attempted):
                 delay_in_millis = config.retry_policy.get_delay_before_next_retry_in_millis(
                     e, retries_attempted)
                 time.sleep(delay_in_millis / 1000.0)
             else:
-                raise BceHttpClientError('Unable to execute HTTP request. Retried %d times. '
-                                         'All trace backs:\n%s' % (retries_attempted,
+                raise BceHttpClientError(b'Unable to execute HTTP request. Retried %d times. '
+                                         b'All trace backs:\n%s' % (retries_attempted,
                                                                    '\n'.join(errors)), e)
 
         retries_attempted += 1
