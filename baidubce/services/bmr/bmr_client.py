@@ -54,7 +54,9 @@ class BmrClient(bce_base_client.BceBaseClient):
                        auto_terminate=None,
                        log_uri=None,
                        name=None,
-                       steps=None):
+                       steps=None,
+                       service_ha_enabled=None,
+                       safe_mode_enabled=None):
         """
         Create cluster
 
@@ -91,6 +93,10 @@ class BmrClient(bce_base_client.BceBaseClient):
             body['logUri'] = log_uri
         if steps is not None:
             body['steps'] = steps
+        if service_ha_enabled is not None:
+            body['serviceHaEnabled'] = service_ha_enabled
+        if safe_mode_enabled is not None:
+            body['safeModeEnabled'] = safe_mode_enabled
 
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
@@ -98,14 +104,14 @@ class BmrClient(bce_base_client.BceBaseClient):
         """
         List clusters
 
-        :param marker: 
+        :param marker:
         :type marker: string
 
         :param max_keys: max records returned.
         :type max_keys: int
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
         path = '/cluster'
         params = None
@@ -115,7 +121,7 @@ class BmrClient(bce_base_client.BceBaseClient):
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
-        
+
         return self._send_request(http_methods.GET, path, params=params)
 
     @required(cluster_id=(str, unicode))
@@ -208,14 +214,14 @@ class BmrClient(bce_base_client.BceBaseClient):
         :param cluster_id: cluster id
         :type cluster_id: string
 
-        :param marker: 
+        :param marker:
         :type marker: string
 
         :param max_keys: max records returned.
         :type max_keys: int
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
         path = '/cluster/%s/step' % cluster_id
         params = None
@@ -240,7 +246,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         :type step_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
         path = '/cluster/%s/step/%s' % (cluster_id, step_id)
         return self._send_request(http_methods.GET, path)
@@ -335,13 +341,13 @@ def application(name, version, properties=None):
     """
     Construct application
 
-    :param name: application type 
+    :param name: application type
     :type name: ENUM {'hadoop', 'spark', 'hive', 'pig', 'hbase', 'hue', 'zeppelin', 'kafka', 'mahout'}
 
     :param version: application version
-    :type version: string 
+    :type version: string
 
-    :param properties: application properties 
+    :param properties: application properties
     :type properties: dict
     """
     application = {
@@ -350,8 +356,8 @@ def application(name, version, properties=None):
     }
     if properties is not None:
         application['properties'] = properties
-    return application     
-       
+    return application
+
 
 def step(step_type, action_on_failure, properties, name=None, additional_files=None):
     """
@@ -391,7 +397,7 @@ def java_step_properties(jar, main_class, arguments=None):
     :param jar: the path of .jar file
     :type jar: string
 
-    :param main_class: the package path for main class 
+    :param main_class: the package path for main class
     :type main_class: string
 
     :param arguments: arguments for the step
@@ -401,7 +407,7 @@ def java_step_properties(jar, main_class, arguments=None):
     :rtype map
     """
     java_step = {
-        'jar': jar, 
+        'jar': jar,
         'mainClass': main_class
     }
     if arguments is not None:
@@ -413,16 +419,16 @@ def streaming_step_properties(input, output, mapper, reducer=None, arguments=Non
     """
     Create streaming step properties
 
-    :param input: the input path of step 
+    :param input: the input path of step
     :type input: string
 
-    :param output: the output path of step 
+    :param output: the output path of step
     :type output: string
 
-    :param mapper: the mapper program of step 
+    :param mapper: the mapper program of step
     :type mapper: string
 
-    :param reducer: the reducer program of step 
+    :param reducer: the reducer program of step
     :type reducer: string
 
     :param arguments: arguments for the step
@@ -454,10 +460,10 @@ def pig_step_properties(script, arguments=None, input=None, output=None):
     :param arguments: arguments for the step
     :type arguments: string
 
-    :param input: the input path of step 
+    :param input: the input path of step
     :type input: string
 
-    :param output: the output path of step 
+    :param output: the output path of step
     :type output: string
 
     :return:
@@ -485,14 +491,14 @@ def hive_step_properties(script, arguments=None, input=None, output=None):
     :param arguments: arguments for the step
     :type arguments: string
 
-    :param input: the input path of step 
+    :param input: the input path of step
     :type input: string
 
-    :param output: the output path of step 
+    :param output: the output path of step
     :type output: string
 
     :return:
-    :rtype map 
+    :rtype map
     """
     hive_step = {
         'script': script
