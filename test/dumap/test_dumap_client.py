@@ -146,7 +146,10 @@ class TestDumapClient(unittest.TestCase):
         body_elem_0['tel'] = '17821710693'
         body_elem_0['bts'] = '460,0,22547,100666882,140'
         body_elem_0['mmac'] = ''
-        body_elem_0['macs'] = 'aa:8d:4c:68:39:75,47,|24:de:c6:9a:9d:91,54,|30:fc:68:1d:cc:64,63,|00:1f:7a:4d:76:e1,74,|24:de:c6:9a:b3:81,76,|72:77:81:13:b3:ce,77,DIRECT-ce-HP M252 LaserJet|0c:37:47:dc:70:e0,80,|c0:61:18:8b:6f:00,84,|7c:76:30:c4:00:50,85,|24:de:c6:9a:9b:f0,87,'
+        body_elem_0['macs'] = 'aa:8d:4c:68:39:75,47,|24:de:c6:9a:9d:91,54,|30:fc:68:1d:cc:64,63,|' \
+                              '00:1f:7a:4d:76:e1,74,|24:de:c6:9a:b3:81,76,|' \
+                              '72:77:81:13:b3:ce,77,DIRECT-ce-HP M252 LaserJet|0c:37:47:dc:70:e0,80,|' \
+                              'c0:61:18:8b:6f:00,84,|7c:76:30:c4:00:50,85,|24:de:c6:9a:9b:f0,87,'
         body_elem_0['coor'] = 'GCJ02'
         body_elem_0['output'] = 'JSON'
         body_elem_0['ctime'] = '1'
