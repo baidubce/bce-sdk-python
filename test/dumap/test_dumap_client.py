@@ -32,10 +32,9 @@ class TestDumapClient(unittest.TestCase):
         """
         set up
         """
-        HOST = '10.64.79.132:8011'
-        # online AK SK
-        SK = '6ccf204afbde4488a8d1518c4142aad1'
-        AK = '7ada90b3347b4319b6053baaf3baa787'
+        HOST = 'your_host'
+        SK = 'your_sk'
+        AK = 'your_ak'
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = dumap_client.DumapClient(config)
 
@@ -108,18 +107,13 @@ class TestDumapClient(unittest.TestCase):
         """
         test locate ip
         """
-        HOST = '10.64.79.132:8011'
-        AK = '701107a8de6f41c29f74ec3f19da6c97'
-        SK = 'ccc32a43dcb7495cb820919e2597e99b'
-        config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
-        client = dumap_client.DumapClient(config)
 
         params = {}
         params['ip'] = "61.135.162.115"
 
-        response = client.call_open_api(
+        response = self.the_client.call_open_api(
             uri='/location/ip',
-            app_id='574f48d0-9c74-4ae4-8239-f0df906614e9',
+            app_id='app_id_test',
             params=params
         )
         print response
@@ -128,28 +122,20 @@ class TestDumapClient(unittest.TestCase):
         """
         test locate hardware
         """
-        HOST = '10.64.79.132:8011'
-        AK = '701107a8de6f41c29f74ec3f19da6c97'
-        SK = 'ccc32a43dcb7495cb820919e2597e99b'
-        config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
-        client = dumap_client.DumapClient(config)
 
         body_elem_0 = {}
         body_elem_0['accesstype'] = 0
-        body_elem_0['imei'] = '868573030002015'
+        body_elem_0['imei'] = ''
         body_elem_0['smac'] = ''
         body_elem_0['clientip'] = ''
         body_elem_0['cdma'] = 0
         body_elem_0['imsi'] = ''
         body_elem_0['gps'] = ''
         body_elem_0['network'] = 'GSM'
-        body_elem_0['tel'] = '17821710693'
-        body_elem_0['bts'] = '460,0,22547,100666882,140'
+        body_elem_0['tel'] = ''
+        body_elem_0['bts'] = ''
         body_elem_0['mmac'] = ''
-        body_elem_0['macs'] = 'aa:8d:4c:68:39:75,47,|24:de:c6:9a:9d:91,54,|30:fc:68:1d:cc:64,63,|' \
-                              '00:1f:7a:4d:76:e1,74,|24:de:c6:9a:b3:81,76,|' \
-                              '72:77:81:13:b3:ce,77,DIRECT-ce-HP M252 LaserJet|0c:37:47:dc:70:e0,80,|' \
-                              'c0:61:18:8b:6f:00,84,|7c:76:30:c4:00:50,85,|24:de:c6:9a:9b:f0,87,'
+        body_elem_0['macs'] = ''
         body_elem_0['coor'] = 'GCJ02'
         body_elem_0['output'] = 'JSON'
         body_elem_0['ctime'] = '1'
@@ -164,9 +150,9 @@ class TestDumapClient(unittest.TestCase):
         params['trace'] = False
         params['body'] = body
 
-        response = client.call_open_api(
+        response = self.the_client.call_open_api(
             uri="/locapi/v2",
-            app_id='697ce5f3-f59a-4a72-9c05-0ee7207465dc',
+            app_id='app_id_test',
             body=json.dumps(params),
             method='POST'
         )
