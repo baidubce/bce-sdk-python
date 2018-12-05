@@ -109,7 +109,7 @@ class TestDumapClient(unittest.TestCase):
         """
 
         params = {}
-        params['ip'] = "61.135.162.115"
+        params['ip'] = ""
 
         response = self.the_client.call_open_api(
             uri='/location/ip',
@@ -131,12 +131,12 @@ class TestDumapClient(unittest.TestCase):
         body_elem_0['cdma'] = 0
         body_elem_0['imsi'] = ''
         body_elem_0['gps'] = ''
-        body_elem_0['network'] = 'GSM'
+        body_elem_0['network'] = ''
         body_elem_0['tel'] = ''
         body_elem_0['bts'] = ''
         body_elem_0['mmac'] = ''
         body_elem_0['macs'] = ''
-        body_elem_0['coor'] = 'GCJ02'
+        body_elem_0['coor'] = ''
         body_elem_0['output'] = 'JSON'
         body_elem_0['ctime'] = '1'
         body_elem_0['need_rgc'] = 'Y'
