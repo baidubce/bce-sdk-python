@@ -22,6 +22,7 @@ import json
 import logging
 import shutil
 from builtins import str
+from builtins import bytes
 from future.utils import iteritems, iterkeys, itervalues
 
 import baidubce
@@ -127,7 +128,11 @@ class BosClient(BceBaseClient):
         :return:
             **json text of acl**
         """
-        return self._send_request(http_methods.GET, bucket_name, params={b'acl': b''}, config=config)
+        return self._send_request(
+                http_methods.GET,
+                bucket_name,
+                params={b'acl': b''},
+                config=config)
 
     @staticmethod
     def _dump_acl_object(acl):
@@ -152,7 +157,7 @@ class BosClient(BceBaseClient):
         """
         self._send_request(http_methods.PUT,
                            bucket_name,
-                           body=json.dumps({b'accessControlList': acl},
+                           body=json.dumps({'accessControlList': acl},
                                            default=BosClient._dump_acl_object),
                            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
                            params={b'acl': b''},
@@ -221,7 +226,7 @@ class BosClient(BceBaseClient):
 
         full_host = endpoint_host
         if endpoint_port != config.protocol.default_port:
-            full_host += b':' + bytes(endpoint_port)
+            full_host += b':' + compat.convert_to_bytes(endpoint_port)
         headers[http_headers.HOST] = full_host
 
         path = self._get_path(config, bucket_name, key)
@@ -235,8 +240,7 @@ class BosClient(BceBaseClient):
             timestamp,
             expiration_in_seconds,
             headers_to_sign)
-
-        return b"%s://%s%s?%s" % (protocol.name,
+        return b"%s://%s%s?%s" % (compat.convert_to_bytes(protocol.name),
                                  full_host,
                                  path,
                                  utils.get_canonical_querystring(params, False))
@@ -260,7 +264,7 @@ class BosClient(BceBaseClient):
         return self._send_request(http_methods.PUT, 
                                   bucket_name,
                                   params={b'lifecycle': b''},
-                                  body=json.dumps({b'rule': rules}),
+                                  body=json.dumps({'rule': rules}),
                                   config=config)
 
     @required(bucket_name=(bytes, str))
@@ -311,7 +315,7 @@ class BosClient(BceBaseClient):
         return self._send_request(http_methods.PUT,
                                   bucket_name,
                                   params={b'cors': b''},
-                                  body=json.dumps({b'corsConfiguration': cors_configuration}),
+                                  body=json.dumps({'corsConfiguration': cors_configuration}),
                                   config=config)
 
     @required(bucket_name=(bytes, str))
@@ -407,9 +411,9 @@ class BosClient(BceBaseClient):
         if range is None:
             return None
         if not isinstance(range, (list, tuple)):
-            raise TypeError(b'range should be a list or a tuple')
+            raise TypeError('range should be a list or a tuple')
         if len(range) != 2:
-            raise ValueError(b'range should have length of 2')
+            raise ValueError('range should have length of 2')
         return {http_headers.RANGE: b'bytes=%d-%d' % tuple(range)}
 
 
@@ -428,11 +432,22 @@ class BosClient(BceBaseClient):
         :rtype bool
         """
         user_metadata = {}
-        for k, v in http_response.getheaders():
-            if k.startswith(http_headers.BCE_USER_METADATA_PREFIX):
-                k = k[len(http_headers.BCE_USER_METADATA_PREFIX):]
-                user_metadata[k.decode(baidubce.DEFAULT_ENCODING)] = \
-                    v.decode(baidubce.DEFAULT_ENCODING)
+        headers_list = http_response.getheaders()
+        if compat.PY3:
+            temp_heads = []
+            for k,v in headers_list:
+                k = k.lower()
+                temp_heads.append((k, v))
+            headers_list = temp_heads
+
+        prefix = compat.convert_to_string(
+                http_headers.BCE_USER_METADATA_PREFIX
+        )
+        for k, v in headers_list:
+            if k.startswith(prefix):
+                k = k[len(prefix):]
+                user_metadata[compat.convert_to_unicode(k)] = \
+                    compat.convert_to_unicode(v)
         response.metadata.user_metadata = user_metadata
         response.data = http_response
         return True
@@ -509,7 +524,7 @@ class BosClient(BceBaseClient):
                 http_response,
                 response,
                 file_name,
-                self._get_config_parameter(config, b'recv_buf_size')))
+                self._get_config_parameter(config, 'recv_buf_size')))
 
     @required(bucket_name=(bytes, str), key=bytes)
     def get_object_meta_data(self, bucket_name, key, config=None):
@@ -565,8 +580,8 @@ class BosClient(BceBaseClient):
             user_headers=user_headers)
 
         if content_length > bos.MAX_APPEND_OBJECT_LENGTH:
-            raise ValueError(b'Object length should be less than %d. '
-                             b'Use multi-part upload instead.' % bos.MAX_APPEND_OBJECT_LENGTH)
+            raise ValueError('Object length should be less than %d. '
+                             'Use multi-part upload instead.' % bos.MAX_APPEND_OBJECT_LENGTH)
 
         params = {b'append': b''}
         if offset is not None:
@@ -602,10 +617,10 @@ class BosClient(BceBaseClient):
 
         fp = None
         try:
-            fp = io.StringIO(data)
+            fp = io.BytesIO(data)
             if content_md5 is None:
                 content_md5 = utils.get_md5_from_fp(
-                    fp, buf_size=self._get_config_parameter(config, b'recv_buf_size'))
+                    fp, buf_size=self._get_config_parameter(config, 'recv_buf_size'))
 
             return self.append_object(bucket_name=bucket_name,
                                       key=key,
@@ -664,11 +679,11 @@ class BosClient(BceBaseClient):
             storage_class=storage_class,
             user_headers=user_headers)
 
-        buf_size = self._get_config_parameter(config, b'recv_buf_size')
+        buf_size = self._get_config_parameter(config, 'recv_buf_size')
 
         if content_length > bos.MAX_PUT_OBJECT_LENGTH:
-            raise ValueError(b'Object length should be less than %d. '
-                             b'Use multi-part upload instead.' % bos.MAX_PUT_OBJECT_LENGTH)
+            raise ValueError('Object length should be less than %d. '
+                             'Use multi-part upload instead.' % bos.MAX_PUT_OBJECT_LENGTH)
 
         return self._send_request(
             http_methods.PUT,
@@ -709,10 +724,10 @@ class BosClient(BceBaseClient):
 
         fp = None
         try:
-            fp = io.StringIO(data)
+            fp = io.BytesIO(data)
             if content_md5 is None:
                 content_md5 = utils.get_md5_from_fp(
-                    fp, buf_size=self._get_config_parameter(config, b'recv_buf_size'))
+                    fp, buf_size=self._get_config_parameter(config, 'recv_buf_size'))
             return self.put_object(bucket, key, fp,
                                    content_length=len(data),
                                    content_md5=content_md5,
@@ -761,7 +776,7 @@ class BosClient(BceBaseClient):
                 content_length = fp.tell()
                 fp.seek(0)
             if content_md5 is None:
-                recv_buf_size = self._get_config_parameter(config, b'recv_buf_size')
+                recv_buf_size = self._get_config_parameter(config, 'recv_buf_size')
                 content_md5 = utils.get_md5_from_fp(fp, length=content_length,
                                                     buf_size=recv_buf_size)
             if content_type is None:
@@ -815,7 +830,7 @@ class BosClient(BceBaseClient):
             storage_class=storage_class,
             user_headers=user_headers)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
-            '/%s/%s' % (source_bucket_name, source_key), False)
+            b'/%s/%s' % (source_bucket_name, source_key), False)
         if etag is not None:
             headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
         if user_metadata is not None:
@@ -868,7 +883,7 @@ class BosClient(BceBaseClient):
         key_list_json = [{b'key': k} for k in key_list]
         return self._send_request(http_methods.POST, 
                                   bucket_name, 
-                                  body=json.dumps({b'objects': key_list_json}),
+                                  body=json.dumps({'objects': key_list_json}),
                                   params={b'delete': b''},
                                   config=config)
 
@@ -894,8 +909,8 @@ class BosClient(BceBaseClient):
         return self._send_request(http_methods.PUT, 
                                   source_bucket, 
                                   params={b'logging': b''}, 
-                                  body=json.dumps({b'targetBucket': target_bucket, 
-                                                  b'targetPrefix': target_prefix}),
+                                  body=json.dumps({'targetBucket': target_bucket, 
+                                                  'targetPrefix': target_prefix}),
                                   config=config)
 
     @required(bucket_name=(bytes, str))
@@ -1004,11 +1019,11 @@ class BosClient(BceBaseClient):
                **HttpResponse**
         """
         if part_number < bos.MIN_PART_NUMBER or part_number > bos.MAX_PART_NUMBER:
-            raise ValueError(b'Invalid part_number %d. The valid range is from %d to %d.' % (
+            raise ValueError('Invalid part_number %d. The valid range is from %d to %d.' % (
                 part_number, bos.MIN_PART_NUMBER, bos.MAX_PART_NUMBER))
 
         if part_size > bos.MAX_PUT_OBJECT_LENGTH:
-            raise ValueError(b'Single part length should be less than %d. '
+            raise ValueError('Single part length should be less than %d. '
                              % bos.MAX_PUT_OBJECT_LENGTH)
 
         headers = {http_headers.CONTENT_LENGTH: part_size,
@@ -1146,7 +1161,7 @@ class BosClient(BceBaseClient):
             http_methods.POST,
             bucket_name,
             key,
-            body=json.dumps({b'parts': part_list}),
+            body=json.dumps({'parts': part_list}),
             headers=headers,
             params={b'uploadId': upload_id})
 
@@ -1303,8 +1318,8 @@ class BosClient(BceBaseClient):
 
         if content_length is not None:
             if content_length and content_length < 0:
-                raise ValueError(b'content_length should not be negative.')
-            headers[http_headers.CONTENT_LENGTH] = bytes(content_length)
+                raise ValueError('content_length should not be negative.')
+            headers[http_headers.CONTENT_LENGTH] = compat.convert_to_bytes(content_length)
 
         if content_md5 is not None:
             headers[http_headers.CONTENT_MD5] = utils.convert_to_standard_string(content_md5)
@@ -1318,12 +1333,12 @@ class BosClient(BceBaseClient):
             headers[http_headers.BCE_CONTENT_SHA256] = content_sha256
 
         if etag is not None:
-            headers[http_headers.ETAG] = '"%s"' % utils.convert_to_standard_string(etag)
+            headers[http_headers.ETAG] = b'"%s"' % utils.convert_to_standard_string(etag)
 
         if user_metadata is not None:
             meta_size = 0
             if not isinstance(user_metadata, dict):
-                raise TypeError(b'user_metadata should be of type dict.')
+                raise TypeError('user_metadata should be of type dict.')
             for k, v in iteritems(user_metadata):
                 k = utils.convert_to_standard_string(k)
                 v = utils.convert_to_standard_string(v)
@@ -1333,7 +1348,7 @@ class BosClient(BceBaseClient):
                 meta_size += len(v)
             if meta_size > bos.MAX_USER_METADATA_SIZE:
                 raise ValueError(
-                    b'Metadata size should not be greater than %d.' % bos.MAX_USER_METADATA_SIZE)
+                    'Metadata size should not be greater than %d.' % bos.MAX_USER_METADATA_SIZE)
 
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
@@ -1350,7 +1365,7 @@ class BosClient(BceBaseClient):
     @staticmethod
     def _get_user_header(headers, user_headers, is_copy=False):
         if not isinstance(user_headers, dict):
-            raise TypeError(b'user_headers should be of type dict.')
+            raise TypeError('user_headers should be of type dict.')
 
         if not is_copy:
             user_headers_set = set([http_headers.CACHE_CONTROL,

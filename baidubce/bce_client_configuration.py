@@ -16,9 +16,11 @@ This module defines a common configuration class for BCE.
 
 from future.utils import iteritems
 from builtins import str
+from builtins import bytes
 import baidubce.protocol
 import baidubce.region
-from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce.retry.retry_policy import BackOffRetryPolicy
+# from baidubce.retry_policy import BackOffRetryPolicy
 
 
 class BceClientConfiguration(object):

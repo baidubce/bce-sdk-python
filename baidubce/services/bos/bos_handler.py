@@ -19,6 +19,7 @@ from baidubce import utils
 from baidubce.exception import BceServerError
 from baidubce.http import handler
 from builtins import str
+from builtins import bytes
 
 def parse_copy_object_response(http_response, response):
     """

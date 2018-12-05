@@ -14,6 +14,10 @@
 This module provide some tools for bce client.
 """
 
+# str() generator unicode,bytes() for ASCII
+from __future__ import absolute_import
+from builtins import str, bytes
+from future.utils import iteritems, iterkeys, itervalues
 from . import compat
 import os
 import re
@@ -25,14 +29,9 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
-# str() generator unicode,bytes() for ASCII
-from builtins import str
 from Crypto.Cipher import AES
-from future.utils import iteritems, iterkeys, itervalues
-
 import baidubce
 from baidubce.http import http_headers
-
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
@@ -127,11 +126,13 @@ def convert_to_standard_string(input_string):
     :return:
         **string**
     """
-    if isinstance(input_string, str):
-        return input_string.encode(baidubce.DEFAULT_ENCODING)
-    else:
-        return bytes(input_string)
-
+    #if isinstance(input_string, str):
+    #    return input_string.encode(baidubce.DEFAULT_ENCODING)
+    #elif isinstance(input_string, bytes):
+    #    return input_string
+    #else:
+    #    return str(input_string).encode("utf-8")
+    return compat.convert_to_bytes(input_string)
 
 def convert_header2map(header_list):
     """
@@ -192,9 +193,15 @@ def check_redirect(res):
 
 
 def _get_normalized_char_list():
-    ret = [b'%%%02X' % i for i in range(256)]
-    for ch in string.ascii_letters + string.digits + b'.~-_':
+    """"
+    :return:
+        **ASCII string**
+    """
+    ret = ['%%%02X' % i for i in range(256)]
+    for ch in string.ascii_letters + string.digits + '.~-_':
         ret[ord(ch)] = ch
+    if isinstance(ret[0], str):
+        ret = [s.encode("utf-8") for s in ret]
     return ret
 _NORMALIZED_CHAR_LIST = _get_normalized_char_list()
 
@@ -211,15 +218,17 @@ def normalize_string(in_str, encoding_slash=True):
     :param encoding_slash: None
     ===============================
     :return:
-        **string**
+        **ASCII  string**
     """
     tmp = []
     for ch in convert_to_standard_string(in_str):
+        if isinstance(ch, int):
+            ch = chr(ch).encode("utf-8")
         if ch == b'/' and not encoding_slash:
             tmp.append(b'/')
         else:
             tmp.append(_NORMALIZED_CHAR_LIST[ord(ch)])
-    return ''.join(tmp)
+    return (b'').join(tmp)
 
 
 def append_uri(base_uri, *path_components):
@@ -324,8 +333,8 @@ def pythonize_name(name):
         pythonize_name('ContentMd5')->'content_md5'
         pythonize_name('') -> ''
     """
-    if name == b"eTag":
-        return b"etag"
+    if name == "eTag":
+        return "etag"
     s1 = _first_cap_regex.sub(r'\1_\2', name)
     s2 = _number_cap_regex.sub(r'\1_\2', s1)
     return _end_cap_regex.sub(r'\1_\2', s2).lower()
@@ -358,16 +367,15 @@ def print_object(obj):
     """
     tmp = []
     for k, v in iteritems(obj.__dict__):
-        if not k.startswith(b'__'):
+        if not k.startswith('__'):
             if isinstance(v, bytes):
-                tmp.append(b"%s:'%s'" % (k, v))
+                tmp.append("%s:'%s'" % (k, v))
             # str is unicode
             elif isinstance(v, str):
-                tmp.append(b"%s:u'%s'" % (k, v))
+                tmp.append("%s:u'%s'" % (k, v))
             else:
-                tmp.append(b'%s:%s' % (k, v))
-    return b'{%s}' % (b',').join(tmp)
-
+                tmp.append('%s:%s' % (k, v))
+    return '{%s}' % ','.join(tmp)
 
 class Expando(object):
     """
@@ -378,7 +386,7 @@ class Expando(object):
             self.__dict__.update(attr_dict)
 
     def __getattr__(self, item):
-        if item.startswith(b'__'):
+        if item.startswith('__'):
             raise AttributeError
         return None
 
@@ -394,7 +402,9 @@ def dict_to_python_object(d):
     """
     attr = {}
     for k, v in iteritems(d):
-        k = pythonize_name(bytes(k))
+        if not isinstance(k, compat.string_types):
+            k = compat.convert_to_string(k)
+        k = pythonize_name(k)
         attr[k] = v
     return Expando(attr)
 
@@ -410,19 +420,19 @@ def required(**types):
             for i, v in enumerate(args):
                 if f.__code__.co_varnames[i] in types:
                     if v is None:
-                        raise ValueError(b'arg "%s" should not be None' %
+                        raise ValueError('arg "%s" should not be None' %
                                          (f.__code__.co_varnames[i]))
                     if not isinstance(v, types[f.__code__.co_varnames[i]]):
-                        raise TypeError(b'arg "%s"= %r does not match %s' %
+                        raise TypeError('arg "%s"= %r does not match %s' %
                                         (f.__code__.co_varnames[i],
                                          v,
                                          types[f.__code__.co_varnames[i]]))
             for k, v in iteritems(kwds):
                 if k in types:
                     if v is None:
-                        raise ValueError(b'arg "%s" should not be None' % k)
+                        raise ValueError('arg "%s" should not be None' % k)
                     if not isinstance(v, types[k]):
-                        raise TypeError(b'arg "%s"= %r does not match %s' % (k, v, types[k]))
+                        raise TypeError('arg "%s"= %r does not match %s' % (k, v, types[k]))
             return f(*args, **kwds)
         _decorated.__name__ = f.__name__
         return _decorated
@@ -447,18 +457,21 @@ def parse_host_port(endpoint, default_protocol):
 
     try:
         # scheme in endpoint dominates input default_protocol
-        parse_result = urlparse(endpoint, default_protocol.name)
+        parse_result = urlparse(
+                endpoint,
+                compat.convert_to_bytes(default_protocol.name))
     except Exception as e:
-        raise ValueError(b'Invalid endpoint:%s, error:%s' % (endpoint, e.message))
+        raise ValueError('Invalid endpoint:%s, error:%s' % (endpoint,
+            compat.convert_to_string(e)))
 
-    if parse_result.scheme == baidubce.protocol.HTTP.name:
+    if parse_result.scheme == compat.convert_to_bytes(baidubce.protocol.HTTP.name):
         protocol = baidubce.protocol.HTTP
         port = baidubce.protocol.HTTP.default_port
-    elif parse_result.scheme == baidubce.protocol.HTTPS.name:
+    elif parse_result.scheme == compat.convert_to_bytes(baidubce.protocol.HTTPS.name):
         protocol = baidubce.protocol.HTTPS
         port = baidubce.protocol.HTTPS.default_port
     else:
-        raise ValueError(b'Unsupported protocol %s' % parse_result.scheme)
+        raise ValueError('Unsupported protocol %s' % parse_result.scheme)
     host = parse_result.hostname
     if parse_result.port is not None:
         port = parse_result.port

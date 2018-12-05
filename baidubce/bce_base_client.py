@@ -13,13 +13,13 @@
 """
 This module provide base class for BCE service clients.
 """
-
+from __future__ import absolute_import
 import copy
-from builtins import str
+from builtins import str, bytes
 
 import baidubce
 from baidubce import bce_client_configuration
-
+from baidubce.exception import BceClientError
 
 class BceBaseClient(object):
     """
@@ -36,11 +36,13 @@ class BceBaseClient(object):
         """
         self.service_id = self._compute_service_id()
         self.region_supported = region_supported
+        # just for debug
         self.config = copy.deepcopy(bce_client_configuration.DEFAULT_CONFIG)
         if config is not None:
             self.config.merge_non_none_values(config)
         if self.config.endpoint is None:
             self.config.endpoint = self._compute_endpoint()
+
 
     def _compute_service_id(self):
         return self.__module__.split('.')[2]

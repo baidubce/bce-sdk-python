@@ -15,6 +15,7 @@ This module provides constants that define BCE Regions.
 """
 
 from builtins import str
+from builtins import bytes
 
 class Region(object):
     """
@@ -23,4 +24,4 @@ class Region(object):
     def __init__(self, *region_id_list):
         self.region_id_list = region_id_list
 
-BEIJING = Region(b'bj')
+BEIJING = Region('bj')

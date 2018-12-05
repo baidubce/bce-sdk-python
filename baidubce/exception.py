@@ -16,6 +16,7 @@ This module defines exceptions for BCE.
 
 from baidubce import utils
 from builtins import str
+from builtins import bytes
 
 class BceError(Exception):
     """Base Error of BCE."""

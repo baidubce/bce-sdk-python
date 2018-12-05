@@ -22,6 +22,7 @@ import json
 import logging
 import shutil
 from builtins import str
+from builtins import bytes
 
 import baidubce
 from baidubce import bce_client_configuration

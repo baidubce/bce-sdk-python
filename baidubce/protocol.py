@@ -19,6 +19,7 @@ HTTP is available in case users need it.
 
 from .utils import Expando
 from builtins import str
+from builtins import bytes
 
-HTTP = Expando({b'name': b'http', b'default_port': 80})
-HTTPS = Expando({b'name': b'https', b'default_port': 443})
+HTTP = Expando({'name': 'http', 'default_port': 80})
+HTTPS = Expando({'name': 'https', 'default_port': 443})

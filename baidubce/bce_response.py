@@ -15,7 +15,9 @@ This module provides a general response class for BCE services.
 """
 from future.utils import iteritems
 from builtins import str
+from builtins import bytes
 from baidubce import utils
+from baidubce import compat
 from baidubce.http import http_headers
 
 
@@ -33,11 +35,11 @@ class BceResponse(object):
         :return:
         """
         for k, v in iteritems(headers):
-            if k.startswith(http_headers.BCE_PREFIX):
-                k = b'bce_' + k[len(http_headers.BCE_PREFIX):]
-            k = utils.pythonize_name(k.replace(b'-', b'_'))
-            if k.lower() == http_headers.ETAG.lower():
-                v = v.strip(b'"')
+            if k.startswith(compat.convert_to_string(http_headers.BCE_PREFIX)):
+                k = 'bce_' + k[len(compat.convert_to_string(http_headers.BCE_PREFIX)):]
+            k = utils.pythonize_name(k.replace('-', '_'))
+            if k.lower() == compat.convert_to_string(http_headers.ETAG.lower()):
+                v = v.strip('"')
             setattr(self.metadata, k, v)
 
     def __getattr__(self, item):

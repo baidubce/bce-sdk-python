@@ -13,14 +13,16 @@
 """
 This module provides authentication functions for bce services.
 """
-
+from __future__ import absolute_import
+from builtins import str
+from builtins import bytes
 import hashlib
 import hmac
 import logging
-from builtins import str
 
 from baidubce.http import http_headers
 from baidubce import utils
+from baidubce import compat
 
 
 _logger = logging.getLogger(__name__)
@@ -37,14 +39,14 @@ def _get_canonical_headers(headers, headers_to_sign=None):
     result = []
     for k in headers:
         k_lower = k.strip().lower()
-        value = bytes(headers[k]).strip()
+        value = utils.convert_to_standard_string(headers[k]).strip()
         if k_lower.startswith(http_headers.BCE_PREFIX) \
                 or k_lower in headers_to_sign:
             str_tmp = b"%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
             result.append(str_tmp)
     result.sort()
 
-    return '\n'.join(result)
+    return (b'\n').join(result)
 
 
 def sign(credentials, http_method, path, headers, params,
@@ -53,7 +55,7 @@ def sign(credentials, http_method, path, headers, params,
     Create the authorization
     """
 
-    _logger.debug(b'Sign params: %s %s %s %s %d %d %s' % (
+    _logger.debug('Sign params: %s %s %s %s %d %d %s' % (
         http_method, path, headers, params, timestamp, expiration_in_seconds, headers_to_sign))
 
     headers = headers or {}
@@ -73,17 +75,20 @@ def sign(credentials, http_method, path, headers, params,
 
     canonical_headers = _get_canonical_headers(headers, headers_to_sign)
 
-    string_to_sign = (b'\n').join(
-        [http_method, canonical_uri, canonical_querystring, canonical_headers])
-
-    sign_result = hmac.new(sign_key, string_to_sign, hashlib.sha256).hexdigest()
+    string_to_sign = (b'\n').join([
+        http_method, canonical_uri, 
+        canonical_querystring, canonical_headers
+        ])
+    sign_result = hmac.new(compat.convert_to_bytes(sign_key), string_to_sign, hashlib.sha256).hexdigest()
+    # convert to bytes
+    sign_result = compat.convert_to_bytes(sign_result)
 
     if headers_to_sign:
         result = b'%s/%s/%s' % (sign_key_info, (b';').join(headers_to_sign), sign_result)
     else:
         result = b'%s//%s' % (sign_key_info, sign_result)
 
-    _logger.debug(b'sign_key=[%s] sign_string=[%d bytes][ %s ]' %
+    _logger.debug('sign_key=[%s] sign_string=[%d bytes][ %s ]' %
                   (sign_key, len(string_to_sign), string_to_sign))
-    _logger.debug(b'result=%s' % result)
+    _logger.debug('result=%s' % result)
     return result
