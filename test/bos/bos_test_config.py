@@ -25,17 +25,16 @@ from baidubce.retry.retry_policy import NoRetryPolicy
 #HOST="10.99.19.14:8080"
 
 # online
-#HOST="bj.bcebos.com"
-
+HOST="bj.bcebos.com"
+ACCESS_KEY=""
+SECRET_KEY=""
 DISPLAY_NAME = 'PASSPORT:1504517149'
-
-#ACCESS_KEY="c768a425b245497babf09c2b466b6176"
-#SECRET_KEY="8bd9d94c621b4de6ad781a5018b70bbe"
+OWNER_ID = ''
 
 # sandbox
-HOST="bos.qasandbox.bcetest.baidu.com"
-ACCESS_KEY="0a2c66270b2e4082b0b93a0215770b66"
-SECRET_KEY="629e92e7e30f43bc86332bb2ba8f9354"
+#HOST="bos.qasandbox.bcetest.baidu.com"
+#ACCESS_KEY=""
+#SECRET_KEY=""
 
 
 ALIGNED_SIZE = 10 * 1024 * 1024
