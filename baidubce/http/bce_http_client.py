@@ -50,7 +50,7 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis):
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     else:
         raise ValueError(
-            b'Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
+            'Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
 
 
 def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
@@ -94,7 +94,8 @@ def check_headers(headers):
     :return:
     """
     for k, v in iteritems(headers):
-        if isinstance(v, (bytes,str)) and b'\n' in v:
+        if isinstance(v, (bytes,str)) and \
+        b'\n' in compat.convert_to_bytes(v):
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))
 
 
@@ -191,7 +192,7 @@ def send_request(
 
             # headers_list[*][0] is lowercase on py2
             # headers_list[*][0] is raw value py3
-            if compat.PY3:
+            if compat.PY3 and isinstance(headers_list, list):
                 temp_heads = []
                 for k, v in headers_list:
                     k = k.lower()

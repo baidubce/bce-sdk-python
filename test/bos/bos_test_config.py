@@ -14,6 +14,8 @@
 """
 The configuration for bos test.
 """
+from builtins import str
+from builtins import bytes
 import logging
 import baidubce
 from baidubce.auth import bce_credentials
@@ -25,11 +27,12 @@ from baidubce.retry.retry_policy import NoRetryPolicy
 #HOST="10.99.19.14:8080"
 
 # online
-HOST="bj.bcebos.com"
-ACCESS_KEY=""
-SECRET_KEY=""
+HOST=b"bj.bcebos.com"
+ACCESS_KEY=b""
+SECRET_KEY=b""
 DISPLAY_NAME = 'PASSPORT:1504517149'
 OWNER_ID = ''
+
 
 # sandbox
 #HOST="bos.qasandbox.bcetest.baidu.com"

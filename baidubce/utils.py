@@ -265,12 +265,12 @@ def check_bucket_valid(bucket):
     :return:
         **Boolean**
     """
-    alphabet = b"abcdefghijklmnopqrstuvwxyz0123456789-"
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-"
     if len(bucket) < 3 or len(bucket) > 63:
         return False
-    if bucket[-1] == b"-" or bucket[-1] == b"_":
+    if bucket[-1] == "-" or bucket[-1] == "_":
         return False
-    if not ((b'a' <= bucket[0] <= b'z') or (b'0' <= bucket[0] <= b'9')):
+    if not (('a' <= bucket[0] <= 'z') or ('0' <= bucket[0] <= '9')):
         return False
     for i in bucket:
         if not i in alphabet:

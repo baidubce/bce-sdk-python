@@ -43,7 +43,7 @@ class BceResponse(object):
             setattr(self.metadata, k, v)
 
     def __getattr__(self, item):
-        if item.startswith(b'__'):
+        if item.startswith('__'):
             raise AttributeError
         return None
 

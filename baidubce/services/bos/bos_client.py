@@ -44,7 +44,6 @@ from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -138,7 +137,7 @@ class BosClient(BceBaseClient):
     def _dump_acl_object(acl):
         result = {}
         for k, v in iteritems(acl.__dict__):
-            if not k.startswith(b'_'):
+            if not k.startswith('_'):
                 result[k] = v
         return result
 
@@ -741,7 +740,7 @@ class BosClient(BceBaseClient):
             if fp is not None:
                 fp.close()
 
-    @required(bucket=bytes, key=bytes, file_name=bytes)
+    @required(bucket=(bytes, str), key=bytes, file_name=bytes)
     def put_object_from_file(self, bucket, key, file_name,
                              content_length=None,
                              content_md5=None,
@@ -830,7 +829,9 @@ class BosClient(BceBaseClient):
             storage_class=storage_class,
             user_headers=user_headers)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
-            b'/%s/%s' % (source_bucket_name, source_key), False)
+            b'/%s/%s' % (
+                compat.convert_to_bytes(source_bucket_name), 
+                source_key), False)
         if etag is not None:
             headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
         if user_metadata is not None:
@@ -880,7 +881,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
-        key_list_json = [{b'key': k} for k in key_list]
+        key_list_json = [{'key': compat.convert_to_string(k)} for k in key_list]
         return self._send_request(http_methods.POST, 
                                   bucket_name, 
                                   body=json.dumps({'objects': key_list_json}),
@@ -1082,7 +1083,8 @@ class BosClient(BceBaseClient):
                          content_type=content_type,
                          user_metadata=user_metadata)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
-                         b"/%s/%s" % (source_bucket_name, source_key), False)
+                         b"/%s/%s" % (compat.convert_to_bytes(source_bucket_name),
+                         source_key), False)
         range = b"""bytes=%d-%d""" % (offset, offset + part_size - 1)
         headers[http_headers.BCE_COPY_SOURCE_RANGE] = range
         if etag is not None:
