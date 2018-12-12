@@ -1,5 +1,5 @@
-#coding=utf-8
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# coding=utf-8
+# Copyright (c) 2018 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@ Unit tests for dumap client.
 """
 
 import unittest
+import json
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
@@ -26,14 +27,14 @@ class TestDumapClient(unittest.TestCase):
     """
     unit test
     """
+
     def setUp(self):
         """
         set up
         """
-        HOST = '10.64.79.132:8011'
-        # online AK SK
-        SK = '6ccf204afbde4488a8d1518c4142aad1'
-        AK = '7ada90b3347b4319b6053baaf3baa787'
+        HOST = 'your_host'
+        SK = 'your_sk'
+        AK = 'your_ak'
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = dumap_client.DumapClient(config)
 
@@ -102,6 +103,60 @@ class TestDumapClient(unittest.TestCase):
             params=params)
         print response
 
+    def test_locate_ip(self):
+        """
+        test locate ip
+        """
+
+        params = {}
+        params['ip'] = ""
+
+        response = self.the_client.call_open_api(
+            uri='/location/ip',
+            app_id='app_id_test',
+            params=params
+        )
+        print response
+
+    def test_locate_hardware(self):
+        """
+        test locate hardware
+        """
+
+        body_elem_0 = {}
+        body_elem_0['accesstype'] = 0
+        body_elem_0['imei'] = ''
+        body_elem_0['smac'] = ''
+        body_elem_0['clientip'] = ''
+        body_elem_0['cdma'] = 0
+        body_elem_0['imsi'] = ''
+        body_elem_0['gps'] = ''
+        body_elem_0['network'] = ''
+        body_elem_0['tel'] = ''
+        body_elem_0['bts'] = ''
+        body_elem_0['mmac'] = ''
+        body_elem_0['macs'] = ''
+        body_elem_0['coor'] = ''
+        body_elem_0['output'] = 'JSON'
+        body_elem_0['ctime'] = '1'
+        body_elem_0['need_rgc'] = 'Y'
+
+        body = [body_elem_0]
+
+        params = {}
+        params['src'] = ''
+        params['prod'] = ''
+        params['ver'] = '1.0'
+        params['trace'] = False
+        params['body'] = body
+
+        response = self.the_client.call_open_api(
+            uri="/locapi/v2",
+            app_id='app_id_test',
+            body=json.dumps(params),
+            method='POST'
+        )
+        print response
 
 
 if __name__ == "__main__":
@@ -110,5 +165,7 @@ if __name__ == "__main__":
     suite.addTest(TestDumapClient("test_geocoder"))
     suite.addTest(TestDumapClient("test_geoconv"))
     suite.addTest(TestDumapClient("test_direction"))
+    suite.addTest(TestDumapClient("test_locate_ip"))
+    suite.addTest(TestDumapClient("test_locate_hardware"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

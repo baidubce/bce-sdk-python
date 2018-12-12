@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright (c) 2018 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -25,7 +25,6 @@ from baidubce.http import handler
 from baidubce.http import http_methods
 from baidubce.utils import required
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -39,28 +38,34 @@ class DumapClient(bce_base_client.BceBaseClient):
         bce_base_client.BceBaseClient.__init__(self, config)
 
     @required(app_id=str, uri=str, params=dict)
-    def call_open_api(self, app_id, uri, params, config=None):
+    def call_open_api(self, app_id, uri, params=None, body=None, method='GET', config=None):
         """
         call open_api
         :param app_id: app_id
         :type app_id: string
         :param uri: open api uri
         :type uri: string
-        :param params: dict
-        :type params:request params
+        :param params: request params (default: None)
+        :type params: dict
+        :param body: request body (default: None)
+        :type body: string
+        :param method: http method (default GET)
+        :type method: http_methods
 
         :param config: None
         :type config: baidubce.BceClientConfiguration
 
         :return:
         :rtype: baidubce.bce_response.BceResponse
-                """
+        """
         return self._send_request(
-            http_methods.GET,
-            uri,
+            http_method=method,
+            path=uri,
             params=params,
+            body=body,
             headers={DumapClient.X_APP_ID: app_id},
-            config=config)
+            config=config
+        )
 
     @staticmethod
     def _merge_config(self, config):
@@ -86,6 +91,7 @@ class DumapClient(bce_base_client.BceBaseClient):
 
 def sign_wrapper(headers_to_sign):
     """wrapper the bce_v1_signer.sign()."""
+
     def _wrapper(credentials, http_method, path, headers, params):
         return bce_v1_signer.sign(credentials, http_method, path, headers, params,
                                   headers_to_sign=headers_to_sign)
@@ -108,6 +114,6 @@ def parse_none(http_response, response):
     """
     body = http_response.read()
     if body:
-        response.body=body
+        response.body = body
     http_response.close()
     return True
