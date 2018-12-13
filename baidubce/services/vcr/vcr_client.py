@@ -157,7 +157,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
-    def add_face_lib_image(self, lib, brief, image, config=None):
+    def add_face_image(self, lib, brief, image, config=None):
         """
         :param lib: private face lib
         :param brief: private face brief
@@ -173,7 +173,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode))
-    def del_face_lib(self, lib, brief, config=None):
+    def del_face_brief(self, lib, brief, config=None):
         """
         :param lib: private face lib
         :param brief: private face brief
@@ -187,7 +187,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
-    def del_face_lib_image(self, lib, brief, image, config=None):
+    def del_face_image(self, lib, brief, image, config=None):
         """
         :param lib: private face lib
         :param brief: private face brief
@@ -212,7 +212,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode))
-    def get_face_lib_image(self, lib, brief, config=None):
+    def get_face_brief(self, lib, brief, config=None):
         """
         :param lib: private face lib
         :param brief: private face brief
@@ -226,7 +226,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
-    def add_logo_lib_image(self, lib, brief, image, config=None):
+    def add_logo_image(self, lib, brief, image, config=None):
         """
         :param lib: private logo lib
         :param brief: private logo brief
@@ -242,7 +242,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode))
-    def del_logo_lib(self, lib, brief, config=None):
+    def del_logo_brief(self, lib, brief, config=None):
         """
         :param lib: private logo lib
         :param brief: private logo brief
@@ -256,7 +256,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), image=(str, unicode))
-    def del_logo_lib_image(self, lib, image, config=None):
+    def del_logo_image(self, lib, image, config=None):
         """
         :param lib: private logo lib
         :param image: private logo image
@@ -279,7 +279,7 @@ class VcrClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(lib=(str, unicode), brief=(str, unicode))
-    def get_logo_lib_image(self, lib, brief, config=None):
+    def get_logo_brief(self, lib, brief, config=None):
         """
         :param lib: private logo lib
         :param brief: private logo brief
