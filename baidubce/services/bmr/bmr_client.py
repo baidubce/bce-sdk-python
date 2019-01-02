@@ -27,6 +27,7 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.utils import required
+from baidubce.utils import aes128_encrypt_16char_key
 
 
 _logger = logging.getLogger(__name__)
@@ -56,7 +57,12 @@ class BmrClient(bce_base_client.BceBaseClient):
                        name=None,
                        steps=None,
                        service_ha_enabled=None,
-                       safe_mode_enabled=None):
+                       safe_mode_enabled=None,
+                       admin_pass=None,
+                       vpc_id=None,
+                       subnet_id=None,
+                       security_group=None,
+                       availability_zone=None):
         """
         Create cluster
 
@@ -97,6 +103,17 @@ class BmrClient(bce_base_client.BceBaseClient):
             body['serviceHaEnabled'] = service_ha_enabled
         if safe_mode_enabled is not None:
             body['safeModeEnabled'] = safe_mode_enabled
+        if admin_pass is not None and self.config is not None:
+            secret_access_key = self.config.credentials.secret_access_key
+            body['adminPassword'] = aes128_encrypt_16char_key(admin_pass, secret_access_key)
+        if vpc_id is not None:
+            body['vpcId'] = vpc_id
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if security_group is not None:
+            body['securityGroup'] = security_group
+        if availability_zone is not None:
+            body['availabilityZone'] = availability_zone
 
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
