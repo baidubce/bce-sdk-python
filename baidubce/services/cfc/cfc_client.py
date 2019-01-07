@@ -693,6 +693,9 @@ class CfcClient(bce_base_client.BceBaseClient):
             body_parser = cfc_handler.parse_json
         headers = {}
         headers[http_headers.CONTENT_TYPE] = http_content_types.JSON
+        if config.security_token is not None:
+            headers = headers or {}
+            headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
         return self.send_request(config, bce_v1_signer.sign,
                                  [cfc_handler.parse_error, body_parser],
                                  http_method, CfcClient.prefix + path,
@@ -725,6 +728,8 @@ class CfcClient(bce_base_client.BceBaseClient):
         user_agent = user_agent.replace('\n', '')
         headers[http_headers.USER_AGENT] = user_agent
         should_get_new_date = False
+        if http_headers.BCE_DATE not in headers:
+            should_get_new_date = True
         headers[http_headers.HOST] = config.endpoint
         if isinstance(body, unicode):
             body = body.encode(baidubce.DEFAULT_ENCODING)
@@ -743,14 +748,14 @@ class CfcClient(bce_base_client.BceBaseClient):
         if port != config.protocol.default_port:
             headers[http_headers.HOST] += ':' + str(port)
         headers[http_headers.AUTHORIZATION] = sign_function(
-            config.credentials, http_method, path, headers, params,
-            headers_to_sign=["host", "content-type"])
+            config.credentials, http_method, path, headers, params)
         encoded_params = utils.get_canonical_querystring(params, False)
         if len(encoded_params) > 0:
             uri = path + '?' + encoded_params
         else:
             uri = path
-            bce_http_client.check_headers(headers)
+        bce_http_client.check_headers(headers)
+
         retries_attempted = 0
         errors = []
         while True:
@@ -760,8 +765,7 @@ class CfcClient(bce_base_client.BceBaseClient):
                     headers[http_headers.BCE_DATE] = utils.get_canonical_time()
 
                 headers[http_headers.AUTHORIZATION] = sign_function(
-                    config.credentials, http_method, path, headers, params,
-                    headers_to_sign=["host", "content-type"])
+                    config.credentials, http_method, path, headers, params)
                 if retries_attempted > 0 and offset is not None:
                     body.seek(offset)
 
@@ -797,3 +801,4 @@ class CfcClient(bce_base_client.BceBaseClient):
                                                              'Retried %d times. All trace backs:\n'
                                                              '%s' % (retries_attempted,
                                                                      '\n'.join(errors)), e)
+            retries_attempted += 1
