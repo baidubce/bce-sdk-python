@@ -1338,6 +1338,32 @@ class TestMultiUploadFile(TestClient):
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
         self.assertEqual(response.metadata.cache_control, 'private')
 
+    def test_multi_upload_file_content_type(self):
+        """test multi upload content_type"""
+        response = self.bos.initiate_multipart_upload(bucket_name=self.BUCKET, 
+                                                      key=self.KEY,
+                                                      content_type="text/plain")
+        upload_id = response.upload_id
+        self.get_file(5)
+        part_list = []
+        response = self.bos.upload_part_from_file(bucket_name=self.BUCKET,
+                                                  key=self.KEY,
+                                                  upload_id=upload_id,
+                                                  part_number=1,
+                                                  part_size=os.path.getsize(self.FILENAME),
+                                                  file_name=self.FILENAME,
+                                                  offset = 0)
+        part_list.append({"partNumber": 1, "eTag": response.metadata.etag})
+
+        self.bos.complete_multipart_upload(bucket_name=self.BUCKET,
+                                           key=self.KEY,
+                                           upload_id=upload_id,
+                                           part_list=part_list)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=self.KEY)
+
+        self.assertEqual(response.metadata.content_type, "text/plain")
+
     def test_multi_upload_file_with_storage_class(self):
         """test multi upload with storage class"""
         # test ia

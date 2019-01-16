@@ -552,7 +552,7 @@ class BosClient(BceBaseClient):
                      content_type=None,
                      user_metadata=None,
                      content_sha256=None,
-                     storage_class=storage_class.STANDARD,
+                     storage_class=None,
                      user_headers=None,
                      config=None):
         """
@@ -604,7 +604,7 @@ class BosClient(BceBaseClient):
                                   content_type=None,
                                   user_metadata=None,
                                   content_sha256=None,
-                                  storage_class=storage_class.STANDARD,
+                                  storage_class=None,
                                   user_headers=None,
                                   config=None):
         """
@@ -648,7 +648,7 @@ class BosClient(BceBaseClient):
                    content_type=None,
                    content_sha256=None,
                    user_metadata=None,
-                   storage_class=storage_class.STANDARD,
+                   storage_class=None,
                    user_headers=None,
                    config=None):
         """
@@ -698,7 +698,7 @@ class BosClient(BceBaseClient):
                                content_type=None,
                                content_sha256=None,
                                user_metadata=None,
-                               storage_class=storage_class.STANDARD,
+                               storage_class=None,
                                user_headers=None,
                                config=None):
         """
@@ -747,7 +747,7 @@ class BosClient(BceBaseClient):
                              content_type=None,
                              content_sha256=None,
                              user_metadata=None,
-                             storage_class=storage_class.STANDARD,
+                             storage_class=None,
                              user_headers=None,
                              config=None):
 
@@ -802,7 +802,7 @@ class BosClient(BceBaseClient):
                     etag=None,
                     content_type=None,
                     user_metadata=None,
-                    storage_class=storage_class.STANDARD,
+                    storage_class=None,
                     user_headers=None,
                     copy_object_user_headers=None,
                     config=None):
@@ -948,7 +948,8 @@ class BosClient(BceBaseClient):
     def initiate_multipart_upload(self, 
                                   bucket_name, 
                                   key, 
-                                  storage_class=storage_class.STANDARD,
+                                  content_type=None,
+                                  storage_class=None,
                                   user_headers=None,
                                   config=None):
         """
@@ -965,6 +966,11 @@ class BosClient(BceBaseClient):
         headers = {}
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
+
+        if content_type is not None:
+            headers[http_headers.CONTENT_TYPE] = utils.convert_to_standard_string(content_type)
+        else:
+            headers[http_headers.CONTENT_TYPE] = http_content_types.OCTET_STREAM
 
         if user_headers is not None:
             try:
