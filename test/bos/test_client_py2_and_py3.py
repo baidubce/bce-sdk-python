@@ -893,6 +893,31 @@ class TestListObjects(TestClient):
         self.assertEqual(response.name, self.BUCKET)
         self.assertEqual(response.prefix, "")
 
+        # test prefix and marker with Chineses
+        for i in range(0, 5):
+            key1 = "测试_%s" % compat.convert_to_string(random.random())
+            key2 = "测试文件_%s" % compat.convert_to_string(random.random())
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                compat.convert_to_bytes(key1),
+                "This is a string.")
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                compat.convert_to_bytes(key2),
+                "This is a string.")
+
+        prefix = '测试'
+        marker = '测试文件'
+        response = self.bos.list_objects(self.BUCKET, prefix = prefix)
+        self.check_headers(response)
+        self.assertEqual(len(response.contents), 10)
+        self.assertEqual(response.prefix, prefix)
+        response = self.bos.list_objects(self.BUCKET, marker = marker)
+        self.check_headers(response)
+        self.assertEqual(len(response.contents), 5)
+        self.assertEqual(response.marker, marker)
+
+
     def test_list_object_with_max_keys(self):
         """test list_objects function with max_keys"""
         for i in range(0, 9):
@@ -1129,6 +1154,23 @@ class TestPutObject(TestClient):
         self.assertEqual(response.metadata.expires, "123456")
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
         self.assertEqual(response.metadata.cache_control, 'private')
+
+
+    def test_put_object_from_file_user_metadata(self):
+        """test put_object_from_file user metadata"""
+
+        user_metadata = {'company': '百度', 'work': 'develop'}
+        object_key = '测试文件'.encode('utf-8')
+        self.get_file(5)
+        response = self.bos.put_object_from_file(bucket=self.BUCKET,
+                                                 key=object_key,
+                                                 file_name=self.FILENAME,
+                                                 user_metadata = user_metadata)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+                                                 key=object_key)
+        self.assertEqual(response.metadata.bce_meta_company, '百度')
+        self.assertEqual(response.metadata.bce_meta_work, 'develop')
 
     def test_put_object_from_file_with_storage_class(self):
         """test put_object_from_file with storage class"""

@@ -62,7 +62,7 @@ def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
 
     for k, v in iteritems(headers):
         k = utils.convert_to_standard_string(k)
-        #v = utils.convert_to_standard_string(v)
+        v = utils.convert_to_standard_string(v)
         conn.putheader(k, v)
     conn.endheaders()
 
@@ -190,11 +190,16 @@ def send_request(
             
             headers_list = http_response.getheaders()
 
+            # on py3 ,values of headers_list is decoded with ios-8859-1 from
+            # utf-8 binary bytes
+
             # headers_list[*][0] is lowercase on py2
             # headers_list[*][0] is raw value py3
             if compat.PY3 and isinstance(headers_list, list):
                 temp_heads = []
                 for k, v in headers_list:
+                    k = k.encode('latin-1').decode('utf-8')
+                    v = v.encode('latin-1').decode('utf-8')
                     k = k.lower()
                     temp_heads.append((k, v))
                 headers_list = temp_heads

@@ -33,6 +33,7 @@ from Crypto.Cipher import AES
 import baidubce
 from baidubce.http import http_headers
 
+
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
     Get MD5 from file by fp.
@@ -222,12 +223,20 @@ def normalize_string(in_str, encoding_slash=True):
     """
     tmp = []
     for ch in convert_to_standard_string(in_str):
+        # on python3, ch is int type
+        sep = ''
+        index = -1
         if isinstance(ch, int):
-            ch = chr(ch).encode("utf-8")
-        if ch == b'/' and not encoding_slash:
+            # on py3
+            sep = chr(ch).encode("utf-8")
+            index = ch
+        else:
+            sep = ch
+            index = ord(ch)
+        if sep == b'/' and not encoding_slash:
             tmp.append(b'/')
         else:
-            tmp.append(_NORMALIZED_CHAR_LIST[ord(ch)])
+            tmp.append(_NORMALIZED_CHAR_LIST[index])
     return (b'').join(tmp)
 
 
