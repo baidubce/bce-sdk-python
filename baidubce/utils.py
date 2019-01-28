@@ -318,7 +318,9 @@ def guess_content_type_by_file_name(file_name):
             import mimetypes
 
             mimetypes.init()
-            mime_type = mimetypes.types_map[b"." + suffix]
+            suffix = compat.convert_to_string(b"." + suffix)
+            mime_type = mimetypes.types_map[suffix]
+            mime_type = compat.convert_to_bytes(mime_type)
     except:
         mime_type = b'application/octet-stream'
     if not mime_type:

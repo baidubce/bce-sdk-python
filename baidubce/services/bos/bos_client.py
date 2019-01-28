@@ -281,7 +281,7 @@ class BosClient(BceBaseClient):
                                   params={b'lifecycle': b''},
                                   config=config) 
 
-    @required(bucket_name=(str, str))
+    @required(bucket_name=(bytes, str))
     def delete_bucket_lifecycle(self, bucket_name, config=None):
         """
         Delete Bucket Lifecycle
