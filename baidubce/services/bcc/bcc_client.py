@@ -71,8 +71,9 @@ class BccClient(bce_base_client.BceBaseClient):
               image_id=(str, unicode))
     def create_instance(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
                         billing=None, local_disk_size_in_gb=0, create_cds_list=None,
-                        network_capacity_in_mbps=0, purchase_count=1, name=None, admin_pass=None,
-                        zone_name=None, subnet_id=None, security_group_id=None,
+                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None,
+                        admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None,
+                        gpuCard=None, fpgaCard=None,
                         client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -162,6 +163,20 @@ class BccClient(bce_base_client.BceBaseClient):
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param fpgaCard:
+            specify the fpgaCard info of creating FPGA instance,
+            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
+        :type gpuCard: string
+
+        :param gpuCard:
+            specify the gpuCard info of creating GPU instance,
+            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+        :type gpuCard: string
+
+        :param cardCount:
+            The parameter to specify the card count for creating GPU/FPGA instance
+        :type cardCount: int
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -201,6 +216,12 @@ class BccClient(bce_base_client.BceBaseClient):
             body['subnetId'] = subnet_id
         if security_group_id is not None:
             body['securityGroupId'] = subnet_id
+        if gpuCard is not None:
+            body['gpuCard'] = gpuCard
+            body['cardCount'] = cardCount if cardCount > 1 else 1
+        if fpgaCard is not None:
+            body['fpgaCard'] = fpgaCard
+            body['cardCount'] = cardCount if cardCount > 1 else 1
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 

@@ -13,7 +13,6 @@
 """
 Unit tests for bcc client.
 """
-import json
 import os
 import random
 import string
@@ -26,6 +25,8 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bcc import bcc_client
 from baidubce.services.bcc import bcc_model
+from baidubce.services.bcc import gpu_card_type
+from baidubce.services.bcc import fpga_card_type
 from baidubce.services.bcc.bcc_model import EphemeralDisk
 
 file_path = os.path.normpath(os.path.dirname(__file__))
@@ -34,13 +35,14 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
+
 HOST = 'http://bcc.bce-api.baidu.com'
-AK = '4f4b13eda66e42e29225bb02d9193a48'
-SK = '507b4a729f6a44feab398a6a5984304d'
+AK = 'a8fe25bb7112424295f4f51024c9875d'
+SK = 'eee154f84c494e9a93add6a8367e791d'
 
 instance_id = 'i-gJVyzFlv'
 volume_id = 'v-QtHXNLWa'
-image_id = 'm-32s5YYqD'
+image_id = 'm-4FOem9YJ'
 snapshot_id = 's-Ro9vAnQE'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-hweloYd8'
@@ -50,6 +52,7 @@ pre_paid_billing = bcc_model.Billing('Prepaid', 1)
 
 force_stop = False
 admin_pass = 'test@baidu'
+
 
 
 def generate_client_token_by_random():
@@ -72,7 +75,6 @@ def generate_client_token_by_uuid():
     """
     return str(uuid.uuid4())
 
-
 generate_client_token = generate_client_token_by_uuid
 
 
@@ -93,17 +95,14 @@ class TestBccClient(unittest.TestCase):
         client_token = generate_client_token()
         instance_name = 'test_instance_' + client_token
         self.assertEqual(
-            type(self.client.create_instance(instance_type,
+            type(self.client.create_instance(1, 1,
                                              image_id,
+                                             instance_type=instance_type,
                                              name=instance_name,
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
     def test_create_instance_by_cpu_memory(self):
-        """
-        test case for create_instance_by_cpu_memory
-        :return:
-        """
         client_token = generate_client_token()
         instance_name = 'test_instance_' + client_token
         self.assertEqual(
@@ -114,22 +113,60 @@ class TestBccClient(unittest.TestCase):
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_gpu_instance(self):
+        """
+        test case for test_create_gpu_instance
+        """
+        client_token = generate_client_token()
+        instance_name = 'test_instance_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance(12, 40,
+                                             image_id,
+                                             name=instance_name,
+                                             billing=post_paid_billing,
+                                             client_token=client_token,
+                                             instance_type='G1',
+                                             local_disk_size_in_gb=40,
+                                             gpuCard=gpu_card_type.P4,
+                                             cardCount=1)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_fpga_instance(self):
+        """
+        test case for test_create_fpga_instance
+        """
+        client_token = generate_client_token()
+        instance_name = 'test_instance_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance(16, 64,
+                                             "m-r3BBe7Ep",
+                                             name=instance_name,
+                                             billing=post_paid_billing,
+                                             client_token=client_token,
+                                             instance_type='F1',
+                                             local_disk_size_in_gb=450,
+                                             fpgaCard=fpga_card_type.KU115,
+                                             cardCount=1)),
+            baidubce.bce_response.BceResponse)
+
     def test_create_instance_from_dedicated_host(self):
         """
         test case for create instance from dedicated host
         """
         ephemeral_disk = EphemeralDisk(6144)
         ephemeral_disks = [ephemeral_disk.__dict__, ephemeral_disk.__dict__]
-        self.client.create_instance_from_dedicated_host(1, 2, 'm-32s5YYqD', 'd-MPgs6jPr',
-                                                        ephemeral_disks)
+        self.client.create_instance_from_dedicated_host(1, 2, 'm-32s5YYqD', 'd-MPgs6jPr', ephemeral_disks)
 
     def test_list_instances(self):
         """
         test case for list_instances
         """       
-        self.assertEqual(
-            type(self.client.list_instances()),
-            baidubce.bce_response.BceResponse)
+        # self.assertEqual(
+        #     type(self.client.list_instances()),
+        #     baidubce.bce_response.BceResponse)
+        print self.client.list_instances(dedicated_host_id='d-MPgs6jPr')
+        print self.client.list_instances(zone_name='cn-bj-b')
+        print self.client.list_instances()
 
     def test_get_instance(self):
         """
@@ -266,9 +303,8 @@ class TestBccClient(unittest.TestCase):
         client_token = generate_client_token()
         billing = pre_paid_billing
         cds_size_in_gb = 5
-        create_response = self.client.create_volume_with_cds_size(cds_size_in_gb,
-                                                                  zone_name='cn-bj-a',
-                                                                  client_token=client_token)
+        create_response = self.client.create_volume_with_cds_size(cds_size_in_gb, zone_name='cn-bj-a',
+                                                client_token=client_token)
         print create_response
         self.assertEqual(
             type(create_response),
@@ -524,7 +560,6 @@ class TestBccClient(unittest.TestCase):
         """
         print self.client.unassign_private_ip_from_instance('i-gDwqItW2', '192.168.0.12')
 
-
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     
@@ -543,6 +578,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_unassign_private_ip_from_instance"))
 
     suite.addTest(TestBccClient("test_list_instances"))
+    # suite.addTest(TestBccClient("test_create_gpu_instance"))
+    # suite.addTest(TestBccClient("test_create_fpga_instance"))
     # suite.addTest(TestBccClient("test_list_volumes"))
     # suite.addTest(TestBccClient("test_list_images"))
     # suite.addTest(TestBccClient("test_list_snapshots"))
