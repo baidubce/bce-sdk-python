@@ -2195,6 +2195,102 @@ class TestDecorator(TestClient):
         self.assertRaises(TypeError, MyClass().my_func, a=1, b=[], c=[])
 
 
+class TestSetObjectAcl(TestClient):
+    """test set_bucket_acl"""
+    def test_set_object_acl(self):
+        """test set_object_acl, which set object acl from Grant list"""
+
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        grant_list = list()
+        grant_list.append({'grantee':
+                            [{'id': 'a0a2fe988a774be08978736ae2a1668b'},
+                            {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
+                           'permission': ['FULL_CONTROL']})
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, grant_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+    def test_set_bucket_canned_acl(self):
+        """test set_object_canned_acl, set object acl from header and set canned acl"""
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        err = None
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY, canned_acl = b"private")
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY,
+                    grant_read = b'id="a0a2fe988a774be08978736ae2a1668b",id="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"')
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY, 
+                grant_full_control = b'id="a0a2fe988a774be08978736ae2a1668b",id="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"')
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+class TestGetAndDeleteObjectAcl(TestClient):
+    """test get_bucket_acl function"""
+    def test_get_bucket_acl(self):
+        """test get_bucket_acl function normally"""
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        grant_list = list()
+        grant_list.append({'grantee':
+                            [{'id': 'a0a2fe988a774be08978736ae2a1668b'},
+                            {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
+                           'permission': ['FULL_CONTROL']})
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, grant_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            response = self.bos.get_object_acl(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.access_control_list[0].grantee[0].id,
+                         'a0a2fe988a774be08978736ae2a1668b')
+        self.assertEqual(response.access_control_list[0].grantee[1].id,
+                         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        self.assertListEqual(response.access_control_list[0].permission,
+                             ["FULL_CONTROL"])
+
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, response.access_control_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            self.bos.delete_object_acl(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2229,6 +2325,8 @@ def run_test():
     runner.run(unittest.makeSuite(TestGetBucketLifecycle))
     runner.run(unittest.makeSuite(TestPutBucketCors))
     runner.run(unittest.makeSuite(TestGetBucketCors))
+    runner.run(unittest.makeSuite(TestSetObjectAcl))
+    runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
  
 run_test()
 cov.stop()

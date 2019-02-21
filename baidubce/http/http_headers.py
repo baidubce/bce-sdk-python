@@ -82,6 +82,10 @@ BOS_DEBUG_ID = b"x-bce-bos-debug-id"
 
 BOS_STORAGE_CLASS = b"x-bce-storage-class"
 
+BOS_GRANT_READ = b'x-bce-grant-read'
+
+BOS_GRANT_FULL_CONTROL = b'x-bce-grant-full-control'
+
 # STS HTTP Headers
 
 STS_SECURITY_TOKEN = b"x-bce-security-token"

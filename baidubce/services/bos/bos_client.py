@@ -1312,6 +1312,125 @@ class BosClient(BceBaseClient):
             else:
                 break
 
+# object acl
+    @required(bucket_name=(bytes, str), key=(bytes), acl=(list, dict))
+    def set_object_acl(self, bucket_name, key, acl, config=None):
+        """
+        Set Access Control Level of object
+
+        :type bucket: string
+        :param bucket: None
+
+        :type acl: list of grant
+        :param acl: None
+        :return:
+            **HttpResponse Class**
+        """
+        self._send_request(http_methods.PUT,
+                           bucket_name,
+                           key,
+                           body=json.dumps({'accessControlList': acl},
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'acl': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str), key=(bytes))
+    def set_object_canned_acl(self, bucket_name, key,
+            canned_acl=None,
+            grant_read=None,
+            grant_full_control=None,
+            config=None):
+        """
+
+        :type bucket_name: string
+        :param bucket_name: None
+
+        :type key: string
+        :param key: None
+
+        :type canned_acl: string
+        :param canned_acl: for header 'x-bce-acl', it's value only is
+        canned_acl.PRIVATE or canned_acl.PRIVATE_READ
+
+        :type grant_read: string
+        :param grant_read: Object id of getting READ right permission.
+        for exapmle,grant_read = 'id="6c47...4c94",id="8c42...4c94"'
+
+        :type grant_full_control: string
+        :param grant_full_control: Object id of getting READ right permission.
+        for exapmle,grant_full_control = 'id="6c47...4c94",id="8c42...4c94"'
+
+        :param config:
+        :return:
+        """
+        headers = None
+        num_args = 0
+        if canned_acl is not None:
+            headers =  {http_headers.BCE_ACL: compat.convert_to_bytes(canned_acl)}
+            num_args += 1
+        if grant_read is not None:
+            headers = {http_headers.BOS_GRANT_READ: compat.convert_to_bytes(grant_read)}
+            num_args += 1
+        if grant_full_control is not None:
+            headers = {http_headers.BOS_GRANT_FULL_CONTROL: compat.convert_to_bytes(grant_full_control)}
+            num_args += 1
+
+        if num_args == 0:
+            raise ValueError("donn't give any object canned acl arguments!")
+        elif num_args >= 2:
+            raise ValueError("cann't get more than one object canned acl arguments!")
+
+        self._send_request(http_methods.PUT,
+                           bucket_name,
+                           key,
+                           headers=headers,
+                           params={b'acl': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str), key=(bytes))
+    def get_object_acl(self, bucket_name, key, config=None):
+        """
+        Get Access Control Level of object
+
+        :type bucket: string
+        :param bucket: None
+        
+        :type key: string
+        :param key: None
+
+        :return:
+            **json text of acl**
+        """
+        return self._send_request(
+                http_methods.GET,
+                bucket_name,
+                key,
+                params={b'acl': b''},
+                config=config)
+
+    @required(bucket_name=(bytes, str), key=(bytes))
+    def delete_object_acl(self, bucket_name, key, config=None):
+        """
+        Get Access Control Level of  object
+
+        :type bucket: string
+        :param bucket: None
+
+        :type key: string
+        :param key: None
+
+        :return:
+            **json text of acl**
+        """
+        return self._send_request(
+                http_methods.DELETE,
+                bucket_name,
+                key,
+                params={b'acl': b''},
+                config=config)
+
+# end of object acl
     @staticmethod
     def _prepare_object_headers(
             content_length=None,
