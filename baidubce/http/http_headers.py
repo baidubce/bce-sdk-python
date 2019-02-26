@@ -86,6 +86,12 @@ BOS_GRANT_READ = b'x-bce-grant-read'
 
 BOS_GRANT_FULL_CONTROL = b'x-bce-grant-full-control'
 
+BOS_FETCH_SOURCE = b"x-bce-fetch-source"
+
+BOS_FETCH_MODE = b"x-bce-fetch-mode"
+
+BOS_SERVER_SIDE_ENCRYPTION = b"x-bce-server-side-encryption"
+
 # STS HTTP Headers
 
 STS_SECURITY_TOKEN = b"x-bce-security-token"

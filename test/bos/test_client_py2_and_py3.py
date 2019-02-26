@@ -58,6 +58,8 @@ from baidubce.retry.retry_policy import NoRetryPolicy
 from baidubce.retry.retry_policy import BackOffRetryPolicy
 import imp
 
+import ipdb
+
 imp.reload(sys)
 if compat.PY2:
     sys.setdefaultencoding('utf8')
@@ -678,6 +680,284 @@ class TestGetBucketAcl(TestClient):
         err = None
         try:
             self.bos.set_bucket_acl(self.BUCKET, response.access_control_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+# static website
+
+class TestBucketStaticWebsite(TestClient):
+    """test bucket static website"""
+    def test_bucket_static_website(self):
+        """test put,get,delete bucket static website"""
+        index = 'index.html'
+        not_found = '404.html'
+        # put object as index page and 404 page
+        self.bos.put_object_from_string(self.BUCKET,
+                compat.convert_to_bytes(index),
+                "Welcome to bce!")
+        self.bos.put_object_from_string(self.BUCKET,
+                compat.convert_to_bytes(not_found),
+                "404 ERROR!We cann't find the page!")
+        # test put bucket static website
+        err = None
+        try:
+            self.bos.put_bucket_static_website(self.BUCKET, index=index)
+            self.bos.put_bucket_static_website(self.BUCKET, not_found=not_found)
+            self.bos.put_bucket_static_website(self.BUCKET, index=index, not_found=not_found)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket static website
+        err = None
+        try:
+            response = self.bos.get_bucket_static_website(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.index, index)
+        self.assertEqual(response.not_found, not_found)
+
+        err = None
+        try:
+            self.bos.put_bucket_static_website(self.BUCKET,
+                    index=response.index,
+                    not_found=not_found)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket static website
+        err = None
+        try:
+            response = self.bos.delete_bucket_static_website(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test server encryption
+class TestPutBucketEncryption(TestClient):
+    """test put_bucket_encryption"""
+    def test_put_bucket_encryption(self):
+        """test set_bucket_acl with AES256 algorithm"""
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+class TestGetAndDeleteBucketEncryption(TestClient):
+    """test get_bucket_encryption and delete_bucket_encryption function"""
+    def test_get_dnd_elete_bucket_encryption(self):
+        """test get_bucket_encryption and delete_bucket_encryption function"""
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucekt server encryption algorithm
+        err = None
+        try:
+            response = self.bos.get_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        self.check_headers(response)
+        self.assertEqual(response.encryption_algorithm,
+                         'AES256')
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET, response.encryption_algorithm)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket server encryption
+        err = None
+        try:
+            self.bos.delete_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test bucket copyright protection
+class TestBucketCopyrightProtection(TestClient):
+    """test bucket copyright protection"""
+    def test_bucket_copyright_protection(self):
+        """test put,get,delete bucket copyright protection"""
+        resource = [self.BUCKET + "/test/*"]
+        # test put bucket copyright protection
+        err = None
+        try:
+            self.bos.put_bucket_copyright_protection(self.BUCKET, resource)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket copyright protection
+        err = None
+        try:
+            response = self.bos.get_bucket_copyright_protection(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.resource[0], resource[0])
+
+        err = None
+        try:
+            self.bos.put_bucket_copyright_protection(self.BUCKET, response.resource)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket copyright protection 
+        err = None
+        try:
+            response = self.bos.delete_bucket_copyright_protection(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test bucket replication
+
+class TestBucketReplication(TestClient):
+    """test bucket replication"""
+    def test_bucket_replication(self):
+        """test put,get,delete bucket replication"""
+        # create destination bucket
+        dst_bucket_name = self.BUCKET + "-gz"
+        if not self.bos.does_bucket_exist(dst_bucket_name):
+            self.bos.create_bucket(dst_bucket_name,
+                config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
+        replication = {
+        "status":"enabled",
+        "resource":[
+            self.BUCKET + "/*"
+            ],
+        "destination":
+            {
+                "bucket": dst_bucket_name,
+                "storageClass":"COLD"
+            },
+        "replicateHistory":
+            {
+                "bucket": dst_bucket_name,
+                "storageClass":"COLD"
+            },
+        "replicateDeletes":"enabled",
+        "id":"sample-bucket-replication-config"
+        }
+        # test put bucket replication
+        err = None
+        try:
+            self.bos.put_bucket_replication(self.BUCKET, replication)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket replication
+        err = None
+        try:
+            response = self.bos.get_bucket_replication(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.resource[0], replication['resource'][0])
+        self.assertEqual(response.destination.bucket, replication['destination']['bucket'])
+        # test get_bucket_replication_progress()
+        err = None
+        try:
+            response = self.bos.get_bucket_replication_progress(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.status, replication['status'])
+        # test delete bucket replication
+        err = None
+        try:
+            response = self.bos.delete_bucket_replication(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        self.bos.delete_bucket(dst_bucket_name,
+            config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
+
+
+# test bucket trash
+
+class TestBucketTrash(TestClient):
+    """test bucket trash"""
+    def test_bucket_trash(self):
+        """test put,get,delete bucket trash"""
+        # test put bucket trash
+        trash_dir = '.mytrash'
+        err = None
+        try:
+            self.bos.put_bucket_trash(self.BUCKET, trash_dir=trash_dir)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket trash
+        err = None
+        try:
+            response = self.bos.get_bucket_trash(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.trash_dir, trash_dir)
+
+        # delete object to trash
+        object_for_delete = b'wonderful'
+        self.bos.put_object_from_string(self.BUCKET, object_for_delete, "hello world!")
+        self.bos.delete_object(self.BUCKET, object_for_delete)
+        deleted_object = trash_dir + "/" + compat.convert_to_string(object_for_delete)
+        deleted_object = compat.convert_to_bytes(deleted_object)
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, deleted_object)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            self.bos.put_bucket_trash(self.BUCKET, trash_dir=response.trash_dir)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket trash
+        err = None
+        try:
+            response = self.bos.delete_bucket_trash(self.BUCKET)
         except BceServerError as e:
             err = e
         finally:
@@ -2291,6 +2571,25 @@ class TestGetAndDeleteObjectAcl(TestClient):
         finally:
             self.assertIsNone(err)
 
+
+# test fetch object
+class TestFetchObject(TestClient):
+    """test fetch_object function"""
+    def test_fetch_object(self):
+        """test get_bucket_acl function normally"""
+        url = "http://www.baidu.com/img/bd_logo1.png?where=super"
+        obj_key = b'logo.png'
+        err = None
+        try:
+            response = self.bos.fetch_object(self.BUCKET, obj_key, url, bos_client.FETCH_MODE_ASYNC)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertIsNotNone(response.job_id)
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2327,7 +2626,14 @@ def run_test():
     runner.run(unittest.makeSuite(TestGetBucketCors))
     runner.run(unittest.makeSuite(TestSetObjectAcl))
     runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
- 
+    runner.run(unittest.makeSuite(TestBucketStaticWebsite))
+    runner.run(unittest.makeSuite(TestPutBucketEncryption))
+    runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
+    runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
+    runner.run(unittest.makeSuite(TestBucketReplication))
+    runner.run(unittest.makeSuite(TestBucketTrash))
+    runner.run(unittest.makeSuite(TestFetchObject))
+
 run_test()
 cov.stop()
 cov.save()

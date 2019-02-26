@@ -44,7 +44,15 @@ from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
 
+import ipdb
+
+
 _logger = logging.getLogger(__name__)
+
+FETCH_MODE_SYNC = b"sync"
+FETCH_MODE_ASYNC = b"async"
+
+ENCRYPTION_ALGORITHM= "AES256"
 
 
 class BosClient(BceBaseClient):
@@ -188,6 +196,317 @@ class BosClient(BceBaseClient):
             **HttpResponse Class**
         """
         return self._send_request(http_methods.DELETE, bucket_name, config=config)
+
+# bucket static website
+    @required(bucket_name=(bytes, str))
+    def put_bucket_static_website(self, bucket_name, index=None, not_found=None, config=None):
+        """
+        Set index page and not_found 404 page for static website trusteeship
+
+        :type bucket_name: string
+        :param bucket_name: None
+
+        :type index:string
+        :param index:object name of index page for static website trusteeship
+
+        :type not_found:string
+        :param not_found:object name of not_found 404 page for static website trusteeship
+
+        :return:
+            **HttpResponse Class**
+        """
+        body = {}
+        if index is not None:
+            body['index'] = index
+        if not_found is not None:
+            body['notFound'] = not_found
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps(body,
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'website': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_static_website(self, bucket_name, config=None):
+        """
+        Get Information of static website trusteeship
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'website': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_static_website(self, bucket_name, config=None):
+        """
+        Delete Information of static website trusteeship to be closed
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'website': b''},
+                           config=config)
+
+# bucket encryption
+    @required(bucket_name=(bytes, str))
+    def put_bucket_encryption(self, bucket_name, encryption_algorithm=ENCRYPTION_ALGORITHM, config=None):
+        """
+        Set server encryption for bucket
+
+        :type bucket: string
+        :param bucket: None
+
+        :type encryption_algorithm: string
+        :param grant_list: server encryption algorithm for bucekt.Now the value of encryption_algorithm
+        only is 'AES256'
+
+        :return:
+            **HttpResponse Class**
+        """
+        encryption_algorithm = compat.convert_to_string(encryption_algorithm)
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps({"encryptionAlgorithm":encryption_algorithm},
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'encryption': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_encryption(self, bucket_name, config=None):
+        """
+        Get status of server encryption
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'encryption': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_encryption(self, bucket_name, config=None):
+        """
+        Close server encryption
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'encryption': b''},
+                           config=config)
+
+# Bucket Copyright Protection
+
+    @required(bucket_name=(bytes, str), resource=(list))
+    def put_bucket_copyright_protection(self, bucket_name, resource, config=None):
+        """
+        Open image copyright protection and set resource
+
+        :type bucket: string
+        :param bucket: None
+
+        :type resource: list of  string
+        :param grant_list: resource range to be protected
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps({"resource": resource},
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'copyrightProtection': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_copyright_protection(self, bucket_name, config=None):
+        """
+        Get configuration of image copyright protection
+
+        :type bucket: string
+        :param grant_list: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'copyrightProtection': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_copyright_protection(self, bucket_name, config=None):
+        """
+        Close image copyright protection
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'copyrightProtection': b''},
+                           config=config)
+
+# bucket replication
+    @required(bucket_name=(bytes, str), replication=(dict))
+    def put_bucket_replication(self, bucket_name, replication, config=None):
+        """
+        Open cross-region replication
+
+        :type bucket: string
+        :param bucket: None
+
+        :type replication: dict
+        :type replication: configuration for cross-region replication
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps(replication,
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'replication': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_replication(self, bucket_name, config=None):
+        """
+        Get configuration of cross-region replication 
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'replication': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_replication(self, bucket_name, config=None):
+        """
+        Delete configuration of cross-region replication and close it 
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'replication': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_replication_progress(self, bucket_name, config=None):
+        """
+        Get status of cross-region replication,for exapmle 'historyReplicationPercent',
+        'latestReplicationTime'
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'replicationProgress': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def put_bucket_trash(self, bucket_name, trash_dir=None, config=None):
+        """
+        Open bucket trash function
+
+        :type bucket: string
+        :param bucket: None
+
+        :type trash_dir: string
+        :param trash_dir: directory of trash,optional
+
+        :return:
+            **HttpResponse Class**
+        """
+        if trash_dir is not None:
+            trash_dir = compat.convert_to_string(trash_dir)
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps({"trashDir": trash_dir},
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'trash': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_trash(self, bucket_name, config=None):
+        """
+        Get status of bucket trash
+
+        :type bucket: string
+        :param grant_list: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'trash': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_trash(self, bucket_name, config=None):
+        """
+        Close bucket trash
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'trash': b''},
+                           config=config)
 
     @required(bucket_name=(bytes, str), key=bytes)
     def generate_pre_signed_url(self,
@@ -1095,14 +1414,14 @@ class BosClient(BceBaseClient):
         headers[http_headers.BCE_COPY_SOURCE_RANGE] = range
         if etag is not None:
             headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
-        
+
         return self._send_request(
             http_methods.PUT,
             target_bucket_name,
             target_key,
             headers=headers,
             params={b'partNumber': part_number, b'uploadId': upload_id},
-            config=config)    
+            config=config)
 
     @required(bucket_name=(bytes, str),
               key=bytes,
@@ -1312,7 +1631,6 @@ class BosClient(BceBaseClient):
             else:
                 break
 
-# object acl
     @required(bucket_name=(bytes, str), key=(bytes), acl=(list, dict))
     def set_object_acl(self, bucket_name, key, acl, config=None):
         """
@@ -1363,6 +1681,7 @@ class BosClient(BceBaseClient):
 
         :param config:
         :return:
+            **HttpResponse Class**
         """
         headers = None
         num_args = 0
@@ -1400,7 +1719,7 @@ class BosClient(BceBaseClient):
         :param key: None
 
         :return:
-            **json text of acl**
+            **HttpResponse Class**
         """
         return self._send_request(
                 http_methods.GET,
@@ -1421,7 +1740,7 @@ class BosClient(BceBaseClient):
         :param key: None
 
         :return:
-            **json text of acl**
+            **HttpResponse Class**
         """
         return self._send_request(
                 http_methods.DELETE,
@@ -1430,7 +1749,44 @@ class BosClient(BceBaseClient):
                 params={b'acl': b''},
                 config=config)
 
-# end of object acl
+    @required(bucket_name=(bytes, str), key=(bytes), url=(bytes, str))
+    def fetch_object(self, bucket_name, key, url,
+            fetch_mode=None,
+            storage_class=None,
+            config=None):
+        """
+        fetch object with given url and save to Baidu object storage
+
+        :type bucket: string
+        :param bucket: None
+
+        :type key: string
+        :param key: object name to be saved
+
+        :type url:string
+        :param url: url of resource to be fetched
+
+        :type fetch_mode:string
+        :param fetch_mode: fetch mode for get resource, valid value only is
+        'sync' and 'async'
+
+        :return:
+            **HttpResponse Class**
+        """
+        headers = {}
+        headers[http_headers.BOS_FETCH_SOURCE] = compat.convert_to_bytes(url)
+        if fetch_mode is not None:
+            headers[http_headers.BOS_FETCH_MODE] = fetch_mode
+        if storage_class is not None:
+            headers[http_headers.BOS_STORAGE_CLASS] = storage_class
+        return self._send_request(
+                http_methods.POST,
+                bucket_name,
+                key,
+                headers=headers,
+                params={b'fetch': b''},
+                config=config)
+
     @staticmethod
     def _prepare_object_headers(
             content_length=None,
