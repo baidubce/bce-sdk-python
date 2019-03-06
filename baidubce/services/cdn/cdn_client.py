@@ -29,6 +29,7 @@ from baidubce.http import http_methods
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.utils import required
+from baidubce import utils
 
 _logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class CdnClient(bce_base_client.BceBaseClient):
     """
     CdnClient
     """
-    prefix = '/v2'
+    prefix = b"/v2"
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -845,4 +846,4 @@ class CdnClient(bce_base_client.BceBaseClient):
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, CdnClient.prefix + path, body, headers, params)
+            http_method, utils.append_uri(CdnClient.prefix, path), body, headers, params)
