@@ -551,6 +551,43 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
+    def test_set_seo(self):
+        """
+        test_set_seo
+        """
+        error = None
+        try:
+            self.cdn_client.set_seo(domain='opencdn3.sys-qa.com', push_record=True, directory_origin=True)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_seo(self):
+        """
+        test_get_seo
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_seo(domain='opencdn3.sys-qa.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_follow_protocol(self):
+        """
+        test_set_follow_protocol
+        """
+        error = None
+        try:
+            response = self.cdn_client.set_follow_protocol(domain='opencdn3.sys-qa.com', follow=True)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
 
 if __name__ == "__main__":
     unittest.main()

@@ -20,6 +20,7 @@ import random
 import string
 
 import cdn_sample_conf
+from baidubce import compat
 from baidubce import exception
 from baidubce.exception import BceServerError
 from baidubce.services.cdn.cdn_client import CdnClient
@@ -355,6 +356,26 @@ def test_get_domain_log(c):
             endTime = '2018-01-11T12:50:00Z')
     print(response)
 
+def test_set_seo(c):
+    """
+    test_set_seo
+    """
+    response = c.set_seo(domain='opencdn3.sys-qa.com', push_record=True, directory_origin=True)
+    print(response)
+
+def test_get_seo(c):
+    """
+    test_set_seo
+    """
+    response = c.get_seo(domain='opencdn3.sys-qa.com')
+    print(response)
+
+def test_set_follow_protocol(c):
+    """
+    test_set_http_header
+    """
+    response = c.set_follow_protocol(domain='opencdn3.sys-qa.com', follow=True)
+    print(response)
 
 def test_ip_query(c):
     """
@@ -398,4 +419,7 @@ if __name__ == "__main__":
     # test_list_prefetch_tasks(c)
     # test_get_quota(c)
     # test_get_domain_log(c)
+    # test_set_seo(c)
+    # test_get_seo(c)
+    # test_set_follow_protocol(c)
     # test_ip_query(c)
