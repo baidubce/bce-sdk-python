@@ -356,12 +356,14 @@ def test_get_domain_log(c):
             endTime = '2018-01-11T12:50:00Z')
     print(response)
 
+
 def test_set_seo(c):
     """
     test_set_seo
     """
     response = c.set_seo(domain='opencdn3.sys-qa.com', push_record=True, directory_origin=True)
     print(response)
+
 
 def test_get_seo(c):
     """
@@ -370,12 +372,14 @@ def test_get_seo(c):
     response = c.get_seo(domain='opencdn3.sys-qa.com')
     print(response)
 
+
 def test_set_follow_protocol(c):
     """
     test_set_http_header
     """
     response = c.set_follow_protocol(domain='opencdn3.sys-qa.com', follow=True)
     print(response)
+
 
 def test_ip_query(c):
     """
