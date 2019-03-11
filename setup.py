@@ -42,7 +42,7 @@ setup(
 #              'baidubce.services.vcr',
 #              'baidubce.services.vca',
 #              'baidubce.services.sms',
-              'baidubce.services.cdn',
+              'baidubce.services.cdn'
 #              'baidubce.services.cfc',
 #              'baidubce.services.infinite',
 #              'baidubce.services.tsdb'],
