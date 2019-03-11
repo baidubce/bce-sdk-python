@@ -3,14 +3,11 @@
 Test models of VCA.
 """
 
-import sys
 import unittest
 import coverage
 import vca_test_config
 from baidubce.services.vca import vca_client
 
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 cov = coverage.coverage()
 cov.start()
@@ -22,11 +19,12 @@ class TestVcaClient(unittest.TestCase):
     """
     TestVcaClient
     """
+
     def setUp(self):
         """
         set up
         """
-        print dir(vca_client)
+        print(dir(vca_client))
         self.the_client = vca_client.VcaClient(vca_test_config.config)
 
     def tearDown(self):
@@ -40,13 +38,14 @@ class TestMedia(TestVcaClient):
     """
     TestAnalyzeMediaJob
     """
+
     def test_put_media(self):
         """
         A test case
         """
         err = None
         try:
-            print self.the_client.put_media("bos://bucket-public-bj/艾宝俊新闻.mp4")
+            print(self.the_client.put_media("bos://bucket-public-bj/艾宝俊新闻.mp4"))
         except Exception as e:
             err = e
         finally:
@@ -58,7 +57,7 @@ class TestMedia(TestVcaClient):
         """
         err = None
         try:
-            print self.the_client.get_media("bos://bucket-public-bj/艾宝俊新闻.mp4")
+            print(self.the_client.get_media("bos://bucket-public-bj/艾宝俊新闻.mp4"))
         except Exception as e:
             err = e
         finally:

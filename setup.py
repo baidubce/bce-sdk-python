@@ -39,8 +39,8 @@ setup(
 #              'baidubce.services.bmr',
 #              'baidubce.services.dumap',
 #              'baidubce.services.media',
-#              'baidubce.services.vcr',
-#              'baidubce.services.vca',
+              'baidubce.services.vcr',
+              'baidubce.services.vca',
 #              'baidubce.services.sms',
               'baidubce.services.cdn'
 #              'baidubce.services.cfc',
