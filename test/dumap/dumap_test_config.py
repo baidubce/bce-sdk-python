@@ -11,6 +11,10 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+"""
+Configurations for dumap client tests.
+"""
+
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
