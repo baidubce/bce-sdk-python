@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -22,88 +22,88 @@ import dumap_test_config
 
 
 class TestDumapClient(unittest.TestCase):
-	"""
-	unit test
-	"""
+    """
+    unit test
+    """
 
-	def setUp(self):
-		"""
-		set up
-		"""
-		self.the_client = dumap_client.DumapClient(dumap_test_config.config)
+    def setUp(self):
+        """
+        set up
+        """
+        self.the_client = dumap_client.DumapClient(dumap_test_config.config)
 
-	def tearDown(self):
-		"""
-		tear down
-		"""
-		self.the_client = None
+    def tearDown(self):
+        """
+        tear down
+        """
+        self.the_client = None
 
-	def test_place_search(self):
-		"""
-		test call place_serach
-		"""
+    def test_place_search(self):
+        """
+        test call place_serach
+        """
 
-		params = {}
-		params['query'] = 'ATM机'
-		params['tag'] = '银行'
-		params['region'] = '北京'
-		params['output'] = 'json'
+        params = {}
+        params['query'] = 'ATM机'
+        params['tag'] = '银行'
+        params['region'] = '北京'
+        params['output'] = 'json'
 
-		response = self.the_client.call_open_api(
-			uri=b'/place/v2/search',
-			app_id=dumap_test_config.APP_ID,
-			params=params)
-		print(response)
+        response = self.the_client.call_open_api(
+            uri=b'/place/v2/search',
+            app_id=dumap_test_config.APP_ID,
+            params=params)
+        print(response)
 
-	def test_geocoder(self):
-		"""
-		test call geocoder
-		"""
-		params = {}
-		params['address'] = '北京市海淀区上地十街10号'
+    def test_geocoder(self):
+        """
+        test call geocoder
+        """
+        params = {}
+        params['address'] = '北京市海淀区上地十街10号'
 
-		response = self.the_client.call_open_api(
-			uri=b'/geocoder/v2/',
-			app_id=dumap_test_config.APP_ID,
-			params=params)
-		print(response)
+        response = self.the_client.call_open_api(
+            uri=b'/geocoder/v2/',
+            app_id=dumap_test_config.APP_ID,
+            params=params)
+        print(response)
 
-	def test_geoconv(self):
-		"""
-		test call geoconv
-		"""
-		params = {}
-		params['coords'] = '114.21892734521,29.575429778924'
-		params['from'] = 1
-		params['to'] = 5
-		params['output'] = 'json'
+    def test_geoconv(self):
+        """
+        test call geoconv
+        """
+        params = {}
+        params['coords'] = '114.21892734521,29.575429778924'
+        params['from'] = 1
+        params['to'] = 5
+        params['output'] = 'json'
 
-		response = self.the_client.call_open_api(
-			uri=b'/geoconv/v1/',
-			app_id=dumap_test_config.APP_ID,
-			params=params)
-		print(response)
+        response = self.the_client.call_open_api(
+            uri=b'/geoconv/v1/',
+            app_id=dumap_test_config.APP_ID,
+            params=params)
+        print(response)
 
-	def test_direction(self):
-		"""
-		test call direction
-		"""
-		params = {}
-		params['origin'] = '40.056878,116.30815'
-		params['destination'] = '31.222965,121.505821'
+    def test_direction(self):
+        """
+        test call direction
+        """
+        params = {}
+        params['origin'] = '40.056878,116.30815'
+        params['destination'] = '31.222965,121.505821'
 
-		response = self.the_client.call_open_api(
-			uri=b'/direction/v2/transit',
-			app_id=dumap_test_config.APP_ID,
-			params=params)
-		print(response)
+        response = self.the_client.call_open_api(
+            uri=b'/direction/v2/transit',
+            app_id=dumap_test_config.APP_ID,
+            params=params)
+        print(response)
 
 
 if __name__ == "__main__":
-	suite = unittest.TestSuite()
-	suite.addTest(TestDumapClient("test_place_search"))
-	suite.addTest(TestDumapClient("test_geocoder"))
-	suite.addTest(TestDumapClient("test_geoconv"))
-	suite.addTest(TestDumapClient("test_direction"))
-	runner = unittest.TextTestRunner()
-	runner.run(suite)
+    suite = unittest.TestSuite()
+    suite.addTest(TestDumapClient("test_place_search"))
+    suite.addTest(TestDumapClient("test_geocoder"))
+    suite.addTest(TestDumapClient("test_geoconv"))
+    suite.addTest(TestDumapClient("test_direction"))
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
