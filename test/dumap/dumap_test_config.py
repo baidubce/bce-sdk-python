@@ -21,10 +21,10 @@ from baidubce.auth.bce_credentials import BceCredentials
 
 HOST = b'lbs.baidubce.com'
 # online AK SK
-AK = b'b2171730f9fd4d8ea6b6e87902aa7016'
-SK = b'1d868df398434647b5358e3b31d3927f'
+AK = b'your-ak'
+SK = b'your-sk'
 # console app_id
-APP_ID = b'4c34562f-2bf8-4bc1-85cf-6c7858d30c1b'
+APP_ID = b'your-app-id'
 
 logger = logging.getLogger('baidubce.services.dumap.DumapClient')
 fh = logging.FileHandler('test_dumap_client.log')
