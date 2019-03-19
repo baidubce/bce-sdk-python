@@ -25,7 +25,6 @@ from baidubce.http import handler
 from baidubce.http import http_methods
 from baidubce.utils import required
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -54,12 +53,17 @@ class DumapClient(bce_base_client.BceBaseClient):
         :return:
         :rtype: baidubce.bce_response.BceResponse
                 """
-        return self._send_request(
+        response = self._send_request(
             http_methods.GET,
             uri,
             params=params,
             headers={b'x-app-id': app_id},
             config=config)
+
+        if response.body:
+            return response.body.decode("utf-8")
+        else:
+            return response
 
     @staticmethod
     def _merge_config(self, config):
@@ -85,6 +89,7 @@ class DumapClient(bce_base_client.BceBaseClient):
 
 def sign_wrapper(headers_to_sign):
     """wrapper the bce_v1_signer.sign()."""
+
     def _wrapper(credentials, http_method, path, headers, params):
         return bce_v1_signer.sign(credentials, http_method, path, headers, params,
                                   headers_to_sign=headers_to_sign)
@@ -107,6 +112,6 @@ def parse_none(http_response, response):
     """
     body = http_response.read()
     if body:
-        response.body=body
+        response.body = body
     http_response.close()
     return True

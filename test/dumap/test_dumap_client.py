@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: UTF-8 -*-
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
