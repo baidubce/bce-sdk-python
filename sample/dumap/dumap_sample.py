@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,6 @@ from baidubce.services.dumap.dumap_client import DumapClient
 import xml.etree.cElementTree as ET
 import json
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-import json
-
 def test_place_search(dumap_client):
     """
     test_place_serach
@@ -40,14 +34,14 @@ def test_place_search(dumap_client):
     params['output'] = 'json'
 
     response = dumap_client.call_open_api(
-            uri='/place/v2/search',
+            uri=b'/place/v2/search',
             app_id=dumap_sample_conf.APP_ID,
             params=params)
-    print response
+    print(response)
 
     # josn 解析
     body = json.loads(response.body)
-    print body["status"]
+    print(body["status"])
 
 
 def test_geocoder(dumap_client):
@@ -58,17 +52,17 @@ def test_geocoder(dumap_client):
     params['address'] = '北京市海淀区上地十街10号'
 
     response = dumap_client.call_open_api(
-            uri='/geocoder/v2/',
+            uri=b'/geocoder/v2/',
             app_id=dumap_sample_conf.APP_ID,
             params=params)
-    print response
+    print(response)
 
     # xml 解析
     GeocoderSearchResponse = ET.fromstring(response.body)
-    print GeocoderSearchResponse[0].text  # status
-    print GeocoderSearchResponse[1][0][0].text  # GeocoderSearchResponse.result.location.lng
-    print GeocoderSearchResponse[1][0][1].text  # GeocoderSearchResponse.result.location.lat
-    print GeocoderSearchResponse[1][1].text  # GeocoderSearchResponse.result.precise
+    print(GeocoderSearchResponse[0].text)  # status
+    print(GeocoderSearchResponse[1][0][0].text) # GeocoderSearchResponse.result.location.lng
+    print(GeocoderSearchResponse[1][0][1].text)  # GeocoderSearchResponse.result.location.lat
+    print(GeocoderSearchResponse[1][1].text)  # GeocoderSearchResponse.result.precise
 
 
 def test_geoconv(dumap_client):
@@ -82,10 +76,10 @@ def test_geoconv(dumap_client):
     params['output'] = 'json'
 
     response = dumap_client.call_open_api(
-            uri='/geoconv/v1/',
+            uri=b'/geoconv/v1/',
             app_id=dumap_sample_conf.APP_ID,
             params=params)
-    print response
+    print(response)
 
 
 def test_direction(dumap_client):
@@ -97,10 +91,10 @@ def test_direction(dumap_client):
     params['destination'] = '31.222965,121.505821'
 
     response = dumap_client.call_open_api(
-        uri='/direction/v2/transit',
+        uri=b'/direction/v2/transit',
         app_id=dumap_sample_conf.APP_ID,
         params=params)
-    print response
+    print(response)
 
 
 if __name__ == "__main__":

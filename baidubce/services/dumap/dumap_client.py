@@ -33,12 +33,11 @@ class DumapClient(bce_base_client.BceBaseClient):
     """
     DumapClient
     """
-    X_APP_ID = 'x-app-id'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
-    @required(app_id=str, uri=str, params=dict)
+    @required(app_id=(bytes, str), uri=(bytes, str), params=dict)
     def call_open_api(self, app_id, uri, params, config=None):
         """
         call open_api
@@ -59,7 +58,7 @@ class DumapClient(bce_base_client.BceBaseClient):
             http_methods.GET,
             uri,
             params=params,
-            headers={DumapClient.X_APP_ID: app_id},
+            headers={b'x-app-id': app_id},
             config=config)
 
     @staticmethod
@@ -76,10 +75,10 @@ class DumapClient(bce_base_client.BceBaseClient):
             body=None, headers=None, params=None,
             config=None):
         config = self._merge_config(self, config)
-        headers['x-bce-request-id'] = uuid.uuid4()
+        headers[b'x-bce-request-id'] = uuid.uuid4()
 
         return bce_http_client.send_request(
-            config, sign_wrapper(['host', 'x-bce-date', 'x-bce-request-id', 'x-app-id']),
+            config, sign_wrapper([b'host', b'x-bce-date', b'x-bce-request-id', b'x-app-id']),
             [handler.parse_error, parse_none],
             http_method, path, body, headers, params)
 
