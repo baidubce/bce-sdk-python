@@ -21,13 +21,15 @@ Configuration for cdn samples.
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
-
-HOST = b'cdn.baidubce.com'
+#
+HOST = b'lbs.baidubce.com'
 # online AK SK
-SK = b''
 AK = b''
+SK = b''
+# console app_id
+APP_ID = b''
 
-logger = logging.getLogger('baidubce.services.cdn.cdnclient')
+logger = logging.getLogger('baidubce.services.dumap.DumapClient')
 fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.DEBUG)
 

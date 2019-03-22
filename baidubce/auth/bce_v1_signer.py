@@ -13,13 +13,16 @@
 """
 This module provides authentication functions for bce services.
 """
-
+from __future__ import absolute_import
+from builtins import str
+from builtins import bytes
 import hashlib
 import hmac
 import logging
 
 from baidubce.http import http_headers
 from baidubce import utils
+from baidubce import compat
 
 
 _logger = logging.getLogger(__name__)
@@ -29,21 +32,21 @@ def _get_canonical_headers(headers, headers_to_sign=None):
     headers = headers or {}
 
     if headers_to_sign is None or len(headers_to_sign) == 0:
-        headers_to_sign = set(["host",
-                               "content-md5",
-                               "content-length",
-                               "content-type"])
+        headers_to_sign = set([b"host",
+                               b"content-md5",
+                               b"content-length",
+                               b"content-type"])
     result = []
     for k in headers:
         k_lower = k.strip().lower()
-        value = str(headers[k]).strip()
+        value = utils.convert_to_standard_string(headers[k]).strip()
         if k_lower.startswith(http_headers.BCE_PREFIX) \
                 or k_lower in headers_to_sign:
-            str_tmp = "%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
+            str_tmp = b"%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
             result.append(str_tmp)
     result.sort()
 
-    return '\n'.join(result)
+    return (b'\n').join(result)
 
 
 def sign(credentials, http_method, path, headers, params,
@@ -58,7 +61,7 @@ def sign(credentials, http_method, path, headers, params,
     headers = headers or {}
     params = params or {}
 
-    sign_key_info = 'bce-auth-v1/%s/%s/%d' % (
+    sign_key_info = b'bce-auth-v1/%s/%s/%d' % (
         credentials.access_key_id,
         utils.get_canonical_time(timestamp),
         expiration_in_seconds)
@@ -72,15 +75,18 @@ def sign(credentials, http_method, path, headers, params,
 
     canonical_headers = _get_canonical_headers(headers, headers_to_sign)
 
-    string_to_sign = '\n'.join(
-        [http_method, canonical_uri, canonical_querystring, canonical_headers])
-
-    sign_result = hmac.new(sign_key, string_to_sign, hashlib.sha256).hexdigest()
+    string_to_sign = (b'\n').join([
+        http_method, canonical_uri, 
+        canonical_querystring, canonical_headers
+        ])
+    sign_result = hmac.new(compat.convert_to_bytes(sign_key), string_to_sign, hashlib.sha256).hexdigest()
+    # convert to bytes
+    sign_result = compat.convert_to_bytes(sign_result)
 
     if headers_to_sign:
-        result = '%s/%s/%s' % (sign_key_info, ';'.join(headers_to_sign), sign_result)
+        result = b'%s/%s/%s' % (sign_key_info, (b';').join(headers_to_sign), sign_result)
     else:
-        result = '%s//%s' % (sign_key_info, sign_result)
+        result = b'%s//%s' % (sign_key_info, sign_result)
 
     _logger.debug('sign_key=[%s] sign_string=[%d bytes][ %s ]' %
                   (sign_key, len(string_to_sign), string_to_sign))

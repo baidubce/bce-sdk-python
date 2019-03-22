@@ -29,6 +29,7 @@ from baidubce.http import http_methods
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.utils import required
+from baidubce import utils
 
 _logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class CdnClient(bce_base_client.BceBaseClient):
     """
     CdnClient
     """
-    prefix = '/v2'
+    prefix = b"/v2"
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -802,7 +803,7 @@ class CdnClient(bce_base_client.BceBaseClient):
             params['endTime'] = endTime
 
         return self._send_request(
-            http_methods.GET, 
+            http_methods.GET,
             '/log/' + domain + '/log',
             params=params,
             config=config)
@@ -825,6 +826,67 @@ class CdnClient(bce_base_client.BceBaseClient):
             params=params,
             config=config)
 
+    @required(domain=str)
+    def set_seo(self, domain, push_record=False, directory_origin=False, config=None):
+        """
+        set seo
+        :param domain: the domain name
+        :type domain: string
+        :param push_record: push record to baidu or not
+        :type param: boolean
+        :param directory_origin: directory access origin or not
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        body = dict()
+        body['pushRecord'] = "ON" if push_record else "OFF"
+        body['diretlyOrigin'] = "ON" if directory_origin else "OFF"
+
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'seoSwitch': ''},
+            body=json.dumps({'seoSwitch': body}),
+            config=config)
+
+    @required(domain=str)
+    def get_seo(self, domain, config=None):
+        """
+        get seo configuration.
+        :param domain: the domain name
+        :type domain: string
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET,
+            '/domain/' + domain + '/config',
+            params={'seoSwitch': ''},
+            config=config)
+
+    @required(domain=str)
+    def set_follow_protocol(self, domain, follow, config=None):
+        """
+        set follow protocol.
+        :param domain: the domain name
+        :type domain: string
+        :param follow: follow protocol or not
+        :type follow: boolean
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'followProtocol': ''},
+            body=json.dumps({'followProtocol': follow}),
+            config=config)
+
     @staticmethod
     def _merge_config(self, config):
         if config is None:
@@ -845,4 +907,4 @@ class CdnClient(bce_base_client.BceBaseClient):
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, CdnClient.prefix + path, body, headers, params)
+            http_method, utils.append_uri(CdnClient.prefix, path), body, headers, params)

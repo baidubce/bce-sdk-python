@@ -14,6 +14,6 @@
 This module defines string constants for BOS canned acl
 """
 
-PRIVATE = 'private'
-PUBLIC_READ = 'public-read'
-PUBLIC_READ_WRITE = 'public-read-write'
+PRIVATE = b'private'
+PUBLIC_READ = b'public-read'
+PUBLIC_READ_WRITE = b'public-read-write'

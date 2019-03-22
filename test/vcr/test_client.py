@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*
 """
-Test models of BOS.
+Test models of VCR.
 """
 
-import sys
 import unittest
 import coverage
 import vcr_test_config
 from baidubce.services.vcr import vcr_client
 
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 cov = coverage.coverage()
 cov.start()
 
 http_request = None
+
 
 class TestVcrClient(unittest.TestCase):
     """
@@ -44,7 +41,7 @@ class TestMedia(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.put_media("vod://mda-hkyks1ybf3w2fxxb")
+            print(self.the_client.put_media("vod://mda-hkyks1ybf3w2fxxb"))
         except Exception as e:
             err = e
         finally:
@@ -56,7 +53,7 @@ class TestMedia(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.get_media("vod://mda-hkyks1ybf3w2fxxb")
+            print(self.the_client.get_media("vod://mda-hkyks1ybf3w2fxxb"))
         except Exception as e:
             err = e
         finally:
@@ -73,7 +70,7 @@ class TestStream(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.put_stream("rtmp://domain/app/stream")
+            print(self.the_client.put_stream("rtmp://domain/app/stream"))
         except Exception as e:
             err = e
         finally:
@@ -85,7 +82,7 @@ class TestStream(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.get_stream("rtmp://domain/app/stream")
+            print(self.the_client.get_stream("rtmp://domain/app/stream"))
         except Exception as e:
             err = e
         finally:
@@ -102,7 +99,7 @@ class TestImage(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.put_image("http://sdingbucket.bj.bcebos.com/vcr/test/ad/logo/anjuke2.jpeg")
+            print(self.the_client.put_image("http://sdingbucket.bj.bcebos.com/vcr/test/ad/logo/anjuke2.jpeg"))
         except Exception as e:
             err = e
         finally:
@@ -119,7 +116,7 @@ class TestText(TestVcrClient):
         """
         err = None
         try:
-            print self.the_client.put_text("习近平")
+            print(self.the_client.put_text("习近平"))
         except Exception as e:
             err = e
         finally:

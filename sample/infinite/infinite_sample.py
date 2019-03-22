@@ -18,9 +18,6 @@ import os
 import json
 from IPython.display import Image
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 
@@ -42,26 +39,19 @@ if __name__ == '__main__':
         with open(file_name, 'rb') as f:
             payload = f.read()
         response = infinite_client.predict(
-                endpoint_name='ep2',
-                body=payload,
-                content_type='application/x-image')
-        print response
-        
-        LOG.debug('\n\n\nSample 2: Debug\n\n\n')
-        response = infinite_client.debug(
-                endpoint_name='ep2',
-                body=payload,
-                content_type='application/x-image')
-        print response
-        
-        LOG.debug('\n\n\nSample 3: Get endpoint list\n\n\n')
+            endpoint_name='ep2',
+            body=payload,
+            content_type='application/x-image')
+        print(response)
+
+        LOG.debug('\n\n\nSample 2: Get endpoint list\n\n\n')
         response = infinite_client.get_endpoint_list()
-        print response
-        
-        LOG.debug('\n\n\nSample 4: Get endpoint info\n\n\n')
+        print(response)
+
+        LOG.debug('\n\n\nSample 3: Get endpoint info\n\n\n')
         response = infinite_client.get_endpoint_info(endpoint_name='ep2')
-        print response
-        
+        print(response)
+
     except ex.BceHttpClientError as e:
         if isinstance(e.last_error, ex.BceServerError):
             LOG.error('send request failed. Response %s, code: %s, msg: %s'

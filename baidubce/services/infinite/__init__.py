@@ -14,4 +14,4 @@
 This module defines some constants for infinite
 """
 
-URL_PREFIX = "/v1/endpoints"
+URL_PREFIX = b"/v1/endpoints"

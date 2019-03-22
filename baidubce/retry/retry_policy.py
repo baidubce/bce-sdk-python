@@ -14,8 +14,10 @@
 This module defines a common configuration class for BCE.
 """
 
-import httplib
+import http.client
 import logging
+from builtins import str
+from builtins import bytes
 
 from baidubce.exception import BceServerError
 
@@ -71,9 +73,9 @@ class BackOffRetryPolicy(object):
         :raise ValueError if max_error_retry or max_delay_in_millis is negative.
         """
         if max_error_retry < 0:
-            raise ValueError('max_error_retry should be a non-negative integer.')
+            raise ValueError(b'max_error_retry should be a non-negative integer.')
         if max_delay_in_millis < 0:
-            raise ValueError('max_delay_in_millis should be a non-negative integer.')
+            raise ValueError(b'max_delay_in_millis should be a non-negative integer.')
 
         self.max_error_retry = max_error_retry
         self.max_delay_in_millis = max_delay_in_millis
@@ -96,19 +98,19 @@ class BackOffRetryPolicy(object):
 
         # always retry on IOError
         if isinstance(error, IOError):
-            _logger.debug('Retry for IOError.')
+            _logger.debug(b'Retry for IOError.')
             return True
 
         # Only retry on a subset of service exceptions
         if isinstance(error, BceServerError):
-            if error.status_code == httplib.INTERNAL_SERVER_ERROR:
-                _logger.debug('Retry for internal server error.')
+            if error.status_code == http.client.INTERNAL_SERVER_ERROR:
+                _logger.debug(b'Retry for internal server error.')
                 return True
-            if error.status_code == httplib.SERVICE_UNAVAILABLE:
-                _logger.debug('Retry for service unavailable.')
+            if error.status_code == http.client.SERVICE_UNAVAILABLE:
+                _logger.debug(b'Retry for service unavailable.')
                 return True
             if error.code == BceServerError.REQUEST_EXPIRED:
-                _logger.debug('Retry for request expired.')
+                _logger.debug(b'Retry for request expired.')
                 return True
 
         return False

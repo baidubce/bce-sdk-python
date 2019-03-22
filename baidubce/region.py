@@ -14,6 +14,8 @@
 This module provides constants that define BCE Regions.
 """
 
+from builtins import str
+from builtins import bytes
 
 class Region(object):
     """

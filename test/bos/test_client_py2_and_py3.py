@@ -14,13 +14,20 @@
 """
 Test models of BOS.
 """
+# compatibility py2 and py3
+from __future__ import absolute_import
+from builtins import str
+from builtins import bytes
+from future.utils import iteritems
+from future.utils import iterkeys
+from future.utils import itervalues
 
 import os
 import sys
 import random
 import unittest
-import httplib
-import StringIO
+import http.client
+import io
 import json
 import socket
 import time
@@ -31,6 +38,7 @@ import bos_test_config
 from baidubce.auth import bce_v1_signer
 from baidubce.auth import bce_credentials
 from baidubce import utils
+from baidubce import compat
 from baidubce.services.bos import bos_client
 from baidubce.services.bos import storage_class
 from baidubce.exception import BceHttpClientError
@@ -48,9 +56,13 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 #from baidubce.retry_policy import BackOffRetryPolicy
 from baidubce.retry.retry_policy import NoRetryPolicy
 from baidubce.retry.retry_policy import BackOffRetryPolicy
+import imp
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+import ipdb
+
+imp.reload(sys)
+if compat.PY2:
+    sys.setdefaultencoding('utf8')
 
 cov = coverage.coverage()
 cov.start()
@@ -301,8 +313,9 @@ def mock_client_send_request_wrapper(throw, status_code):
 class TestClient(unittest.TestCase):
     """TestClient"""
     BUCKET = "test-bucket%d" % os.getpid()
-    KEY = "test_object%d" % os.getpid()
-    FILENAME = "temp_file%d" % os.getpid()
+    KEY = b"test_object%d" % os.getpid()
+    KEY = compat.convert_to_bytes(KEY)
+    FILENAME = b"temp_file%d" % os.getpid()
 
     def setUp(self):
         """Start test"""
@@ -316,7 +329,7 @@ class TestClient(unittest.TestCase):
         response=self.bos.list_multipart_uploads(self.BUCKET)
         for item in response.uploads:
             temp_key = item.key
-            if isinstance(temp_key, unicode):
+            if isinstance(temp_key, str):
                 temp_key = temp_key.encode("utf-8")
             self.bos.abort_multipart_upload(self.BUCKET, temp_key, upload_id =
                     item.upload_id)
@@ -362,13 +375,13 @@ class TestDoesBucketExist(TestClient):
         self.bos._send_request = mock_client_send_request_wrapper(False, None)
         self.assertTrue(self.bos.does_bucket_exist("asdf"))
         # test forbidden
-        self.bos._send_request = mock_client_send_request_wrapper(True, httplib.FORBIDDEN)
+        self.bos._send_request = mock_client_send_request_wrapper(True, http.client.FORBIDDEN)
         self.assertTrue(self.bos.does_bucket_exist("asdf"))
         # test not found
-        self.bos._send_request = mock_client_send_request_wrapper(True, httplib.NOT_FOUND)
+        self.bos._send_request = mock_client_send_request_wrapper(True, http.client.NOT_FOUND)
         self.assertFalse(self.bos.does_bucket_exist("asdf"))
         # test others
-        self.bos._send_request = mock_client_send_request_wrapper(True, httplib.NO_CONTENT)
+        self.bos._send_request = mock_client_send_request_wrapper(True, http.client.NO_CONTENT)
         self.assertRaises(BceHttpClientError, self.bos.does_bucket_exist, "asdf")
         self.bos._send_request = old_func
 
@@ -381,7 +394,7 @@ class TestCopyObject(TestClient):
         response = self.bos.copy_object(self.BUCKET,
                                         self.KEY,
                                         self.BUCKET,
-                                        "test_target_key")
+                                        compat.convert_to_bytes("test_target_key"))
         self.check_headers(response, response.etag)
         self.assertTrue(hasattr(response, 'last_modified'))
         self.assertEqual(response.etag, '13562b471182311b6eea8d241103e8f0')
@@ -434,18 +447,18 @@ class TestCopyObject(TestClient):
                                     "e15ebeefb866b641557c325069b6b2a"}
 
         response = self.bos.put_object_from_string(self.BUCKET, 
-                                                   "test_target_key_user_headers_src", 
-                                                   "This is a string.", 
-                                                   user_headers=user_headers)
+            compat.convert_to_bytes("test_target_key_user_headers_src"),
+            "This is a string.",
+            user_headers=user_headers)
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
-                                        source_key="test_target_key_user_headers_src",
+                                        source_key=b"test_target_key_user_headers_src",
                                         target_bucket_name=self.BUCKET,
-                                        target_key="test_target_key_user_headers_dsc",
+                                        target_key=b"test_target_key_user_headers_dsc",
                                         user_headers=user_headers,
                                         copy_object_user_headers=copy_object_user_headers)
 
         response = self.bos.get_object(bucket_name=self.BUCKET, 
-                                       key='test_target_key_user_headers_dsc')
+                                       key=b'test_target_key_user_headers_dsc')
        
         self.assertEqual(response.metadata.expires, "123456")
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
@@ -457,32 +470,33 @@ class TestCopyObject(TestClient):
         response = self.bos.put_object_from_string(self.BUCKET, self.KEY, "This is a string.")
 
         # test copy object cold
-        response = self.bos.copy_object(source_bucket_name=self.BUCKET,
-                                        source_key=self.KEY,
-                                        target_bucket_name=self.BUCKET,
-                                        target_key="test_target_key_cold",
-                                        storage_class=storage_class.COLD)
+        response = self.bos.copy_object(
+            source_bucket_name=self.BUCKET,
+            source_key=self.KEY,
+            target_bucket_name=self.BUCKET,
+            target_key = compat.convert_to_bytes("test_target_key_cold"),
+            storage_class=storage_class.COLD)
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
-                                                 key='test_target_key_cold')
+                                                 key=b'test_target_key_cold')
         self.assertEqual(response.metadata.bce_storage_class, "COLD")
 
         # test copy object standard ia
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
                                         target_bucket_name=self.BUCKET,
-                                        target_key="test_target_key_ia",
+                                        target_key=b"test_target_key_ia",
                                         storage_class=storage_class.STANDARD_IA)
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
-                                                 key='test_target_key_ia')
+                                                 key=b'test_target_key_ia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
 
         # test copy object default
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
                                         target_bucket_name=self.BUCKET,
-                                        target_key="test_target_key_default")
+                                        target_key=b"test_target_key_default")
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET,
-                                                 key='test_target_key_default')
+                                                 key=b'test_target_key_default')
 #        self.assertIsNone(response.metadata.bce_storage_class)
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
 
@@ -490,10 +504,10 @@ class TestCopyObject(TestClient):
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
                                         source_key=self.KEY,
                                         target_bucket_name=self.BUCKET,
-                                        target_key="test_target_key_standard",
+                                        target_key=b"test_target_key_standard",
                                         storage_class=storage_class.STANDARD)
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
-                                                 key='test_target_key_standard')
+                                                 key=b'test_target_key_standard')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
 
         # test copy object invalid storage class
@@ -502,7 +516,7 @@ class TestCopyObject(TestClient):
             self.bos.copy_object(source_bucket_name=self.BUCKET,
                                  source_key=self.KEY,
                                  target_bucket_name=self.BUCKET,
-                                 target_key="test_target_key_invalid",
+                                 target_key=b"test_target_key_invalid",
                                  storage_class="aaa")
         except Exception as e:
             err = e
@@ -516,13 +530,13 @@ class TestCopyObject(TestClient):
             self.bos.copy_object(source_bucket_name=self.BUCKET,
                                  source_key=self.KEY,
                                  target_bucket_name=self.BUCKET,
-                                 target_key="test_target_key_case",
-                                 storage_class=" STANDARD_Ia ")
+                                 target_key=b"test_target_key_case",
+                                 storage_class=b" STANDARD_Ia ")
             self.bos.copy_object(source_bucket_name=self.BUCKET,
                                  source_key=self.KEY,
                                  target_bucket_name=self.BUCKET,
-                                 target_key="test_target_key_case",
-                                 storage_class=" cOLd ")
+                                 target_key=b"test_target_key_case",
+                                 storage_class=b" cOLd ")
         except ValueError as e:
             err = e
         finally:
@@ -545,11 +559,11 @@ class TestListMultipartsUploads(TestClient):
         """test _list_multipart_uploads function normally"""
         time1 = utils.get_canonical_time()
         upload_id1 = self.bos.initiate_multipart_upload\
-            (self.BUCKET, "aaa").upload_id
+            (self.BUCKET, b"aaa").upload_id
 
         time2 = utils.get_canonical_time()
         upload_id2 = self.bos.initiate_multipart_upload\
-            (self.BUCKET, "bbb").upload_id
+            (self.BUCKET, b"bbb").upload_id
 
         response = self.bos.list_multipart_uploads(self.BUCKET, max_uploads=1)
         self.check_headers(response)
@@ -564,25 +578,28 @@ class TestListMultipartsUploads(TestClient):
             self.assertEqual(item.upload_id, upload_id1)
             self.assertEqual(item.owner.id, bos_test_config.OWNER_ID)
             self.assertEqual(item.owner.display_name, bos_test_config.DISPLAY_NAME)
-            self.assertEqual(item.initiated, time1)
+            self.assertEqual(
+                compat.convert_to_bytes(item.initiated), time1)
 
-        response = self.bos.list_multipart_uploads(self.BUCKET, max_uploads=1, key_marker='aaa')
+        response = self.bos.list_multipart_uploads(self.BUCKET, max_uploads=1,
+                key_marker=b'aaa')
         for item in response.uploads:
             self.assertEqual(item.key, 'bbb')
             self.assertEqual(item.upload_id, upload_id2)
             self.assertEqual(item.owner.id, bos_test_config.OWNER_ID)
             self.assertEqual(item.owner.display_name, bos_test_config.DISPLAY_NAME)
-            self.assertEqual(item.initiated, time2)
+            self.assertEqual(
+                compat.convert_to_bytes(item.initiated), time2)
 
     def test_list_all_multipart_uploads(self):
         """test list_all_multipart_uploads function normally"""
         time1 = utils.get_canonical_time()
         upload_id1 = self.bos.initiate_multipart_upload\
-            (self.BUCKET, "aaa").upload_id
+            (self.BUCKET, b"aaa").upload_id
 
         time2 = utils.get_canonical_time()
         upload_id2 = self.bos.initiate_multipart_upload\
-            (self.BUCKET, "bbb").upload_id
+            (self.BUCKET, b"bbb").upload_id
 
         key_list = [u'aaa', u'bbb']
         id_list = [upload_id1, upload_id2]
@@ -595,7 +612,8 @@ class TestListMultipartsUploads(TestClient):
             self.assertEqual(item.upload_id, id)
             self.assertEqual(item.owner.id, bos_test_config.OWNER_ID)
             self.assertEqual(item.owner.display_name, bos_test_config.DISPLAY_NAME)
-            self.assertEqual(item.initiated, timestamp)
+            self.assertEqual(
+                compat.convert_to_bytes(item.initiated), timestamp)
 
 
 class TestSetBucketAcl(TestClient):
@@ -619,7 +637,7 @@ class TestSetBucketAcl(TestClient):
         """test set_bucket_canned_acl, set bucket acl from header and set canned acl"""
         err = None
         try:
-            self.bos.set_bucket_canned_acl(self.BUCKET, "public-read-write")
+            self.bos.set_bucket_canned_acl(self.BUCKET, b"public-read-write")
         except BceServerError as e:
             err = e
         finally:
@@ -667,6 +685,284 @@ class TestGetBucketAcl(TestClient):
         finally:
             self.assertIsNone(err)
 
+# static website
+
+class TestBucketStaticWebsite(TestClient):
+    """test bucket static website"""
+    def test_bucket_static_website(self):
+        """test put,get,delete bucket static website"""
+        index = 'index.html'
+        not_found = '404.html'
+        # put object as index page and 404 page
+        self.bos.put_object_from_string(self.BUCKET,
+                compat.convert_to_bytes(index),
+                "Welcome to bce!")
+        self.bos.put_object_from_string(self.BUCKET,
+                compat.convert_to_bytes(not_found),
+                "404 ERROR!We cann't find the page!")
+        # test put bucket static website
+        err = None
+        try:
+            self.bos.put_bucket_static_website(self.BUCKET, index=index)
+            self.bos.put_bucket_static_website(self.BUCKET, not_found=not_found)
+            self.bos.put_bucket_static_website(self.BUCKET, index=index, not_found=not_found)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket static website
+        err = None
+        try:
+            response = self.bos.get_bucket_static_website(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.index, index)
+        self.assertEqual(response.not_found, not_found)
+
+        err = None
+        try:
+            self.bos.put_bucket_static_website(self.BUCKET,
+                    index=response.index,
+                    not_found=not_found)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket static website
+        err = None
+        try:
+            response = self.bos.delete_bucket_static_website(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test server encryption
+class TestPutBucketEncryption(TestClient):
+    """test put_bucket_encryption"""
+    def test_put_bucket_encryption(self):
+        """test set_bucket_acl with AES256 algorithm"""
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+class TestGetAndDeleteBucketEncryption(TestClient):
+    """test get_bucket_encryption and delete_bucket_encryption function"""
+    def test_get_dnd_elete_bucket_encryption(self):
+        """test get_bucket_encryption and delete_bucket_encryption function"""
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucekt server encryption algorithm
+        err = None
+        try:
+            response = self.bos.get_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        self.check_headers(response)
+        self.assertEqual(response.encryption_algorithm,
+                         'AES256')
+        err = None
+        try:
+            self.bos.put_bucket_encryption(self.BUCKET, response.encryption_algorithm)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket server encryption
+        err = None
+        try:
+            self.bos.delete_bucket_encryption(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test bucket copyright protection
+class TestBucketCopyrightProtection(TestClient):
+    """test bucket copyright protection"""
+    def test_bucket_copyright_protection(self):
+        """test put,get,delete bucket copyright protection"""
+        resource = [self.BUCKET + "/test/*"]
+        # test put bucket copyright protection
+        err = None
+        try:
+            self.bos.put_bucket_copyright_protection(self.BUCKET, resource)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket copyright protection
+        err = None
+        try:
+            response = self.bos.get_bucket_copyright_protection(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.resource[0], resource[0])
+
+        err = None
+        try:
+            self.bos.put_bucket_copyright_protection(self.BUCKET, response.resource)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket copyright protection 
+        err = None
+        try:
+            response = self.bos.delete_bucket_copyright_protection(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test bucket replication
+
+class TestBucketReplication(TestClient):
+    """test bucket replication"""
+    def test_bucket_replication(self):
+        """test put,get,delete bucket replication"""
+        # create destination bucket
+        dst_bucket_name = self.BUCKET + "-gz"
+        if not self.bos.does_bucket_exist(dst_bucket_name):
+            self.bos.create_bucket(dst_bucket_name,
+                config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
+        replication = {
+        "status":"enabled",
+        "resource":[
+            self.BUCKET + "/*"
+            ],
+        "destination":
+            {
+                "bucket": dst_bucket_name,
+                "storageClass":"COLD"
+            },
+        "replicateHistory":
+            {
+                "bucket": dst_bucket_name,
+                "storageClass":"COLD"
+            },
+        "replicateDeletes":"enabled",
+        "id":"sample-bucket-replication-config"
+        }
+        # test put bucket replication
+        err = None
+        try:
+            self.bos.put_bucket_replication(self.BUCKET, replication)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket replication
+        err = None
+        try:
+            response = self.bos.get_bucket_replication(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.resource[0], replication['resource'][0])
+        self.assertEqual(response.destination.bucket, replication['destination']['bucket'])
+        # test get_bucket_replication_progress()
+        err = None
+        try:
+            response = self.bos.get_bucket_replication_progress(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.status, replication['status'])
+        # test delete bucket replication
+        err = None
+        try:
+            response = self.bos.delete_bucket_replication(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        self.bos.delete_bucket(dst_bucket_name,
+            config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
+
+
+# test bucket trash
+
+class TestBucketTrash(TestClient):
+    """test bucket trash"""
+    def test_bucket_trash(self):
+        """test put,get,delete bucket trash"""
+        # test put bucket trash
+        trash_dir = '.mytrash'
+        err = None
+        try:
+            self.bos.put_bucket_trash(self.BUCKET, trash_dir=trash_dir)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket trash
+        err = None
+        try:
+            response = self.bos.get_bucket_trash(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.trash_dir, trash_dir)
+
+        # delete object to trash
+        object_for_delete = b'wonderful'
+        self.bos.put_object_from_string(self.BUCKET, object_for_delete, "hello world!")
+        self.bos.delete_object(self.BUCKET, object_for_delete)
+        deleted_object = trash_dir + "/" + compat.convert_to_string(object_for_delete)
+        deleted_object = compat.convert_to_bytes(deleted_object)
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, deleted_object)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            self.bos.put_bucket_trash(self.BUCKET, trash_dir=response.trash_dir)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test delete bucket trash
+        err = None
+        try:
+            response = self.bos.delete_bucket_trash(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
 
 class TestGetBucketLocation(TestClient):
     """test get_bucket_location"""
@@ -709,7 +1005,7 @@ class TestGetObjectMetaData(TestClient):
             self.assertIsNone(err)
         self.check_headers(response)
         self.assertEqual(response.metadata.etag, '13562b471182311b6eea8d241103e8f0')
-        self.assertEqual(response.metadata.content_length, str(len("This is a string.")))
+        self.assertEqual(int(response.metadata.content_length), len("This is a string."))
         self.assertEqual(response.metadata.bce_meta_private, "This is private.")
 
 
@@ -762,7 +1058,7 @@ class TestGetObject(TestClient):
         finally:
             self.assertIsNone(err)
 
-        self.assertEqual(response, "This is a string.")
+        self.assertEqual(response, b"This is a string.")
 
     def test_get_object_to_file(self):
         """test get_object_to_file function normally"""
@@ -777,7 +1073,7 @@ class TestGetObject(TestClient):
 
         err = None
         try:
-            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, "Filename")
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, b"Filename")
         except BceServerError as e:
             err = e
         finally:
@@ -802,7 +1098,7 @@ class TestGetObject(TestClient):
         fp.write('a' * 100)
         fp.close()
 
-        fp = open(self.FILENAME, "r")
+        fp = open(self.FILENAME, "rb")
         md5 = utils.get_md5_from_fp(fp)
         fp.close()
         os.remove(self.FILENAME)
@@ -820,7 +1116,7 @@ class TestGetObject(TestClient):
         self.check_headers(response)
         self.assertEqual(response.metadata.content_range, 'bytes 0-99/1000')
 
-        fp = open(self.FILENAME, "r")
+        fp = open(self.FILENAME, "rb")
         get_md5 = utils.get_md5_from_fp(fp)
         fp.close()
         self.assertEqual(get_md5, md5)
@@ -849,9 +1145,13 @@ class TestListBuckets(TestClient):
         self.assertEqual(response.owner.display_name, bos_test_config.DISPLAY_NAME)
         for bucket in response.buckets:
             if bucket.name == "aaaaaaxzr1":
-                self.assertEqual(bucket.creation_date[0:-4], str(time1)[0:-4])
+                self.assertEqual(
+                    compat.convert_to_bytes(bucket.creation_date)[0:-4], 
+                    compat.convert_to_bytes(time1)[0:-4])
             elif bucket.name == "aaaaaaxzr2":
-                self.assertEqual(bucket.creation_date[0:-4], str(time2)[0:-4])
+                self.assertEqual(
+                    compat.convert_to_bytes(bucket.creation_date)[0:-4], 
+                    compat.convert_to_bytes(time2)[0:-4])
         self.bos.delete_bucket("aaaaaaxzr1")
         self.bos.delete_bucket("aaaaaaxzr2")
 
@@ -861,8 +1161,10 @@ class TestListObjects(TestClient):
     def test_list_objects(self):
         """test list_objects function normally"""
         for i in range(0, 10):
-            self.bos.put_object_from_string(self.BUCKET, "test_object_%s" % str(random.random()),
-                                            "This is a string.")
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                b"test_object_%s" % compat.convert_to_bytes(random.random()),
+                "This is a string.")
 
         response = self.bos.list_objects(self.BUCKET, prefix="", delimiter="")
         self.check_headers(response)
@@ -871,11 +1173,38 @@ class TestListObjects(TestClient):
         self.assertEqual(response.name, self.BUCKET)
         self.assertEqual(response.prefix, "")
 
+        # test prefix and marker with Chineses
+        for i in range(0, 5):
+            key1 = "测试_%s" % compat.convert_to_string(random.random())
+            key2 = "测试文件_%s" % compat.convert_to_string(random.random())
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                compat.convert_to_bytes(key1),
+                "This is a string.")
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                compat.convert_to_bytes(key2),
+                "This is a string.")
+
+        prefix = '测试'
+        marker = '测试文件'
+        response = self.bos.list_objects(self.BUCKET, prefix = prefix)
+        self.check_headers(response)
+        self.assertEqual(len(response.contents), 10)
+        self.assertEqual(response.prefix, prefix)
+        response = self.bos.list_objects(self.BUCKET, marker = marker)
+        self.check_headers(response)
+        self.assertEqual(len(response.contents), 5)
+        self.assertEqual(response.marker, marker)
+
+
     def test_list_object_with_max_keys(self):
         """test list_objects function with max_keys"""
         for i in range(0, 9):
-            self.bos.put_object_from_string(self.BUCKET, "test_object_%s" % str(random.random()),
-                                            "This is a string.")
+            self.bos.put_object_from_string(
+                self.BUCKET, 
+                b"test_object_%s" % compat.convert_to_bytes(random.random()),
+                "This is a string.")
 
             response = self.bos.list_objects(self.BUCKET)
 
@@ -899,12 +1228,12 @@ class TestListObjects(TestClient):
         """test list_all_objects function"""
         object_keys = []
         for i in range(0, 9):
-            object_key = "test_object_%s" % str(random.random())
+            object_key = b"test_object_%s" % compat.convert_to_bytes(random.random())
             self.bos.put_object_from_string(self.BUCKET, object_key,
                                             "This is a string.")
             object_keys.append(object_key)
         for item in self.bos.list_all_objects(self.BUCKET):
-            self.assertTrue(item.key in object_keys)
+            self.assertTrue(compat.convert_to_bytes(item.key) in object_keys)
 
 
 class TestListParts(TestClient):
@@ -929,7 +1258,7 @@ class TestListParts(TestClient):
         response = self.bos.list_parts(self.BUCKET, self.KEY, upload_id)
         self.check_headers(response)
         self.assertEqual(response.bucket, self.BUCKET)
-        self.assertEqual(response.initiated, time1)
+        self.assertEqual(compat.convert_to_bytes(response.initiated), time1)
         self.assertFalse(response.is_truncated)
 
         self.assertEqual(response.owner.id, bos_test_config.OWNER_ID)
@@ -942,7 +1271,7 @@ class TestListParts(TestClient):
             self.assertEqual(item.etag, "6d0bb00954ceb7fbee436bb55a8397a9")
             self.assertEqual(item.size, 100)
             self.assertEqual(item.part_number, 1)
-            self.assertEqual(item.last_modified, time2)
+            self.assertEqual(compat.convert_to_bytes(item.last_modified), time2)
 
     def test_list_all_parts(self):
         """test list_all_parts function normally"""
@@ -964,16 +1293,16 @@ class TestListParts(TestClient):
             self.assertEqual(item.etag, "6d0bb00954ceb7fbee436bb55a8397a9")
             self.assertEqual(item.size, 100)
             self.assertEqual(item.part_number, 1)
-            self.assertEqual(item.last_modified, time2)
+            self.assertEqual(compat.convert_to_bytes(item.last_modified), time2)
 
 
 class TestDeleteMultipleObjects(TestClient):
     """test delete_multiple_objects"""
     def test_delete_multiple_objects(self):
         """test delete_multiple_objects function normally"""
-        self.bos.put_object_from_string(self.BUCKET, 'hello1', 'Hello World')
-        self.bos.put_object_from_string(self.BUCKET, 'hello2', u'hello world')
-        key_list = ['hello1', 'hello2']
+        self.bos.put_object_from_string(self.BUCKET, b'hello1', 'Hello World')
+        self.bos.put_object_from_string(self.BUCKET, b'hello2', u'hello world')
+        key_list = [b'hello1', b'hello2']
         response = self.bos.delete_multiple_objects(self.BUCKET, key_list)
         self.check_headers(response)
 
@@ -1004,13 +1333,13 @@ class TestPutObject(TestClient):
                         "Content-Disposition":"attachment; filename=\"abc.txt\"", 
                         "Expires":"123456"}
         response = self.bos.put_object_from_string(bucket=self.BUCKET,
-                                                   key="test_put_user_headers",
+                                                   key=b"test_put_user_headers",
                                                    data='Hello World',
                                                    user_headers=user_headers)
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
-                                                 key='test_put_user_headers')
+                                                 key=b'test_put_user_headers')
         self.assertEqual(response.metadata.expires, "123456")
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
         self.assertEqual(response.metadata.cache_control, 'private')
@@ -1019,47 +1348,47 @@ class TestPutObject(TestClient):
         """test put_object_from_string with storage class"""
         # test cold
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                                   key="testcold", 
+                                                   key=b"testcold", 
                                                    data='Hello World', 
                                                    storage_class=storage_class.COLD)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testcold')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testcold')
         self.assertEqual(response.metadata.bce_storage_class, "COLD")
 
         # test standard ia
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                                   key="testia", 
+                                                   key=b"testia", 
                                                    data='Hello World', 
                                                    storage_class=storage_class.STANDARD_IA)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testia')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
 
         # test default storage class
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                                   key="testdefault", 
+                                                   key=b"testdefault", 
                                                    data='Hello World')
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testdefault')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testdefault')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test standard
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                                   key="teststandard", 
+                                                   key=b"teststandard", 
                                                    data='Hello World', 
                                                    storage_class=storage_class.STANDARD)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='teststandard')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'teststandard')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
 
         # test invalid storage class
         err = None
         try:
             self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                            key="testinvalid", 
+                                            key=b"testinvalid", 
                                             data='Hello World', 
                                             storage_class='aaa')
         except Exception as e:
@@ -1072,7 +1401,7 @@ class TestPutObject(TestClient):
         err = None
         try:
             self.bos.put_object_from_string(bucket=self.BUCKET, 
-                                            key="testcase", 
+                                            key=b"testcase", 
                                             data='Hello World', 
                                             storage_class=' STANDARD_Ia ')
         except ValueError as e:
@@ -1095,62 +1424,79 @@ class TestPutObject(TestClient):
 
         self.get_file(5)
         response = self.bos.put_object_from_file(bucket=self.BUCKET,
-                                                 key="test_put_file_user_headers",
+                                                 key=b"test_put_file_user_headers",
                                                  file_name=self.FILENAME,
                                                  user_headers=user_headers)
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
-                                                 key='test_put_file_user_headers')
+                                                 key=b'test_put_file_user_headers')
         self.assertEqual(response.metadata.expires, "123456")
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
         self.assertEqual(response.metadata.cache_control, 'private')
+
+
+    def test_put_object_from_file_user_metadata(self):
+        """test put_object_from_file user metadata"""
+
+        user_metadata = {'company': '百度', 'work': 'develop'}
+        object_key = '测试文件'.encode('utf-8')
+        self.get_file(5)
+        response = self.bos.put_object_from_file(bucket=self.BUCKET,
+                                                 key=object_key,
+                                                 file_name=self.FILENAME,
+                                                 user_metadata = user_metadata)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+                                                 key=object_key)
+        self.assertEqual(response.metadata.bce_meta_company, '百度')
+        self.assertEqual(response.metadata.bce_meta_work, 'develop')
 
     def test_put_object_from_file_with_storage_class(self):
         """test put_object_from_file with storage class"""
         self.get_file(5)
         # test cold
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                                 key="testcold", 
+                                                 key=b"testcold", 
                                                  file_name=self.FILENAME, 
                                                  storage_class=storage_class.COLD)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testcold')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testcold')
         self.assertEqual(response.metadata.bce_storage_class, "COLD")
 
         # test standard ia
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                                 key="testia", 
+                                                 key=b"testia", 
                                                  file_name=self.FILENAME, 
                                                  storage_class=storage_class.STANDARD_IA)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testia')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
 
         # test default storage class
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                                 key="testdefault", 
+                                                 key=b"testdefault", 
                                                  file_name=self.FILENAME)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testdefault')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'testdefault')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test standard
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                                 key="teststandard", 
+                                                 key=b"teststandard", 
                                                  file_name=self.FILENAME, 
                                                  storage_class=storage_class.STANDARD)
         self.check_headers(response)
 
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='teststandard')
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=b'teststandard')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test invalid storage class
         err = None
         try:
             self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                          key="testinvalid", 
+                                          key=b"testinvalid", 
                                           file_name=self.FILENAME, 
                                           storage_class='aaa')
         except Exception as e:
@@ -1163,7 +1509,7 @@ class TestPutObject(TestClient):
         err = None
         try:
             self.bos.put_object_from_file(bucket=self.BUCKET, 
-                                          key="testcase", 
+                                          key=b"testcase", 
                                           file_name=self.FILENAME, 
                                           storage_class=' STANDARD_Ia ')
         except ValueError as e:
@@ -1198,7 +1544,7 @@ class TestAppendObject(TestClient):
         test append_object_from_string
         """
         response = self.bos.append_object_from_string(bucket_name=self.BUCKET,
-                                                      key="test_append_object_from_string",
+                                                      key=b"test_append_object_from_string",
                                                       data="aaa")
         self.check_headers(response)
 
@@ -1206,25 +1552,25 @@ class TestAppendObject(TestClient):
         self.assertEqual(int(next_offset), len("aaa"))
 
         response = self.bos.append_object_from_string(bucket_name=self.BUCKET,
-                                                      key="test_append_object_from_string",
+                                                      key=b"test_append_object_from_string",
                                                       data='bbb',
                                                       offset=int(next_offset))
         next_offset = response.metadata.bce_next_append_offset
         self.assertEqual(int(next_offset), len("aaabbb"))
 
         response = self.bos.get_object_as_string(bucket_name=self.BUCKET, 
-                                                 key="test_append_object_from_string")
-        self.assertEqual(response, 'aaabbb')
+                                                 key=b"test_append_object_from_string")
+        self.assertEqual(response, b'aaabbb')
 
         response = self.bos.get_object(bucket_name=self.BUCKET,
-                                       key="test_append_object_from_string")
+                                       key=b"test_append_object_from_string")
         self.assertEqual(response.metadata.bce_object_type, 'Appendable')
 
         # test append offset not match
         err = None
         try:
             self.bos.append_object_from_string(bucket_name=self.BUCKET,
-                                               key="test_append_object_from_string",
+                                               key=b"test_append_object_from_string",
                                                data='ccc',
                                                offset=(int(next_offset)-1))
         except Exception as e:
@@ -1313,6 +1659,32 @@ class TestMultiUploadFile(TestClient):
         self.assertEqual(response.metadata.expires, "123456")
         self.assertEqual(response.metadata.content_disposition, 'attachment; filename="abc.txt"')
         self.assertEqual(response.metadata.cache_control, 'private')
+
+    def test_multi_upload_file_content_type(self):
+        """test multi upload content_type"""
+        response = self.bos.initiate_multipart_upload(bucket_name=self.BUCKET, 
+                                                      key=self.KEY,
+                                                      content_type="text/plain")
+        upload_id = response.upload_id
+        self.get_file(5)
+        part_list = []
+        response = self.bos.upload_part_from_file(bucket_name=self.BUCKET,
+                                                  key=self.KEY,
+                                                  upload_id=upload_id,
+                                                  part_number=1,
+                                                  part_size=os.path.getsize(self.FILENAME),
+                                                  file_name=self.FILENAME,
+                                                  offset = 0)
+        part_list.append({"partNumber": 1, "eTag": response.metadata.etag})
+
+        self.bos.complete_multipart_upload(bucket_name=self.BUCKET,
+                                           key=self.KEY,
+                                           upload_id=upload_id,
+                                           part_list=part_list)
+
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key=self.KEY)
+
+        self.assertEqual(response.metadata.content_type, "text/plain")
 
     def test_multi_upload_file_with_storage_class(self):
         """test multi upload with storage class"""
@@ -1403,7 +1775,7 @@ class TestUploadPartCopy(TestClient):
         self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
         #self.bos.put_object_from_string(self.BUCKET, self.KEY, 'hello')
         response = self.bos.initiate_multipart_upload(self.BUCKET, 
-                                                      'copy', 
+                                                      b'copy', 
                                                       storage_class=storage_class.STANDARD)
         self.check_headers(response)
         self.assertTrue(hasattr(response, "upload_id"))
@@ -1425,7 +1797,7 @@ class TestUploadPartCopy(TestClient):
             response = self.bos.upload_part_copy(self.BUCKET,
                                                  self.KEY,
                                                  self.BUCKET,
-                                                 'copy',
+                                                 b'copy',
                                                  upload_id,
                                                  part_number,
                                                  part_size,
@@ -1436,7 +1808,7 @@ class TestUploadPartCopy(TestClient):
                               'eTag': response.etag})
             part_number += 1
 
-        response = self.bos.complete_multipart_upload(self.BUCKET, 'copy', upload_id=upload_id,
+        response = self.bos.complete_multipart_upload(self.BUCKET, b'copy', upload_id=upload_id,
                                                       part_list=part_list)
         self.check_headers(response)
         self.assertTrue(hasattr(response, "etag"))
@@ -1566,34 +1938,34 @@ class TestAuthorization(unittest.TestCase):
     def test_get_canonical_headers(self):
         """test_get_canonical_headers"""
         headers = {
-            "Host": "localhost",
-            "x-bce-a": "a/b:c",
-            "C": ""
+            b"Host": b"localhost",
+            b"x-bce-a": b"a/b:c",
+            b"C": b""
         }
         header = bce_v1_signer._get_canonical_headers(headers)
-        self.assertTrue(header.split("\n")[0].startswith('host'))
-        self.assertTrue(header.split("\n")[1].startswith('x-bce-a'))
-        headers["Content-MD5"] = "MD5"
+        self.assertTrue(header.split(b"\n")[0].startswith(b'host'))
+        self.assertTrue(header.split(b"\n")[1].startswith(b'x-bce-a'))
+        headers[b"Content-MD5"] = b"MD5"
         self.assertEqual(bce_v1_signer._get_canonical_headers(headers),
-                         "content-md5:MD5\nhost:localhost\nx-bce-a:a%2Fb%3Ac")
+                         b"content-md5:MD5\nhost:localhost\nx-bce-a:a%2Fb%3Ac")
 
     def test_get_sign(self):
         """test_get_sign"""
-        method = "PUT"
-        uri = "/bucket/object1"
+        method = b"PUT"
+        uri = b"/bucket/object1"
         params = {
-            "A": None,
-            "b": "",
-            "C": "d"
+            b"A": None,
+            b"b": b"",
+            b"C": b"d"
         }
 
         headers = {
-            "Host": "bce.baidu.com",
-            "abc": "123",
-            "x-bce-meta-key1": "ABC"
+            b"Host": b"bce.baidu.com",
+            b"abc": b"123",
+            b"x-bce-meta-key1": b"ABC"
         }
 
-        auth = bce_v1_signer.sign(bce_credentials.BceCredentials("my_ak", "my_sk"),
+        auth = bce_v1_signer.sign(bce_credentials.BceCredentials(b"my_ak", b"my_sk"),
                                   method,
                                   uri,
                                   headers,
@@ -1613,32 +1985,36 @@ class TestUtil(unittest.TestCase):
     """TestUtil"""
     def test_get_timestamp(self):
         """test_get_timestamp"""
-        self.assertEqual("1970-01-01T00:00:01Z", utils.get_canonical_time(1))
-        self.assertRegexpMatches(utils.get_canonical_time(),
+        self.assertEqual(b"1970-01-01T00:00:01Z", utils.get_canonical_time(1))
+        if compat.PY3:
+            self.assertRegex(compat.convert_to_string(utils.get_canonical_time()),
+                                 "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
+        else:
+            self.assertRegexpMatches(compat.convert_to_string(utils.get_canonical_time()),
                                  "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
 
     def test_get_md5_from_fp(self):
         """test_get_md5_from_fp"""
-        fp = StringIO.StringIO("abcdefghijklmnopqrstuvwxyz")
-        self.assertEqual("w/zT12GS5AB9+0lsymfhOw==", utils.get_md5_from_fp(fp))
-        self.assertEqual("6JmFCETYQztJTRLQhmQi2w==", utils.get_md5_from_fp(fp, 10))
-        self.assertEqual("J1OsDoUaJj/azvjYRAHgwA==", utils.get_md5_from_fp(fp, 10, 10))
-        self.assertEqual("6JmFCETYQztJTRLQhmQi2w==", utils.get_md5_from_fp(fp, 10, 100))
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        self.assertEqual(b"w/zT12GS5AB9+0lsymfhOw==", utils.get_md5_from_fp(fp))
+        self.assertEqual(b"6JmFCETYQztJTRLQhmQi2w==", utils.get_md5_from_fp(fp, 10))
+        self.assertEqual(b"J1OsDoUaJj/azvjYRAHgwA==", utils.get_md5_from_fp(fp, 10, 10))
+        self.assertEqual(b"6JmFCETYQztJTRLQhmQi2w==", utils.get_md5_from_fp(fp, 10, 100))
 
     def test_is_ip(self):
         """test_is_ip"""
-        self.assertEqual(True, utils.is_ip("192.168.0.1"))
-        self.assertEqual(True, utils.is_ip("localhost"))
-        self.assertEqual(False, utils.is_ip("276.20.22.22"))
-        self.assertEqual(False, utils.is_ip("123"))
-        self.assertEqual(False, utils.is_ip("-1.33.22.11"))
-        self.assertEqual(False, utils.is_ip("aaabbbccc"))
+        self.assertEqual(True, utils.is_ip(b"192.168.0.1"))
+        self.assertEqual(True, utils.is_ip(b"localhost"))
+        self.assertEqual(False, utils.is_ip(b"276.20.22.22"))
+        self.assertEqual(False, utils.is_ip(b"123"))
+        self.assertEqual(False, utils.is_ip(b"-1.33.22.11"))
+        self.assertEqual(False, utils.is_ip(b"aaabbbccc"))
         self.assertEqual(False, utils.is_ip(123))
 
     def test_convert_to_standard_string(self):
         """test_convert_utf8"""
-        self.assertEqual("aaa", utils.convert_to_standard_string(u"aaa"))
-        self.assertEqual("北京", utils.convert_to_standard_string("北京"))
+        self.assertEqual(b"aaa", utils.convert_to_standard_string(u"aaa"))
+        self.assertEqual("北京".encode("utf-8"), utils.convert_to_standard_string("北京"))
 
     def test_convert_header2map(self):
         """test_convert_header2map"""
@@ -1648,7 +2024,7 @@ class TestUtil(unittest.TestCase):
 
     def test_check_redirect(self):
         """test_check_redirect"""
-        tmp_res = httplib.HTTPSConnection("localhost")
+        tmp_res = http.client.HTTPSConnection("localhost")
         tmp_res.status = 301
         self.assertEqual(True, utils.check_redirect(tmp_res))
         tmp_res.status = 302
@@ -1662,9 +2038,9 @@ class TestUtil(unittest.TestCase):
     #def test_get_resource(self):
     def test_normalize_string(self):
         """test_normalize_string"""
-        self.assertEqual("www.baidu.com", utils.normalize_string("www.baidu.com"))
-        self.assertEqual("www.bai%5E%26%2A.com", utils.normalize_string("www.bai^&*.com"))
-        self.assertEqual("www.baidu.com", utils.normalize_string("www.baidu.com", True))
+        self.assertEqual(b"www.baidu.com", utils.normalize_string("www.baidu.com"))
+        self.assertEqual(b"www.bai%5E%26%2A.com", utils.normalize_string("www.bai^&*.com"))
+        self.assertEqual(b"www.baidu.com", utils.normalize_string("www.baidu.com", True))
 
     #def test_append_param
     def test_check_bucket_valid(self):
@@ -1705,7 +2081,8 @@ class TestUtil(unittest.TestCase):
                  '%E6', '%E7', '%E8', '%E9', '%EA', '%EB', '%EC', '%ED', '%EE', '%EF', '%F0',
                  '%F1', '%F2', '%F3', '%F4', '%F5', '%F6', '%F7', '%F8', '%F9', '%FA', '%FB',
                  '%FC', '%FD', '%FE', '%FF']
-        self.assertListEqual(chars, utils._get_normalized_char_list())
+        self.assertListEqual([compat.convert_to_bytes(k) for k in chars],
+            utils._get_normalized_char_list())
 
 
 class TestHandler(TestClient):
@@ -1738,10 +2115,10 @@ class TestHandler(TestClient):
             err = e
         finally:
             self.assertIsNotNone(err)
-            self.assertEqual(e.message, "error")
-            self.assertEqual(e.code, 123)
-            self.assertEqual(e.request_id, 12345)
-            self.assertEqual(e.status_code, 508)
+            self.assertEqual(compat.convert_to_string(err), "error")
+            self.assertEqual(err.code, 123)
+            self.assertEqual(err.request_id, 12345)
+            self.assertEqual(err.status_code, 508)
 
         # test abnormal 3xx 4xx 5xx without json body
         http_response = MockHttpResponse(status=508)
@@ -1754,9 +2131,9 @@ class TestHandler(TestClient):
             err = e
         finally:
             self.assertIsNotNone(err)
-            self.assertEqual(e.message, "Mock")
-            self.assertEqual(e.request_id, 12345)
-            self.assertEqual(e.status_code, 508)
+            self.assertEqual(compat.convert_to_string(err), "Mock")
+            self.assertEqual(err.request_id, 12345)
+            self.assertEqual(err.status_code, 508)
 
     def test_parse_json(self):
         """test abort parse_json function in handler"""
@@ -1783,7 +2160,7 @@ class TestBceHttpClient(TestClient):
     def test_parse_host_port(self):
         """test about parse host port"""
         # test default port for http
-        endpoint = "1.2.3.4"
+        endpoint = b"1.2.3.4"
         default_protocol = baidubce.protocol.HTTP
         ret_protocol, host, port = utils.parse_host_port(endpoint, default_protocol)
         self.assertEqual(ret_protocol, baidubce.protocol.HTTP)
@@ -1791,7 +2168,7 @@ class TestBceHttpClient(TestClient):
         self.assertEqual(port, default_protocol.default_port)
 
         # test default port for https
-        endpoint = "1.2.3.4"
+        endpoint = b"1.2.3.4"
         default_protocol = baidubce.protocol.HTTPS
         ret_protocol, host, port = utils.parse_host_port(endpoint, default_protocol)
         self.assertEqual(ret_protocol, baidubce.protocol.HTTPS)
@@ -1799,29 +2176,29 @@ class TestBceHttpClient(TestClient):
         self.assertEqual(port, default_protocol.default_port)
 
         # test specific port
-        endpoint = "1.2.3.4:8080"
+        endpoint = b"1.2.3.4:8080"
         default_protocol = baidubce.protocol.HTTP
         ret_protocol, host, port = utils.parse_host_port(endpoint, default_protocol)
         self.assertEqual(ret_protocol, baidubce.protocol.HTTP)
-        self.assertEqual(host, "1.2.3.4")
+        self.assertEqual(host, b"1.2.3.4")
         self.assertEqual(port, 8080)
 
         # test value error
-        endpoint = "1.2.3.4:abcd"
+        endpoint = b"1.2.3.4:abcd"
         default_protocol = baidubce.protocol.HTTP
         self.assertRaises(ValueError, utils.parse_host_port, endpoint, default_protocol)
 
         # protocol unsupported
-        endpoint = "ftp://1.2.3.4"
+        endpoint = b"ftp://1.2.3.4"
         default_protocol = baidubce.protocol.HTTP
         self.assertRaises(ValueError, utils.parse_host_port, endpoint, default_protocol)
 
         # test of endpoint dominates the protocol
-        endpoint = "http://1.2.3.4:8080"
+        endpoint = b"http://1.2.3.4:8080"
         default_protocol = baidubce.protocol.HTTPS
         ret_protocol, host, port = utils.parse_host_port(endpoint, default_protocol)
         self.assertEqual(ret_protocol, baidubce.protocol.HTTP)
-        self.assertEqual(host, "1.2.3.4")
+        self.assertEqual(host, b"1.2.3.4")
         self.assertEqual(port, 8080)
 
     def test_get_connection(self):
@@ -1902,9 +2279,9 @@ class TestBceHttpClient(TestClient):
         # test body is input stream
         conn = MockHttpConnection()
         method = http_methods.GET
-        uri = "/unknown/unknown"
-        headers = {"Content-Length": 16,
-                   "Content-Encoding": "utf8",
+        uri = b"/unknown/unknown"
+        headers = {b"Content-Length": 16,
+                   b"Content-Encoding": "utf8",
                    }
         body = MockInputStream("Test with string")
         send_buf_size = 5
@@ -1917,7 +2294,7 @@ class TestBceHttpClient(TestClient):
         self.assertEqual(conn.putrequest_called, 1)
         self.assertEqual(conn.putheader_called, 2)
         self.assertEqual(conn.endheaders_called, 1)
-        self.assertEqual(conn.send_called, len("Test with string") / 5 + 1)
+        self.assertEqual(conn.send_called, len("Test with string") // 5 + 1)
         self.assertEqual(conn.content, "Test with string")
         self.assertEqual(conn.getresponse_called, 1)
 
@@ -1926,9 +2303,9 @@ class TestBceHttpClient(TestClient):
         # test body is not sufficient
         conn = MockHttpConnection()
         method = http_methods.GET
-        uri = "/unknown/unknown"
-        headers = {"Content-Length": 100,
-                   "Content-Encoding": "utf8",
+        uri = b"/unknown/unknown"
+        headers = {b"Content-Length": 100,
+                   b"Content-Encoding": "utf8",
                    }
         body = MockInputStream("Test with string")
         send_buf_size = 5
@@ -1943,7 +2320,7 @@ class TestBceHttpClient(TestClient):
         self.assertEqual(conn.putrequest_called, 1)
         self.assertEqual(conn.putheader_called, 2)
         self.assertEqual(conn.endheaders_called, 1)
-        self.assertEqual(conn.send_called, len("Test with string") / 5 + 1)
+        self.assertEqual(conn.send_called, len("Test with string") // 5 + 1)
 
     def test_send_request(self):
         """test abort send request"""
@@ -1951,7 +2328,7 @@ class TestBceHttpClient(TestClient):
         old_send_http_request = bce_http_client._send_http_request
         bce_http_client._get_connection = mock_get_connection
         handlers = [mock_handler_function_wrapper(True), mock_handler_function_wrapper(False)]
-        uri = "/unknown/unknown"
+        uri = b"/unknown/unknown"
         params = {"test": "test"}
         # test with socket exception
         body = None
@@ -1972,7 +2349,7 @@ class TestBceHttpClient(TestClient):
         # test with value exception
         bos_test_config.config.retry_policy = NoRetryPolicy()
         body = 1
-        headers = {"x-bce-date": "12345"}
+        headers = {b"x-bce-date": b"12345"}
         bce_http_client._send_http_request = mock_send_http_request_wrapper(False, None)
         self.assertRaises(ValueError,
                           bce_http_client.send_request,
@@ -1987,7 +2364,7 @@ class TestBceHttpClient(TestClient):
 
         # test others
         body = u"abcde"
-        headers = {"x-bce-date": "12345"}
+        headers = {b"x-bce-date": b"12345"}
         params = None
         bce_http_client._send_http_request = mock_send_http_request_wrapper(False, {"err": "err"})
         response = bce_http_client.send_request(bos_test_config.config,
@@ -2023,7 +2400,7 @@ class TestGetRangeHeaderDict(TestClient):
         """test _get_range_header_dict"""
         self.assertIsNone(bos_client.BosClient._get_range_header_dict(None))
         self.assertDictEqual(bos_client.BosClient._get_range_header_dict((0, 99)),
-                          {"Range":'bytes=0-99'})
+                          {b"Range":b'bytes=0-99'})
         err = None
         try:
             bos_client.BosClient._get_range_header_dict(123)
@@ -2044,7 +2421,7 @@ class MyClass(object):
     """
     wrapper class
     """
-    @required(a=int, b=list, c=(str, unicode))
+    @required(a=int, b=list, c=(bytes, str))
     def my_func(self, a, b, c, d=None):
         """
         sample function to use required
@@ -2098,6 +2475,121 @@ class TestDecorator(TestClient):
         self.assertRaises(TypeError, MyClass().my_func, a=1, b=[], c=[])
 
 
+class TestSetObjectAcl(TestClient):
+    """test set_bucket_acl"""
+    def test_set_object_acl(self):
+        """test set_object_acl, which set object acl from Grant list"""
+
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        grant_list = list()
+        grant_list.append({'grantee':
+                            [{'id': 'a0a2fe988a774be08978736ae2a1668b'},
+                            {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
+                           'permission': ['FULL_CONTROL']})
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, grant_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+    def test_set_bucket_canned_acl(self):
+        """test set_object_canned_acl, set object acl from header and set canned acl"""
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        err = None
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY, canned_acl = b"private")
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY,
+                    grant_read = b'id="a0a2fe988a774be08978736ae2a1668b",id="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"')
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        try:
+            self.bos.set_object_canned_acl(self.BUCKET, self.KEY, 
+                grant_full_control = b'id="a0a2fe988a774be08978736ae2a1668b",id="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"')
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+class TestGetAndDeleteObjectAcl(TestClient):
+    """test get_bucket_acl function"""
+    def test_get_bucket_acl(self):
+        """test get_bucket_acl function normally"""
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Hello World')
+        grant_list = list()
+        grant_list.append({'grantee':
+                            [{'id': 'a0a2fe988a774be08978736ae2a1668b'},
+                            {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
+                           'permission': ['FULL_CONTROL']})
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, grant_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            response = self.bos.get_object_acl(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.access_control_list[0].grantee[0].id,
+                         'a0a2fe988a774be08978736ae2a1668b')
+        self.assertEqual(response.access_control_list[0].grantee[1].id,
+                         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        self.assertListEqual(response.access_control_list[0].permission,
+                             ["FULL_CONTROL"])
+
+        err = None
+        try:
+            self.bos.set_object_acl(self.BUCKET, self.KEY, response.access_control_list)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        err = None
+        try:
+            self.bos.delete_object_acl(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+# test fetch object
+class TestFetchObject(TestClient):
+    """test fetch_object function"""
+    def test_fetch_object(self):
+        """test get_bucket_acl function normally"""
+        url = "http://www.baidu.com/img/bd_logo1.png?where=super"
+        obj_key = b'logo.png'
+        err = None
+        try:
+            response = self.bos.fetch_object(self.BUCKET, obj_key, url, bos_client.FETCH_MODE_ASYNC)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertIsNotNone(response.job_id)
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2132,7 +2624,16 @@ def run_test():
     runner.run(unittest.makeSuite(TestGetBucketLifecycle))
     runner.run(unittest.makeSuite(TestPutBucketCors))
     runner.run(unittest.makeSuite(TestGetBucketCors))
- 
+    runner.run(unittest.makeSuite(TestSetObjectAcl))
+    runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
+    runner.run(unittest.makeSuite(TestBucketStaticWebsite))
+    runner.run(unittest.makeSuite(TestPutBucketEncryption))
+    runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
+    runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
+    runner.run(unittest.makeSuite(TestBucketReplication))
+    runner.run(unittest.makeSuite(TestBucketTrash))
+    runner.run(unittest.makeSuite(TestFetchObject))
+
 run_test()
 cov.stop()
 cov.save()
