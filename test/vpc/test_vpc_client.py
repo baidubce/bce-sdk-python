@@ -17,22 +17,24 @@ This module for test.
 """
 
 import os
-
 import sys
 import unittest
 import uuid
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import vpc_client
 
-vpc_id = 'vpc-8dpfkp4e4f46'
+if sys.version < '3':
+   reload(sys)
+   sys.setdefaultencoding('utf-8')
+
+# config parameters
+vpc_id = 'vpc-51csm6rxs9mg'
 
 
 def generate_client_token_by_uuid():
@@ -56,9 +58,9 @@ class TestVpcClient(unittest.TestCase):
         """
         set up
         """
-        HOST = 'bcc.bce-api.baidu.com'
-        AK = '4f4b13eda66e42e29225bb02d9193a48'
-        SK = '507b4a729f6a44feab398a6a5984304d'
+        HOST = b'bcc.bj.baidubce.com'
+        AK = b'4fbd30f1b769428e9d6c6bea7cfbc4fc'
+        SK = b'168f593bbf354abaa3c94957a17b2000'
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = vpc_client.VpcClient(config)
 
@@ -81,7 +83,7 @@ class TestVpcClient(unittest.TestCase):
         """
         test case for list_vpcs
         """
-        print self.the_client.list_vpcs()
+        print(self.the_client.list_vpcs())
 
     def test_get_vpc(self):
         """
@@ -110,11 +112,11 @@ class TestVpcClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    #suite.addTest(TestVpcClient("test_create_vpc"))
+    # suite.addTest(TestVpcClient("test_create_vpc"))
     suite.addTest(TestVpcClient("test_list_vpcs"))
-    #suite.addTest(TestVpcClient("test_get_vpc"))
-    #suite.addTest(TestVpcClient("test_delete_vpc"))
-    #suite.addTest(TestVpcClient("test_update_vpc"))
+    # suite.addTest(TestVpcClient("test_get_vpc"))
+    # suite.addTest(TestVpcClient("test_delete_vpc"))
+    # suite.addTest(TestVpcClient("test_update_vpc"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

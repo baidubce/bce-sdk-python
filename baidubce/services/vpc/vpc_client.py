@@ -26,6 +26,7 @@ from baidubce.http import handler
 from baidubce.http import http_methods
 
 from baidubce.utils import required
+from baidubce import compat
 
 _logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class VpcClient(bce_base_client.BceBaseClient):
     VPC base sdk client
     """
 
-    prefix = '/v1'
+    prefix = b'/v1'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -60,12 +61,12 @@ class VpcClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type': 'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*', b'Content-Type': b'application/json;charset=utf-8'}
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, VpcClient.prefix + path, body, headers, params)
 
-    @required(name=(str, unicode), cidr=(str, unicode))
+    @required(name=(bytes, str), cidr=(bytes, str))
     def create_vpc(self, name, cidr, description=None, client_token=None, config=None):
         """
         The name of vpc to be created.
@@ -94,23 +95,24 @@ class VpcClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/vpc'
+        path = b'/vpc'
         params = {}
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
 
         body = {
-            'name':name,
-            'cidr':cidr
+            'name': compat.convert_to_string(name),
+            'cidr': compat.convert_to_string(cidr)
         }
         if description is not None:
-            body['description'] = description
+            body['description'] = compat.convert_to_string(description)
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
+    @required(marker=(bytes, str), max_Keys=int, is_Default=bool)
     def list_vpcs(self, marker=None, max_Keys=None, isDefault=None, config=None):
         """
         Return a list of vpcs owned by the authenticated user.
@@ -137,19 +139,19 @@ class VpcClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/vpc'
+        path = b'/vpc'
         params = {}
 
         if marker is not None:
-            params['marker'] = marker
+            params[b'marker'] = marker
         if max_Keys is not None:
-            params['maxKeys'] = max_Keys
+            params[b'maxKeys'] = max_Keys
         if isDefault is not None:
-            params['isDefault'] = isDefault
+            params[b'isDefault'] = isDefault
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(vpc_id=(bytes, str))
     def get_vpc(self, vpc_id, config=None):
         """
         Get the detail information of specified vpc.
@@ -164,11 +166,11 @@ class VpcClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/vpc/%s' % vpc_id
+        path = b'/vpc/%s' % compat.convert_to_bytes(vpc_id)
 
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(vpc_id=(str, unicode))
+    @required(vpc_id=(bytes, str))
     def delete_vpc(self, vpc_id, client_token=None, config=None):
         """
         Delete the specified vpc owned by the user.All resource in the vpc must be deleted before the vpc itself
@@ -191,17 +193,17 @@ class VpcClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/vpc/%s' % vpc_id
+        path = b'/vpc/%s' % compat.convert_to_bytes(vpc_id)
         params = {}
 
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
 
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
-    @required(vpc_id=(str, unicode), name=(str, unicode))
+    @required(vpc_id=(bytes, str), name=(bytes, str))
     def update_vpc(self, vpc_id, name, description=None, client_token=None, config=None):
         """
         Modify the special attribute to new value of the vpc owned by the user.
@@ -231,21 +233,21 @@ class VpcClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
 
-        path = '/vpc/%s' % vpc_id
+        path = b'/vpc/%s' % compat.convert_to_bytes(vpc_id)
         params = {
-            'modifyAttribute': None
+            b'modifyAttribute': None
         }
         body = {
-            'name': name
+            'name': compat.convert_to_string(name)
         }
 
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
 
         if description is not None:
-            body['description'] = description
+            body['description'] = compat.convert_to_string(description)
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
@@ -260,4 +262,6 @@ def generate_client_token_by_uuid():
     :rtype string
     """
     return str(uuid.uuid4())
+
+
 generate_client_token = generate_client_token_by_uuid

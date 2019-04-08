@@ -17,24 +17,25 @@ This module for test.
 """
 
 import os
-
 import sys
 import unittest
 import uuid
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.subnet import subnet_client
 
-vpc_id = 'vpc-8dpfkp4e4f46'
-subnet_id = 'sbn-7yzbmv63ttvb'
+if sys.version < '3':
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
+# config parameters
+vpc_id = 'vpc-51csm6rxs9mg'
+subnet_id = b'sbn-h2k40x2uw7cn'
 
 
 def generate_client_token_by_uuid():
@@ -46,7 +47,9 @@ def generate_client_token_by_uuid():
     """
     return str(uuid.uuid4())
 
+
 generate_client_token = generate_client_token_by_uuid
+
 
 class TestSubnetClient(unittest.TestCase):
     """
@@ -56,9 +59,9 @@ class TestSubnetClient(unittest.TestCase):
         """
         set up
         """
-        HOST = 'bcc.bce-api.baidu.com'
-        AK = '4f4b13eda66e42e29225bb02d9193a48'
-        SK = '507b4a729f6a44feab398a6a5984304d'
+        HOST = b'bcc.bj.baidubce.com'
+        AK = b'4fbd30f1b769428e9d6c6bea7cfbc4fc'
+        SK = b'168f593bbf354abaa3c94957a17b2000'
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = subnet_client.SubnetClient(config)
 
@@ -68,7 +71,7 @@ class TestSubnetClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         subnet_name = 'test_subnet_name1' + client_token
-        subnet_cidr = '192.168.243.0/24'
+        subnet_cidr = '192.168.0.64/26'
         self.assertEqual(
             type(self.the_client.create_subnet(subnet_name,
                                             'cn-bj-a',
@@ -81,7 +84,7 @@ class TestSubnetClient(unittest.TestCase):
         """
         test case for list_subnets
         """
-        print self.the_client.list_subnets()
+        print(self.the_client.list_subnets())
 
     def test_get_subnet(self):
         """
@@ -111,11 +114,12 @@ class TestSubnetClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    #suite.addTest(TestSubnetClient("test_create_subnet"))
-    suite.addTest(TestSubnetClient("test_list_subnets"))
-    #suite.addTest(TestSubnetClient("test_get_subnet"))
-    #suite.addTest(TestSubnetClient("test_delete_subnet"))
-    #suite.addTest(TestSubnetClient("test_update_subnet"))
+    # suite.addTest(TestSubnetClient("test_create_subnet"))
+    # suite.addTest(TestSubnetClient("test_list_subnets"))
+    # suite.addTest(TestSubnetClient("test_get_subnet"))
+    # suite.addTest(TestSubnetClient("test_delete_subnet"))
+    suite.addTest(TestSubnetClient("test_update_subnet"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
+
 
