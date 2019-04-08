@@ -20,14 +20,19 @@ import copy
 import json
 import logging
 import uuid
+import sys
 
 from baidubce import bce_base_client
 from baidubce.auth import bce_v1_signer
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
+from baidubce import utils
 
 from baidubce.utils import required
+
+if sys.version < '3':
+   sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
 
@@ -36,7 +41,7 @@ class AclClient(bce_base_client.BceBaseClient):
     """
     ACL base sdk client
     """
-    prefix = '/v1'
+    prefix = b'/v1'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -61,16 +66,17 @@ class AclClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type':
-                'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*', b'Content-Type':
+                b'application/json;charset=utf-8'}
+
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, AclClient.prefix + path, body, headers, params)
+            http_method, path, body, headers, params)
 
-    @required(vpc_id=(str, unicode))
-    def get_acl(self, vpc_id, config=None):
+    @required(vpc_id=(bytes, str))
+    def list_acl_entrys(self, vpc_id, config=None):
         """
-        Get the detail information of acl for vpc.
+        Get the detail information of acl for specific vpc.
 
         :param vpc_id:
             the vpc id
@@ -82,9 +88,9 @@ class AclClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/acl'
+        path = utils.append_uri(self.prefix, 'acl')
         params = {}
-        params['vpcId'] = vpc_id
+        params[b'vpcId'] = vpc_id
 
         return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
@@ -96,6 +102,7 @@ class AclClient(bce_base_client.BceBaseClient):
 
         :param rule_list:
                 a list contains acl rules.
+                https://cloud.baidu.com/doc/VPC/API.html#AclRuleRequest
                 The elements of the list are AclRuleRequest
         :type rule_list: list
 
@@ -154,13 +161,13 @@ class AclClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/acl/rule'
+        path = utils.append_uri(self.prefix, 'acl', 'rule')
         params = {}
 
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
 
         body = {
             'aclRules': rule_list
@@ -170,14 +177,14 @@ class AclClient(bce_base_client.BceBaseClient):
                                   body=json.dumps(body), params=params,
                                   config=config)
 
-    @required(subnet_id=(str, unicode))
-    def list_acls(self, subnet_id, marker=None, max_keys=None, config=None):
+    @required(subnet_id=(bytes, str))
+    def list_subnet_acl(self, subnet_id, marker=None, max_keys=None, config=None):
         """
-        Return a list of acl ruless owned by the authenticated user.
+        Return a list of acl rules of specify subnet.
 
-        :param subnetId
+        :param subnet_id
             the id of subnet whhich the acl applied
-        :type subnetId: string
+        :type subnet_id: string
 
         :param marker
             The optional parameter marker specified in the original
@@ -199,19 +206,19 @@ class AclClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
          """
-        path = '/acl/rule'
+        path = utils.append_uri(self.prefix, 'acl', 'rule')
         params = {}
 
         if marker is not None:
-            params['marker'] = marker
+            params[b'marker'] = marker
         if max_keys is not None:
-            params['maxKeys'] = max_keys
+            params[b'maxKeys'] = max_keys
 
-        params['subnetId'] = subnet_id
+        params[b'subnetId'] = subnet_id
         return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
 
-    @required(acl_rule_id=(str, unicode))
+    @required(acl_rule_id=(bytes, str))
     def delete_acl(self, acl_rule_id, client_token=None, config=None):
         """
         Delete the  specific acl rule.
@@ -231,16 +238,16 @@ class AclClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/acl/rule/%s' % acl_rule_id
+        path = utils.append_uri(self.prefix, 'acl', 'rule', acl_rule_id)
         params = {}
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
         return self._send_request(http_methods.DELETE, path,
                                   params=params, config=config)
 
-    @required(acl_rule_id=(str, unicode))
+    @required(acl_rule_id=(bytes, str))
     def update_acl(self, acl_rule_id, description=None,
                    protocol=None, source_ip_address=None,
                    destination_ip_address=None, source_port=None,
@@ -302,13 +309,13 @@ class AclClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/acl/rule/%s' % acl_rule_id
+        path = utils.append_uri(self.prefix, 'acl', 'rule', acl_rule_id)
         params = {}
 
         if client_token is None:
-            params['clientToken'] = generate_client_token()
+            params[b'clientToken'] = generate_client_token()
         else:
-            params['clientToken'] = client_token
+            params[b'clientToken'] = client_token
 
         body = {}
         if description is not None:

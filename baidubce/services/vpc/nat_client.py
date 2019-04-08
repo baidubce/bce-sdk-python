@@ -20,15 +20,20 @@ import copy
 import json
 import logging
 import uuid
+import sys
 
-from baidubce import utils
 from baidubce import bce_base_client
 from baidubce.auth import bce_v1_signer
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
 from baidubce.services.vpc import nat_model
+from baidubce import utils
 from baidubce.utils import required
+from baidubce import compat
+
+if sys.version < '3':
+   sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
 
@@ -41,8 +46,7 @@ class NatClient(bce_base_client.BceBaseClient):
     """
     NAT sdk client
     """
-    version = '/v1'
-    prefix = '/nat'
+    version = b'/v1'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -66,17 +70,17 @@ class NatClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type':
-                'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*', b'Content-Type':
+                b'application/json;charset=utf-8'}
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
 
-    @required(name=(str, unicode),
-              vpc_id=(str, unicode),
-              spec=(str, unicode))
-    def create_nat(self, name, vpc_id, spec, eips=None,
-                   client_token=None, billing=None, config=None):
+    @required(name=(bytes, str),
+              vpc_id=(bytes, str),
+              spec=(bytes, str))
+    def create_nat(self, name, vpc_id, spec, billing=None, eips=None,
+                   client_token=None, config=None):
         """
         Create a nat-gateway with the specified options.
         A nat gateway can bind only one public EIP,
@@ -118,16 +122,16 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path()
+        path = utils.append_uri(self.version, 'nat')
         if client_token is None:
             client_token = generate_client_token()
-        params = {'clientToken': client_token}
+        params = {b'clientToken': client_token}
         if billing is None:
             billing = default_billing_to_purchase_created
         body = {
-            'name': name,
-            'vpcId': vpc_id,
-            'spec': spec,
+            'name': compat.convert_to_string(name),
+            'vpcId': compat.convert_to_string(vpc_id),
+            'spec': compat.convert_to_string(spec),
             'billing': billing.__dict__
         }
         if eips is not None:
@@ -136,7 +140,7 @@ class NatClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(vpc_id=(str, unicode))
+    @required(vpc_id=(bytes, str))
     def list_nats(self, vpc_id, nat_id=None, name=None,
                   ip=None, marker=None, max_keys=None, config=None):
         """
@@ -180,23 +184,23 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path()
+        path = utils.append_uri(self.version, 'nat')
         params = {}
-        params['vpcId'] = vpc_id
+        params[b'vpcId'] = vpc_id
         if nat_id is not None:
-            params['natId'] = nat_id
+            params[b'natId'] = nat_id
         if name is not None:
-            params['name'] = name
+            params[b'name'] = name
         if ip is not None:
-            params['ip'] = ip
+            params[b'ip'] = ip
         if marker is not None:
-            params['marker'] = marker
+            params[b'marker'] = marker
         if max_keys is not None:
-            params['maxKeys'] = max_keys
+            params[b'maxKeys'] = max_keys
         return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
 
-    @required(nat_id=(str, unicode))
+    @required(nat_id=(bytes, str))
     def get_nat(self, nat_id, config=None):
         """
         Get the detail information of a specified nat-gateway.
@@ -211,10 +215,10 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(nat_id=(str, unicode), name=(str, unicode))
+    @required(nat_id=(bytes, str), name=(bytes, str))
     def update_nat(self, nat_id, name, client_token=None, config=None):
         """
         Update the name of a specified nat-gateway.
@@ -240,20 +244,21 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         body = {
-            'name': name
+            'name': compat.convert_to_string(name)
         }
+
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(nat_id=(str, unicode), eips=list)
+    @required(nat_id=(bytes, str), eips=list)
     def bind_eip(self, nat_id, eips, client_token=None, config=None):
         """
         Bind EIPs to a specified nat gateway.
@@ -283,12 +288,12 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'bind': None,
-            'clientToken': client_token
+            b'bind': None,
+            b'clientToken': client_token
         }
         body = {
             'eips': eips
@@ -297,7 +302,7 @@ class NatClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(nat_id=(str, unicode), eips=list)
+    @required(nat_id=(bytes, str), eips=list)
     def unbind_eip(self, nat_id, eips, client_token=None, config=None):
         """
         Unbind EIPs of a specified nat gateway.
@@ -323,12 +328,12 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'unbind': None,
-            'clientToken': client_token
+            b'unbind': None,
+            b'clientToken': client_token
         }
         body = {
             'eips': eips
@@ -337,7 +342,7 @@ class NatClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(nat_id=(str, unicode))
+    @required(nat_id=(bytes, str))
     def delete_nat(self, nat_id, client_token=None, config=None):
         """
         Delete specified nat-gateway.
@@ -360,18 +365,18 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         return self._send_request(http_methods.DELETE,
                                   path, params=params, config=config)
 
-    @required(nat_id=(str, unicode))
-    def purchase_reserved_nat(self, nat_id, client_token=None,
-                              billing=None, config=None):
+    @required(nat_id=(bytes, str))
+    def purchase_reserved_nat(self, nat_id, billing, client_token=None,
+                              config=None):
         """
         Renew specified nat-gateway. Postpaid NAT cannot be renewed
 
@@ -396,12 +401,12 @@ class NatClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % nat_id
+        path = utils.append_uri(self.version, 'nat', nat_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'purchaseReserved': None,
-            'clientToken': client_token
+            b'purchaseReserved': None,
+            b'clientToken': client_token
         }
         if billing is None:
             billing = default_billing_to_purchase_reserved
@@ -411,16 +416,6 @@ class NatClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
-
-    @staticmethod
-    def _get_path(prefix=None):
-        """
-        :type prefix: string
-        :param prefix: path prefix
-        """
-        if prefix is None:
-            prefix = NatClient.prefix
-        return utils.append_uri(NatClient.version, prefix)
 
 
 def generate_client_token_by_uuid():

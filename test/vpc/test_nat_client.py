@@ -26,8 +26,9 @@ import uuid
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version < '3':
+   reload(sys)
+   sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
@@ -35,13 +36,13 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import nat_client
 from baidubce.services.vpc import nat_model
 
-VPC_ID = ''
-EIP = ['10.107.246.43']
-SHARED_EIP = ['10.107.247.38']
+VPC_ID = b'vpc-jeh7s0z1myar'
+EIP = ['180.76.153.25']
+SHARED_EIP = ['180.76.153.25']
 NEW_SHARED_EIP = ['10.107.247.60']
-NAT_ID = 'nat-bn89vbs5t948'
-NAME = 'test_nat'
-IP = '10.107.247.38'
+NAT_ID = b'nat-bm8y2wpw13n9'
+NAME = b'nat_test_new'
+IP = '180.76.153.25'
 
 pre_paid_billing = nat_model.Billing('Prepaid')
 post_paid_billing = nat_model.Billing('Postpaid')
@@ -55,9 +56,9 @@ class TestNatClient(unittest.TestCase):
         """
         set up
         """
-        HOST = ''
-        AK = ''
-        SK = ''
+        HOST = b'bcc.bj.baidubce.com'
+        AK = b'64c63e5269394c999da6c25a37b50cb2'
+        SK = b''
 
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK), endpoint=HOST)
@@ -75,11 +76,11 @@ class TestNatClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         name = 'nat_without_EIPs' + client_token
-        spec = 'small'
+        spec = b'small'
         self.assertEqual(
             type(self.client.create_nat(client_token=client_token, name=name,
                                         vpc_id=VPC_ID, spec=spec,
-                                        billing=pre_paid_billing)),
+                                        billing=post_paid_billing)),
             baidubce.bce_response.BceResponse)
 
     def test_create_nat_with_eip(self):
@@ -107,7 +108,7 @@ class TestNatClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.create_nat(client_token=client_token, name=name,
                                         vpc_id=VPC_ID, spec='medium',
-                                        eips = SHARED_EIP)),
+                                        eips=SHARED_EIP)),
             baidubce.bce_response.BceResponse)
 
     def test_create_nat_with_eip_postpaid(self):
@@ -130,7 +131,7 @@ class TestNatClient(unittest.TestCase):
         #     type(self.client.list_nats(vpc_id=VPC_ID)),
         #     baidubce.bce_response.BceResponse)
 
-        print self.client.list_nats(vpc_id=VPC_ID)
+        print(self.client.list_nats(vpc_id=VPC_ID))
 
     def test_list_nats_with_detailed_options(self):
         """
@@ -140,8 +141,8 @@ class TestNatClient(unittest.TestCase):
         #     type(self.client.list_nats(vpc_id=VPC_ID, nat_id=NAT_ID,
         #                                name=NAME,ip=IP)),
         #     baidubce.bce_response.BceResponse)
-        print self.client.list_nats(vpc_id=VPC_ID, nat_id=NAT_ID,
-                                       name=NAME, ip=IP)
+        print(self.client.list_nats(vpc_id=VPC_ID, nat_id=NAT_ID,
+                                    name=NAME, ip=IP))
 
     def test_get_nat(self):
         """
@@ -151,16 +152,17 @@ class TestNatClient(unittest.TestCase):
         #     type(self.client.get_nat(nat_id=NAT_ID)),
         #     baidubce.bce_response.BceResponse)
 
-        print self.client.get_nat(nat_id=NAT_ID)
+        print(self.client.get_nat(nat_id=NAT_ID))
 
     def test_update_nat(self):
         """
         test case for updating nat name
         """
-        name = 'test_nat_new'
+        new_name = 'test_nat_new'
         self.assertEqual(
-            type(self.client.update_nat(nat_id=NAT_ID, name=name)),
+            type(self.client.update_nat(nat_id=NAT_ID, name=new_name)),
             baidubce.bce_response.BceResponse)
+
 
     def test_bind_eip_eip(self):
         """
@@ -227,21 +229,21 @@ generate_client_token = generate_client_token_by_uuid
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
-
-    # suite.addTest(TestNatClient("test_create_nat_with_eip"))
-    # suite.addTest(TestNatClient("test_create_nat_without_eips"))
-    # suite.addTest(TestNatClient("test_create_nat_with_shared_eip"))
-    # suite.addTest(TestNatClient("test_create_nat_with_eip_postpaid"))
-    # suite.addTest(TestNatClient("test_delete_nat"))
-    # suite.addTest(TestNatClient("test_bind_eip_eip"))
-    # suite.addTest(TestNatClient("test_unbond_eip"))
-    # suite.addTest(TestNatClient("test_bind_eip_shared_eip"))
-    # suite.addTest(TestNatClient("test_unbond_shared_eip"))
-    # suite.addTest(TestNatClient("test_update_nat"))
-    # suite.addTest(TestNatClient("test_list_nats"))
-    # suite.addTest(TestNatClient("test_list_nats_with_detailed_options"))
-    # suite.addTest(TestNatClient("test_get_nat"))
-    suite.addTest(TestNatClient("test_purchase_reserved_nat"))
+    #2s 2b 3s 3bwait for start
+    #suite.addTest(TestNatClient("test_create_nat_without_eips"))
+    #suite.addTest(TestNatClient("test_create_nat_with_eip"))
+    #suite.addTest(TestNatClient("test_create_nat_with_shared_eip"))
+    #suite.addTest(TestNatClient("test_create_nat_with_eip_postpaid"))
+    #suite.addTest(TestNatClient("test_delete_nat"))
+    #suite.addTest(TestNatClient("test_bind_eip_eip"))
+    #suite.addTest(TestNatClient("test_unbond_eip"))
+    #suite.addTest(TestNatClient("test_bind_eip_shared_eip"))
+    #suite.addTest(TestNatClient("test_unbond_shared_eip"))
+    #suite.addTest(TestNatClient("test_update_nat"))
+    #suite.addTest(TestNatClient("test_list_nats"))
+    #suite.addTest(TestNatClient("test_list_nats_with_detailed_options"))
+    #suite.addTest(TestNatClient("test_get_nat"))
+    #suite.addTest(TestNatClient("test_purchase_reserved_nat"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

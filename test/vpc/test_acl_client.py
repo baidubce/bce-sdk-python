@@ -26,20 +26,21 @@ import uuid
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version < '3':
+   reload(sys)
+   sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import acl_client
 
-vpc_id = ''
-subnetId = ''
-HOST = ''
-AK = ''
-SK = ''
-acl_id = ''
+vpc_id = 'vpc-by5g38k5uqmk'
+subnetId = 'sbn-fhryfrw87ckq'
+HOST = b'bcc.bj.baidubce.com'
+AK = b'64c63e5269394c999da6c25a37b50cb2'
+SK = b''
+acl_id = 'ar-mfptd8bq94q0'
 
 
 def generate_client_token_by_uuid():
@@ -68,11 +69,11 @@ class TestAclClient(unittest.TestCase):
             credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = acl_client.AclClient(config)
 
-    def test_get_acl(self):
+    def test_list_acl_entrys(self):
         """
-        test case for get acl
+        test case for test list acl entrys
         """
-        print self.the_client.get_acl(vpc_id)
+        print(self.the_client.list_acl_entrys(vpc_id))
 
     def test_create_acl(self):
         """
@@ -98,11 +99,11 @@ class TestAclClient(unittest.TestCase):
                                             client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
-    def test_list_acls(self):
+    def test_list_subnet_acl(self):
         """
-        test case for list acls
+        test case for list subnet acl
         """
-        print self.the_client.list_acls(subnetId)
+        print(self.the_client.list_subnet_acl(subnetId))
 
     def test_delete_acl(self):
         """
@@ -130,11 +131,11 @@ class TestAclClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    # suite.addTest(TestAclClient("test_get_acl"))
-    # suite.addTest(TestAclClient("test_create_acl"))
-    # suite.addTest(TestAclClient("test_list_acls"))
-    suite.addTest(TestAclClient("test_delete_acl"))
-    # suite.addTest(TestAclClient("test_update_acl"))
+    #suite.addTest(TestAclClient("test_list_acl_entrys"))
+    #suite.addTest(TestAclClient("test_create_acl"))
+    #suite.addTest(TestAclClient("test_list_subnet_acl"))
+    #suite.addTest(TestAclClient("test_delete_acl"))
+    #suite.addTest(TestAclClient("test_update_acl"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

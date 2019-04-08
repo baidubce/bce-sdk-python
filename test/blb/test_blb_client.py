@@ -26,21 +26,24 @@ import uuid
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version < '3':
+   reload(sys)
+   sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.blb import blb_client
 
-vpc_id = ''
-subnetId = ''
-HOST = ''
-AK = ''
-SK = ''
-blbId = ''
-bccId = ''
+vpc_id = 'vpc-by5g38k5uqmk'
+subnetId = 'sbn-fhryfrw87ckq'
+HOST = b'blb.bj.baidubce.com'
+AK = b'64c63e5269394c999da6c25a37b50cb2'
+SK = b''
+blbId = b'lb-42a41e4e'
+bccId = 'i-l76ZREXn'
+certID = 'cert-6nszzxe4kj6i'
+#certID = 'cert-xkvvh6azsftq'
 
 
 def generate_client_token_by_uuid():
@@ -76,16 +79,21 @@ class TestBlbClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.create_loadbalancer(
-                name='test_blb', vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_hzf', vpc_id=vpc_id, subnet_id=subnetId,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
-    def test_describe_loadbalancer(self):
+    def test_describe_loadbalancers(self):
         """
-        test case for describe_loadbalancer
+        test case for describe_loadbalancers
         """
-        client_token = generate_client_token()
-        print self.the_client.describe_loadbalancer()
+        print(self.the_client.describe_loadbalancers())
+
+    def test_describe_loadbalancer_detail(self):
+        """
+        test case for describe_loadbalancer_detail
+        """
+        print(self.the_client.describe_loadbalancer_detail(blbId))
 
     def test_update_loadbalancer(self):
         """
@@ -94,7 +102,7 @@ class TestBlbClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.update_loadbalancer(
-                blbId, name='blb_test_by_hzf',
+                blbId, name='blb_test_hzf_new',
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -146,10 +154,23 @@ class TestBlbClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         cert_ids = []
-        cert_ids.append('c3a375ca-4a6b-4686-a824-fda69d3f9fc8')
+        cert_ids.append(certID)
         self.assertEqual(
             type(self.the_client.create_https_listener(
                 blbId, 800, 900, 'LeastConnection', cert_ids,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_ssl_listener(self):
+        """
+        test case for create_ssl_listener
+        """
+        client_token = generate_client_token()
+        cert_ids = []
+        cert_ids.append(certID)
+        self.assertEqual(
+            type(self.the_client.create_ssl_listener(
+                blbId, 1200, 133, 'LeastConnection', cert_ids,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -157,49 +178,48 @@ class TestBlbClient(unittest.TestCase):
         """
         test case for describe_tcp_listener
         """
-        client_token = generate_client_token()
-        print self.the_client.describe_tcp_listener(blbId)
+        print(self.the_client.describe_tcp_listener(blbId))
 
     def test_describe_udp_listener(self):
         """
         test case for describe_udp_listener
         """
-        client_token = generate_client_token()
-        print self.the_client.describe_udp_listener(blbId)
+        print(self.the_client.describe_udp_listener(blbId))
 
     def test_describe_http_listener(self):
         """
         test case for describe_http_listener
         """
-        client_token = generate_client_token()
-        print self.the_client.describe_http_listener(blbId)
+        print(self.the_client.describe_http_listener(blbId))
 
     def test_describe_https_listener(self):
         """
         test case for describe_https_listener
         """
-        client_token = generate_client_token()
-        print self.the_client.describe_https_listener(blbId)
+        print(self.the_client.describe_https_listener(blbId))
+
+    def test_describe_ssl_listener(self):
+        """
+        test case for describe_ssl_listener
+        """
+        print(self.the_client.describe_ssl_listener(blbId))
 
     def test_update_tcp_listener(self):
         """
         test case for tcp listener
         """
-        client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.update_tcp_listener(
-                blbId, 100, backend_port=250, client_token=client_token)),
+                blbId, 100, backend_port=250)),
             baidubce.bce_response.BceResponse)
 
     def test_update_udp_listener(self):
         """
         test case for udp listener
         """
-        client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.update_udp_listener(
-                blbId, 30000, 450, 'Hash', 'aaa',
-                client_token=client_token)),
+                blbId, 30000, backend_port=677)),
             baidubce.bce_response.BceResponse)
 
     def test_update_http_listener(self):
@@ -209,7 +229,27 @@ class TestBlbClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.update_http_listener(
-                blbId, 600, backend_port=750, client_token=client_token)),
+                blbId, 600, backend_port=755)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_https_listener(self):
+        """
+        test case for https listener
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_https_listener(
+                blbId, 800, backend_port=950)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_ssl_listener(self):
+        """
+        test case for https listener
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_ssl_listener(
+                blbId, 1200, backend_port=95)),
             baidubce.bce_response.BceResponse)
 
     def test_delete_listeners(self):
@@ -248,13 +288,13 @@ class TestBlbClient(unittest.TestCase):
         """
         test case for describe health status
         """
-        print self.the_client.describe_health_status(blbId, 100)
+        print(self.the_client.describe_health_status(blbId, 600))
 
     def test_describe_backend_servers(self):
         """
         test case for describe backend servers
         """
-        print self.the_client.describe_backend_servers(blbId)
+        print(self.the_client.describe_backend_servers(blbId))
 
     def test_update_backend_servers(self):
         """
@@ -291,28 +331,36 @@ class TestBlbClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    """
-    All HTTPS related API are not tested due to lack of SSL certificate
-    """
-    # suite.addTest(TestBlbClient("test_create_loadbalancer"))
-    # suite.addTest(TestBlbClient("test_describe_loadbalancer"))
-    # suite.addTest(TestBlbClient("test_update_loadbalancer"))
-    # suite.addTest(TestBlbClient("test_delete_loadbalancer"))
-    # suite.addTest(TestBlbClient("test_create_tcp_listener"))
-    # suite.addTest(TestBlbClient("test_create_udp_listener"))
-    # suite.addTest(TestBlbClient("test_create_http_listener"))
-    # suite.addTest(TestBlbClient("test_describe_tcp_listener"))
-    # suite.addTest(TestBlbClient("test_describe_udp_listener"))
-    # suite.addTest(TestBlbClient("test_describe_http_listener"))
-    # suite.addTest(TestBlbClient("test_update_tcp_listener"))
-    suite.addTest(TestBlbClient("test_update_udp_listener"))
-    # suite.addTest(TestBlbClient("test_update_http_listener"))
-    # suite.addTest(TestBlbClient("test_delete_listeners"))
-    # suite.addTest(TestBlbClient("test_add_backend_servers"))
-    # suite.addTest(TestBlbClient("test_describe_health_status"))
-    # suite.addTest(TestBlbClient("test_describe_backend_servers"))
-    # suite.addTest(TestBlbClient("test_update_backend_servers"))
-    # suite.addTest(TestBlbClient("test_remove_backend_servers"))
+    #2s 2b 3s 3b~
+    #suite.addTest(TestBlbClient("test_create_loadbalancer"))
+    #suite.addTest(TestBlbClient("test_describe_loadbalancers"))
+    #suite.addTest(TestBlbClient("test_describe_loadbalancer_detail"))
+    #suite.addTest(TestBlbClient("test_update_loadbalancer"))
+    #suite.addTest(TestBlbClient("test_delete_loadbalancer"))
+    #suite.addTest(TestBlbClient("test_create_tcp_listener"))
+    #suite.addTest(TestBlbClient("test_create_udp_listener"))
+    #suite.addTest(TestBlbClient("test_create_http_listener"))
+        #suite.addTest(TestBlbClient("test_create_https_listener"))
+        #suite.addTest(TestBlbClient("test_create_ssl_listener"))
+    #suite.addTest(TestBlbClient("test_describe_tcp_listener"))
+    #suite.addTest(TestBlbClient("test_describe_udp_listener"))
+    #suite.addTest(TestBlbClient("test_describe_http_listener"))
+    #suite.addTest(TestBlbClient("test_describe_https_listener"))
+    #suite.addTest(TestBlbClient("test_describe_ssl_listener"))
+    #suite.addTest(TestBlbClient("test_update_tcp_listener"))
+    #suite.addTest(TestBlbClient("test_update_udp_listener"))
+    #suite.addTest(TestBlbClient("test_update_http_listener"))
+
+            #API document not updated in time
+            #suite.addTest(TestBlbClient("test_update_https_listener"))
+            #suite.addTest(TestBlbClient("test_update_ssl_listener"))
+
+    #suite.addTest(TestBlbClient("test_delete_listeners"))
+    #suite.addTest(TestBlbClient("test_add_backend_servers"))
+    #suite.addTest(TestBlbClient("test_describe_health_status"))
+    #suite.addTest(TestBlbClient("test_describe_backend_servers"))
+    #suite.addTest(TestBlbClient("test_update_backend_servers"))
+    #suite.addTest(TestBlbClient("test_remove_backend_servers"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
