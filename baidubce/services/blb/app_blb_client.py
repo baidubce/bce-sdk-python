@@ -32,7 +32,7 @@ from baidubce.utils import required
 from baidubce import compat
 
 if sys.version < '3':
-   sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
 
@@ -116,9 +116,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {}
         if name is not None:
-            body['name'] = name
+            body['name'] = compat.convert_to_string(name)
         if desc is not None:
-            body['desc'] = desc
+            body['desc'] = compat.convert_to_string(desc)
         body['vpcId'] = compat.convert_to_string(vpc_id)
         body['subnetId'] = compat.convert_to_string(subnet_id)
 
@@ -167,10 +167,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {}
         if name is not None:
-            body['name'] = name
-
+            body['name'] = compat.convert_to_string(name)
         if desc is not None:
-            body['desc'] = desc
+            body['desc'] = compat.convert_to_string(desc)
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
@@ -487,7 +486,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if keep_session is not None:
             body['keepSession'] = keep_session
         if keep_session_type is not None:
-            body['keepSessionType'] = keep_session_type
+            body['keepSessionType'] = \
+                compat.convert_to_string(keep_session_type)
         if keep_session_timeout is not None:
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
@@ -510,79 +510,63 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   keep_session_type=None,
                                   keep_session_timeout=None,
                                   keep_session_cookie_name=None,
-                                  x_forward_for=None,
-                                  server_timeout=None,
-                                  ie6_compatible=None,
-                                  encryption_type=None,
+                                  x_forward_for=None, server_timeout=None,
+                                  ie6_compatible=None, encryption_type=None,
                                   encryption_protocols=None,
-                                  dual_auth=None,
-                                  client_certIds=None,
-                                  client_token=None,
-                                  config=None):
+                                  dual_auth=None, client_certIds=None,
+                                  client_token=None, config=None):
         """
         Create a app https listener rule with the specified options.
-
         :param blb_id:
             The id of blb which the listener work on
         :type blb_id: string
-
         :param listener_port:
             port to be linstened owned by listener
         :value 1-65535
         :type listener_port: int
-
         :param scheduler:
             balancing algorithm
         :value 'RoundRobin' or 'LeastConnection'
         :type scheduler: string
-
         :param cert_ids:
             The certificate to be loaded by the listener.
         :type cert_ids: List<String>
-
         :param keep_session:
             Whether to enable the session hold function,
             that is, the request sent by the same client will reach the
             same backend server
         :value true or false, default: false
         :type keep_session: bool
-
         :param keep_session_type:
             The cookie handling method maintained by the session,
             valid only if the session is held open
         :value 'insert' or 'rewrite', default:insert
         :type keep_session_type: string
-
         :param keep_session_timeout:
             The time the cookie is kept in session (in seconds),
             valid only if the session is held open
         :value 1-15552000, default:3600
         :type keep_session_timeout: int
-
         :param keep_session_cookie_name:
             The session keeps the name of the cookie that needs
             to be overridden if and only if session persistence
             is enabled and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-
         :param x_forward_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: flase
         :type x_forward_for: bool
-
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
         :type server_timeout: int
-
         :param ie6_compatible:
             compatible with IE6 HTTPS request
             (the protocol format is earlier SSL3.0, the security is poor)
         :value true or false, default: true
         :type ie6_compatible: bool
-
         :param encryption_type:
             Encryption options, support three types:
             compatibleIE/incompatibleIE/userDefind,
@@ -591,30 +575,24 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             when encryptionType is valid and legitimate,
             ie6Compatible field transfer value will not take effect
         type: encryption_type:string
-
         :param encryption_protocols:
             When the encryptionType value is userDefind,
             the list of protocol types is a string list composed of four protocols:
             "sslv3", "tlsv10", "tlsv11", "tlsv12".
         type: encryption_protocols:list
-
         :param dual_auth:
             Whether to Open Two-way Authentication,
             default:false
         :type dual_auth: boolean
-
         :param client_certIds:
             When dualAuth is true, the loaded client certificate chain
         :type client_certIds: list
-
         :param client_token:
             If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
         :type client_token: string
-
         :param config:
         :type config: baidubce.BceClientConfiguration
-
         :return
         :rtype baidubce.bce_response.BceResponse
         """
@@ -631,7 +609,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if keep_session is not None:
             body['keepSession'] = keep_session
         if keep_session_type is not None:
-            body['keepSessionType'] = keep_session_type
+            body['keepSessionType'] = \
+                compat.convert_to_string(keep_session_type)
         if keep_session_timeout is not None:
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
@@ -643,14 +622,14 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if ie6_compatible is not None:
             body['ie6Compatible'] = ie6_compatible
         if encryption_type is not None:
-            body['encryptionType'] = encryption_type
+            body['encryptionType'] = \
+                compat.convert_to_string(encryption_type)
         if encryption_protocols is not None:
             body['encryptionProtocols'] = encryption_protocols
         if dual_auth is not None:
             body['dualAuth'] = dual_auth
         if client_certIds is not None:
             body['clientCertIds'] = client_certIds
-
         return self._send_request(http_methods.POST, path,
                                   body=json.dumps(body),
                                   params=params, config=config)
@@ -740,7 +719,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if ie6_compatible is not None:
             body['ie6Compatible'] = ie6_compatible
         if encryption_type is not None:
-            body['encryptionType'] = encryption_type
+            body['encryptionType'] = \
+                compat.convert_to_string(encryption_type)
         if encryption_protocols is not None:
             body['encryptionProtocols'] = encryption_protocols
         if dual_auth is not None:
@@ -796,7 +776,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {}
         if scheduler is not None:
-            body['scheduler'] = scheduler
+            body['scheduler'] = compat.convert_to_string(scheduler)
 
         return self._send_request(http_methods.PUT, path,
                                   body=json.dumps(body), params=params,
@@ -844,7 +824,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         params[b'listenerPort'] = listener_port
 
         body = {
-            'scheduler': scheduler
+            'scheduler': compat.convert_to_string(scheduler)
         }
 
         return self._send_request(http_methods.PUT, path,
@@ -943,11 +923,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {}
         if scheduler is not None:
-            body['scheduler'] = scheduler
+            body['scheduler'] = compat.convert_to_string(scheduler)
         if keep_session is not None:
             body['keepSession'] = keep_session
         if keep_session_type is not None:
-            body['keepSessionType'] = keep_session_type
+            body['keepSessionType'] = \
+                compat.convert_to_string(keep_session_type)
         if keep_session_timeout is not None:
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
@@ -981,68 +962,56 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   config=None):
         """
         update a app https listener rule with the specified options.
-
         :param blb_id:
             The id of blb which the listener work on
         :type blb_id: string
-
         :param listener_port:
             Port to be linstened owned by listener
         :value 1-65535
         :type listener_port: int
-
         :param scheduler:
             Balancing algorithm
         :value 'RoundRobin' or 'LeastConnection' or 'Hash'
         :type scheduler: string
-
         :param keep_session:
             Whether to enable the session hold function, that is, the request
             sent by the same client will reach the same backend server
         :value true or false, default: false
         :type keep_session: bool
-
         :param keep_session_type:
             The cookie handling method maintained by the session,
             valid only if the session is held open
         :value 'insert' or 'rewrite', default: insert
         :type keep_session_type: string
-
         :param keep_session_timeout:
             The time the cookie is kept in session (in seconds),
             valid only if the session is held open
         :value 1-15552000, default:3600
         :type keep_session_timeout: int
-
         :param keep_session_cookie_name:
             The session keeps the name of the cookie that needs to be
             overridden,if and only if session persistence is enabled and
             keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-
         :param x_forward_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: False
         :type x_forward_for: bool
-
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
         :type server_timeout: int
-
         :param cert_ids:
             The SSL certificate to be loaded by the listener.
             Currently HTTPS listeners can only bind one SSL certificate.
         :type cert_ids:List<String>
-
         :param ie6_compatible:
             Is it compatible with IE6 HTTPS request
             (the protocol format is earlier SSL3.0, the security is poor)
         :value true or false, default: true
         :type ie6_compatible: bool
-
         :param encryption_type:
             Encryption options, support three types:
             compatibleIE/incompatibleIE/userDefind,
@@ -1051,30 +1020,24 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             when encryptionType is valid and legitimate,
             ie6Compatible field transfer value will not take effect
         type: encryption_type:string
-
         :param encryption_protocols:
             When the encryptionType value is userDefind,
             the list of protocol types is a string list composed of four protocols:
             "sslv3", "tlsv10", "tlsv11", "tlsv12".
         type: encryption_protocols:list
-
         :param dual_auth:
             Whether to Open Two-way Authentication,
             default:false
         :type dual_auth: boolean
-
         :param client_certIds:
             When dualAuth is true, the loaded client certificate chain
         :type client_certIds: list
-
         :param client_token:
             If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
         :type client_token: string
-
         :param config:
         :type config: baidubce.BceClientConfiguration
-
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1085,14 +1048,14 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         else:
             params[b'clientToken'] = client_token
         params[b'listenerPort'] = listener_port
-
         body = {}
         if scheduler is not None:
-            body['scheduler'] = scheduler
+            body['scheduler'] = compat.convert_to_string(scheduler)
         if keep_session is not None:
             body['keepSession'] = keep_session
         if keep_session_type is not None:
-            body['keepSessionType'] = keep_session_type
+            body['keepSessionType'] = \
+                compat.convert_to_string(keep_session_type)
         if keep_session_timeout is not None:
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
@@ -1106,14 +1069,14 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if ie6_compatible is not None:
             body['compatibleIE'] = ie6_compatible
         if encryption_type is not None:
-            body['encryptionType'] = encryption_type
+            body['encryptionType'] = \
+                compat.convert_to_string(encryption_type)
         if encryption_protocols is not None:
             body['encryptionProtocols'] = encryption_protocols
         if dual_auth is not None:
             body['dualAuth'] = dual_auth
         if client_certIds is not None:
             body['clientCertIds'] = client_certIds
-
         return self._send_request(http_methods.PUT, path,
                                   body=json.dumps(body), params=params,
                                   config=config)
@@ -1201,13 +1164,14 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         params[b'listenerPort'] = listener_port
         body = {}
         if scheduler is not None:
-            body['scheduler'] = scheduler
+            body['scheduler'] = compat.convert_to_string(scheduler)
         if cert_ids is not None:
             body['certIds'] = cert_ids
         if ie6_compatible is not None:
             body['compatibleIE'] = ie6_compatible
         if encryption_type is not None:
-            body['encryptionType'] = encryption_type
+            body['encryptionType'] = \
+                compat.convert_to_string(encryption_type)
         if encryption_protocols is not None:
             body['encryptionProtocols'] = encryption_protocols
         if dual_auth is not None:
@@ -1716,9 +1680,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {}
         if name is not None:
-            body['name'] = name
+            body['name'] = compat.convert_to_string(name)
         if desc is not None:
-            body['desc'] = desc
+            body['desc'] = compat.convert_to_string(desc)
         if backend_server_list is not None:
             body['backendServerList'] = backend_server_list
 
@@ -1775,9 +1739,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         body = {}
         body['sgId'] = compat.convert_to_string(sg_id)
         if name is not None:
-            body['name'] = name
+            body['name'] = compat.convert_to_string(name)
         if desc is not None:
-            body['desc'] = desc
+            body['desc'] = compat.convert_to_string(desc)
 
         return self._send_request(http_methods.PUT, path,
                                   body=json.dumps(body), params=params,
@@ -1885,8 +1849,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(blb_id=(bytes, str),
-              sg_id=(bytes, str),
-              port=int,
+              sg_id=(bytes, str), port=int,
               protocol_type=(bytes, str))
     def create_app_server_group_port(self, blb_id, sg_id,
                                      port, protocol_type,
@@ -1903,59 +1866,47 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         """
         create server group for the specified LoadBalancer,
         support batch add
-
         :param blb_id:
             id of LoadBalancer
         :type blb_id:string
-
         :param sg_id:
             id of the server group
         :type sg_id:string
-
         :param port:
             Port number, integer between 1 and 65535
         :type port:string
-
         :param protocol_type:
             Protocol type of listening port, "TCP"/"UDP"/"HTTP"
         :type protocol_type:string
-
         :param health_check:
             Health check protocol
         :value 'HTTP' or 'TCP',default:'HTTP'
         :type health_check: string
-
         :param health_check_port:
             Health check port, the default is the same as port
         :type health_check_port: int
-
         :param health_check_urlpath:
             Health check URI, default '/'.
             Effective when the health check protocol is "HTTP"
         :type health_check_urlpath: string
-
          :param health_check_timeout_insecond:
             Health check timeout (unit: second)
         :value 1-60, default: 3
         :type health_check_timeout_insecond: int
-
         :param health_check_interval_insecond:
             Health check interval (unit: second)
         :value 1-10, default: 3
         :type health_check_interval_insecond: int
-
         :param health_check_down_retry:
             The unhealthy down retry, that is, how many consecutive health
             check failures, shields the backend server.
         :value 2-5, default: 3
         :type health_check_down_retry: int
-
         :param health_check_up_retry:
             Health up retry, that is, how many consecutive health checks
             are successful, then re-use the back-end server
         :value:2-5, default: 3
         :type health_check_up_retry: int
-
         :param health_check_normal_status:
             The HTTP status code when the health check is normal supports
             a combination of five types of status codes,
@@ -1963,15 +1914,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             protocol is "HTTP"
         :value default: http_2xx|http_3xx
         :type health_check_normal_status: string
-
         :param client_token:
             If the clientToken is not specified by the user, a random String
             generated by default algorithm will be used.
         :type client_token: string
-
         :param config:
         :type config: baidubce.BceClientConfiguration
-
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1989,11 +1937,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             'type': compat.convert_to_string(protocol_type)
         }
         if health_check is not None:
-            body['healthCheck'] = health_check
+            body['healthCheck'] = compat.convert_to_string(health_check)
         if health_check_port is not None:
             body['healthCheckPort'] = health_check_port
         if health_check_urlpath is not None:
-            body['healthCheckUrlPath'] = health_check_urlpath
+            body['healthCheckUrlPath'] = \
+                compat.convert_to_string(health_check_urlpath)
         if health_check_timeout_insecond is not None:
             body['healthCheckTimeoutInSecond'] = health_check_timeout_insecond
         if health_check_interval_insecond is not None:
@@ -2003,8 +1952,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_up_retry is not None:
             body['healthCheckUpRetry'] = health_check_up_retry
         if health_check_normal_status is not None:
-            body['healthCheckNormalStatus'] = health_check_normal_status
-
+            body['healthCheckNormalStatus'] = \
+                compat.convert_to_string(health_check_normal_status)
         return self._send_request(http_methods.POST, path,
                                   body=json.dumps(body), params=params,
                                   config=config)
@@ -2104,14 +2053,15 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
         body = {
             'sgId': compat.convert_to_string(sg_id),
-            'portId': port_id
+            'portId': compat.convert_to_string(port_id)
         }
         if health_check is not None:
-            body['healthCheck'] = health_check
+            body['healthCheck'] = compat.convert_to_string(health_check)
         if health_check_port is not None:
             body['healthCheckPort'] = health_check_port
         if health_check_urlpath is not None:
-            body['healthCheckUrlPath'] = health_check_urlpath
+            body['healthCheckUrlPath'] = \
+                compat.convert_to_string(health_check_urlpath)
         if health_check_timeout_insecond is not None:
             body['healthCheckTimeoutInSecond'] = health_check_timeout_insecond
         if health_check_interval_insecond is not None:
@@ -2121,7 +2071,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_up_retry is not None:
             body['healthCheckUpRetry'] = health_check_up_retry
         if health_check_normal_status is not None:
-            body['healthCheckNormalStatus'] = health_check_normal_status
+            body['healthCheckNormalStatus'] = \
+                compat.convert_to_string(health_check_normal_status)
 
         return self._send_request(http_methods.PUT, path,
                                   body=json.dumps(body), params=params,
@@ -2384,7 +2335,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(blb_id=(bytes, str),
-              sg_id=(bytes,str))
+              sg_id=(bytes, str))
     def describe_rs_mount(self, blb_id, sg_id, config=None):
         """
         describe servers of specific server group

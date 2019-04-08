@@ -28,11 +28,11 @@ from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
 from baidubce import utils
-
 from baidubce.utils import required
+from baidubce import compat
 
 if sys.version < '3':
-   sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
 
@@ -319,28 +319,31 @@ class AclClient(bce_base_client.BceBaseClient):
 
         body = {}
         if description is not None:
-            body['description'] = description
+            body['description'] = compat.convert_to_string(description)
 
         if protocol is not None:
-            body['protocol'] = protocol
+            body['protocol'] = compat.convert_to_string(protocol)
 
         if source_ip_address is not None:
-            body['sourceIpAddress'] = source_ip_address
+            body['sourceIpAddress'] = \
+                compat.convert_to_string(source_ip_address)
 
         if destination_ip_address is not None:
-            body['destinationIpAddress'] = destination_ip_address
+            body['destinationIpAddress'] = \
+                compat.convert_to_string(destination_ip_address)
 
         if source_port is not None:
-            body['sourcePort'] = source_port
+            body['sourcePort'] = compat.convert_to_string(source_port)
 
         if destination_port is not None:
-            body['destinationPort'] = destination_port
+            body['destinationPort'] = \
+                compat.convert_to_string(destination_port)
 
         if position is not None:
             body['position'] = position
 
         if action is not None:
-            body['action'] = action
+            body['action'] = compat.convert_to_string(action)
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)

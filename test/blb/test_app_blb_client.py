@@ -27,8 +27,8 @@ import uuid
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 if sys.version < '3':
-   reload(sys)
-   sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
@@ -37,30 +37,29 @@ from baidubce.services.blb import app_blb_client
 
 """
 # sandbox
-vpc_id = b'vpc-27fx7z8u2ivq'
-subnetId = 'sbn-ph9mapjautre'
-HOST = b'blb.api-sandbox.baidu.com'
-AK = b'160710473d134cd5b3e9794c225508cc'
+vpc_id = b''
+subnetId = b''
+HOST = b''
+AK = b''
 SK = b''
-blbId = 'lb-ac970b1f'
-bccId = 'i-Byt3wqbR'
+blbId = b''
+bccId = b''
 bccIP = ''
 appServerGroupId = ''
 policyId = ''
 """
 
 # online
-vpc_id = b'vpc-by5g38k5uqmk'
-subnetId = 'sbn-fhryfrw87ckq'
-HOST = b'blb.bj.baidubce.com'
-AK = b'64c63e5269394c999da6c25a37b50cb2'
-SK = b'4f69658d79f24bd787b6ecc375cf5a7f'
-blbId = 'lb-ed1cade7'
-bccId = 'i-l76ZREXn'
-bccIP = ''
-appServerGroupId = 'sg-110f2e20'
-policyId = 'policy-17cc8d11'
-portId = 'port-e70b697c'
+vpc_id = b''
+subnetId = b''
+HOST = b''
+AK = b''
+SK = b''
+blbId = b''
+bccId = ''
+appServerGroupId = ''
+policyId = ''
+portId = ''
 
 
 def generate_client_token_by_uuid():
@@ -107,7 +106,7 @@ class TestAppBlbClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.update_app_loadbalancer(
-                blbId, name='blb_test_hzf_new',
+                blbId, name=b'blb_test_hzf_new',
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -276,7 +275,7 @@ class TestAppBlbClient(unittest.TestCase):
         client_token = generate_client_token()
 
         portlist = []
-        portlist.append(1100)
+        portlist.append(1900)
 
         self.assertEqual(
             type(self.the_client.delete_app_listeners(
@@ -327,7 +326,6 @@ class TestAppBlbClient(unittest.TestCase):
             type(self.the_client.delete_policys(
                 blbId, 1900, policyid_list, client_token=client_token)),
             baidubce.bce_response.BceResponse)
-
 
     def test_create_app_server_group(self):
         """
@@ -487,7 +485,6 @@ class TestAppBlbClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    #2s
     #suite.addTest(TestAppBlbClient("test_create_app_loadbalancer"))
     #suite.addTest(TestAppBlbClient("test_update_app_loadbalancer"))
     #suite.addTest(TestAppBlbClient("test_describe_app_loadbalancers"))
@@ -514,7 +511,7 @@ if __name__ == "__main__":
     #suite.addTest(TestAppBlbClient("test_describe_policys"))
     #suite.addTest(TestAppBlbClient("test_delete_policys"))
 
-    suite.addTest(TestAppBlbClient("test_create_app_server_group"))
+    #suite.addTest(TestAppBlbClient("test_create_app_server_group"))
     #suite.addTest(TestAppBlbClient("test_update_app_server_group"))
     #suite.addTest(TestAppBlbClient("test_describe_app_server_group"))
     #suite.addTest(TestAppBlbClient("test_delete_app_server_group"))

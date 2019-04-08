@@ -33,7 +33,7 @@ from baidubce.utils import required
 from baidubce import compat
 
 if sys.version < '3':
-   sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
 

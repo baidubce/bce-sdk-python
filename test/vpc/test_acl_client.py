@@ -27,20 +27,20 @@ import uuid
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 if sys.version < '3':
-   reload(sys)
-   sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import acl_client
 
-vpc_id = 'vpc-by5g38k5uqmk'
-subnetId = 'sbn-fhryfrw87ckq'
-HOST = b'bcc.bj.baidubce.com'
-AK = b'64c63e5269394c999da6c25a37b50cb2'
+vpc_id = ''
+subnetId = ''
+HOST = b''
+AK = b''
 SK = b''
-acl_id = 'ar-mfptd8bq94q0'
+acl_id = ''
 
 
 def generate_client_token_by_uuid():
@@ -124,7 +124,8 @@ class TestAclClient(unittest.TestCase):
 
         self.assertEqual(
             type(self.the_client.update_acl(acl_id,
-                                            protocol='udp',
+                                            protocol=b'udp',
+                                            source_ip_address=b'2.1.1.1',
                                             client_token=client_token)),
             baidubce.bce_response.BceResponse)
 

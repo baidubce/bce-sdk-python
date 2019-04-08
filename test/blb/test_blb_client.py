@@ -27,23 +27,22 @@ import uuid
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 if sys.version < '3':
-   reload(sys)
-   sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.blb import blb_client
 
-vpc_id = 'vpc-by5g38k5uqmk'
-subnetId = 'sbn-fhryfrw87ckq'
-HOST = b'blb.bj.baidubce.com'
-AK = b'64c63e5269394c999da6c25a37b50cb2'
+vpc_id = ''
+subnetId = ''
+HOST = b''
+AK = b''
 SK = b''
-blbId = b'lb-42a41e4e'
-bccId = 'i-l76ZREXn'
-certID = 'cert-6nszzxe4kj6i'
-#certID = 'cert-xkvvh6azsftq'
+blbId = b''
+bccId = ''
+certID = ''
 
 
 def generate_client_token_by_uuid():
@@ -340,8 +339,8 @@ if __name__ == "__main__":
     #suite.addTest(TestBlbClient("test_create_tcp_listener"))
     #suite.addTest(TestBlbClient("test_create_udp_listener"))
     #suite.addTest(TestBlbClient("test_create_http_listener"))
-        #suite.addTest(TestBlbClient("test_create_https_listener"))
-        #suite.addTest(TestBlbClient("test_create_ssl_listener"))
+    #suite.addTest(TestBlbClient("test_create_https_listener"))
+    #suite.addTest(TestBlbClient("test_create_ssl_listener"))
     #suite.addTest(TestBlbClient("test_describe_tcp_listener"))
     #suite.addTest(TestBlbClient("test_describe_udp_listener"))
     #suite.addTest(TestBlbClient("test_describe_http_listener"))
@@ -350,11 +349,8 @@ if __name__ == "__main__":
     #suite.addTest(TestBlbClient("test_update_tcp_listener"))
     #suite.addTest(TestBlbClient("test_update_udp_listener"))
     #suite.addTest(TestBlbClient("test_update_http_listener"))
-
-            #API document not updated in time
-            #suite.addTest(TestBlbClient("test_update_https_listener"))
-            #suite.addTest(TestBlbClient("test_update_ssl_listener"))
-
+    #suite.addTest(TestBlbClient("test_update_https_listener"))
+    #suite.addTest(TestBlbClient("test_update_ssl_listener"))
     #suite.addTest(TestBlbClient("test_delete_listeners"))
     #suite.addTest(TestBlbClient("test_add_backend_servers"))
     #suite.addTest(TestBlbClient("test_describe_health_status"))

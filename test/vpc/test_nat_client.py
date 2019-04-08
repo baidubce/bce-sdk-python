@@ -27,8 +27,8 @@ import uuid
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 if sys.version < '3':
-   reload(sys)
-   sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
@@ -36,13 +36,13 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import nat_client
 from baidubce.services.vpc import nat_model
 
-VPC_ID = b'vpc-jeh7s0z1myar'
-EIP = ['180.76.153.25']
-SHARED_EIP = ['180.76.153.25']
-NEW_SHARED_EIP = ['10.107.247.60']
-NAT_ID = b'nat-bm8y2wpw13n9'
-NAME = b'nat_test_new'
-IP = '180.76.153.25'
+VPC_ID = b''
+EIP = ['']
+SHARED_EIP = ['']
+NEW_SHARED_EIP = ['']
+NAT_ID = b''
+NAME = b''
+IP = ''
 
 pre_paid_billing = nat_model.Billing('Prepaid')
 post_paid_billing = nat_model.Billing('Postpaid')
@@ -56,8 +56,8 @@ class TestNatClient(unittest.TestCase):
         """
         set up
         """
-        HOST = b'bcc.bj.baidubce.com'
-        AK = b'64c63e5269394c999da6c25a37b50cb2'
+        HOST = b''
+        AK = b''
         SK = b''
 
         config = BceClientConfiguration(
@@ -158,7 +158,7 @@ class TestNatClient(unittest.TestCase):
         """
         test case for updating nat name
         """
-        new_name = 'test_nat_new'
+        new_name = b'test_nat_new'
         self.assertEqual(
             type(self.client.update_nat(nat_id=NAT_ID, name=new_name)),
             baidubce.bce_response.BceResponse)
