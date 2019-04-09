@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +43,8 @@ class EipGroupClient(bce_base_client.BceBaseClient):
     """
     EIP group sdk client
     """
-    version = '/v1'
-    prefix = '/eipgroup'
+    version = b'/v1'
+    prefix = b'/eipgroup'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -67,8 +69,8 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type':
-                'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*',
+                       b'Content-Type': b'application/json;charset=utf-8'}
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
@@ -120,7 +122,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         path = self._get_path()
         if client_token is None:
             client_token = generate_client_token()
-        params = {'clientToken': client_token}
+        params = {b'clientToken': client_token}
         if billing is None:
             billing = default_billing_to_purchase_created
         body = {
@@ -176,19 +178,19 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         path = self._get_path()
         params = {}
         if id is not None:
-            params['id'] = id
+            params[b'id'] = id
         if name is not None:
-            params['name'] = name
+            params[b'name'] = name
         if status is not None:
-            params['status'] = status
+            params[b'status'] = status
         if marker is not None:
-            params['marker'] = marker
+            params[b'marker'] = marker
         if max_keys is not None:
-            params['maxKeys'] = max_keys
+            params[b'maxKeys'] = max_keys
         return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
 
-    @required(id=(str, unicode))
+    @required(id=(bytes, str))
     def get_eip_group(self, id, config=None):
         """
         Get the detail information of specified EIP group.
@@ -203,10 +205,10 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % id
+        path = utils.append_uri(self._get_path(), id)
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(id=(str, unicode), name=(str, unicode))
+    @required(id=(bytes, str), name=(bytes, str))
     def update_eip_group(self, id, name, client_token=None, config=None):
         """
         Update the name of specified EIP group.
@@ -232,12 +234,12 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % id
+        path = utils.append_uri(self._get_path(), id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'update': None,
-            'clientToken': client_token
+            b'update': None,
+            b'clientToken': client_token
         }
         body = {
             'name': name
@@ -246,7 +248,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(id=(str, unicode), bandwidth_in_mbps=int)
+    @required(id=(bytes, str), bandwidth_in_mbps=int)
     def resize_eip_group_bandwidth(self, id, bandwidth_in_mbps,
                                    client_token=None, config=None):
         """
@@ -275,12 +277,12 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % id
+        path = utils.append_uri(self._get_path(), id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'resize': None,
-            'clientToken': client_token
+            b'resize': None,
+            b'clientToken': client_token
         }
         body = {
             'bandwidthInMbps': bandwidth_in_mbps
@@ -289,7 +291,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(id=(str, unicode), eip_add_count=int)
+    @required(id=(bytes, str), eip_add_count=int)
     def resize_eip_group_count(self, id, eip_add_count,
                                client_token=None, config=None):
         """
@@ -318,12 +320,12 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % id
+        path = utils.append_uri(self._get_path(), id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'resize': None,
-            'clientToken': client_token
+            b'resize': None,
+            b'clientToken': client_token
         }
         body = {
             'eipAddCount': eip_add_count
@@ -332,7 +334,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(id=(str, unicode))
+    @required(id=(bytes, str))
     def purchase_reserved_eip_group(self, id, client_token=None,
                                     billing=None, config=None):
         """
@@ -360,12 +362,12 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % id
+        path = utils.append_uri(self._get_path(), id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'purchaseReserved': None,
-            'clientToken': client_token
+            b'purchaseReserved': None,
+            b'clientToken': client_token
         }
         if billing is None:
             billing = default_billing_to_purchase_reserved
@@ -396,5 +398,6 @@ def generate_client_token_by_uuid():
     :rtype string
     """
     return str(uuid.uuid4())
+
 
 generate_client_token = generate_client_token_by_uuid

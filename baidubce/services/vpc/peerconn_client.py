@@ -41,8 +41,8 @@ class PeerConnClient(bce_base_client.BceBaseClient):
     """
     Peer connection sdk client
     """
-    version = '/v1'
-    prefix = '/peerconn'
+    version = b'/v1'
+    prefix = b'/peerconn'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -67,16 +67,16 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type':
-                'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*',
+                       b'Content-Type': b'application/json;charset=utf-8'}
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
 
     @required(bandwidth_in_mbps=int,
-              local_vpc_id=(str, unicode),
-              peer_vpc_id=(str, unicode),
-              peer_region=(str, unicode))
+              local_vpc_id=(bytes, str),
+              peer_vpc_id=(bytes, str),
+              peer_region=(bytes, str))
     def create_peerconn(self, bandwidth_in_mbps, local_vpc_id,
                         peer_vpc_id, peer_region, description=None,
                         local_if_name=None, peer_account_id=None,
@@ -147,7 +147,7 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         if billing is None:
             billing = default_billing_to_purchase_created
@@ -170,7 +170,7 @@ class PeerConnClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(vpc_id=(str, unicode))
+    @required(vpc_id=(bytes, str))
     def list_peerconns(self, vpc_id, marker=None,
                        max_keys=None, config=None):
         """
@@ -202,16 +202,16 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         """
         path = self._get_path()
         params = {
-            'vpcId': vpc_id
+            b'vpcId': vpc_id
         }
         if marker is not None:
-            params['marker'] = marker
+            params[b'marker'] = marker
         if max_keys is not None:
-            params['maxKeys'] = max_keys
+            params[b'maxKeys'] = max_keys
         return self._send_request(http_methods.GET,
                                   path, params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode))
+    @required(peer_conn_id=(bytes, str))
     def get_peerconn(self, peer_conn_id, config=None):
         """
         Get the detail information of specified peer connection.
@@ -226,10 +226,10 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(peer_conn_id=(str, unicode), local_if_id=(str, unicode))
+    @required(peer_conn_id=(bytes, str), local_if_id=(bytes, str))
     def update_peerconn(self, peer_conn_id, local_if_id, description=None,
                         local_if_name=None, client_token=None, config=None):
         """
@@ -264,11 +264,11 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         body = {
             'localIfId': local_if_id
@@ -281,7 +281,7 @@ class PeerConnClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode), action=(str, unicode))
+    @required(peer_conn_id=(bytes, str), action=(bytes, str))
     def handle_peerconn(self, peer_conn_id, action, client_token=None,
                         config=None):
         """
@@ -312,17 +312,17 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         params[action] = None
         return self._send_request(http_methods.PUT,
                                   path, params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode))
+    @required(peer_conn_id=(bytes, str))
     def delete_peerconn(self, peer_conn_id, client_token=None,
                         config=None):
         """
@@ -349,16 +349,16 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'clientToken': client_token
+            b'clientToken': client_token
         }
         return self._send_request(http_methods.DELETE,
                                   path, params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode), new_bandwidth_in_mbps=int)
+    @required(peer_conn_id=(bytes, str), new_bandwidth_in_mbps=int)
     def resize_peerconn(self, peer_conn_id, new_bandwidth_in_mbps,
                         client_token=None, config=None):
         """
@@ -389,12 +389,12 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'resize': None,
-            'clientToken': client_token
+            b'resize': None,
+            b'clientToken': client_token
         }
         body = {
             'newBandwidthInMbps': new_bandwidth_in_mbps
@@ -403,7 +403,7 @@ class PeerConnClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode))
+    @required(peer_conn_id=(bytes, str))
     def purchase_reserved_peerconn(self, peer_conn_id, client_token=None,
                                    billing=None, config=None):
         """
@@ -433,12 +433,12 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'purchaseReserved': None,
-            'clientToken': client_token
+            b'purchaseReserved': None,
+            b'clientToken': client_token
         }
         if billing is None:
             billing = default_billing_to_purchase_reserved
@@ -449,7 +449,7 @@ class PeerConnClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode), role=(str, unicode))
+    @required(peer_conn_id=(bytes, str), role=(bytes, str))
     def open_peerconn_dns_sync(self, peer_conn_id, role,
                                client_token=None, config=None):
         """
@@ -481,18 +481,18 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'open': None,
-            'role': role,
-            'clientToken': client_token
+            b'open': None,
+            b'role': role,
+            b'clientToken': client_token
         }
         return self._send_request(http_methods.PUT,
                                   path, params=params, config=config)
 
-    @required(peer_conn_id=(str, unicode), role=(str, unicode))
+    @required(peer_conn_id=(bytes, str), role=(bytes, str))
     def close_peerconn_dns_sync(self, peer_conn_id, role,
                                 client_token=None, config=None):
         """
@@ -523,13 +523,13 @@ class PeerConnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = self._get_path() + '/%s' % peer_conn_id
+        path = utils.append_uri(self._get_path(), peer_conn_id)
         if client_token is None:
             client_token = generate_client_token()
         params = {
-            'close': None,
-            'role': role,
-            'clientToken': client_token
+            b'close': None,
+            b'role': role,
+            b'clientToken': client_token
         }
         return self._send_request(http_methods.PUT,
                                   path, params=params, config=config)
@@ -554,5 +554,6 @@ def generate_client_token_by_uuid():
     :rtype string
     """
     return str(uuid.uuid4())
+
 
 generate_client_token = generate_client_token_by_uuid

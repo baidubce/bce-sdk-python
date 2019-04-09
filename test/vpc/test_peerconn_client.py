@@ -19,36 +19,28 @@
 Unit tests for peer_connection client.
 """
 
-import os
-import sys
 import unittest
 import uuid
 
-file_path = os.path.normpath(os.path.dirname(__file__))
-sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import peerconn_client
 from baidubce.services.vpc import peerconn_model
 
-#Sandbox
-LOCAL_VPC_ID = 'vpc-rydzf0et3dr2'
-PEER_VPC_ID = 'vpc-ty85b5bjqh4n'
-PEER_VPC_ID_DIFF = 'vpc-ahz9hvq0k4dj'
+# Sandbox
+LOCAL_VPC_ID = ''
+PEER_VPC_ID = ''
+PEER_VPC_ID_DIFF = ''
 PEER_REGION = 'bj'
 PC_DESCRIPTION = 'peer_same_account'
 PC_DESCRIPTION_DIFF = 'peer_diff_account'
 LOCAL_IF_NAME = 'localIfName'
 LOCAL_IF_NAME_DIFF = 'localIfNameDiff'
-LOCAL_IF_ID = 'qpif-8rgckq87aw5v'
-PEER_ACCOUNT_ID = 'a770363beb3d4192962ba0cd844c71fd'
+LOCAL_IF_ID = ''
+PEER_ACCOUNT_ID = ''
 PEER_IF_NAME = 'peerIfName'
-PEERCONN_ID = 'peerconn-i87xtx8gvdr2'
-PEERCONN_ID_DIFF = 'peerconn-p550sujpm9vk'
+PEERCONN_ID = ''
+PEERCONN_ID_DIFF = ''
 
 pre_paid_billing = peerconn_model.Billing('Prepaid')
 post_paid_billing = peerconn_model.Billing('Postpaid')
@@ -62,9 +54,9 @@ class TestPeerConnClient(unittest.TestCase):
         """
         set up
         """
-        HOST = ''
-        AK = ''
-        SK = ''
+        HOST = b''
+        AK = b''
+        SK = b''
 
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK), endpoint=HOST)
@@ -113,7 +105,7 @@ class TestPeerConnClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         self.client.create_peerconn(client_token=client_token,
-                                    bandwidth_in_mbps=10,
+                                    bandwidth_in_mbps=1,
                                     local_vpc_id=LOCAL_VPC_ID,
                                     peer_vpc_id=PEER_VPC_ID,
                                     peer_region=PEER_REGION,
@@ -126,36 +118,27 @@ class TestPeerConnClient(unittest.TestCase):
         """
         test case for listing peer connections
         """
-        # self.assertEqual(
-        #     type(self.client.list_peerconns(LOCAL_VPC_ID, max_keys=500)),
-        #     baidubce.bce_response.BceResponse)
-
-        print self.client.list_peerconns(LOCAL_VPC_ID, max_keys=500)
+        print((self.client.list_peerconns(LOCAL_VPC_ID, max_keys=500)))
 
     def test_get_peerconn(self):
         """
         test case for getting peer connection details
         """
-        self.assertEqual(
-            type(self.client.get_peerconn(peer_conn_id=PEERCONN_ID)),
-            baidubce.bce_response.BceResponse)
-        print self.client.get_peerconn(peer_conn_id=PEERCONN_ID)
+        print((self.client.get_peerconn(peer_conn_id=PEERCONN_ID)))
 
     def test_update_peerconn(self):
         """
         test case for updating peer connection local interface name
         and description
         """
-        client_token = None#generate_client_token()
-        local_if_name = 'new_pc_if_name'
-        description = 'new_description'
-        self.assertEqual(
-            type(self.client.update_peerconn(peer_conn_id=PEERCONN_ID,
-                                             local_if_id=LOCAL_IF_ID,
-                                             description=description,
-                                             local_if_name=local_if_name,
-                                             client_token=client_token)),
-            baidubce.bce_response.BceResponse)
+        client_token = None  # generate_client_token()
+        local_if_name = 'new_pc_if_name2'
+        description = 'new_description2'
+        self.client.update_peerconn(peer_conn_id=PEERCONN_ID,
+                                    local_if_id=LOCAL_IF_ID,
+                                    description=description,
+                                    local_if_name=local_if_name,
+                                    client_token=client_token)
 
     def test_accept_peerconn(self):
         """
@@ -211,7 +194,7 @@ class TestPeerConnClient(unittest.TestCase):
         test case for closing peer connection dns sync
         """
         self.client.close_peerconn_dns_sync(peer_conn_id=PEERCONN_ID,
-                                           role='acceptor')
+                                            role='acceptor')
 
 
 def generate_client_token_by_uuid():
@@ -231,7 +214,7 @@ generate_client_token = generate_client_token_by_uuid
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
-    suite.addTest(TestPeerConnClient("test_list_peerconns"))
+    # suite.addTest(TestPeerConnClient("test_list_peerconns"))
     # suite.addTest(TestPeerConnClient("test_get_peerconn"))
     # suite.addTest(TestPeerConnClient("test_update_peerconn"))
     # suite.addTest(TestPeerConnClient("test_scale_up_peerconn"))

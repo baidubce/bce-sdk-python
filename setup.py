@@ -42,7 +42,12 @@ setup(
               'baidubce.services.vcr',
               'baidubce.services.vca',
 #              'baidubce.services.sms',
-              'baidubce.services.cdn'
+              'baidubce.services.cdn',
+              'baidubce.services.blb',
+              'baidubce.services.eip',
+              'baidubce.services.route',
+              'baidubce.services.subnet',
+              'baidubce.services.vpc'
 #              'baidubce.services.cfc',
 #              'baidubce.services.infinite',
 #              'baidubce.services.tsdb'],

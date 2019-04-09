@@ -19,27 +19,18 @@
 Unit tests for eip_group_client.
 """
 
-import os
-import sys
 import unittest
 import uuid
 
-file_path = os.path.normpath(os.path.dirname(__file__))
-sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.eip import eip_group_client
 from baidubce.services.eip import eip_group_model
 
-#Sandbox
-EIP_GRP_ID = 'eg-17c56521'
-EIP_GRP_NAME = 'GROUP1537177021507'
-EIP_GROUP_STATUS = 'available'
-MARKER = 'eg-17c56521'
+EIP_GRP_ID = ''
+EIP_GRP_NAME = ''
+EIP_GROUP_STATUS = ''
+MARKER = ''
 MAX_KEYS = 500
 
 pre_paid_billing = eip_group_model.Billing('Prepaid')
@@ -53,9 +44,9 @@ class TestEipGroupClient(unittest.TestCase):
         """
         set up
         """
-        HOST = ''
-        AK = ''
-        SK = ''
+        HOST = b''
+        AK = b''
+        SK = b''
 
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK), endpoint=HOST)
@@ -90,61 +81,53 @@ class TestEipGroupClient(unittest.TestCase):
         """
         test case for listing EIP groups
         """
-        print self.client.list_eip_groups(max_keys=1)
+        print((self.client.list_eip_groups(max_keys=1)))
 
     def test_list_eip_groups_with_detailed_options(self):
         """
         test case for listing EIP group with detailed options
         """
-        print self.client.list_eip_groups(id=EIP_GRP_ID, name=EIP_GRP_NAME,
-                                          status=EIP_GROUP_STATUS,
-                                          marker=MARKER,
-                                          max_keys=MAX_KEYS)
+        print((self.client.list_eip_groups(id=EIP_GRP_ID, name=EIP_GRP_NAME,
+                                           status=EIP_GROUP_STATUS,
+                                           marker=MARKER,
+                                           max_keys=MAX_KEYS)))
 
     def test_get_eip_group(self):
         """
         test case for getting EIP Group details
         """
-        print self.client.get_eip_group(id=EIP_GRP_ID)
+        print((self.client.get_eip_group(id=EIP_GRP_ID)))
 
     def test_update_eip_group(self):
         """
         test case for updating EIP group name
         """
         name = 'test_eip_group_new'
-        self.assertEqual(
-            type(self.client.update_eip_group(id=EIP_GRP_ID, name=name)),
-            baidubce.bce_response.BceResponse)
+        self.client.update_eip_group(id=EIP_GRP_ID, name=name)
 
     def test_resize_eip_group_bandwidth(self):
         """
         test case for scaling EIP group bandwidth
         """
-        self.assertEqual(
-            type(self.client.resize_eip_group_bandwidth(id=EIP_GRP_ID,
-                                                       bandwidth_in_mbps=40)),
-            baidubce.bce_response.BceResponse)
+        self.client.resize_eip_group_bandwidth(id=EIP_GRP_ID,
+                                               bandwidth_in_mbps=40)
 
     def test_resize_eip_group_count(self):
         """
         test case for scaling EIP group count
         """
         client_token = generate_client_token()
-        self.assertEqual(
-            type(self.client.resize_eip_group_count(id=EIP_GRP_ID,
-                                                   client_token=client_token,
-                                                   eip_add_count=1)),
-            baidubce.bce_response.BceResponse)
+        self.client.resize_eip_group_count(id=EIP_GRP_ID,
+                                           client_token=client_token,
+                                           eip_add_count=1)
 
     def test_purchase_reserved_eip_group(self):
         """
         test case for renewing EIP group with prepaid billing
         """
         client_token = generate_client_token()
-        self.assertEqual(
-            type(self.client.purchase_reserved_eip_group(
-                id=EIP_GRP_ID, client_token=client_token)),
-            baidubce.bce_response.BceResponse)
+        self.client.purchase_reserved_eip_group(
+            id=EIP_GRP_ID, client_token=client_token)
 
 
 def generate_client_token_by_uuid():
@@ -169,7 +152,7 @@ if __name__ == '__main__':
     # suite.addTest(TestEipGroupClient("test_list_eip_groups"))
     # suite.addTest(TestEipGroupClient("test_list_eip_groups_with_detailed_options"))
     # suite.addTest(TestEipGroupClient("test_get_eip_group"))
-    suite.addTest(TestEipGroupClient("test_update_eip_group"))
+    # suite.addTest(TestEipGroupClient("test_update_eip_group"))
     # suite.addTest(TestEipGroupClient("test_resize_eip_group_bandwidth"))
     # suite.addTest(TestEipGroupClient("test_resize_eip_group_count"))
     # suite.addTest(TestEipGroupClient("test_purchase_reserved_eip_group"))
