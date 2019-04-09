@@ -855,7 +855,7 @@ class BlbClient(bce_base_client.BceBaseClient):
                             health_check_timeout_in_second=None,
                             health_check_interval=None,
                             unhealth_threshold=None, health_threshold=None,
-                            ie6_compatible=None,encryption_type=None,
+                            ie6_compatible=None, encryption_type=None,
                             encryption_protocols=None,
                             dual_auth=None, client_certIds=None,
                             client_token=None, config=None):
