@@ -30,8 +30,8 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import vpc_client
 
 if sys.version < '3':
-   reload(sys)
-   sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 # config parameters
 vpc_id = 'vpc-51csm6rxs9mg'
@@ -59,8 +59,8 @@ class TestVpcClient(unittest.TestCase):
         set up
         """
         HOST = b'bcc.bj.baidubce.com'
-        AK = b'4fbd30f1b769428e9d6c6bea7cfbc4fc'
-        SK = b'168f593bbf354abaa3c94957a17b2000'
+        AK = b''
+        SK = b''
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = vpc_client.VpcClient(config)
 
@@ -113,10 +113,10 @@ class TestVpcClient(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     # suite.addTest(TestVpcClient("test_create_vpc"))
-    suite.addTest(TestVpcClient("test_list_vpcs"))
+    # suite.addTest(TestVpcClient("test_list_vpcs"))
     # suite.addTest(TestVpcClient("test_get_vpc"))
     # suite.addTest(TestVpcClient("test_delete_vpc"))
-    # suite.addTest(TestVpcClient("test_update_vpc"))
+    suite.addTest(TestVpcClient("test_update_vpc"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

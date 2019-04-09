@@ -34,9 +34,9 @@ if sys.version < '3':
     sys.setdefaultencoding('utf-8')
 
 # config parameters
-vpc_id = b'vpc-qnp2czzhjtq3'
+vpc_id = 'vpc-qnp2czzhjtq3'
 route_table_id = 'rt-dq264fi14d59'
-route_rule_id = b'rr-qky0vq2xhihy'
+route_rule_id = 'rr-qky0vq2xhihy'
 
 
 def generate_client_token_by_uuid():
@@ -61,8 +61,8 @@ class TestRouteClient(unittest.TestCase):
         set up
         """
         HOST = b'bcc.bj.baidubce.com'
-        AK = b'4fbd30f1b769428e9d6c6bea7cfbc4fc'
-        SK = b'168f593bbf354abaa3c94957a17b2000'
+        AK = b''
+        SK = b''
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = route_client.RouteClient(config)
 

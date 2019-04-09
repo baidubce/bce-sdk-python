@@ -35,7 +35,7 @@ if sys.version < '3':
 
 # config parameters
 vpc_id = 'vpc-51csm6rxs9mg'
-subnet_id = b'sbn-h2k40x2uw7cn'
+subnet_id = 'sbn-h2k40x2uw7cn'
 
 
 def generate_client_token_by_uuid():
@@ -60,8 +60,8 @@ class TestSubnetClient(unittest.TestCase):
         set up
         """
         HOST = b'bcc.bj.baidubce.com'
-        AK = b'4fbd30f1b769428e9d6c6bea7cfbc4fc'
-        SK = b'168f593bbf354abaa3c94957a17b2000'
+        AK = b''
+        SK = b''
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = subnet_client.SubnetClient(config)
 
