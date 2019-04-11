@@ -11,10 +11,11 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
+
 #设置BosClient的Host，Access Key ID和Secret Access Key
-bos_host = "http://multimedia.bce-testinternal.baidu.com"
-access_key_id = "46bd9968a6194b4bbdf0341f2286ccce"
-secret_access_key = "ec7f4e0174254f6f9020f9680fb1da9f"
+bos_host = b"http://multimedia.bce-testinternal.baidu.com"
+access_key_id = b""
+secret_access_key = b""
 
 #设置日志文件的句柄和日志级别
 logger = logging.getLogger('baidubce.services.media.mediaclient')
