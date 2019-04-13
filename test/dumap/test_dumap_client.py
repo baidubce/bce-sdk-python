@@ -822,7 +822,7 @@ class TestDumapClient(unittest.TestCase):
         """
         params = {}
         params['service_id'] = 3
-        params['url'] = "http://10.64.79.132:8011/callback"
+        params['url'] = ""
 
         response = self.the_client.call_open_api(
             uri='/trace/v3/fence/seturl',
