@@ -38,7 +38,7 @@ class DumapClient(bce_base_client.BceBaseClient):
         bce_base_client.BceBaseClient.__init__(self, config)
 
     @required(app_id=str, uri=str, params=dict)
-    def call_open_api(self, app_id, uri, params=None, body=None, method='GET', config=None):
+    def call_open_api(self, app_id=None, uri=None, params=None, body=None, method='GET', config=None):
         """
         call open_api
         :param app_id: app_id
@@ -82,6 +82,7 @@ class DumapClient(bce_base_client.BceBaseClient):
             config=None):
         config = self._merge_config(self, config)
         headers['x-bce-request-id'] = uuid.uuid4()
+        headers['Content-Type'] = "application/json;charset=utf-8"
 
         return bce_http_client.send_request(
             config, sign_wrapper(['host', 'x-bce-date', 'x-bce-request-id', 'x-app-id']),
