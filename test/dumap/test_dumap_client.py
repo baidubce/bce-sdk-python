@@ -339,8 +339,9 @@ class TestDumapClient(unittest.TestCase):
         """
         params = {}
         params['service_id'] = 3
-        params[
-            'point_list'] = '[{"entity_name":"京B123","loc_time":1525232703,"latitude":39.989715,"longitude":116.437039,"coord_type_input":"wgs84","speed":27.23,"direction":178,"height":173.3,"radius":32}]'
+        params['point_list'] = '[{"entity_name":"京B123","loc_time":1525232703,"latitude":39.989715,' \
+                               '"longitude":116.437039,"coord_type_input":"wgs84","speed":27.23,' \
+                               '"direction":178,"height":173.3,"radius":32}]'
 
         response = self.the_client.call_open_api(
             uri='/trace/v3/track/addpoints',
@@ -388,8 +389,8 @@ class TestDumapClient(unittest.TestCase):
         """
         params = {}
         params['service_id'] = 3
-        params[
-            'vertexes'] = "29.513115638907068,106.2934528944364;29.598346607316349,106.23347456267436;29.556202598213056,106.54430397948912"
+        params['vertexes'] = "29.513115638907068,106.2934528944364;29.598346607316349,106.23347456267436;" \
+                             "29.556202598213056,106.54430397948912"
 
         response = self.the_client.call_open_api(
             uri='/trace/v3/entity/polygonsearch',

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.8.27"
+VERSION="0.8.28"
 TARGET="bce-python-sdk-$VERSION"
 mkdir $TARGET
 cp -rf baidubce sample setup.py README.txt $TARGET
