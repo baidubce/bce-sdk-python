@@ -35,10 +35,10 @@ class TestListWatermark(mediaBase.MediaBase):
     """test list watermark"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.watermark_id = None
         self.watermark_id2 = None
-        self.key = 'watermark.jpg'
+        self.key = '120X90.jpg'
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):

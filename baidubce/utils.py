@@ -18,7 +18,8 @@ This module provide some tools for bce client.
 from __future__ import absolute_import
 from builtins import str, bytes
 from future.utils import iteritems, iterkeys, itervalues
-from . import compat
+from baidubce import compat
+
 import os
 import re
 import datetime

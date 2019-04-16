@@ -2,38 +2,26 @@
 Test models of BOS.
 """
 
-import os
-import sys
-import random
-import unittest
-import httplib
-import StringIO
-import json
-import socket
 import time
+import unittest
+
 import coverage
-import baidubce
 import media_conf
-from baidubce.auth import bce_v1_signer
-from baidubce.auth import bce_credentials
-from baidubce import utils
-from baidubce.services.media import media_client
+
 from baidubce.exception import BceHttpClientError
 from baidubce.exception import BceServerError
-from baidubce.exception import BceClientError
-from baidubce.http import http_methods
-from baidubce.http import handler
-from baidubce.bce_response import BceResponse
-from baidubce import protocol
-from baidubce.utils import Expando
-from baidubce.utils import required
-from baidubce.http import bce_http_client
-from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.retry_policy import NoRetryPolicy
-from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce.services.media import media_client
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+#from baidubce.retry_policy import NoRetryPolicy
+#from baidubce.retry_policy import BackOffRetryPolicy
+import sys
+import imp
+
+imp.reload(sys)
+#sys.setdefaultencoding('utf8')
+
+#sys.path.append("./qa_test")
+
 
 cov = coverage.coverage()
 cov.start()
@@ -84,7 +72,7 @@ class TestMediaPreset(TestMediaClient):
         """
         err = None
         try:
-            print self.the_client.list_presets()
+            print(self.the_client.list_presets())
         except BceServerError as e:
             err = e
         finally:
@@ -108,7 +96,7 @@ class TestMediaPreset(TestMediaClient):
         A test case
         """
         try:
-            self.the_client.delete_preset("321123321123")
+            resul = self.the_client.delete_preset("321123321123")
         except BceHttpClientError as e:
             assert True
 
@@ -123,7 +111,7 @@ class TestMediaPipeline(TestMediaClient):
         """
         err = None
         try:
-            result = self.the_client.list_pipelines()
+            self.the_client.list_pipelines()
         except BceServerError as e:
             err = e
         finally:
@@ -133,10 +121,10 @@ class TestMediaPipeline(TestMediaClient):
         """
         A test case
         """
-        print pipeline
+        print(pipeline)
         err = None
         try:
-            self.the_client.create_pipeline(pipeline, "jianbininput", "jianbinoutput")
+            self.the_client.create_pipeline(pipeline, "testmctjjm", "testmctjjm")
 
         except BceServerError as e:
             err = e
@@ -176,28 +164,27 @@ class TestMediaJob(TestMediaClient):
         """
         err = None
         try:
-            result = self.the_client.list_jobs(pipeline)
             self.the_client.list_jobs(pipeline)
         except BceServerError as e:
             err = e
         finally:
             self.assertIsNone(err)
 
-        def test_create_job(self):
-            """
-            A test case
-            """
-            time.sleep(20)
-            err = None
-            try:
-                self.the_client.create_job(pipeline, {'sourceKey': 'love.mkv'},
-                                           {'targetKey': 'ml.mp4', 'presetName':
-                                               "bce.video_mp4_1280x720_1728kbps"})
+    def test_create_job(self):
+        """
+        A test case
+        """
+        time.sleep(20)
+        err = None
+        try:
+            self.the_client.create_job(pipeline, {'sourceKey': '10706_csdn.mp4'},
+                                        {'targetKey': 'test-out-1.mp4', 'presetName':
+                                        "bce.video_mp4_1280x720_1728kbps"})
 
-            except BceServerError as e:
-                err = e
-            finally:
-                self.assertIsNone(err)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
 
 
 def run_test():
@@ -209,13 +196,15 @@ def run_test():
     runner.run(unittest.makeSuite(TestMediaPreset))
     runner.run(unittest.makeSuite(TestMediaJob))
 
-
 run_test()
+
+'''
 
 result = self.the_client.list_pipelines()
 for i in result.pipelines:
     if str(i.pipeline_name).__contains__("sunye"):
         self.the_client.delete_pipeline(str(i.pipeline_name))
+'''
 
 cov.stop()
 cov.save()

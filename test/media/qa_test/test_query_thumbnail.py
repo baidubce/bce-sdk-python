@@ -35,10 +35,10 @@ class TestQueryThumbnail(mediaBase.MediaBase):
     """test create thumbnail"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'querythumb'
-        self.pipeline_name = self.convertName(self.pre)
-        self.key = 'hd.mp4'
+        self.pipeline_name = self.pre
+        self.key = '10s.mp4'
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):
@@ -49,7 +49,7 @@ class TestQueryThumbnail(mediaBase.MediaBase):
             resp = self.client.create_pipeline(self.pipeline_name, self.sourceBucket,
                    self.targetBucket)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -67,7 +67,7 @@ class TestQueryThumbnail(mediaBase.MediaBase):
                         while(1):
                             resp = self.client.get_thumbnail_job(each_job.job_id)
                             if resp.job_status != 'SUCCESS' and resp.job_status != 'FAILED':
-                                print 'please wait ....\n'
+                                print('please wait ....\n')
                                 time.sleep(5)
                             else:
                                 break
@@ -78,7 +78,12 @@ class TestQueryThumbnail(mediaBase.MediaBase):
         source = {'key': self.key}
         resp = self.client.create_thumbnail_job(self.pipeline_name, source)
         nose.tools.assert_is_not_none(resp.job_id)
-        job_id = resp.job_id
+        job_id = ''
+        if self.PY3:
+            job_id = resp.job_id
+        else:
+            job_id = resp.job_id.encode(encoding='UTF-8')
+
         resp_query = self.client.get_thumbnail_job(job_id)
         nose.tools.assert_equal(job_id, resp_query.job_id)
     
@@ -88,7 +93,7 @@ class TestQueryThumbnail(mediaBase.MediaBase):
             resp_query = self.client.get_thumbnail_job('not_exist_job')
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
-                print e.last_error.message
+                print(e.last_error.message)
                 assert e.last_error.message.startswith('The requested thumbnail does not exist')
             else:
                 assert True == False, 'not throw BceServerError'
