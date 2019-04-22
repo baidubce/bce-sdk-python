@@ -175,7 +175,7 @@ class TestDumapClient(unittest.TestCase):
         params['create'] = None
 
         response = self.the_client.call_open_api(
-            uri='/v1/trace/service',
+            uri='/v1/api/service',
             params=params,
             body=json.dumps(request),
             method='POST'
@@ -258,7 +258,7 @@ class TestDumapClient(unittest.TestCase):
         params['entity_name'] = '京B123'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/add',
+            uri='/api/v3/entity/add',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -275,7 +275,7 @@ class TestDumapClient(unittest.TestCase):
         params['entity_desc'] = 'test_python_sdk'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/update',
+            uri='/api/v3/entity/update',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -291,7 +291,7 @@ class TestDumapClient(unittest.TestCase):
         params['entity_name'] = '京B123'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/delete',
+            uri='/api/v3/entity/delete',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -306,7 +306,7 @@ class TestDumapClient(unittest.TestCase):
         params['service_id'] = 3
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/list',
+            uri='/api/v3/entity/list',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -326,7 +326,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type_input'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/track/addpoint',
+            uri='/api/v3/track/addpoint',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -344,7 +344,7 @@ class TestDumapClient(unittest.TestCase):
                                '"direction":178,"height":173.3,"radius":32}]'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/track/addpoints',
+            uri='/api/v3/track/addpoints',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -360,7 +360,7 @@ class TestDumapClient(unittest.TestCase):
         params['query'] = '京'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/search',
+            uri='/api/v3/entity/search',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -376,7 +376,7 @@ class TestDumapClient(unittest.TestCase):
         params['bounds'] = "29.513115638907068,106.2934528944364;29.556202598213056,106.54430397948912"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/boundsearch',
+            uri='/api/v3/entity/boundsearch',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -393,7 +393,7 @@ class TestDumapClient(unittest.TestCase):
                              "29.556202598213056,106.54430397948912"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/polygonsearch',
+            uri='/api/v3/entity/polygonsearch',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -409,7 +409,7 @@ class TestDumapClient(unittest.TestCase):
         params['keyword'] = "北京"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/entity/districtsearch',
+            uri='/api/v3/entity/districtsearch',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -425,7 +425,7 @@ class TestDumapClient(unittest.TestCase):
         params['entity_name'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/track/getlatestpoint',
+            uri='/api/v3/track/getlatestpoint',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -443,7 +443,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1554951548
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/track/getdistance',
+            uri='/api/v3/track/getdistance',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -461,7 +461,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1554951548
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/track/gettrack',
+            uri='/api/v3/track/gettrack',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -479,7 +479,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1554951548
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/analysis/staypoint',
+            uri='/api/v3/analysis/staypoint',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -497,7 +497,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1554951548
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/analysis/drivingbehavior',
+            uri='/api/v3/analysis/drivingbehavior',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -518,7 +518,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/createcirclefence',
+            uri='/api/v3/fence/createcirclefence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -537,7 +537,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/createpolygonfence',
+            uri='/api/v3/fence/createpolygonfence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -557,7 +557,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/createpolylinefence',
+            uri='/api/v3/fence/createpolylinefence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -575,7 +575,7 @@ class TestDumapClient(unittest.TestCase):
         params['keyword'] = "北京"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/createdistrictfence',
+            uri='/api/v3/fence/createdistrictfence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -597,7 +597,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/updatecirclefence',
+            uri='/api/v3/fence/updatecirclefence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -617,7 +617,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/updatepolygonfence',
+            uri='/api/v3/fence/updatepolygonfence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -638,7 +638,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = 'bd09ll'
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/updatepolylinefence',
+            uri='/api/v3/fence/updatepolylinefence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -657,7 +657,7 @@ class TestDumapClient(unittest.TestCase):
         params['keyword'] = "北京"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/updatedistrictfence',
+            uri='/api/v3/fence/updatedistrictfence',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -673,7 +673,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/list',
+            uri='/api/v3/fence/list',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -689,7 +689,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/delete',
+            uri='/api/v3/fence/delete',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -706,7 +706,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/addmonitoredperson',
+            uri='/api/v3/fence/addmonitoredperson',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -723,7 +723,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/deletemonitoredperson',
+            uri='/api/v3/fence/deletemonitoredperson',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -741,7 +741,7 @@ class TestDumapClient(unittest.TestCase):
         params['page_size'] = 10
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/listmonitoredperson',
+            uri='/api/v3/fence/listmonitoredperson',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -757,7 +757,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/querystatus',
+            uri='/api/v3/fence/querystatus',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -776,7 +776,7 @@ class TestDumapClient(unittest.TestCase):
         params['coord_type'] = "bd09ll"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/querystatusbylocation',
+            uri='/api/v3/fence/querystatusbylocation',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -792,7 +792,7 @@ class TestDumapClient(unittest.TestCase):
         params['monitored_person'] = "京A123"
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/historyalarm',
+            uri='/api/v3/fence/historyalarm',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -809,7 +809,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1553593410
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/batchhistoryalarm',
+            uri='/api/v3/fence/batchhistoryalarm',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -825,7 +825,7 @@ class TestDumapClient(unittest.TestCase):
         params['url'] = ""
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/seturl',
+            uri='/api/v3/fence/seturl',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -840,7 +840,7 @@ class TestDumapClient(unittest.TestCase):
         params['service_id'] = 3
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/cancelurl',
+            uri='/api/v3/fence/cancelurl',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -855,7 +855,7 @@ class TestDumapClient(unittest.TestCase):
         params['service_id'] = 3
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/fence/queryurl',
+            uri='/api/v3/fence/queryurl',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -872,7 +872,7 @@ class TestDumapClient(unittest.TestCase):
         params['end_time'] = 1554943115
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/export/createjob',
+            uri='/api/v3/export/createjob',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
@@ -887,7 +887,7 @@ class TestDumapClient(unittest.TestCase):
         params['service_id'] = 3
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/export/getjob',
+            uri='/api/v3/export/getjob',
             app_id="YOUR_APP_ID",
             params=params,
             method='GET'
@@ -903,7 +903,7 @@ class TestDumapClient(unittest.TestCase):
         params['job_id'] = 1
 
         response = self.the_client.call_open_api(
-            uri='/trace/v3/export/deletejob',
+            uri='/api/v3/export/deletejob',
             app_id="YOUR_APP_ID",
             body=urllib.urlencode(params),
             method='POST'
