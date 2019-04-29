@@ -240,16 +240,6 @@ class TestBccClient(unittest.TestCase):
                                                         name)),
             baidubce.bce_response.BceResponse)
 
-    def test_modify_instance_desc(self):
-        """
-        test case for modify_instance_desc
-        """
-        desc = 'This for testing modify_instance_desc'
-        self.assertEqual(
-            type(self.client.modify_instance_desc(instance_id,
-                                                  desc)),
-            baidubce.bce_response.BceResponse)
-
     def test_rebuild_instance(self):
         """
         test case for rebuild_instance
