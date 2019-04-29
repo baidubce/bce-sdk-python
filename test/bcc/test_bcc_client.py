@@ -40,6 +40,14 @@ if compat.PY2:
     sys.setdefaultencoding('utf8')
 # sys.setdefaultencoding('utf-8')
 
+HOST = b'http://bcc.bj.baidubce.com'
+AK = b''
+SK = b''
+'''
+HOST = b'http://bcc.bce-api.baidu.com'
+AK = b''
+SK = b''
+'''
 instance_id = 'i-6LoHblf4'
 volume_id = 'v-MxgwTJaE'
 image_id = 'm-de2lkEDF'
