@@ -14,6 +14,8 @@
 This module provides a client class for BCC.
 """
 
+from __future__ import unicode_literals
+
 import copy
 import json
 import logging
@@ -32,6 +34,10 @@ from baidubce.utils import required
 
 _logger = logging.getLogger(__name__)
 
+FETCH_MODE_SYNC = b"sync"
+FETCH_MODE_ASYNC = b"async"
+
+ENCRYPTION_ALGORITHM = "AES256"
 
 default_billing_to_purchase_created = bcc_model.Billing('Postpaid')
 default_billing_to_purchase_reserved = bcc_model.Billing()
@@ -42,7 +48,7 @@ class BccClient(bce_base_client.BceBaseClient):
     Bcc base sdk client
     """
 
-    prefix = '/v2'
+    prefix = b'/v2'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -68,11 +74,12 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(cpu_count=int,
               memory_capacity_in_gb=int,
-              image_id=(str, unicode))
+              image_id=(bytes, str))  # ***Unicode***
     def create_instance(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
                         billing=None, local_disk_size_in_gb=0, create_cds_list=None,
-                        network_capacity_in_mbps=0, purchase_count=1, name=None, admin_pass=None,
-                        zone_name=None, subnet_id=None, security_group_id=None,
+                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None,
+                        admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None,
+                        gpuCard=None, fpgaCard=None,
                         client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -80,7 +87,7 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_type: 
+        :param instance_type:
             The specified Specification to create the instance,
             See more detail on
             https://cloud.baidu.com/doc/BCC/API.html#InstanceType
@@ -94,40 +101,40 @@ class BccClient(bce_base_client.BceBaseClient):
             The parameter to specified the capacity of memory in GB to create the instance.
         :type memory_capacity_in_gb: int
 
-        :param image_id: 
+        :param image_id:
             The id of image, list all available image in BccClient.list_images.
         :type image_id: string
 
-        :param billing: 
+        :param billing:
             Billing information.
         :type billing: bcc_model.Billing
 
-        :param local_disk_size_in_gb: 
+        :param local_disk_size_in_gb:
             The optional parameter to specify the temporary disk size in GB.
             The temporary disk excludes the system disk, available is 0-500GB.
         :type local_disk_size_in_gb: int
 
-        :param create_cds_list: 
+        :param create_cds_list:
             The optional list of volume detail info to create.
         :type create_cds_list: list<bcc_model.CreateCdsModel>
 
-        :param network_capacity_in_mbps: 
+        :param network_capacity_in_mbps:
             The optional parameter to specify the bandwidth in Mbps for the new instance.
             It must among 0 and 200, default value is 0.
             If it's specified to 0, it will get the internal ip address only.
         :type network_capacity_in_mbps: int
 
-        :param purchase_count: 
+        :param purchase_count:
             The number of instance to buy, the default value is 1.
         :type purchase_count: int
 
-        :param name: 
+        :param name:
             The optional parameter to desc the instance that will be created.
         :type name: string
 
-        :param admin_pass: 
+        :param admin_pass:
             The optional parameter to specify the password for the instance.
-            If specify the adminPass,the adminPass must be a 8-16 characters String 
+            If specify the adminPass,the adminPass must be a 8-16 characters String
             which must contains letters, numbers and symbols.
             The symbols only contains "!@#$%^*()".
             The adminPass will be encrypted in AES-128 algorithm
@@ -141,31 +148,45 @@ class BccClient(bce_base_client.BceBaseClient):
             The optional parameter to specify the available zone for the instance.
             See more detail through list_zones method
         :type zone_name: string
-        
+
         :param subnet_id:
             The optional parameter to specify the id of subnet from vpc, optional param
              default value is default subnet from default vpc
         :type subnet_id: string
-        
+
         :param security_group_id:
             The optional parameter to specify the securityGroupId of the instance
             vpcId of the securityGroupId must be the same as the vpcId of subnetId
             See more detail through listSecurityGroups method
         :type security_group_id: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param fpgaCard:
+            specify the fpgaCard info of creating FPGA instance,
+            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
+        :type gpuCard: string
+
+        :param gpuCard:
+            specify the gpuCard info of creating GPU instance,
+            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+        :type gpuCard: string
+
+        :param cardCount:
+            The parameter to specify the card count for creating GPU/FPGA instance
+        :type cardCount: int
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance'
+        path = b'/instance'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -201,11 +222,17 @@ class BccClient(bce_base_client.BceBaseClient):
             body['subnetId'] = subnet_id
         if security_group_id is not None:
             body['securityGroupId'] = subnet_id
+        if gpuCard is not None:
+            body['gpuCard'] = gpuCard
+            body['cardCount'] = cardCount if cardCount > 1 else 1
+        if fpgaCard is not None:
+            body['fpgaCard'] = fpgaCard
+            body['cardCount'] = cardCount if cardCount > 1 else 1
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(cpu_count=int, memory_capacity_in_gb=int, dedicated_host_id=(str, unicode),
-              image_id=(str, unicode))
+    @required(cpu_count=int, memory_capacity_in_gb=int, dedicated_host_id=(bytes, str),  # ***Unicode***
+              image_id=(bytes, str))  # ***Unicode***
     def create_instance_from_dedicated_host(self, cpu_count, memory_capacity_in_gb, image_id,
                                             dedicated_host_id, ephemeral_disks=None,
                                             purchase_count=1, name=None, admin_pass=None,
@@ -282,7 +309,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance'
+        path = b'/instance'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -314,19 +341,19 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         Return a list of instances owned by the authenticated user.
 
-        :param marker: 
+        :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
             Together with the marker, specifies the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
-        :param max_keys: 
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
-        :param internal_ip: 
+        :param internal_ip:
             The identified internal ip of instance.
         :type internal_ip: string
 
@@ -339,9 +366,9 @@ class BccClient(bce_base_client.BceBaseClient):
         :type zone_name: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance'
+        path = b'/instance'
         params = {}
 
         if marker is not None:
@@ -354,25 +381,26 @@ class BccClient(bce_base_client.BceBaseClient):
             params['dedicatedHostId'] = dedicated_host_id
         if zone_name is not None:
             params['zoneName'] = zone_name
-        
+
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def get_instance(self, instance_id, config=None):
         """
         Get the detail information of specified instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(instance_id=(bytes, str))  # ***Unicode***s
     def start_instance(self, instance_id, config=None):
         """
         Starting the instance owned by the user.
@@ -381,19 +409,20 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: id of instance proposed to start 
+        :param instance_id: id of instance proposed to start
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         params = {
             'start': None
         }
         return self._send_request(http_methods.PUT, path, params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def stop_instance(self, instance_id, force_stop=False, config=None):
         """
         Stopping the instance owned by the user.
@@ -402,7 +431,7 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
@@ -413,19 +442,20 @@ class BccClient(bce_base_client.BceBaseClient):
         :type force_stop: boolean
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         body = {
             'forceStop': force_stop
         }
         params = {
             'stop': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def reboot_instance(self, instance_id, force_stop=False, config=None):
         """
         Rebooting the instance owned by the user.
@@ -438,27 +468,28 @@ class BccClient(bce_base_client.BceBaseClient):
             The id of instance.
         :type instance_id: string
 
-        :param force_stop: 
+        :param force_stop:
             The optional parameter to stop the instance forcibly.If true,
             it will stop the instance just like power off immediately
             and it may result in losing important data which have not been written to disk.
         :type force_stop: boolean
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         body = {
             'forceStop': force_stop
         }
         params = {
             'reboot': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode),
-              admin_pass=(str, unicode))
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              admin_pass=(bytes, str))  # ***Unicode***
     def modify_instance_password(self, instance_id, admin_pass, config=None):
         """
         Modifying the password of the instance.
@@ -467,63 +498,105 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
-        :param admin_pass: 
+        :param admin_pass:
             The new password to update.
             The adminPass will be encrypted in AES-128 algorithm
             with the substring of the former 16 characters of user SecretKey.
         :type admin_pass: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
+        instance_id = instance_id.encode(encoding='utf-8')
         secret_access_key = self.config.credentials.secret_access_key
         cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
-        path = '/instance/%s' % instance_id
+        path = b'/instance/%s' % instance_id
         body = {
             'adminPass': cipher_admin_pass
         }
         params = {
             'changePass': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode),
-              name=(str, unicode))
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              name=(bytes, str))  # ***Unicode***
     def modify_instance_attributes(self, instance_id, name, config=None):
         """
         Modifying the special attribute to new value of the instance.
         You can reboot the instance only when the instance is Running or Stopped ,
         otherwise, it's will get 409 errorCode.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
-        :param name: 
+        :param name:
             The new value for instance's name.
         :type name: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         body = {
             'name': name
         }
         params = {
             'modifyAttribute': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode),
-              image_id=(str, unicode),
-              admin_pass=(str, unicode))
+
+
+
+
+
+    @required(instance_id=(bytes, str),
+              desc=(bytes, str))
+    def modify_instance_desc(self, instance_id, desc, config=None):
+        """
+        Modifying the description of the instance.
+        You can reboot the instance only when the instance is Running or Stopped ,
+        otherwise, it's will get 409 errorCode.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param desc:
+            The new value for instance's description.
+        :type name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
+        body = {
+            'desc': desc
+        }
+        params = {
+            'modifyDesc': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+
+
+
+
+
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              image_id=(bytes, str),  # ***Unicode***
+              admin_pass=(bytes, str))  # ***Unicode***
     def rebuild_instance(self, instance_id, image_id, admin_pass, config=None):
         """
         Rebuilding the instance owned by the user.
@@ -533,15 +606,15 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
-        :param image_id: 
+        :param image_id:
             The id of the image which is used to rebuild the instance.
         :type image_id: string
 
-        :param admin_pass: 
+        :param admin_pass:
             The admin password to login the instance.
             The admin password will be encrypted in AES-128 algorithm
             with the substring of the former 16 characters of user SecretKey.
@@ -550,11 +623,11 @@ class BccClient(bce_base_client.BceBaseClient):
         :type admin_pass: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
         secret_access_key = self.config.credentials.secret_access_key
         cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
-        path = '/instance/%s' % instance_id
+        path = b'/instance/%s' % instance_id
         body = {
             'imageId': image_id,
             'adminPass': cipher_admin_pass
@@ -562,10 +635,10 @@ class BccClient(bce_base_client.BceBaseClient):
         params = {
             'rebuild': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def release_instance(self, instance_id, config=None):
         """
         Releasing the instance owned by the user.
@@ -576,17 +649,17 @@ class BccClient(bce_base_client.BceBaseClient):
         all of snapshots created from original instance system disk will be deleted,
         all of customized images created from original instance system disk will be reserved.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        path = b'/instance/%s' % instance_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    @required(instance_id=(str, unicode),
+    @required(instance_id=(bytes, str),  # ***Unicode***
               cpu_count=int,
               memory_capacity_in_gb=int)
     def resize_instance(self, instance_id, cpu_count, memory_capacity_in_gb,
@@ -599,7 +672,7 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of instance.
         :type instance_id: string
 
@@ -611,19 +684,19 @@ class BccClient(bce_base_client.BceBaseClient):
             The parameter of specified the capacity of memory in GB to resize the instance.
         :type memory_capacity_in_gb: int
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
-        :type client_token: string 
+        :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        path = b'/instance/%s' % instance_id
         body = {
             'cpuCount': cpu_count,
             'memoryCapacityInGB': memory_capacity_in_gb
@@ -639,84 +712,129 @@ class BccClient(bce_base_client.BceBaseClient):
                 'resize': None,
                 'clientToken': client_token
             }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode),
-              security_group_id=(str, unicode))
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              security_group_id=(bytes, str))  # ***Unicode***
     def bind_instance_to_security_group(self, instance_id, security_group_id, config=None):
         """
         Binding the instance to specified securitygroup.
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance.
         :type instance_id: string
 
-        :param securitygroup_id: 
+        :param securitygroup_id:
             The id of the securitygroup.
         :type securitygroup_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         body = {
             'securityGroupId': security_group_id
         }
         params = {
             'bind': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode),
-              security_group_id=(str, unicode))
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              security_group_id=(bytes, str))  # ***Unicode***
     def unbind_instance_from_security_group(self, instance_id, security_group_id, config=None):
         """
         Unbinding the instance from securitygroup.
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance.
         :type instance_id: string
 
-        :param securitygroup_id: 
+        :param securitygroup_id:
             The id of the securitygroup.
         :type securitygroup_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         body = {
             'securityGroupId': security_group_id
         }
         params = {
             'unbind': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(instance_id=(str, unicode))
+
+
+
+
+
+
+    @required(instance_id=(bytes, str),
+              tags=list)
+    def bind_instance_to_tags(self, instance_id, tags, config=None):
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s/tag' % instance_id
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list
+        }
+        params = {
+            'bind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(instance_id=(bytes, str),
+              tags=list)
+    def unbind_instance_from_tags(self, instance_id, tags, config=None):
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s/tag' % instance_id
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list
+        }
+        params = {
+            'unbind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+
+
+
+
+
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def get_instance_vnc(self, instance_id, config=None):
         """
         Getting the vnc url to access the instance.
         The vnc url can be used once.
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance.
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s/vnc' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s/vnc' % instance_id
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(instance_id=(str, unicode))
-    def purchase_reserved_instance(self, 
-                                   instance_id, 
-                                   billing=None, 
-                                   client_token=None, 
+    @required(instance_id=(bytes, str))  # ***Unicode***
+    def purchase_reserved_instance(self,
+                                   instance_id,
+                                   billing=None,
+                                   client_token=None,
                                    config=None):
         """
         PurchaseReserved the instance with fixed duration.
@@ -724,27 +842,28 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance.
         :type instance_id: string
 
-        :param billing: 
+        :param billing:
             Billing information.
         :type billing: bcc_model.Billing
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
-        :type client_token: string 
+        :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/%s' % instance_id
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
         if billing is None:
             billing = default_billing_to_purchase_reserved
         body = {
@@ -761,7 +880,7 @@ class BccClient(bce_base_client.BceBaseClient):
                 'purchaseReserved': None,
                 'clientToken': client_token
             }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_instance_specs(self, config=None):
@@ -773,9 +892,9 @@ class BccClient(bce_base_client.BceBaseClient):
         https://bce.baidu.com/doc/BCC/API.html#.E5.AE.9E.E4.BE.8B.E5.A5.97.E9.A4.90.E8.A7.84.E6.A0.BC
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/instance/spec'
+        path = b'/instance/spec'
         return self._send_request(http_methods.GET, path, config=config)
 
     @required(cds_size_in_gb=int)
@@ -789,22 +908,22 @@ class BccClient(bce_base_client.BceBaseClient):
         By using the cdsSizeInGB parameter you can create a newly empty volume.
         By using snapshotId parameter to create a volume form specific snapshot.
 
-        :param cds_size_in_gb: 
+        :param cds_size_in_gb:
             The size of volume to create in GB.
             By specifying the snapshotId,
             it will create volume from the specified snapshot and the parameter cdsSizeInGB will be ignored.
         :type cds_size_in_gb: int
 
-        :param billing: 
+        :param billing:
             Billing information.
         :type billing: bcc_model.Billing
 
-        :param purchase_count: 
+        :param purchase_count:
             The optional parameter to specify how many volumes to buy, default value is 1.
             The maximum to create for one time is 5.
         :type purchase_count: int
 
-        :param storage_type: 
+        :param storage_type:
             The storage type of volume, see more detail in
             https://bce.baidu.com/doc/BCC/API.html#StorageType
         :type storage_type: menu{'hp1', 'std1'}
@@ -814,10 +933,10 @@ class BccClient(bce_base_client.BceBaseClient):
             See more detail through list_zones method
         :type zone_name: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
@@ -826,7 +945,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume'
+        path = b'/volume'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -845,10 +964,10 @@ class BccClient(bce_base_client.BceBaseClient):
         if zone_name is not None:
             body['zoneName'] = zone_name
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(snapshot_id=(str, unicode))
+    @required(snapshot_id=(bytes, str))  # ***Unicode***
     def create_volume_with_snapshot_id(self, snapshot_id, billing=None, purchase_count=1,
                                        storage_type='hp1', zone_name=None, client_token=None,
                                        config=None):
@@ -859,22 +978,22 @@ class BccClient(bce_base_client.BceBaseClient):
         By using the cdsSizeInGB parameter you can create a newly empty volume.
         By using snapshotId parameter to create a volume form specific snapshot.
 
-        :param snapshot_id: 
+        :param snapshot_id:
             The id of snapshot.
             By specifying the snapshotId,
             it will create volume from the specified snapshot and the parameter cdsSizeInGB will be ignored.
         :type snapshot_id: string
 
-        :param billing: 
+        :param billing:
             Billing information.
         :type billing: bcc_model.Billing
 
-        :param purchase_count: 
+        :param purchase_count:
             The optional parameter to specify how many volumes to buy, default value is 1.
             The maximum to create for one time is 5.
         :type purchase_count: int
 
-        :param storage_type: 
+        :param storage_type:
             The storage type of volume, see more detail in
             https://bce.baidu.com/doc/BCC/API.html#StorageType
         :type storage_type: menu{'hp1', 'std1'}
@@ -884,10 +1003,10 @@ class BccClient(bce_base_client.BceBaseClient):
             See more detail through list_zones method
         :type zone_name: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
@@ -896,7 +1015,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume'
+        path = b'/volume'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -915,7 +1034,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if zone_name is not None:
             body['zoneName'] = zone_name
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_volumes(self, instance_id=None, zone_name=None, marker=None, max_keys=None,
@@ -932,22 +1051,22 @@ class BccClient(bce_base_client.BceBaseClient):
             The name of available zone. The optional parameter to list volumes
         :type zone_name: string
 
-        :param marker: 
+        :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
             Together with the marker, specifies the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
-        :param max_keys: 
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume'
+        path = b'/volume'
         params = {}
         if instance_id is not None:
             params['instanceId'] = instance_id
@@ -957,26 +1076,27 @@ class BccClient(bce_base_client.BceBaseClient):
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
-        
+
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(volume_id=(str, unicode))
+    @required(volume_id=(bytes, str))  # ***Unicode***
     def get_volume(self, volume_id, config=None):
         """
         Get the detail information of specified volume.
 
-        :param volume_id: 
+        :param volume_id:
             The id of the volume.
         :type volume_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(volume_id=(str, unicode),
-              instance_id=(str, unicode))
+    @required(volume_id=(bytes, str),  # ***Unicode***
+              instance_id=(bytes, str))  # ***Unicode***
     def attach_volume(self, volume_id, instance_id, config=None):
         """
         Attaching the specified volume to a specified instance.
@@ -984,29 +1104,30 @@ class BccClient(bce_base_client.BceBaseClient):
         when the volume is Available and the instance is Running or Stopped,
         otherwise, it's will get 409 errorCode.
 
-        :param volume_id: 
+        :param volume_id:
             The id of the volume which will be attached to specified instance.
         :type volume_id: string
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance which will be attached with a volume.
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         body = {
             'instanceId': instance_id
         }
         params = {
             'attach': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(volume_id=(str, unicode),
-              instance_id=(str, unicode))
+    @required(volume_id=(bytes, str),  # ***Unicode***
+              instance_id=(bytes, str))  # ***Unicode***
     def detach_volume(self, volume_id, instance_id, config=None):
         """
         Detaching the specified volume from a specified instance.
@@ -1014,28 +1135,29 @@ class BccClient(bce_base_client.BceBaseClient):
         when the instance is Running or Stopped ,
         otherwise, it's will get 409 errorCode.
 
-        :param volume_id: 
+        :param volume_id:
             The id of the volume which will be attached to specified instance.
         :type volume_id: string
 
-        :param instance_id: 
+        :param instance_id:
             The id of the instance which will be attached with a volume.
         :type instance_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         body = {
             'instanceId': instance_id
         }
         params = {
             'detach': None
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(volume_id=(str, unicode))
+    @required(volume_id=(bytes, str))  # ***Unicode***
     def release_volume(self, volume_id, config=None):
         """
         Releasing the specified volume owned by the user.
@@ -1043,17 +1165,18 @@ class BccClient(bce_base_client.BceBaseClient):
         when the instance is among state of  Available/Expired/Error,
         otherwise, it's will get 409 errorCode.
 
-        :param volume_id: 
+        :param volume_id:
             The id of the volume which will be released.
         :type volume_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    @required(volume_id=(str, unicode),
+    @required(volume_id=(bytes, str),  # ***Unicode***
               new_cds_size=int)
     def resize_volume(self, volume_id, new_cds_size, client_token=None, config=None):
         """
@@ -1064,27 +1187,28 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_volume.
 
-        :param volume_id: 
+        :param volume_id:
             The id of volume which you want to resize.
         :type volume_id: string
 
-        :param new_cds_size: 
+        :param new_cds_size:
             The new volume size you want to resize in GB.
         :type new_cds_size: int
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
-        :type client_token: string 
+        :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         body = {
             'newCdsSizeInGB': new_cds_size
         }
@@ -1099,11 +1223,11 @@ class BccClient(bce_base_client.BceBaseClient):
                 'resize': None,
                 'clientToken': client_token
             }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(volume_id=(str, unicode),
-              snapshot_id=(str, unicode))
+    @required(volume_id=(bytes, str),  # ***Unicode***
+              snapshot_id=(bytes, str))  # ***Unicode***
     def rollback_volume(self, volume_id, snapshot_id, config=None):
         """
         Rollback the volume with the specified volume snapshot.
@@ -1115,32 +1239,33 @@ class BccClient(bce_base_client.BceBaseClient):
         otherwise, it's will get 409 errorCode.After rolling back the
         volume,all the system disk data will erase.
 
-        :param volume_id: 
+        :param volume_id:
             The id of volume which will be rollback.
-        :type volume_id: string       
+        :type volume_id: string
 
-        :param snapshot_id: 
+        :param snapshot_id:
             The id of snapshot which will be used to rollback the volume.
-        :type snapshot_id: string 
+        :type snapshot_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         body = {
             'snapshotId': snapshot_id
         }
         params = {
             'rollback': None,
         }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(volume_id=(str, unicode))
-    def purchase_reserved_volume(self, 
-                                 volume_id, 
-                                 billing=None, 
-                                 client_token=None, 
+    @required(volume_id=(bytes, str))  # ***Unicode***
+    def purchase_reserved_volume(self,
+                                 volume_id,
+                                 billing=None,
+                                 client_token=None,
                                  config=None):
         """
         PurchaseReserved the instance with fixed duration.
@@ -1148,27 +1273,28 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_volume.
 
-        :param volume_id: 
+        :param volume_id:
             The id of volume which will be renew.
         :type volume_id: string
 
-        :param billing: 
+        :param billing:
             Billing information.
         :type billing: bcc_model.Billing
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
-        :type client_token: string 
+        :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/volume/%s' % volume_id
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
         if billing is None:
             billing = default_billing_to_purchase_reserved
         body = {
@@ -1185,11 +1311,60 @@ class BccClient(bce_base_client.BceBaseClient):
                 'purchaseReserved': None,
                 'clientToken': client_token
             }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), 
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(image_name=(str, unicode),
-              instance_id=(str, unicode))
+
+
+
+
+
+    @required(volume_id=(bytes, str),
+              name=(bytes, str),
+              desc=(bytes, str))
+    def modify_volume_Attribute(self,
+                                volume_id,
+                                cdsName,
+                                config=None):
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
+
+        body = {
+            'cdsName': cdsName
+        }
+        params = {
+            'modify': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(volume_id=(bytes, str))
+    def modify_volume_charge_type(self,
+                                volume_id,
+                                billing=None,
+                                config=None):
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
+
+        if billing is None:
+            billing = default_billing_to_purchase_reserved
+        body = {
+            'billing': billing.__dict__
+        }
+
+        params = {
+            'modifyChargeType': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+
+
+
+
+
+    @required(image_name=(bytes, str),  # ***Unicode***
+              instance_id=(bytes, str))  # ***Unicode***
     def create_image_from_instance_id(self,
                                       image_name,
                                       instance_id,
@@ -1203,7 +1378,7 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_image.
 
-        :param image_name: 
+        :param image_name:
             The name for the image that will be created.
             The name length from 1 to 65,only contains letters,digital and underline.
         :type image_name: string
@@ -1213,19 +1388,19 @@ class BccClient(bce_base_client.BceBaseClient):
             When instanceId and snapshotId are specified ,only instanceId will be used.
         :type instance_id: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/image'
+        path = b'/image'
         params = None
         if client_token is None:
             params = {
@@ -1240,11 +1415,11 @@ class BccClient(bce_base_client.BceBaseClient):
             'instanceId': instance_id
         }
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(image_name=(str, unicode),
-              snapshot_id=(str, unicode))
+    @required(image_name=(bytes, str),  # ***Unicode***
+              snapshot_id=(bytes, str))  # ***Unicode***
     def create_image_from_snapshot_id(self,
                                       image_name,
                                       snapshot_id,
@@ -1259,29 +1434,29 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_image.
 
-        :param image_name: 
+        :param image_name:
             The name for the image that will be created.
             The name length from 1 to 65,only contains letters,digital and underline.
         :type image_name: string
 
-        :param snapshot_id: 
+        :param snapshot_id:
             The optional parameter specify the id of the snapshot which will be used to create the new image.
             When instanceId and snapshotId are specified ,only instanceId will be used.
         :type snapshot_id: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/image'
+        path =  b'/image'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -1292,35 +1467,35 @@ class BccClient(bce_base_client.BceBaseClient):
             'snapshotId': snapshot_id
         }
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_images(self, image_type='All', marker=None, max_keys=None, config=None):
         """
         Listing images owned by the authenticated user.
 
-        :param image_type: 
+        :param image_type:
             The optional parameter to filter image to list.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#ImageType"
         :type image_type: menu{'All', System', 'Custom', 'Integration'}
 
-        :param marker: 
+        :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
             Together with the marker, specifies the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
-        :param max_keys: 
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/image'
+        path = b'/image'
         params = {
             'imageType': image_type
         }
@@ -1328,43 +1503,147 @@ class BccClient(bce_base_client.BceBaseClient):
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
-        
+
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(image_id=(str, unicode))
+    @required(image_id=(bytes, str))  # ***Unicode***
     def get_image(self, image_id, config=None):
         """
         Get the detail information of specified image.
 
-        :param image_id: 
+        :param image_id:
             The id of image.
         :type image_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/image/%s' % image_id
+        path = b'/image/%s' % image_id
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(image_id=(str, unicode))
+    @required(image_id=(bytes, str))  # ***Unicode***
     def delete_image(self, image_id, config=None):
         """
         Deleting the specified image.
         Only the customized image can be deleted,
         otherwise, it's will get 403 errorCode.
 
-        :param image_id: 
+        :param image_id:
             The id of image.
         :type image_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/image/%s' % image_id
+        path = b'/image/%s' % image_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    @required(volume_id=(str, unicode),
-              snapshot_name=(str, unicode))
+
+
+
+
+
+    @required(image_id=(bytes, str),
+              name=(bytes, str),
+              destRegions=list)
+    def remote_copy_image(self,
+                          image_id,
+                          name,
+                          destRegions,
+                          config=None):
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s' % image_id
+
+        body = {
+            'name': name,
+            'destRegion': destRegions
+        }
+        params = {
+            'remoteCopy': None
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(image_id=(bytes, str))
+    def cancle_remote_copy_image(self,
+                                 image_id,
+                                 config=None):
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s' % image_id
+
+        params = {
+            'cancelRemoteCopy': None
+        }
+        return self._send_request(http_methods.POST, path, params=params, config=config)
+
+    @required(image_id=(bytes, str))
+    def share_image(self,
+                    image_id,
+                    account=None,
+                    account_id=None,
+                    config=None):
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s' % image_id
+
+        body = {}
+        if account is not None:
+            body['account'] = account
+        if account_id is not None:
+            body['accountId'] = account_id
+
+        params = {
+            'share': None
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(image_id=(bytes, str))
+    def unshare_image(self,
+                    image_id,
+                    account=None,
+                    account_id=None,
+                    config=None):
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s' % image_id
+
+        body = {}
+        if account is not None:
+            body['account'] = account
+        if account_id is not None:
+            body['accountId'] = account_id
+
+        params = {
+            'unshare': None
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(image_id=(bytes, str))
+    def list_shared_user(self,
+                         image_id,
+                         config=None):
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s/sharedUsers' % image_id
+        return self._send_request(http_methods.GET, path, config=config)
+
+    @required(instance_ids=list)
+    def list_os(self,
+                instance_ids=None,
+                config=None):
+        path = b'/image/os'
+        instance_id_list = instance_ids
+        body = {
+            'instanceIds': instance_id_list
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
+
+
+
+
+
+
+    @required(volume_id=(bytes, str),  # ***Unicode***
+              snapshot_name=(bytes, str))  # ***Unicode***
     def create_snapshot(self,
                         volume_id,
                         snapshot_name,
@@ -1381,34 +1660,34 @@ class BccClient(bce_base_client.BceBaseClient):
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_snapshot.
 
-        :param volume_id: 
+        :param volume_id:
             The id which specify where the snapshot will be created from.
             If you want to create an snapshot from a customized volume, a id of the volume will be set.
             If you want to create an snapshot from a system volume, a id of the instance will be set.
         :type volume_id: string
 
-        :param snapshot_name: 
+        :param snapshot_name:
             The name for the snapshot that will be created.
             The name length from 1 to 65,only contains letters,digital and underline.
         :type snapshot_name: string
 
-        :param desc: 
+        :param desc:
             The optional parameter to describe the information of the new snapshot.
         :type desc: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/snapshot'
+        path = b'/snapshot'
         params = None
         if client_token is None:
             params = {
@@ -1420,38 +1699,38 @@ class BccClient(bce_base_client.BceBaseClient):
             }
         body = {
             'volumeId': volume_id,
-            'snapshotName': snapshot_name 
+            'snapshotName': snapshot_name
         }
         if desc is not None:
             body['desc'] = desc
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_snapshots(self, marker=None, max_keys=None, volume_id=None, config=None):
         """
         List snapshots
 
-        :param marker: 
+        :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
             Together with the marker, specifies the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type params: string
 
-        :param max_keys: 
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type params: int
 
-        :param volume_id: 
+        :param volume_id:
             The id of the volume.
         :type volume_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/snapshot'
+        path = b'/snapshot'
         params = None
         if marker is not None or max_keys is not None or volume_id is not None:
             params = {}
@@ -1461,42 +1740,44 @@ class BccClient(bce_base_client.BceBaseClient):
             params['maxKeys'] = max_keys
         if volume_id is not None:
             params['volumeId'] = volume_id
-        
+
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(snapshot_id=(str, unicode))
+    @required(snapshot_id=(bytes, str))  # ***Unicode***
     def get_snapshot(self, snapshot_id, config=None):
         """
         Get the detail information of specified snapshot.
 
-        :param snapshot_id: 
+        :param snapshot_id:
             The id of snapshot.
         :type snapshot_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/snapshot/%s' % snapshot_id
+        snapshot_id = snapshot_id.encode(encoding='utf-8')
+        path = b'/snapshot/%s' % snapshot_id
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(snapshot_id=(str, unicode))
+    @required(snapshot_id=(bytes, str))  # ***Unicode***
     def delete_snapshot(self, snapshot_id, config=None):
         """
         Deleting the specified snapshot.
         Only when the snapshot is CreatedFailed or Available,the specified snapshot can be deleted.
         otherwise, it's will get 403 errorCode.
 
-        :param snapshot_id: 
+        :param snapshot_id:
             The id of snapshot.
         :type snapshot_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/snapshot/%s' % snapshot_id
+        snapshot_id = snapshot_id.encode(encoding='utf-8')
+        path = b'/snapshot/%s' % snapshot_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    @required(name=(str, unicode),
+    @required(name=(bytes, str),  # ***Unicode***
               rules=list)
     def create_security_group(self,
                               name,
@@ -1508,35 +1789,35 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         Creating a newly SecurityGroup with specified rules.
 
-        :param name: 
+        :param name:
             The name of SecurityGroup that will be created.
         :type name: string
 
-        :param rules: 
+        :param rules:
             The list of rules which define how the SecurityGroup works.
         :type rules: list<bcc_model.SecurityGroupRuleModel>
 
         :param vpc_id:
             The optional parameter to specify the id of VPC to SecurityGroup
         :type vpc_id: string
-        
+
         :param desc:
             The optional parameter to describe the SecurityGroup that will be created.
         :type desc: string
 
-        :param client_token: 
+        :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
-            If the clientToken is not specified by the user, 
+            If the clientToken is not specified by the user,
             a random String generated by default algorithm will be used.
             See more detail at
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/securityGroup'
+        path = b'/securityGroup'
         params = None
         if client_token is None:
             params = {
@@ -1556,7 +1837,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if desc is not None:
             body['desc'] = desc
 
-        return self._send_request(http_methods.POST, path, json.dumps(body), 
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_security_groups(self, instance_id=None, vpc_id=None, marker=None, max_keys=None,
@@ -1568,27 +1849,27 @@ class BccClient(bce_base_client.BceBaseClient):
             The id of instance. The optional parameter to list the SecurityGroup.
             If it's specified,only the SecurityGroup related to the specified instance will be listed
         :type instance_id: string
-        
+
         :param vpc_id:
             filter by vpcId, optional parameter
         :type vpc_id: string
 
-        :param marker: 
+        :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
             Together with the marker, specifies the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
-        :param max_keys: 
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/securityGroup'
+        path = b'/securityGroup'
         params = None
         if instance_id is not None or marker is not None or max_keys is not None:
             params = {}
@@ -1600,26 +1881,27 @@ class BccClient(bce_base_client.BceBaseClient):
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
-        
-        return self._send_request(http_methods.GET, path, 
+
+        return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
 
-    @required(security_group_id=(str, unicode))
+    @required(security_group_id=(bytes, str))  # ***Unicode***
     def delete_security_group(self, security_group_id, config=None):
         """
         Deleting the specified SecurityGroup.
 
-        :param security_group_id: 
+        :param security_group_id:
             The id of SecurityGroup that will be deleted.
         :type security_group_id: string
 
         :return:
-        :rtype baidubce.bce_response.BceResponse 
+        :rtype baidubce.bce_response.BceResponse
         """
-        path = '/securityGroup/%s' % security_group_id
+        security_group_id = security_group_id.encode(encoding='utf-8')
+        path = b'/securityGroup/%s' % security_group_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    @required(security_group_id=(str, unicode),
+    @required(security_group_id=(bytes, str),  # ***Unicode***
               rule=bcc_model.SecurityGroupRuleModel)
     def authorize_security_group_rule(self, security_group_id, rule, client_token=None,
                                       config=None):
@@ -1647,7 +1929,8 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/securityGroup/%s' % security_group_id
+        security_group_id = security_group_id.encode(encoding='utf-8')
+        path = b'/securityGroup/%s' % security_group_id
         params = {'authorizeRule': ''}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -1660,7 +1943,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    @required(security_group_id=(str, unicode),
+    @required(security_group_id=(bytes, str),  # ***Unicode***
               rule=bcc_model.SecurityGroupRuleModel)
     def revoke_security_group_rule(self, security_group_id, rule, client_token=None, config=None):
         """
@@ -1683,7 +1966,8 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/securityGroup/%s' % security_group_id
+        security_group_id = security_group_id.encode(encoding='utf-8')
+        path = b'/securityGroup/%s' % security_group_id
         params = {'revokeRule': ''}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -1702,8 +1986,255 @@ class BccClient(bce_base_client.BceBaseClient):
         :param config:
         :return:
         """
-        path = '/zone'
+        path = b'/zone'
         return self._send_request(http_methods.GET, path, config=config)
+
+
+
+
+
+
+    @required(asp_name=(bytes, str),
+              time_points=list,
+              repeat_week_days=list,
+              retention_days=(bytes, str))
+    def create_asp(self,
+                   asp_name=None,
+                   time_points=None,
+                   repeat_week_days=None,
+                   retention_days=None,
+                   client_token=None,
+                   config=None):
+
+        path = b'/asp'
+        params = None
+        if client_token is None:
+            params = {
+                'clientToken': generate_client_token()
+            }
+        else:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'name': asp_name,
+            'timePoints': time_points,
+            'repeatWeekdays': repeat_week_days,
+            'retentionDays': retention_days
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(asp_id=(bytes, str),
+              volume_ids=list)
+    def attach_asp(self,
+                   asp_id=None,
+                   volume_ids=None,
+                   config=None):
+
+        asp_id = asp_id.encode(encoding='utf-8')
+        path = b'/asp/%s' % asp_id
+
+        body = {
+            'volumeIds': volume_ids
+        }
+        params = {
+            'attach': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(asp_id=(bytes, str),
+              volume_ids=list)
+    def detach_asp(self,
+                   asp_id=None,
+                   volume_ids=None,
+                   config=None):
+
+        asp_id = asp_id.encode(encoding='utf-8')
+        path = b'/asp/%s' % asp_id
+
+        body = {
+            'volumeIds': volume_ids
+        }
+        params = {
+            'detach': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(asp_id=(bytes, str))
+    def delete_asp(self,
+                   asp_id=None,
+                   config=None):
+
+        asp_id = asp_id.encode(encoding='utf-8')
+        path = b'/asp/%s' % asp_id
+        return self._send_request(http_methods.DELETE, path, config=config)
+
+    def list_asps(self, marker=None, max_keys=None, asp_name=None, volume_name=None, config=None):
+        path = b'/asp'
+        params = None
+        if marker is not None or max_keys is not None or asp_name is not None or volume_name is not None:
+            params = {}
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+        if asp_name is not None:
+            params['aspName'] = asp_name
+        if volume_name is not None:
+            params['volumeName'] = volume_name
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(asp_id=(bytes, str))
+    def get_asp(self, asp_id=None, config=None):
+        asp_id = asp_id.encode(encoding='utf-8')
+        path = b'/asp/%s' % asp_id
+        return self._send_request(http_methods.GET, path, config=config)
+
+
+
+
+
+
+    @required(keypair_name=(bytes, str))
+    def create_keypair(self,
+                       keypair_name=None,
+                       keypair_desc=None,
+                       config=None):
+        path = b'/keypair'
+        body = {
+            'name': keypair_name,
+            'description': keypair_desc
+        }
+        params = {
+            'create': None
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keypair_name=(bytes, str),
+              public_key=(bytes, str))
+    def import_keypair(self,
+                       keypair_name=None,
+                       keypair_desc=None,
+                       public_key=None,
+                       config=None):
+        path = b'/keypair'
+        body = {
+            'name': keypair_name,
+            'publicKey': public_key
+        }
+        if keypair_desc is not None:
+            body['description'] = keypair_desc
+
+        params = {
+            'import': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def list_keypairs(self, marker=None, max_keys=None, config=None):
+        path = b'/keypair'
+        params = None
+        if marker is not None or max_keys is not None:
+            params = {}
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(keypair_id=(bytes, str))
+    def get_keypair(self, keypair_id=None, config=None):
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+        return self._send_request(http_methods.GET, path, config=config)
+
+    @required(keypair_id=(bytes, str),
+              instance_ids=list)
+    def attach_keypair(self,
+                       keypair_id=None,
+                       instance_ids=None,
+                       config=None):
+
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+        body = {
+            'instanceIds': instance_ids
+        }
+        params = {
+            'attach': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keypair_id=(bytes, str),
+              instance_id=list)
+    def detach_keypair(self,
+                       keypair_id=None,
+                       instance_ids=None,
+                       config=None):
+
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+        body = {
+            'instanceIds': instance_ids
+        }
+        params = {
+            'detach': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keypair_id=(bytes, str))
+    def delete_keypair(self,
+                       keypair_id=None,
+                       config=None):
+
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+
+        return self._send_request(http_methods.DELETE, path, config=config)
+
+    @required(keypair_id=(bytes, str),
+              keypair_name=(bytes, str))
+    def rename_keypair(self,
+                       keypair_id=None,
+                       keypair_name=None,
+                       config=None):
+
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+        body = {
+            'name': keypair_name
+        }
+        params = {
+            'rename': None
+        }
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keypair_id=(bytes, str),
+              keypair_desc=(bytes, str))
+    def update_keypair_desc(self,
+                            keypair_id=None,
+                            keypair_desc=None,
+                            config=None):
+
+        keypair_id = keypair_id.encode(encoding='utf-8')
+        path = b'/keypair/%s' % keypair_id
+        body = {
+            'description': keypair_desc
+        }
+        params = {
+            'updateDesc': None
+        }
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
 
 
 def generate_client_token_by_uuid():

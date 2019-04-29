@@ -117,3 +117,9 @@ class SecurityGroupRuleModel(object):
         self.destGroupId = destGroupId
         self.destIp = destIp
         self.securityGroupId = securityGroupId
+
+
+class TagModel(object):
+    def __init__(self, tagKey=None, tagValue=None):
+        self.tagKey = tagKey
+        self.tagValue = tagValue
