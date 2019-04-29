@@ -13,7 +13,6 @@
 """
 This module provide some tools for bce client.
 """
-
 # str() generator unicode,bytes() for ASCII
 from __future__ import absolute_import
 from builtins import str, bytes
@@ -33,6 +32,8 @@ except ImportError:
 from Crypto.Cipher import AES
 import baidubce
 from baidubce.http import http_headers
+
+import codecs
 
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
@@ -490,14 +491,39 @@ def parse_host_port(endpoint, default_protocol):
 
     return protocol, host, port
 
-
+"""
 def aes128_encrypt_16char_key(adminpass, secretkey):
-    """
-    encrypt admin password by AES128
-    """
+    
+    #Python2:encrypt admin password by AES128
+    
     pad_it = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
     key = secretkey[0:16]
     mode = AES.MODE_ECB
     cryptor = AES.new(key, mode, key)
-    cipheradminpass = cryptor.encrypt(pad_it(adminpass)).encode(b'hex')
+    cipheradminpass = cryptor.encrypt(pad_it(adminpass)).encode('hex')
+    return cipheradminpass
+"""
+
+
+def aes128_encrypt_16char_key(adminpass, secretkey):
+
+    # Python3: encrypt admin password by AES128
+
+    pad_it = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
+    key = secretkey[0:16]
+    mode = AES.MODE_ECB
+    cryptor = AES.new(key, mode)
+    pad_admin = pad_it(adminpass)
+    byte_pad_admin = pad_admin.encode(encoding='utf-8')
+
+    cryptoradminpass = cryptor.encrypt(byte_pad_admin)
+    print(cryptoradminpass)
+
+    #cipheradminpass = cryptor.encrypt(byte_pad_admin).encode('hex')
+    byte_cipheradminpass = codecs.encode(cryptoradminpass, 'hex_codec')
+    print(byte_cipheradminpass)
+
+    cipheradminpass = byte_cipheradminpass.decode(encoding='utf-8')
+    print(cipheradminpass)
+
     return cipheradminpass
