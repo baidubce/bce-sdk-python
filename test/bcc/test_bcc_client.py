@@ -40,18 +40,6 @@ if compat.PY2:
     sys.setdefaultencoding('utf8')
 # sys.setdefaultencoding('utf-8')
 
-HOST = b'http://bcc.bj.baidubce.com'
-AK = b'182f79d613e546c4a6b68cf01024855d'
-SK = b'cc1a9e030b054b44881b4cc86d3b3423'
-'''
-HOST = b'http://bcc.bce-api.baidu.com'
-AK = b'9e3ecdb72a1d40ad873fb9d563ef7159'
-SK = b'bac17510f21240eaa1bc26e6d53ab1c8'
-
-HOST = b'http://bcc.bj.baidubce.com'
-AK = b'031def8902d346c6a28719948d11e024'
-SK = b'00fd30dfac894cae92e16eefaf33fbe0'
-'''
 instance_id = 'i-6LoHblf4'
 volume_id = 'v-MxgwTJaE'
 image_id = 'm-de2lkEDF'
@@ -724,7 +712,7 @@ class TestBccClient(unittest.TestCase):
         print(self.client.get_asp(asp_id=asp_id))
 
     def test_create_keypair(self):
-        keypair_name = 'Test-Keypair-01'
+        keypair_name = 'Test-Keypair-03'
         keypair_desc = 'This for testing creating keypair'
         self.assertEqual(
             type(self.client.create_keypair(keypair_name=keypair_name,
@@ -874,8 +862,8 @@ if __name__ == '__main__':
     #suite.addTest(TestBccClient("test_delete_asp"))
     #suite.addTest(TestBccClient("test_list_asp"))
     #suite.addTest(TestBccClient("test_get_asp"))
-    #suite.addTest(TestBccClient("test_create_keypair"))
-    suite.addTest(TestBccClient("test_import_keypair"))
+    suite.addTest(TestBccClient("test_create_keypair"))
+    #suite.addTest(TestBccClient("test_import_keypair"))
     #suite.addTest(TestBccClient("test_list_keypairs"))
     #suite.addTest(TestBccClient("test_get_keypair"))
     #suite.addTest(TestBccClient("test_attach_keypair"))
