@@ -9,7 +9,6 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
-# -*- coding: UTF-8 -*-
 """
 This module provides a client class for CFC.
 API Reference: https://cloud.baidu.com/doc/CFC/index.html
@@ -24,7 +23,6 @@ import time
 import traceback
 import re
 
-from urllib import quote
 from baidubce import bce_base_client
 from baidubce import utils
 from baidubce.auth import bce_v1_signer
@@ -37,6 +35,12 @@ from baidubce.services.cfc import cfc_handler
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.utils import required
+from baidubce import compat
+
+if compat.PY3:
+    from urllib.parse import quote
+else:
+    from urllib import quote
 
 _logger = logging.getLogger(__name__)
 
@@ -181,20 +185,20 @@ class CfcClient(bce_base_client.BceBaseClient):
         if environment is None:
             environment = {}
         data = {
-            "Code": {
-                "ZipFile": zip_file,
-                "Publish": publish,
-                "DryRun": dry_run
+            'Code': {
+                'ZipFile': zip_file,
+                'Publish': publish,
+                'DryRun': dry_run
             },
-            "Description": description,
-            "Region": region,
-            "Timeout": timeout,
-            "FunctionName": function_name,
-            "Handler": handler,
-            "Runtime": run_time,
-            "MemorySize": memory_size,
-            "Environment": {
-                "Variables": environment
+            'Description': description,
+            'Region': region,
+            'Timeout': timeout,
+            'FunctionName': function_name,
+            'Handler': handler,
+            'Runtime': run_time,
+            'MemorySize': memory_size,
+            'Environment': {
+                'Variables': environment
             }
         }
         params = {}
@@ -675,6 +679,10 @@ class CfcClient(bce_base_client.BceBaseClient):
             config=config)
 
     @staticmethod
+    def _encode_function_name(self, function_name):
+        return ''
+
+    @staticmethod
     def _merge_config(self, config):
         if config is None:
             return self.config
@@ -691,7 +699,7 @@ class CfcClient(bce_base_client.BceBaseClient):
         config = self._merge_config(self, config)
         if body_parser is None:
             body_parser = cfc_handler.parse_json
-        headers = {}
+        headers = headers or {}
         headers[http_headers.CONTENT_TYPE] = http_content_types.JSON
         return self.send_request(config, bce_v1_signer.sign,
                                  [cfc_handler.parse_error, body_parser],
@@ -717,40 +725,60 @@ class CfcClient(bce_base_client.BceBaseClient):
         :rtype: baidubce.BceResponse
         """
         t = int(time.time())
-        _logger.debug('%s request start: %s %s, %s, %s, %d',
+        _logger.debug(b'%s request start: %s %s, %s, %s, %d',
                       http_method, path, headers, params, body, t)
         headers = headers or {}
-        user_agent = 'bce-sdk-python/%s/%s/%s' % (
-            baidubce.SDK_VERSION, sys.version, sys.platform)
-        user_agent = user_agent.replace('\n', '')
-        headers[http_headers.USER_AGENT] = user_agent
+        if config.security_token is not None:
+            headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
+        headers_to_sign = [b"host",
+                           b"content-length",
+                           b"content-type"]
+
         should_get_new_date = False
+        if http_headers.BCE_DATE not in headers:
+            should_get_new_date = True
         headers[http_headers.HOST] = config.endpoint
-        if isinstance(body, unicode):
-            body = body.encode(baidubce.DEFAULT_ENCODING)
+
+        for k in headers:
+            k_lower = k.strip().lower()
+            if k_lower.startswith(http_headers.BCE_PREFIX):
+                headers_to_sign.append(k_lower)
+        user_agent = 'bce-sdk-python/%s/%s/%s' % (
+            compat.convert_to_string(baidubce.SDK_VERSION), sys.version, sys.platform)
+        user_agent = user_agent.replace('\n', '')
+        user_agent = compat.convert_to_bytes(user_agent)
+        headers[http_headers.USER_AGENT] = user_agent
+
+        body = compat.convert_to_bytes(body)
         if not body:
             headers[http_headers.CONTENT_LENGTH] = 0
-        elif isinstance(body, str):
+        elif isinstance(body, bytes):
             headers[http_headers.CONTENT_LENGTH] = len(body)
         elif http_headers.CONTENT_LENGTH not in headers:
-            raise ValueError('No %s is specified.' % http_headers.CONTENT_LENGTH)
+            raise ValueError(b'No %s is specified.' % http_headers.CONTENT_LENGTH)
+
+        # store the offset of fp body
         offset = None
         if hasattr(body, "tell") and hasattr(body, "seek"):
             offset = body.tell()
+
         protocol, host, port = utils.parse_host_port(config.endpoint, config.protocol)
         path = quote(path)
+
         headers[http_headers.HOST] = host
         if port != config.protocol.default_port:
-            headers[http_headers.HOST] += ':' + str(port)
+            headers[http_headers.HOST] += b':' + compat.convert_to_bytes(port)
+        path = compat.convert_to_bytes(path)
         headers[http_headers.AUTHORIZATION] = sign_function(
-            config.credentials, http_method, path, headers, params,
-            headers_to_sign=["host", "content-type"])
+            config.credentials, http_method, path, headers, params, headers_to_sign=headers_to_sign)
+
         encoded_params = utils.get_canonical_querystring(params, False)
         if len(encoded_params) > 0:
-            uri = path + '?' + encoded_params
+            uri = path + b'?' + encoded_params
         else:
             uri = path
-            bce_http_client.check_headers(headers)
+        bce_http_client.check_headers(headers)
+
         retries_attempted = 0
         errors = []
         while True:
@@ -758,36 +786,57 @@ class CfcClient(bce_base_client.BceBaseClient):
             try:
                 if should_get_new_date is True:
                     headers[http_headers.BCE_DATE] = utils.get_canonical_time()
+                    headers_to_sign.append(http_headers.BCE_DATE)
 
                 headers[http_headers.AUTHORIZATION] = sign_function(
-                    config.credentials, http_method, path, headers, params,
-                    headers_to_sign=["host", "content-type"])
+                    config.credentials, http_method, path, headers, params, headers_to_sign=headers_to_sign)
+
                 if retries_attempted > 0 and offset is not None:
                     body.seek(offset)
 
                 conn = bce_http_client._get_connection(protocol, host,
                                                        port, config.connection_timeout_in_mills)
 
+                _logger.debug('request args:method=%s, uri=%s, headers=%s,patams=%s, body=%s',
+                              http_method, uri, headers, params, body)
+
                 http_response = bce_http_client._send_http_request(
                     conn, http_method, uri, headers, body, config.send_buf_size)
 
                 headers_list = http_response.getheaders()
+
+                # on py3 ,values of headers_list is decoded with ios-8859-1 from
+                # utf-8 binary bytes
+
+                # headers_list[*][0] is lowercase on py2
+                # headers_list[*][0] is raw value py3
+                if compat.PY3 and isinstance(headers_list, list):
+                    temp_heads = []
+                    for k, v in headers_list:
+                        k = k.encode('latin-1').decode('utf-8')
+                        v = v.encode('latin-1').decode('utf-8')
+                        k = k.lower()
+                        temp_heads.append((k, v))
+                    headers_list = temp_heads
+
                 _logger.debug(
                     'request return: status=%d, headers=%s' % (http_response.status, headers_list))
+                # cfc invoke return doesn't have to be json
                 if special:
                     return http_response
+
                 response = bce_http_client.BceResponse()
                 response.set_metadata_from_headers(dict(headers_list))
                 for handler_function in response_handler_functions:
                     if handler_function(http_response, response):
                         break
+
                 return response
             except Exception as e:
                 if conn is not None:
                     conn.close()
                 # insert ">>>>" before all trace back lines and then save it
-                errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().
-                                        splitlines()))
+                errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().splitlines()))
                 if config.retry_policy.should_retry(e, retries_attempted):
                     delay_in_millis = config.retry_policy.get_delay_before_next_retry_in_millis(
                         e, retries_attempted)
@@ -797,3 +846,4 @@ class CfcClient(bce_base_client.BceBaseClient):
                                                              'Retried %d times. All trace backs:\n'
                                                              '%s' % (retries_attempted,
                                                                      '\n'.join(errors)), e)
+        retries_attempted += 1
