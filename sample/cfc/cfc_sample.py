@@ -12,8 +12,6 @@
 """
 Samples for bos client.
 """
-# !/usr/bin/env python
-# coding=utf-8
 
 import time
 from baidubce.services.cfc.cfc_client import CfcClient
