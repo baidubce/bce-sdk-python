@@ -29,6 +29,12 @@ if PY3 and isinstance(SDK_VERSION, bytes):
 setup(
     name='bce-python-sdk',
     version=SDK_VERSION,
+    install_requires=['pycrypto>=2.4',
+                      'future>=0.6.0',
+                      'six>=1.4.0'],
+    requires=['pycrypto',
+              'future',
+              'six'],
     packages=['baidubce',
               'baidubce.auth',
               'baidubce.http',
