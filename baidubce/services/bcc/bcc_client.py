@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+n# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -221,7 +221,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if subnet_id is not None:
             body['subnetId'] = subnet_id
         if security_group_id is not None:
-            body['securityGroupId'] = subnet_id
+            body['securityGroupId'] = security_group_id
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
             body['cardCount'] = cardCount if cardCount > 1 else 1
@@ -332,7 +332,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if subnet_id is not None:
             body['subnetId'] = subnet_id
         if security_group_id is not None:
-            body['securityGroupId'] = subnet_id
+            body['securityGroupId'] = security_group_id
         return self._send_request(http_methods.POST, path, json.dumps(body), params=params,
                                   config=config)
 
