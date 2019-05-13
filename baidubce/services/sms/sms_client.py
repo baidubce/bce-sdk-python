@@ -31,7 +31,7 @@ from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.utils import required
 from baidubce.services import sms
-import httplib
+import http.client
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.bce_client_configuration import BceClientConfiguration
@@ -40,7 +40,7 @@ _logger = logging.getLogger(__name__)
 
 
 def _parse_result(http_response, response):
-    if http_response.status / 100 == httplib.CONTINUE / 100:
+    if http_response.status / 100 == http.client.CONTINUE / 100:
         raise BceClientError('Can not handle 1xx http status code')
     bse = None
     body = http_response.read()
@@ -59,12 +59,12 @@ def _parse_result(http_response, response):
                     json.loads(body, object_hook=utils.dict_to_python_object).__dict__)
                 http_response.close()
                 return True
-        elif http_response.status / 100 == httplib.OK / 100:
+        elif http_response.status / 100 == http.client.OK / 100:
             response.__dict__.update(
                 json.loads(body, object_hook=utils.dict_to_python_object).__dict__)
             http_response.close()
             return True
-    elif http_response.status / 100 == httplib.OK / 100:
+    elif http_response.status / 100 == http.client.OK / 100:
         return True
     
     if bse is None:
@@ -86,7 +86,7 @@ class SmsClient(BceBaseClient):
     def _check_config_type(self, config):
         return True
     
-    @required(template_id=(str, unicode),
+    @required(template_id=(bytes, str),
               receiver_list=list,
               content_var_dict=dict)
     def send_message(self, template_id, receiver_list, content_var_dict, config=None):
@@ -128,9 +128,9 @@ class SmsClient(BceBaseClient):
         return self._send_request(http_methods.POST, 'message',
                                   body=json.dumps(data), config=config)
 
-    @required(invoke_id=(str, unicode),
-              template_id=(str, unicode),
-              phone_number=(str, unicode),
+    @required(invoke_id=(bytes, str),
+              template_id=(bytes, str),
+              phone_number=(bytes, str),
               content_var_dict=dict)
     def send_message_2(self, invoke_id, template_id, phone_number, content_var_dict, config=None):
         """
@@ -168,11 +168,11 @@ class SmsClient(BceBaseClient):
             'contentVar': content_var_dict
         }
 
-        return self._send_request(http_methods.POST, 'message',
+        return self._send_request(http_methods.POST, b'message',
                                   body=json.dumps(data), config=config,
                                   api_version=2)
 
-    @required(message_id=(str, unicode))
+    @required(message_id=(bytes, str))
     def query_message_detail(self, message_id, config=None):
         """
         Get the message detail.
@@ -195,8 +195,8 @@ class SmsClient(BceBaseClient):
         
         return self._send_request(http_methods.GET, 'message', message_id, config=config)
 
-    @required(name=(str, unicode), content=(str, unicode),
-              invoke_id=(str, unicode))
+    @required(name=(bytes, str), content=(bytes, str),
+              invoke_id=(bytes, str))
     def create_template(self, name, content, invoke_id, profile_id=None, config=None):
         """
         Create template with specific name and content
@@ -238,7 +238,7 @@ class SmsClient(BceBaseClient):
                                   body=json.dumps(data), config=config,
                                   api_version=2)
 
-    @required(template_id=(str, unicode))
+    @required(template_id=(bytes, str))
     def delete_template(self, template_id, config=None):
         """
         delete an existing template by given id
@@ -253,7 +253,7 @@ class SmsClient(BceBaseClient):
         """
         self._send_request(http_methods.DELETE, 'template', template_id, config=config)
 
-    @required(template_id=(str, unicode))
+    @required(template_id=(bytes, str))
     def get_template_detail(self, template_id, config=None):
         """
         get detailed information of template by id
@@ -317,7 +317,7 @@ class SmsClient(BceBaseClient):
         """
         return self._send_request(http_methods.GET, 'quota', config=config)
     
-    @required(receiver=(str, unicode))
+    @required(receiver=(bytes, str))
     def stat_receiver(self, receiver, config=None):
         """
         query quota information of receiver
@@ -350,10 +350,10 @@ class SmsClient(BceBaseClient):
                       timestamp=0, expiration_in_seconds=1800,
                       headers_to_sign=None):
         
-        headers_to_sign_list = ["host",
-                                "content-md5",
-                                "content-length",
-                                "content-type"]
+        headers_to_sign_list = [b"host",
+                                b"content-md5",
+                                b"content-length",
+                                b"content-type"]
 
         if headers_to_sign is None or len(headers_to_sign) == 0:
             headers_to_sign = []
@@ -400,9 +400,9 @@ class SmsClient(BceBaseClient):
 
         if body_parser is None:
             body_parser = _parse_result
-            
+        
         if headers is None:
-            headers = {'Accept': '*/*', 'Content-Type': 'application/json;charset=utf-8'}
+            headers = {b'Accept': b'*/*', b'Content-Type': b'application/json;charset=utf-8'}
 
         return bce_http_client.send_request(
             config, SmsClient._bce_sms_sign, [body_parser],

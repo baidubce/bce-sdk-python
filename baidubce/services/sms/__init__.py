@@ -14,5 +14,5 @@
 This module defines some constants for SMS
 """
 
-URL_PREFIX = "/v1"
-URL_PREFIX_V2 = '/bce/v2'
+URL_PREFIX = b'/v1'
+URL_PREFIX_V2 = b'/bce/v2'
