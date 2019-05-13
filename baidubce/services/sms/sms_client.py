@@ -168,7 +168,7 @@ class SmsClient(BceBaseClient):
             'contentVar': content_var_dict
         }
 
-        return self._send_request(http_methods.POST, b'message',
+        return self._send_request(http_methods.POST, 'message',
                                   body=json.dumps(data), config=config,
                                   api_version=2)
 
