@@ -17,10 +17,12 @@ This module provides a client class for BMR.
 import copy
 import logging
 import json
+import sys
 
 import baidubce
 from baidubce.auth import bce_v1_signer
 from baidubce import bce_base_client
+from baidubce import compat 
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_content_types
@@ -30,6 +32,11 @@ from baidubce.utils import required
 
 
 _logger = logging.getLogger(__name__)
+
+if sys.version_info[0] == 2:
+    value_type = (str, unicode)
+else:
+    value_type = (str, bytes)
 
 
 class BmrClient(bce_base_client.BceBaseClient):
@@ -42,8 +49,8 @@ class BmrClient(bce_base_client.BceBaseClient):
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
-    @required(image_type=(str, unicode),
-              image_version=(str, unicode),
+    @required(image_type=value_type,
+              image_version=value_type,
               instance_groups=list)
     def create_cluster(self,
                        image_type,
@@ -77,8 +84,8 @@ class BmrClient(bce_base_client.BceBaseClient):
                 'clientToken': client_token
             }
         body = {
-            'imageType': image_type,
-            'imageVersion': image_version,
+            'imageType': compat.convert_to_string(image_type),
+            'imageVersion': compat.convert_to_string(image_version),
             'instanceGroups': instance_groups
         }
         if applications is not None:
@@ -118,7 +125,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         
         return self._send_request(http_methods.GET, path, params=params)
 
-    @required(cluster_id=(str, unicode))
+    @required(cluster_id=value_type)
     def get_cluster(self, cluster_id):
         """
         Get cluster
@@ -129,10 +136,10 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/cluster/%s' % cluster_id
+        path = '/cluster/%s' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.GET, path)
 
-    @required(cluster_id=(str, unicode))
+    @required(cluster_id=value_type)
     def terminate_cluster(self, cluster_id):
         """
         Terminate cluster
@@ -143,11 +150,11 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/cluster/%s' % cluster_id
+        path = '/cluster/%s' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.DELETE, path)
 
-    @required(cluster_id=(str, unicode),
-              instance_group_id=(str, unicode),
+    @required(cluster_id=value_type,
+              instance_group_id=value_type,
               instance_count=int)
     def scale_cluster(self, cluster_id, instance_group_id, instance_count):
         """
@@ -164,12 +171,12 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = "/cluster/%s/instanceGroup" % cluster_id
+        path = "/cluster/%s/instanceGroup" % compat.convert_to_string(cluster_id)
         params = None
         body = {
             "instanceGroups": [
                 {
-                    "id": instance_group_id,
+                    "id": compat.convert_to_string(instance_group_id),
                     "instanceCount": instance_count
                 }
             ]
@@ -177,7 +184,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body))
 
 
-    @required(cluster_id=(str, unicode), steps=list)
+    @required(cluster_id=value_type, steps=list)
     def add_steps(self, cluster_id, steps, client_token=None):
         """
         Add steps
@@ -191,7 +198,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/cluster/%s/step' % cluster_id
+        path = '/cluster/%s/step' % compat.convert_to_string(cluster_id)
         params = None
         if client_token is not None:
             params = {
@@ -200,7 +207,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         body = json.dumps({'steps': steps})
         return self._send_request(http_methods.POST, path, params=params, body=body)
 
-    @required(cluster_id=(str, unicode))
+    @required(cluster_id=value_type)
     def list_steps(self, cluster_id, marker=None, max_keys=None):
         """
         List step
@@ -217,7 +224,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse 
         """
-        path = '/cluster/%s/step' % cluster_id
+        path = '/cluster/%s/step' % compat.convert_to_string(cluster_id)
         params = None
         if marker is not None or max_keys is not None:
             params = {}
@@ -228,7 +235,7 @@ class BmrClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.GET, path, params=params)
 
-    @required(cluster_id=(str, unicode), step_id=(str, unicode))
+    @required(cluster_id=value_type, step_id=value_type)
     def get_step(self, cluster_id, step_id):
         """
         Get step
@@ -242,10 +249,11 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse 
         """
-        path = '/cluster/%s/step/%s' % (cluster_id, step_id)
+        path = '/cluster/%s/step/%s' % (compat.convert_to_string(cluster_id),
+                compat.convert_to_string(step_id))
         return self._send_request(http_methods.GET, path)
 
-    @required(cluster_id=(str, unicode), instance_group_id=(str, unicode))
+    @required(cluster_id=value_type, instance_group_id=value_type)
     def list_instances(self, cluster_id, instance_group_id):
         """
         List instances
@@ -259,10 +267,11 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = '/cluster/%s/instanceGroup/%s/instance' % (cluster_id, instance_group_id)
+        path = '/cluster/%s/instanceGroup/%s/instance' % (compat.convert_to_string(cluster_id),
+                compat.convert_to_string(instance_group_id))
         return self._send_request(http_methods.GET, path)
 
-    @required(cluster_id=(str, unicode))
+    @required(cluster_id=value_type)
     def list_instance_groups(self, cluster_id):
         """
         List instance groups
@@ -273,7 +282,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
-        path = '/cluster/%s/instanceGroup' % cluster_id
+        path = '/cluster/%s/instanceGroup' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.GET, path)
 
     def _merge_config(self, config=None):
@@ -291,15 +300,19 @@ class BmrClient(bce_base_client.BceBaseClient):
         if body_parser is None:
             body_parser = handler.parse_json
 
+        config.endpoint = compat.convert_to_bytes(config.endpoint)
         return bce_http_client.send_request(
-            config, sign_wrapper(['host', 'x-bce-date']), [handler.parse_error, body_parser],
-            http_method, BmrClient.prefix + path, body, headers, params)
+            config, sign_wrapper([b'host', b'x-bce-date']), [handler.parse_error, body_parser],
+            http_method, compat.convert_to_bytes(BmrClient.prefix + path), body, headers, params)
 
 
 def sign_wrapper(headers_to_sign):
     """wrapper the bce_v1_signer.sign()."""
     def _wrapper(credentials, http_method, path, headers, params):
-        return bce_v1_signer.sign(credentials, http_method, path, headers, params,
+        credentials.access_key_id = compat.convert_to_bytes(credentials.access_key_id)
+        credentials.secret_access_key = compat.convert_to_bytes(credentials.secret_access_key)
+
+        return bce_v1_signer.sign(credentials, compat.convert_to_bytes(http_method), compat.convert_to_bytes(path), headers, params,
                                   headers_to_sign=headers_to_sign)
     return _wrapper
 
