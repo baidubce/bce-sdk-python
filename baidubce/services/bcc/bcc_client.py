@@ -76,7 +76,7 @@ class BccClient(bce_base_client.BceBaseClient):
               memory_capacity_in_gb=int,
               image_id=(bytes, str))  # ***Unicode***
     def create_instance(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
-                        billing=None, local_disk_size_in_gb=0, create_cds_list=None,
+                        billing=None, create_cds_list=None, root_disk_size_in_gb = 0, root_disk_storage_type = None,
                         network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None,
                         admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None,
                         gpuCard=None, fpgaCard=None,
@@ -108,11 +108,6 @@ class BccClient(bce_base_client.BceBaseClient):
         :param billing:
             Billing information.
         :type billing: bcc_model.Billing
-
-        :param local_disk_size_in_gb:
-            The optional parameter to specify the temporary disk size in GB.
-            The temporary disk excludes the system disk, available is 0-500GB.
-        :type local_disk_size_in_gb: int
 
         :param create_cds_list:
             The optional list of volume detail info to create.
@@ -183,6 +178,16 @@ class BccClient(bce_base_client.BceBaseClient):
             The parameter to specify the card count for creating GPU/FPGA instance
         :type cardCount: int
 
+        :param root_disk_size_in_gb:
+            The parameter to specify the root disk size in GB.
+            The root disk excludes the system disk, available is 40-500GB.
+        :type root_disk_size_in_gb: int
+
+        :param root_disk_storage_type:
+            The parameter to specify the root disk storage type.
+            Default use of HP1 cloud disk.
+        :type root_disk_storage_type: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -202,8 +207,10 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         if instance_type is not None:
             body['instanceType'] = instance_type
-        if local_disk_size_in_gb != 0:
-            body['localDiskSizeInGB'] = local_disk_size_in_gb
+        if root_disk_size_in_gb != 0:
+            body['rootDiskSizeInGb'] = root_disk_size_in_gb
+        if root_disk_storage_type is not None:
+            body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
             body['createCdsList'] = create_cds_list
         if network_capacity_in_mbps != 0:
