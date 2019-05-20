@@ -113,7 +113,7 @@ class TestBccClient(unittest.TestCase):
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
-    """
+
     def test_create_instance_by_cpu_memory(self):
         client_token = generate_client_token()
         instance_name = 'test_cpu_instance_' + client_token
@@ -124,7 +124,7 @@ class TestBccClient(unittest.TestCase):
                                              billing=post_paid_billing,
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
-    """
+
 
     def test_create_gpu_instance(self):
         """
@@ -139,7 +139,7 @@ class TestBccClient(unittest.TestCase):
                                              billing=post_paid_billing,
                                              client_token=client_token,
                                              instance_type='G1',
-                                             local_disk_size_in_gb=40,
+                                             root_disk_size_in_gb=40,
                                              gpuCard='P4',
                                              cardCount=1)),
             baidubce.bce_response.BceResponse)
@@ -157,7 +157,7 @@ class TestBccClient(unittest.TestCase):
                                              billing=post_paid_billing,
                                              client_token=client_token,
                                              instance_type='F1',
-                                             local_disk_size_in_gb=450,
+                                             root_disk_size_in_gb=450,
                                              fpgaCard='KU115',
                                              cardCount=1)),
             baidubce.bce_response.BceResponse)
