@@ -58,8 +58,6 @@ from baidubce.retry.retry_policy import NoRetryPolicy
 from baidubce.retry.retry_policy import BackOffRetryPolicy
 import imp
 
-import ipdb
-
 imp.reload(sys)
 if compat.PY2:
     sys.setdefaultencoding('utf8')

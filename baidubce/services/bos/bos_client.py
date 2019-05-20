@@ -44,8 +44,6 @@ from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
 
-import ipdb
-
 
 _logger = logging.getLogger(__name__)
 
