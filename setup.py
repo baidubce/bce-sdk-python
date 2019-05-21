@@ -53,10 +53,10 @@ setup(
               'baidubce.services.eip',
               'baidubce.services.route',
               'baidubce.services.subnet',
-              'baidubce.services.vpc'
-#              'baidubce.services.cfc',
-#              'baidubce.services.infinite',
-#              'baidubce.services.tsdb'],
+              'baidubce.services.vpc',
+              'baidubce.services.cfc',
+              'baidubce.services.infinite',
+              'baidubce.services.tsdb'
     ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',

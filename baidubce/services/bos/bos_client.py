@@ -1151,7 +1151,7 @@ class BosClient(BceBaseClient):
                 source_key), False)
         if etag is not None:
             headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
-        if user_metadata is not None:
+        if user_metadata is not None or content_type is not None:
             headers[http_headers.BCE_COPY_METADATA_DIRECTIVE] = b'replace'
         else:
             headers[http_headers.BCE_COPY_METADATA_DIRECTIVE] = b'copy'
