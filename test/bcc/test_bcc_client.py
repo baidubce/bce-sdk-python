@@ -62,7 +62,6 @@ force_stop = False
 admin_pass = '******'
 
 
-
 def generate_client_token_by_random():
     """
     The alternative method to generate the random string for client_token
@@ -82,6 +81,7 @@ def generate_client_token_by_uuid():
     :rtype string
     """
     return str(uuid.uuid4())
+
 
 generate_client_token = generate_client_token_by_uuid
 
@@ -159,42 +159,6 @@ class TestBccClient(unittest.TestCase):
                                              instance_type='F1',
                                              root_disk_size_in_gb=450,
                                              fpgaCard='KU115',
-                                             cardCount=1)),
-            baidubce.bce_response.BceResponse)
-
-    def test_create_gpu_instance(self):
-        """
-        test case for test_create_gpu_instance
-        """
-        client_token = generate_client_token()
-        instance_name = 'test_instance_' + client_token
-        self.assertEqual(
-            type(self.client.create_instance(12, 40,
-                                             image_id,
-                                             name=instance_name,
-                                             billing=post_paid_billing,
-                                             client_token=client_token,
-                                             instance_type='G1',
-                                             local_disk_size_in_gb=40,
-                                             gpuCard=gpu_card_type.P4,
-                                             cardCount=1)),
-            baidubce.bce_response.BceResponse)
-
-    def test_create_fpga_instance(self):
-        """
-        test case for test_create_fpga_instance
-        """
-        client_token = generate_client_token()
-        instance_name = 'test_instance_' + client_token
-        self.assertEqual(
-            type(self.client.create_instance(16, 64,
-                                             "m-r3BBe7Ep",
-                                             name=instance_name,
-                                             billing=post_paid_billing,
-                                             client_token=client_token,
-                                             instance_type='F1',
-                                             local_disk_size_in_gb=450,
-                                             fpgaCard=fpga_card_type.KU115,
                                              cardCount=1)),
             baidubce.bce_response.BceResponse)
 
