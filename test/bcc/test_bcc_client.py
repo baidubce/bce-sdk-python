@@ -39,7 +39,7 @@ reload(sys)
 if compat.PY2:
     sys.setdefaultencoding('utf8')
 # sys.setdefaultencoding('utf-8')
-
+'''
 HOST = b'http://bcc.bj.baidubce.com'
 AK = b''
 SK = b''
@@ -47,11 +47,11 @@ SK = b''
 HOST = b'http://bcc.bce-api.baidu.com'
 AK = b''
 SK = b''
-'''
-instance_id = 'i-6LoHblf4'
-volume_id = 'v-MxgwTJaE'
-image_id = 'm-de2lkEDF'
-snapshot_id = 's-bn4f7I9r'
+
+instance_id = 'i-hsGJHguK'
+volume_id = 'v-OBhaubpM'
+image_id = 'm-gtkIuqV8'
+snapshot_id = 's-7mEwKt4F'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-dcrami1yg8u2'
 
@@ -870,7 +870,7 @@ if __name__ == '__main__':
     #suite.addTest(TestBccClient("test_delete_asp"))
     #suite.addTest(TestBccClient("test_list_asp"))
     #suite.addTest(TestBccClient("test_get_asp"))
-    suite.addTest(TestBccClient("test_create_keypair"))
+    #suite.addTest(TestBccClient("test_create_keypair"))
     #suite.addTest(TestBccClient("test_import_keypair"))
     #suite.addTest(TestBccClient("test_list_keypairs"))
     #suite.addTest(TestBccClient("test_get_keypair"))

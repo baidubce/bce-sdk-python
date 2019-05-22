@@ -632,6 +632,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        instance_id = instance_id.encode(encoding='utf-8')
         secret_access_key = self.config.credentials.secret_access_key
         cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
         path = b'/instance/%s' % instance_id
@@ -663,6 +664,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        instance_id = instance_id.encode(encoding='utf-8')
         path = b'/instance/%s' % instance_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -703,6 +705,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        instance_id = instance_id.encode(encoding='utf-8')
         path = b'/instance/%s' % instance_id
         body = {
             'cpuCount': cpu_count,
@@ -1525,6 +1528,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        image_id = image_id.encode(encoding='utf-8')
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -1542,6 +1546,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        image_id = image_id.encode(encoding='utf-8')
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
