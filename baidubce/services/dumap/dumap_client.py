@@ -37,7 +37,7 @@ class DumapClient(bce_base_client.BceBaseClient):
         bce_base_client.BceBaseClient.__init__(self, config)
 
     @required(app_id=(bytes, str), uri=(bytes, str), params=dict)
-    def call_open_api(self, app_id, uri, params, config=None):
+    def call_open_api(self, app_id=None, uri=None, params=None, body=None, method=b'GET', config=None):
         """
         call open_api
         :param app_id: app_id
@@ -46,7 +46,10 @@ class DumapClient(bce_base_client.BceBaseClient):
         :type uri: string
         :param params: dict
         :type params:request params
-
+        :param body: request body (default: None)
+        :type body: string
+        :param method: http method (default GET)
+        :type method: http_methods
         :param config: None
         :type config: baidubce.BceClientConfiguration
 
@@ -54,11 +57,13 @@ class DumapClient(bce_base_client.BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
                 """
         response = self._send_request(
-            http_methods.GET,
-            uri,
+            http_method=method,
+            path=uri,
             params=params,
+            body=body,
             headers={b'x-app-id': app_id},
-            config=config)
+            config=config
+        )
 
         if response.body:
             return response.body.decode("utf-8")
@@ -80,6 +85,7 @@ class DumapClient(bce_base_client.BceBaseClient):
             config=None):
         config = self._merge_config(self, config)
         headers[b'x-bce-request-id'] = uuid.uuid4()
+        headers[b'Content-Type'] = b'application/json;charset=utf-8'
 
         return bce_http_client.send_request(
             config, sign_wrapper([b'host', b'x-bce-date', b'x-bce-request-id', b'x-app-id']),
