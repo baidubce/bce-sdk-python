@@ -56,6 +56,7 @@ setup(
               'baidubce.services.vpc',
               'baidubce.services.cfc',
               'baidubce.services.infinite',
+              'baidubce.services.bcc',
               'baidubce.services.tsdb'
     ],
     url='http://bce.baidu.com',
