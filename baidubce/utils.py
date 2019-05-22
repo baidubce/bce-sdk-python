@@ -517,13 +517,13 @@ def aes128_encrypt_16char_key(adminpass, secretkey):
     byte_pad_admin = pad_admin.encode(encoding='utf-8')
 
     cryptoradminpass = cryptor.encrypt(byte_pad_admin)
-    print(cryptoradminpass)
+    #print(cryptoradminpass)
 
     #cipheradminpass = cryptor.encrypt(byte_pad_admin).encode('hex')
     byte_cipheradminpass = codecs.encode(cryptoradminpass, 'hex_codec')
-    print(byte_cipheradminpass)
+    #print(byte_cipheradminpass)
 
     cipheradminpass = byte_cipheradminpass.decode(encoding='utf-8')
-    print(cipheradminpass)
+    #print(cipheradminpass)
 
     return cipheradminpass
