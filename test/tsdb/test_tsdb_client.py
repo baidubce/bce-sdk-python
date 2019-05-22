@@ -22,8 +22,10 @@ import unittest
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
+
+if sys.version_info[0] == 2 :
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 from baidubce.services.tsdb.tsdb_client import TsdbClient
 import tsdb_test_config
@@ -75,9 +77,18 @@ class TestTsdbClient(unittest.TestCase):
                 [1465376269769, 67],
                 [1465376325057, 60]
             ]
+        },{
+            "metric": "cpu_idle",
+            "field": "value",
+            "tags": {
+                "host": "server1",
+                "rack": "rack1"
+            },
+            "timestamp": 1465376157007,
+            "value": 51
         }]
     def tearDown(self):
-        print "ok"
+        print("ok")
 
     def test_write_datapoints(self):
         """
@@ -86,7 +97,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.write_datapoints(self.datapoints)
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -99,7 +110,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.write_datapoints(self.datapoints, False)
-            print 'test_write_datapoints_no_gzip', response
+            print('test_write_datapoints_no_gzip', response)
         except BaseException as e:
             error = e
         finally:
@@ -112,7 +123,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.get_metrics()
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -125,7 +136,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.get_fields('cpu_idle')
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -138,7 +149,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.get_tags('cpu_idle')
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -151,7 +162,7 @@ class TestTsdbClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_client.get_datapoints(self.query_list)
-            print "test_get_datapoints", response
+            print("test_get_datapoints", response)
         except BaseException as e:
             error = e
         finally:
@@ -211,7 +222,7 @@ class TestTsdbClient(unittest.TestCase):
             ]
             for statement in statements:
                 response = self.tsdb_client.get_rows_with_sql(statement)
-                print statement, response
+                print(statement, response)
         except BaseException as e:
             error = e
         finally:
@@ -221,11 +232,10 @@ class TestTsdbClient(unittest.TestCase):
         """
         test_generate_pre_signed_url
         """
-
         error = None
         try:
             response = self.tsdb_client.generate_pre_signed_url(self.query_list)
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -240,7 +250,7 @@ class TestTsdbClient(unittest.TestCase):
         try:
             statement = "select timestamp from cpu_idle"
             response = self.tsdb_client.generate_pre_signed_url_with_sql(statement)
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:

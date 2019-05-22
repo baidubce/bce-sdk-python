@@ -71,16 +71,16 @@ class TsdbAdminClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
         
-        path = "/v1/database"
+        path = b"/v1/database"
         params = {"clientToken": client_token}
         body = json.dumps({
-            "databaseName": database_name,
-            "description": description,
+            "databaseName": database_name.decode(),
+            "description": description.decode(),
             "ingestDataPointsMonthly": ingest_datapoints_monthly,
             "storeBytesQuota": store_bytes_quota,
             "purchaseLength": purchase_length,
-            "couponName": coupon_name
-            })
+            "couponName": coupon_name.decode()
+            }).encode('utf-8')
         return self._send_request(http_methods.POST, path=path, body=body,
                 params=params, body_parser=tsdb_handler.parse_json)
 
@@ -94,7 +94,7 @@ class TsdbAdminClient(BceBaseClient):
         :return: bce_request_id
         :rtype: baidubce.bce_response.BceResponses
         """
-        path = '/v1/database/' + database_id
+        path = b'/v1/database/' + database_id
         return self._send_request(http_methods.DELETE, path, body_parser=tsdb_handler.parse_json)
 
     def get_database(self, database_id):
@@ -108,7 +108,7 @@ class TsdbAdminClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
 
-        path = '/v1/database/' + database_id
+        path = b'/v1/database/' + database_id
         return self._send_request(http_methods.GET, path, body_parser=tsdb_handler.parse_json)
 
     def get_all_databases(self):
@@ -119,7 +119,7 @@ class TsdbAdminClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
 
-        path = '/v1/database'
+        path = b'/v1/database'
         return self._send_request(http_methods.GET, path, body_parser=tsdb_handler.parse_json)
 
     def _merge_config(self, config):

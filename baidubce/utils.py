@@ -13,6 +13,11 @@
 """
 This module provide some tools for bce client.
 """
+# str() generator unicode,bytes() for ASCII
+from __future__ import absolute_import
+from builtins import str, bytes
+from future.utils import iteritems, iterkeys, itervalues
+from baidubce import compat
 
 import os
 import re
@@ -20,11 +25,15 @@ import datetime
 import hashlib
 import base64
 import string
-import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 from Crypto.Cipher import AES
-
 import baidubce
 from baidubce.http import http_headers
+
+import codecs
 
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
@@ -78,7 +87,7 @@ def get_canonical_time(timestamp=0):
         utctime = datetime.datetime.utcnow()
     else:
         utctime = datetime.datetime.utcfromtimestamp(timestamp)
-    return "%04d-%02d-%02dT%02d:%02d:%02dZ" % (
+    return b"%04d-%02d-%02dT%02d:%02d:%02dZ" % (
         utctime.year, utctime.month, utctime.day,
         utctime.hour, utctime.minute, utctime.second)
 
@@ -94,11 +103,11 @@ def is_ip(s):
         **Boolean**
     """
     try:
-        tmp_list = s.split(':')
+        tmp_list = s.split(b':')
         s = tmp_list[0]
-        if s == 'localhost':
+        if s == b'localhost':
             return True
-        tmp_list = s.split('.')
+        tmp_list = s.split(b'.')
         if len(tmp_list) != 4:
             return False
         else:
@@ -120,11 +129,13 @@ def convert_to_standard_string(input_string):
     :return:
         **string**
     """
-    if isinstance(input_string, unicode):
-        return input_string.encode(baidubce.DEFAULT_ENCODING)
-    else:
-        return str(input_string)
-
+    #if isinstance(input_string, str):
+    #    return input_string.encode(baidubce.DEFAULT_ENCODING)
+    #elif isinstance(input_string, bytes):
+    #    return input_string
+    #else:
+    #    return str(input_string).encode("utf-8")
+    return compat.convert_to_bytes(input_string)
 
 def convert_header2map(header_list):
     """
@@ -138,10 +149,10 @@ def convert_header2map(header_list):
     """
     header_map = {}
     for a, b in header_list:
-        if isinstance(a, str):
-            a = a.strip('\"')
-        if isinstance(b, str):
-            b = b.strip('\"')
+        if isinstance(a, bytes):
+            a = a.strip(b'\"')
+        if isinstance(b, bytes):
+            b = b.strip(b'\"')
         header_map[a] = b
     return header_map
 
@@ -159,7 +170,7 @@ def safe_get_element(name, container):
     :return:
         **Value**
     """
-    for k, v in container.items():
+    for k, v in iteritems(container):
         if k.strip().lower() == name.strip().lower():
             return v
     return ""
@@ -185,9 +196,15 @@ def check_redirect(res):
 
 
 def _get_normalized_char_list():
+    """"
+    :return:
+        **ASCII string**
+    """
     ret = ['%%%02X' % i for i in range(256)]
     for ch in string.ascii_letters + string.digits + '.~-_':
         ret[ord(ch)] = ch
+    if isinstance(ret[0], str):
+        ret = [s.encode("utf-8") for s in ret]
     return ret
 _NORMALIZED_CHAR_LIST = _get_normalized_char_list()
 
@@ -204,15 +221,25 @@ def normalize_string(in_str, encoding_slash=True):
     :param encoding_slash: None
     ===============================
     :return:
-        **string**
+        **ASCII  string**
     """
     tmp = []
     for ch in convert_to_standard_string(in_str):
-        if ch == '/' and not encoding_slash:
-            tmp.append('/')
+        # on python3, ch is int type
+        sep = ''
+        index = -1
+        if isinstance(ch, int):
+            # on py3
+            sep = chr(ch).encode("utf-8")
+            index = ch
         else:
-            tmp.append(_NORMALIZED_CHAR_LIST[ord(ch)])
-    return ''.join(tmp)
+            sep = ch
+            index = ord(ch)
+        if sep == b'/' and not encoding_slash:
+            tmp.append(b'/')
+        else:
+            tmp.append(_NORMALIZED_CHAR_LIST[index])
+    return (b'').join(tmp)
 
 
 def append_uri(base_uri, *path_components):
@@ -232,11 +259,11 @@ def append_uri(base_uri, *path_components):
         if path:
             tmp.append(normalize_string(path, False))
     if len(tmp) > 1:
-        tmp[0] = tmp[0].rstrip('/')
-        tmp[-1] = tmp[-1].lstrip('/')
+        tmp[0] = tmp[0].rstrip(b'/')
+        tmp[-1] = tmp[-1].lstrip(b'/')
         for i in range(1, len(tmp) - 1):
-            tmp[i] = tmp[i].strip('/')
-    return '/'.join(tmp)
+            tmp[i] = tmp[i].strip(b'/')
+    return (b'/').join(tmp)
 
 
 def check_bucket_valid(bucket):
@@ -273,31 +300,33 @@ def guess_content_type_by_file_name(file_name):
         **Type Value**
     """
     mime_map = dict()
-    mime_map["js"] = "application/javascript"
-    mime_map["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    mime_map["xltx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
-    mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"
-    mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
-    mime_map["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    mime_map["sldx"] = "application/vnd.openxmlformats-officedocument.presentationml.slide"
-    mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
-    mime_map["xlam"] = "application/vnd.ms-excel.addin.macroEnabled.12"
-    mime_map["xlsb"] = "application/vnd.ms-excel.sheet.binary.macroEnabled.12"
+    mime_map[b"js"] = b"application/javascript"
+    mime_map[b"xlsx"] = b"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    mime_map[b"xltx"] = b"application/vnd.openxmlformats-officedocument.spreadsheetml.template"
+    mime_map[b"potx"] = b"application/vnd.openxmlformats-officedocument.presentationml.template"
+    mime_map[b"ppsx"] = b"application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+    mime_map[b"pptx"] = b"application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    mime_map[b"sldx"] = b"application/vnd.openxmlformats-officedocument.presentationml.slide"
+    mime_map[b"docx"] = b"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    mime_map[b"dotx"] = b"application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+    mime_map[b"xlam"] = b"application/vnd.ms-excel.addin.macroEnabled.12"
+    mime_map[b"xlsb"] = b"application/vnd.ms-excel.sheet.binary.macroEnabled.12"
     try:
         name = os.path.basename(file_name.lower())
-        suffix = name.split('.')[-1]
-        if suffix in mime_map.keys():
+        suffix = name.split(b'.')[-1]
+        if suffix in iterkeys(mime_map):
             mime_type = mime_map[suffix]
         else:
             import mimetypes
 
             mimetypes.init()
-            mime_type = mimetypes.types_map["." + suffix]
+            suffix = compat.convert_to_string(b"." + suffix)
+            mime_type = mimetypes.types_map[suffix]
+            mime_type = compat.convert_to_bytes(mime_type)
     except:
-        mime_type = 'application/octet-stream'
+        mime_type = b'application/octet-stream'
     if not mime_type:
-        mime_type = 'application/octet-stream'
+        mime_type = b'application/octet-stream'
     return mime_type
 
 
@@ -334,13 +363,13 @@ def get_canonical_querystring(params, for_signature):
     if params is None:
         return ''
     result = []
-    for k, v in params.items():
+    for k, v in iteritems(params):
         if not for_signature or k.lower != http_headers.AUTHORIZATION.lower():
             if v is None:
                 v = ''
-            result.append('%s=%s' % (normalize_string(k), normalize_string(v)))
+            result.append(b'%s=%s' % (normalize_string(k), normalize_string(v)))
     result.sort()
-    return '&'.join(result)
+    return (b'&').join(result)
 
 
 def print_object(obj):
@@ -350,16 +379,16 @@ def print_object(obj):
     :return:
     """
     tmp = []
-    for k, v in obj.__dict__.items():
+    for k, v in iteritems(obj.__dict__):
         if not k.startswith('__'):
-            if isinstance(v, str):
+            if isinstance(v, bytes):
                 tmp.append("%s:'%s'" % (k, v))
-            elif isinstance(v, unicode):
+            # str is unicode
+            elif isinstance(v, str):
                 tmp.append("%s:u'%s'" % (k, v))
             else:
                 tmp.append('%s:%s' % (k, v))
     return '{%s}' % ','.join(tmp)
-
 
 class Expando(object):
     """
@@ -385,8 +414,10 @@ def dict_to_python_object(d):
     :return:
     """
     attr = {}
-    for k, v in d.items():
-        k = pythonize_name(str(k))
+    for k, v in iteritems(d):
+        if not isinstance(k, compat.string_types):
+            k = compat.convert_to_string(k)
+        k = pythonize_name(k)
         attr[k] = v
     return Expando(attr)
 
@@ -400,23 +431,23 @@ def required(**types):
     def _required(f):
         def _decorated(*args, **kwds):
             for i, v in enumerate(args):
-                if f.func_code.co_varnames[i] in types:
+                if f.__code__.co_varnames[i] in types:
                     if v is None:
                         raise ValueError('arg "%s" should not be None' %
-                                         (f.func_code.co_varnames[i]))
-                    if not isinstance(v, types[f.func_code.co_varnames[i]]):
+                                         (f.__code__.co_varnames[i]))
+                    if not isinstance(v, types[f.__code__.co_varnames[i]]):
                         raise TypeError('arg "%s"= %r does not match %s' %
-                                        (f.func_code.co_varnames[i],
+                                        (f.__code__.co_varnames[i],
                                          v,
-                                         types[f.func_code.co_varnames[i]]))
-            for k, v in kwds.iteritems():
+                                         types[f.__code__.co_varnames[i]]))
+            for k, v in iteritems(kwds):
                 if k in types:
                     if v is None:
                         raise ValueError('arg "%s" should not be None' % k)
                     if not isinstance(v, types[k]):
                         raise TypeError('arg "%s"= %r does not match %s' % (k, v, types[k]))
             return f(*args, **kwds)
-        _decorated.func_name = f.func_name
+        _decorated.__name__ = f.__name__
         return _decorated
     return _required
 
@@ -434,19 +465,22 @@ def parse_host_port(endpoint, default_protocol):
     :return: tuple of protocol, host, port
     """
     # netloc should begin with // according to RFC1808
-    if "//" not in endpoint:
-        endpoint = "//" + endpoint
+    if b"//" not in endpoint:
+        endpoint = b"//" + endpoint
 
     try:
         # scheme in endpoint dominates input default_protocol
-        parse_result = urlparse.urlparse(endpoint, default_protocol.name)
+        parse_result = urlparse(
+                endpoint,
+                compat.convert_to_bytes(default_protocol.name))
     except Exception as e:
-        raise ValueError('Invalid endpoint:%s, error:%s' % (endpoint, e.message))
+        raise ValueError('Invalid endpoint:%s, error:%s' % (endpoint,
+            compat.convert_to_string(e)))
 
-    if parse_result.scheme == baidubce.protocol.HTTP.name:
+    if parse_result.scheme == compat.convert_to_bytes(baidubce.protocol.HTTP.name):
         protocol = baidubce.protocol.HTTP
         port = baidubce.protocol.HTTP.default_port
-    elif parse_result.scheme == baidubce.protocol.HTTPS.name:
+    elif parse_result.scheme == compat.convert_to_bytes(baidubce.protocol.HTTPS.name):
         protocol = baidubce.protocol.HTTPS
         port = baidubce.protocol.HTTPS.default_port
     else:
@@ -457,14 +491,39 @@ def parse_host_port(endpoint, default_protocol):
 
     return protocol, host, port
 
-
+"""
 def aes128_encrypt_16char_key(adminpass, secretkey):
-    """
-    encrypt admin password by AES128
-    """
+    
+    #Python2:encrypt admin password by AES128
+    
     pad_it = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
     key = secretkey[0:16]
     mode = AES.MODE_ECB
     cryptor = AES.new(key, mode, key)
     cipheradminpass = cryptor.encrypt(pad_it(adminpass)).encode('hex')
+    return cipheradminpass
+"""
+
+
+def aes128_encrypt_16char_key(adminpass, secretkey):
+
+    # Python3: encrypt admin password by AES128
+
+    pad_it = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
+    key = secretkey[0:16]
+    mode = AES.MODE_ECB
+    cryptor = AES.new(key, mode)
+    pad_admin = pad_it(adminpass)
+    byte_pad_admin = pad_admin.encode(encoding='utf-8')
+
+    cryptoradminpass = cryptor.encrypt(byte_pad_admin)
+    print(cryptoradminpass)
+
+    #cipheradminpass = cryptor.encrypt(byte_pad_admin).encode('hex')
+    byte_cipheradminpass = codecs.encode(cryptoradminpass, 'hex_codec')
+    print(byte_cipheradminpass)
+
+    cipheradminpass = byte_cipheradminpass.decode(encoding='utf-8')
+    print(cipheradminpass)
+
     return cipheradminpass

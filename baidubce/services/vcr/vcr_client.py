@@ -17,9 +17,11 @@ This module provides a client class for VCR.
 import copy
 import json
 import logging
+from builtins import str
+from builtins import bytes
 
 from baidubce.auth import bce_v1_signer
-from baidubce import bce_base_client
+from baidubce.bce_base_client import BceBaseClient
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
@@ -28,14 +30,15 @@ from baidubce.utils import required
 _logger = logging.getLogger(__name__)
 
 
-class VcrClient(bce_base_client.BceBaseClient):
+class VcrClient(BceBaseClient):
     """
     vcr client
     """
-    def __init__(self, config=None):
-        bce_base_client.BceBaseClient.__init__(self, config)
 
-    @required(source=(str, unicode))
+    def __init__(self, config=None):
+        BceBaseClient.__init__(self, config)
+
+    @required(source=(bytes, str))
     def put_media(self, source, auth=None, description=None,
                   preset=None, notification=None, config=None):
         """
@@ -63,22 +66,22 @@ class VcrClient(bce_base_client.BceBaseClient):
             body['preset'] = preset
         if notification is not None:
             body['notification'] = notification
-        return self._send_request(http_methods.PUT, '/v1/media',
+        return self._send_request(http_methods.PUT, b'/v1/media',
                                   body=json.dumps(body),
                                   config=config)
 
-    @required(source=(str, unicode))
+    @required(source=(bytes, str))
     def get_media(self, source, config=None):
         """
         :param source: media source
         :type source: string or unicode
         :return: **Http Response**
         """
-        return self._send_request(http_methods.GET, '/v1/media',
-                                  params={'source': source},
+        return self._send_request(http_methods.GET, b'/v1/media',
+                                  params={b'source': source},
                                   config=config)
 
-    @required(source=(str, unicode))
+    @required(source=(bytes, str))
     def put_stream(self, source, preset=None, notification=None, config=None):
         """
         :param source: media source
@@ -96,11 +99,11 @@ class VcrClient(bce_base_client.BceBaseClient):
             body['preset'] = preset
         if notification is not None:
             body['notification'] = notification
-        return self._send_request(http_methods.POST, '/v1/stream',
+        return self._send_request(http_methods.POST, b'/v1/stream',
                                   body=json.dumps(body),
                                   config=config)
 
-    @required(source=(str, unicode))
+    @required(source=(bytes, str))
     def get_stream(self, source, start_time=None, end_time=None, config=None):
         """
         :param source: media source
@@ -111,16 +114,16 @@ class VcrClient(bce_base_client.BceBaseClient):
         :type end_time: string or unicode
         :return: **Http Response**
         """
-        params = {'source': source}
+        params = {b'source': source}
         if start_time is not None:
-            params['startTime'] = start_time
+            params[b'startTime'] = start_time
         if end_time is not None:
-            params['endTime'] = end_time
-        return self._send_request(http_methods.GET, '/v1/stream',
+            params[b'endTime'] = end_time
+        return self._send_request(http_methods.GET, b'/v1/stream',
                                   params=params,
                                   config=config)
 
-    @required(source=(str, unicode))
+    @required(source=(bytes, str))
     def put_image(self, source, preset=None, config=None):
         """
         :param source: media source
@@ -134,11 +137,11 @@ class VcrClient(bce_base_client.BceBaseClient):
         }
         if preset is not None:
             body['preset'] = preset
-        return self._send_request(http_methods.PUT, '/v1/image',
+        return self._send_request(http_methods.PUT, b'/v1/image',
                                   body=json.dumps(body),
                                   config=config)
 
-    @required(text=(str, unicode))
+    @required(text=(bytes, str))
     def put_text(self, text, preset=None, config=None):
         """
         :param text: string
@@ -152,7 +155,7 @@ class VcrClient(bce_base_client.BceBaseClient):
         }
         if preset is not None:
             body['preset'] = preset
-        return self._send_request(http_methods.PUT, '/v1/text',
+        return self._send_request(http_methods.PUT, b'/v1/text',
                                   body=json.dumps(body),
                                   config=config)
 

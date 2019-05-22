@@ -35,9 +35,9 @@ class TestDeletePreset(mediaBase.MediaBase):
     """test delete preset"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'deletepreset'
-        self.preset_name = self.convertName(self.pre)
+        self.preset_name = self.pre
         self.container = 'mp4'
         self.client = media_client.MediaClient(media_config.config)
 

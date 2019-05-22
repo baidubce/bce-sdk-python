@@ -17,7 +17,8 @@ This module provides a client class for Media.
 import copy
 import json
 import logging
-from baidubce import bce_base_client
+#from baidubce import bce_base_client
+from baidubce.bce_base_client import BceBaseClient
 from baidubce.auth import bce_v1_signer
 from baidubce.http import bce_http_client
 from baidubce.http import handler
@@ -31,7 +32,7 @@ from baidubce.utils import required
 _logger = logging.getLogger(__name__)
 
 
-class MediaClient(bce_base_client.BceBaseClient):
+class MediaClient(BceBaseClient):
     """
     sdk client
     """
@@ -39,9 +40,9 @@ class MediaClient(bce_base_client.BceBaseClient):
     prefix = '/v3'
 
     def __init__(self, config=None):
-        bce_base_client.BceBaseClient.__init__(self, config)
+        BceBaseClient.__init__(self, config)
 
-    @required(pipeline_name=(str, unicode))
+    @required(pipeline_name=(bytes, str))
     def list_jobs(self,
                   pipeline_name,
                   job_status=None,
@@ -81,7 +82,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             params=my_params,
             config=config)
 
-    @required(pipeline_name=(str, unicode), source=dict, target=dict)
+    @required(pipeline_name=(bytes, str), source=dict, target=dict)
     def create_job(self, pipeline_name, source, target, config=None):
         """
         Create a job
@@ -109,7 +110,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
-    @required(job_id=(str, unicode))
+    @required(job_id=(bytes, str))
     def get_job(self, job_id, config=None):
         """
         Get the specific job information
@@ -125,10 +126,10 @@ class MediaClient(bce_base_client.BceBaseClient):
             raise BceClientError('job_id can\'t be empty string')
         return self._send_request(
             http_methods.GET, 
-            '/job/transcoding/' + job_id, 
+            '/job/transcoding/' + job_id,
             config=config)
 
-    @required(bucket=(str, unicode), key=(str, unicode))
+    @required(bucket=(bytes, str), key=(bytes, str))
     def get_mediainfo_of_file(self, bucket, key, config=None):
         """
         Get the media info of media information
@@ -166,9 +167,9 @@ class MediaClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, '/pipeline', config=config)
 
     @required(
-        pipeline_name=(str, unicode), 
-        source_bucket=(str, unicode), 
-        target_bucket=(str, unicode))
+        pipeline_name=(bytes, str),
+        source_bucket=(bytes, str),
+        target_bucket=(bytes, str))
     def create_pipeline(
             self,
             pipeline_name,
@@ -212,7 +213,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
-    @required(pipeline_name=(str, unicode))
+    @required(pipeline_name=(bytes, str))
     def get_pipeline(self, pipeline_name, config=None):
         """
         Get the specific pipeline information
@@ -228,7 +229,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             raise BceClientError('pipeline_name can\'t be empty string')
         return self._send_request(http_methods.GET, '/pipeline/' + pipeline_name, config=config)
 
-    @required(pipeline_name=(str, unicode))
+    @required(pipeline_name=(bytes, str))
     def delete_pipeline(self, pipeline_name, config=None):
         """
         Delete the specific pipeline
@@ -255,7 +256,7 @@ class MediaClient(bce_base_client.BceBaseClient):
         """
         return self._send_request(http_methods.GET, '/preset', config=config)
 
-    @required(preset_name=(str, unicode), container=(str, unicode))
+    @required(preset_name=(bytes, str), container=(bytes, str))
     def create_preset(
             self,
             preset_name,
@@ -307,7 +308,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
-    @required(preset_name=(str, unicode))
+    @required(preset_name=(bytes, str))
     def get_preset(self, preset_name, config=None):
         """
         Get the specific preset information
@@ -323,7 +324,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             raise BceClientError('preset_name can\'t be empty string')
         return self._send_request(http_methods.GET, '/preset/' + preset_name, config=config)
 
-    @required(preset_name=(str, unicode))
+    @required(preset_name=(bytes, str))
     def delete_preset(self, preset_name, config=None):
         """
         Delete a preset
@@ -339,7 +340,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             raise BceClientError('preset_name can\'t be empty string')
         return self._send_request(http_methods.DELETE, '/preset/' + preset_name, config=config)
 
-    @required(pipeline_name=(str, unicode), source=dict)
+    @required(pipeline_name=(bytes, str), source=dict)
     def create_thumbnail_job(self, pipeline_name, source, target=None, capture=None, config=None):
         """
         Create thumbnail job
@@ -367,7 +368,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
-    @required(job_id=(str, unicode))
+    @required(job_id=(bytes, str))
     def get_thumbnail_job(self, job_id, config=None):
         """
         Get thumbnail job
@@ -383,7 +384,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             raise BceClientError('job_id can\'t be empty string')
         return self._send_request(http_methods.GET, '/job/thumbnail/' + job_id, config=config)
 
-    @required(pipeline_name=(str, unicode))
+    @required(pipeline_name=(bytes, str))
     def list_thumbnail_jobs_by_pipeline(self,
                                         pipeline_name,
                                         job_status=None,
@@ -425,8 +426,8 @@ class MediaClient(bce_base_client.BceBaseClient):
             config=config)
 
     @required(
-        bucket=(str, unicode),
-        key=(str, unicode),
+        bucket=(bytes, str),
+        key=(bytes, str),
         vertical_offset_in_pixel=int,
         hori_offset_in_pixel=int)
     def create_watermark(
@@ -470,7 +471,7 @@ class MediaClient(bce_base_client.BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
-    @required(watermark_id=(str, unicode))
+    @required(watermark_id=(bytes, str))
     def get_watermark(self, watermark_id, config=None):
         """
         Get the specific watermark information
@@ -499,7 +500,7 @@ class MediaClient(bce_base_client.BceBaseClient):
         """
         return self._send_request(http_methods.GET, '/watermark', config=config)
 
-    @required(watermark_id=(str, unicode))
+    @required(watermark_id=(bytes, str))
     def delete_watermark(self, watermark_id, config=None):
         """
         Delete the specific watermark
@@ -540,7 +541,7 @@ class MediaClient(bce_base_client.BceBaseClient):
         config = self._merge_config(self, config)
         if body_parser is None:
             body_parser = handler.parse_json
-
+        realpath = MediaClient.prefix + path
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, MediaClient.prefix + path, body, headers, params)
+            http_method, str.encode(realpath), body, headers, params)

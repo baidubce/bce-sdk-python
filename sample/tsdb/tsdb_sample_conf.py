@@ -13,7 +13,7 @@ Configuration for tsdb samples.
 """
 
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
 import logging
 import baidubce.protocol
@@ -25,28 +25,29 @@ AK = '<your ak>'
 SK = '<your sk>'
 
 ###########optional config#############
-protocol=baidubce.protocol.HTTP
+protocol = baidubce.protocol.HTTP
 # protcol= baidubce.protocol.HTTPS
-connection_timeout_in_mills=None
-send_buf_size=None
-recv_buf_size=None
-retry_policy=None
+connection_timeout_in_mills = None
+send_buf_size = None
+recv_buf_size = None
+retry_policy = None
 #######################################
 
 logger = logging.getLogger('baidubce.services.tsdb.tsdbclient')
 fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.INFO)
 
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 logger.addHandler(fh)
 
 config = BceClientConfiguration(
-        credentials=BceCredentials(AK, SK),
-        endpoint=HOST,
-        protocol=protocol,
-        connection_timeout_in_mills=connection_timeout_in_mills,
-        send_buf_size=send_buf_size,
-        recv_buf_size=recv_buf_size,
-        retry_policy=retry_policy)
+    credentials=BceCredentials(AK, SK),
+    endpoint=HOST,
+    protocol=protocol,
+    connection_timeout_in_mills=connection_timeout_in_mills,
+    send_buf_size=send_buf_size,
+    recv_buf_size=recv_buf_size,
+    retry_policy=retry_policy)

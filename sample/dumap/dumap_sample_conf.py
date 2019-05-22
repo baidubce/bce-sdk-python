@@ -22,12 +22,12 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 #
-HOST = 'lbs.baidubce.com'
+HOST = b'lbs.baidubce.com'
 # online AK SK
-AK = ''
-SK = ''
+AK = b''
+SK = b''
 # console app_id
-APP_ID = ''
+APP_ID = b''
 
 logger = logging.getLogger('baidubce.services.dumap.DumapClient')
 fh = logging.FileHandler('sample.log')

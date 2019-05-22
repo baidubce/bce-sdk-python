@@ -20,13 +20,17 @@ import random
 import string
 
 import cdn_sample_conf
+from baidubce import compat
 from baidubce import exception
 from baidubce.exception import BceServerError
 from baidubce.services.cdn.cdn_client import CdnClient
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+import imp
+import sys 
+
+imp.reload(sys)
+if compat.PY2:
+    sys.setdefaultencoding('utf8')
 
 
 def test_list_domains(c):
@@ -34,7 +38,7 @@ def test_list_domains(c):
     test_list_domains
     """
     response = c.list_domains()
-    print response
+    print(response)
 
 
 def test_create_domain(c):
@@ -45,7 +49,7 @@ def test_create_domain(c):
                 {'peer': '1.2.3.4'}
              ]
     response = c.create_domain('opencdn3.sys-qa.com', origin)
-    print response
+    print(response)
 
 
 def test_delete_domain(c):
@@ -53,7 +57,7 @@ def test_delete_domain(c):
     test_delete_domain
     """
     response = c.delete_domain('opencdn3.sys-qa.com')
-    print response
+    print(response)
 
 
 def test_enable_domain(c):
@@ -61,7 +65,7 @@ def test_enable_domain(c):
     test_enable_domain
     """
     response = c.enable_domain('opencdn3.sys-qa.com')
-    print response
+    print(response)
 
 
 def test_disable_domain(c):
@@ -69,7 +73,7 @@ def test_disable_domain(c):
     test_disable_domain
     """
     response = c.disable_domain('opencdn3.sys-qa.com')
-    print response
+    print(response)
 
 
 def test_get_domain_config(c):
@@ -77,7 +81,7 @@ def test_get_domain_config(c):
     test_get_domain_config
     """
     response = c.get_domain_config('opencdn3.sys-qa.com')
-    print response
+    print(response)
 
 
 def test_set_domain_origin(c):
@@ -89,7 +93,7 @@ def test_set_domain_origin(c):
                 {'peer': '1.2.3.5', 'host': 'www.origin_host.com'}
              ]
     response = c.set_domain_origin('opencdn3.sys-qa.com', origin)
-    print response
+    print(response)
 
 
 def test_get_domain_cache_ttl(c):
@@ -97,7 +101,7 @@ def test_get_domain_cache_ttl(c):
     test_get_domain_cache_ttl
     """
     response = c.get_domain_cache_ttl('opencdn3.sys-qa.com')
-    print response
+    print(response)
 
 
 def test_set_domain_cache_ttl(c):
@@ -108,7 +112,7 @@ def test_set_domain_cache_ttl(c):
     rules.append({'type':'suffix', 'value': '.jpg', 'ttl': 3600, 'weight': 30})
     rules.append({'type':'path', 'value': '/a/b/c', 'ttl': 1800, 'weight': 15})
     response = c.set_domain_cache_ttl('opencdn3.sys-qa.com', rules)
-    print response
+    print(response)
 
 
 def test_set_domain_cache_full_url(c):
@@ -116,7 +120,7 @@ def test_set_domain_cache_full_url(c):
     test_set_domain_cache_full_url
     """
     response = c.set_domain_cache_full_url('opencdn3.sys-qa.com', False)
-    print response
+    print(response)
 
 
 def test_set_domain_referer_acl(c):
@@ -128,7 +132,7 @@ def test_set_domain_referer_acl(c):
                         domain = 'opencdn3.sys-qa.com',
                         blackList = blackList,
                         allowEmpty = True)
-    print response
+    print(response)
 
 
 def test_set_domain_ip_acl(c):
@@ -139,7 +143,7 @@ def test_set_domain_ip_acl(c):
     response = c.set_domain_ip_acl(
                         domain = 'opencdn3.sys-qa.com',
                         blackList = blackList)
-    print response
+    print(response)
 
 
 def test_set_domain_limit_rate(c):
@@ -148,7 +152,7 @@ def test_set_domain_limit_rate(c):
     """
     limitRate = 1024
     response = c.set_domain_limit_rate('opencdn3.sys-qa.com', limitRate)
-    print response
+    print(response)
 
 
 def test_get_domain_pv_stat(c):
@@ -166,7 +170,7 @@ def test_get_domain_pv_stat(c):
             startTime = '2018-01-11T12:00:00Z',
             endTime = '2018-01-11T13:00:00Z',
             period = 3600, withRegion = '')
-    print response
+    print(response)
 
 
 def test_get_domain_flow_stat(c):
@@ -184,7 +188,7 @@ def test_get_domain_flow_stat(c):
             startTime = '2018-01-11T12:00:00Z',
             endTime = '2018-01-11T13:00:00Z',
             period = 3600, withRegion = '')
-    print response
+    print(response)
 
 
 def test_get_domain_src_flow_stat(c):
@@ -201,7 +205,7 @@ def test_get_domain_src_flow_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_hitrate_stat(c):
@@ -214,7 +218,7 @@ def test_get_domain_hitrate_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_httpcode_stat(c):
@@ -227,7 +231,7 @@ def test_get_domain_httpcode_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_tpon_url_stat(c):
@@ -240,7 +244,7 @@ def test_get_domain_tpon_url_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T14:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_topn_referer_stat(c):
@@ -253,7 +257,7 @@ def test_get_domain_topn_referer_stat(c):
                     startTime = '2018-01-11T12:00:00Z',
                     endTime = '2018-01-11T14:00:00Z',
                     period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_uv_stat(c):
@@ -266,7 +270,7 @@ def test_get_domain_uv_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T14:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_get_domain_avg_speed_stat(c):
@@ -284,7 +288,7 @@ def test_get_domain_avg_speed_stat(c):
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
-    print response
+    print(response)
 
 
 def test_purge(c):
@@ -295,7 +299,7 @@ def test_purge(c):
     tasks.append({'url': 'http://opencdn3.sys-qa.com/1.jpg'})
     tasks.append({'url': 'http://opencdn3.sys-qa.com/', "type":"directory"})
     response = c.purge(tasks)
-    print response
+    print(response)
 
 
 def test_list_purge_tasks(c):
@@ -308,7 +312,7 @@ def test_list_purge_tasks(c):
                 startTime = '2018-01-11T11:00:00Z',
                 endTime = '2018-01-11T12:50:00Z'
                 )
-    print response
+    print(response)
 
 
 def test_prefetch(c):
@@ -319,7 +323,7 @@ def test_prefetch(c):
     tasks.append({'url': 'http://opencdn3.sys-qa.com/1.jpg'})
     tasks.append({'url': 'http://opencdn3.sys-qa.com/2.jpg'})
     response = c.prefetch(tasks)
-    print response
+    print(response)
 
 
 def test_list_prefetch_tasks(c):
@@ -331,7 +335,7 @@ def test_list_prefetch_tasks(c):
             startTime = '2018-01-11T11:00:00Z',
             endTime = '2018-01-11T12:50:00Z'
             )
-    print response
+    print(response)
 
 
 def test_get_quota(c):
@@ -339,7 +343,7 @@ def test_get_quota(c):
     test_get_quota
     """
     response = c.list_quota()
-    print response
+    print(response)
 
 
 def test_get_domain_log(c):
@@ -350,7 +354,31 @@ def test_get_domain_log(c):
             domain = 'opencdn3.sys-qa.com',
             startTime = '2018-01-11T10:00:00Z',
             endTime = '2018-01-11T12:50:00Z')
-    print response
+    print(response)
+
+
+def test_set_seo(c):
+    """
+    test_set_seo
+    """
+    response = c.set_seo(domain='opencdn3.sys-qa.com', push_record=True, directory_origin=True)
+    print(response)
+
+
+def test_get_seo(c):
+    """
+    test_set_seo
+    """
+    response = c.get_seo(domain='opencdn3.sys-qa.com')
+    print(response)
+
+
+def test_set_follow_protocol(c):
+    """
+    test_set_http_header
+    """
+    response = c.set_follow_protocol(domain='opencdn3.sys-qa.com', follow=True)
+    print(response)
 
 
 def test_ip_query(c):
@@ -358,8 +386,7 @@ def test_ip_query(c):
     test_ip_query
     """
     response = c.ip_query(action = 'describeIp', ip = '221.195.34.1')
-    print response
-
+    print(response)
 
 if __name__ == "__main__":
     import logging
@@ -396,4 +423,7 @@ if __name__ == "__main__":
     # test_list_prefetch_tasks(c)
     # test_get_quota(c)
     # test_get_domain_log(c)
+    # test_set_seo(c)
+    # test_get_seo(c)
+    # test_set_follow_protocol(c)
     # test_ip_query(c)

@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: UTF-8 -*-
 # Copyright (c) 2018 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -16,11 +16,11 @@ Unit tests for dumap client.
 """
 
 import unittest
-import json
 
-from baidubce.auth.bce_credentials import BceCredentials
-from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.dumap import dumap_client
+import dumap_test_config
+
+import json
 
 
 class TestDumapClient(unittest.TestCase):
@@ -32,11 +32,7 @@ class TestDumapClient(unittest.TestCase):
         """
         set up
         """
-        HOST = 'your_host'
-        SK = 'your_sk'
-        AK = 'your_ak'
-        config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
-        self.the_client = dumap_client.DumapClient(config)
+        self.the_client = dumap_client.DumapClient(dumap_test_config.config)
 
     def tearDown(self):
         """
@@ -48,6 +44,7 @@ class TestDumapClient(unittest.TestCase):
         """
         test call place_serach
         """
+
         params = {}
         params['query'] = 'ATM机'
         params['tag'] = '银行'
@@ -55,10 +52,10 @@ class TestDumapClient(unittest.TestCase):
         params['output'] = 'json'
 
         response = self.the_client.call_open_api(
-            uri='/place/v2/search',
-            app_id='app_id_test',
+            uri=b'/place/v2/search',
+            app_id=dumap_test_config.APP_ID,
             params=params)
-        print response
+        print(response)
 
     def test_geocoder(self):
         """
@@ -68,10 +65,10 @@ class TestDumapClient(unittest.TestCase):
         params['address'] = '北京市海淀区上地十街10号'
 
         response = self.the_client.call_open_api(
-            uri='/geocoder/v2/',
-            app_id='app_id_test',
+            uri=b'/geocoder/v2/',
+            app_id=dumap_test_config.APP_ID,
             params=params)
-        print response
+        print(response)
 
     def test_geoconv(self):
         """
@@ -84,10 +81,10 @@ class TestDumapClient(unittest.TestCase):
         params['output'] = 'json'
 
         response = self.the_client.call_open_api(
-            uri='/geoconv/v1/',
-            app_id='app_id_test',
+            uri=b'/geoconv/v1/',
+            app_id=dumap_test_config.APP_ID,
             params=params)
-        print response
+        print(response)
 
     def test_direction(self):
         """
@@ -98,10 +95,10 @@ class TestDumapClient(unittest.TestCase):
         params['destination'] = '31.222965,121.505821'
 
         response = self.the_client.call_open_api(
-            uri='/direction/v2/transit',
-            app_id='app_id_test',
+            uri=b'/direction/v2/transit',
+            app_id=dumap_test_config.APP_ID,
             params=params)
-        print response
+        print(response)
 
     def test_locate_ip(self):
         """
@@ -112,11 +109,11 @@ class TestDumapClient(unittest.TestCase):
         params['ip'] = ""
 
         response = self.the_client.call_open_api(
-            uri='/location/ip',
-            app_id='app_id_test',
+            uri=b'/location/ip',
+            app_id=dumap_test_config.APP_ID,
             params=params
         )
-        print response
+        print(response)
 
     def test_locate_hardware(self):
         """
@@ -151,12 +148,12 @@ class TestDumapClient(unittest.TestCase):
         params['body'] = body
 
         response = self.the_client.call_open_api(
-            uri="/locapi/v2",
-            app_id='app_id_test',
+            uri=b'/locapi/v2',
+            app_id=dumap_test_config.APP_ID,
             body=json.dumps(params),
-            method='POST'
+            method=b'POST'
         )
-        print response
+        print(response)
 
 
 if __name__ == "__main__":

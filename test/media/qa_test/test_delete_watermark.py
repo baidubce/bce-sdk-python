@@ -35,9 +35,9 @@ class TestDeleteWatermark(mediaBase.MediaBase):
     """test delete watermark"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
-        self.watermark_id = None
-        self.key = 'watermark.jpg'
+        mediaBase.MediaBase.__init__(self)
+        self.watermark_id = 'wmk-jdiwe1956a3yzbkq'
+        self.key = '120X90.jpg'
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):

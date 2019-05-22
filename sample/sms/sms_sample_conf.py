@@ -19,9 +19,9 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'sms.bj.baidubce.com'
-AK = 'Your AK'
-SK = 'Your SK'
+HOST = b'sms.bj.baidubce.com'
+AK = b'Your AK'
+SK = b'Your SK'
 
 logger = logging.getLogger('baidubce.services.sms.smsclient')
 fh = logging.FileHandler('sms_sample.log')

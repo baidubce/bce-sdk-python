@@ -23,6 +23,7 @@ import httplib
 import StringIO
 import json
 import socket
+import time
 
 import coverage
 import baidubce
@@ -43,8 +44,10 @@ from baidubce.utils import Expando
 from baidubce.utils import required
 from baidubce.http import bce_http_client
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.retry_policy import NoRetryPolicy
-from baidubce.retry_policy import BackOffRetryPolicy
+#from baidubce.retry_policy import NoRetryPolicy
+#from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce.retry.retry_policy import NoRetryPolicy
+from baidubce.retry.retry_policy import BackOffRetryPolicy
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -309,11 +312,21 @@ class TestClient(unittest.TestCase):
 
     def tearDown(self):
         """Finish test"""
-        response = self.bos.list_objects(self.BUCKET)
-        for obj in response.contents:
+        # abort failed multipart upload
+        response=self.bos.list_multipart_uploads(self.BUCKET)
+        for item in response.uploads:
+            temp_key = item.key
+            if isinstance(temp_key, unicode):
+                temp_key = temp_key.encode("utf-8")
+            self.bos.abort_multipart_upload(self.BUCKET, temp_key, upload_id =
+                    item.upload_id)
+        # delete all objects on test bucket
+        response = self.bos.list_all_objects(self.BUCKET)
+        for obj in response:
             self.bos.delete_object(self.BUCKET, obj.key)
+        # delete test bucket
         self.bos.delete_bucket(self.BUCKET)
-
+        # delete locale file for testing
         if os.path.isfile(self.FILENAME):
             os.remove(self.FILENAME)
 
@@ -449,7 +462,6 @@ class TestCopyObject(TestClient):
                                         target_bucket_name=self.BUCKET,
                                         target_key="test_target_key_cold",
                                         storage_class=storage_class.COLD)
-
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_cold')
         self.assertEqual(response.metadata.bce_storage_class, "COLD")
@@ -460,7 +472,6 @@ class TestCopyObject(TestClient):
                                         target_bucket_name=self.BUCKET,
                                         target_key="test_target_key_ia",
                                         storage_class=storage_class.STANDARD_IA)
-
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_ia')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD_IA")
@@ -470,10 +481,10 @@ class TestCopyObject(TestClient):
                                         source_key=self.KEY,
                                         target_bucket_name=self.BUCKET,
                                         target_key="test_target_key_default")
-
-        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
+        response = self.bos.get_object_meta_data(bucket_name=self.BUCKET,
                                                  key='test_target_key_default')
-        self.assertIsNone(response.metadata.bce_storage_class)
+#        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
 
         # test copy object standard
         response = self.bos.copy_object(source_bucket_name=self.BUCKET,
@@ -481,7 +492,6 @@ class TestCopyObject(TestClient):
                                         target_bucket_name=self.BUCKET,
                                         target_key="test_target_key_standard",
                                         storage_class=storage_class.STANDARD)
-
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, 
                                                  key='test_target_key_standard')
         self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
@@ -1034,7 +1044,7 @@ class TestPutObject(TestClient):
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testdefault')
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test standard
         response = self.bos.put_object_from_string(bucket=self.BUCKET, 
                                                    key="teststandard", 
@@ -1043,7 +1053,7 @@ class TestPutObject(TestClient):
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='teststandard')
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
 
         # test invalid storage class
         err = None
@@ -1126,7 +1136,7 @@ class TestPutObject(TestClient):
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='testdefault')
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test standard
         response = self.bos.put_object_from_file(bucket=self.BUCKET, 
                                                  key="teststandard", 
@@ -1135,7 +1145,7 @@ class TestPutObject(TestClient):
         self.check_headers(response)
 
         response = self.bos.get_object_meta_data(bucket_name=self.BUCKET, key='teststandard')
-        self.assertIsNone(response.metadata.bce_storage_class)
+        self.assertEqual(response.metadata.bce_storage_class, "STANDARD")
         # test invalid storage class
         err = None
         try:

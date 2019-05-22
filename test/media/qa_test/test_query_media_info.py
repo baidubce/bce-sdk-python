@@ -34,7 +34,7 @@ class TestQueryMediaInfo(mediaBase.MediaBase):
     """test create pipeline"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):
@@ -45,7 +45,7 @@ class TestQueryMediaInfo(mediaBase.MediaBase):
 
     def test_query_media_info_english_name(self):
         """query media info with english name"""
-        resp = self.client.get_mediainfo_of_file(self.sourceBucket, 'hd.mp4')
+        resp = self.client.get_mediainfo_of_file(self.sourceBucket, '10s.mp4')
         nose.tools.assert_is_not_none(resp)
     
     def test_query_media_info_object_contain_folder(self):

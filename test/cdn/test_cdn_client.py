@@ -21,14 +21,17 @@ import string
 import unittest
 
 import cdn_test_config
+from baidubce import compat
 from baidubce import exception
 from baidubce.exception import BceServerError
 from baidubce.services.cdn.cdn_client import CdnClient
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+import imp
+import sys 
 
+imp.reload(sys)
+if compat.PY2:
+    sys.setdefaultencoding('utf8')
 
 class TestCdnClient(unittest.TestCase):
     """
@@ -45,7 +48,7 @@ class TestCdnClient(unittest.TestCase):
                         {'peer': '1.2.3.4'}
                      ]
             response = self.cdn_client.create_domain('opencdn3.sys-qa.com', origin)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -58,7 +61,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.delete_domain('opencdn3.sys-qa.com')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -71,7 +74,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.list_domains()
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -84,7 +87,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.enable_domain('opencdn3.sys-qa.com')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -97,7 +100,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.disable_domain('opencdn3.sys-qa.com')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -110,7 +113,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.get_domain_config('opencdn3.sys-qa.com')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -127,7 +130,7 @@ class TestCdnClient(unittest.TestCase):
                         {'peer': '1.2.3.5', 'host': 'www.origin_host.com'}
                      ]
             response = self.cdn_client.set_domain_origin('opencdn3.sys-qa.com', origin)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -144,20 +147,7 @@ class TestCdnClient(unittest.TestCase):
                     'certId': 'cert-rm45x46isit4',
                     }
             response = self.cdn_client.set_domain_https('opencdn3.sys-qa.com', https)
-            print response
-        except BceServerError as e:
-            error = e
-        finally:
-            self.assertIsNone(error)
-
-    def test_get_domain_cache_ttl(self):
-        """
-        test_get_domain_cache_ttl
-        """
-        error = None
-        try:
-            response = self.cdn_client.get_domain_cache_ttl('opencdn3.sys-qa.com')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -173,7 +163,20 @@ class TestCdnClient(unittest.TestCase):
             rules.append({'type':'suffix', 'value': '.jpg', 'ttl': 3600, 'weight': 30})
             rules.append({'type':'path', 'value': '/a/b/c', 'ttl': 1800, 'weight': 15})
             response = self.cdn_client.set_domain_cache_ttl('opencdn3.sys-qa.com', rules)
-            print response
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_domain_cache_ttl(self):
+        """
+        test_get_domain_cache_ttl
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_cache_ttl('opencdn3.sys-qa.com')
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -186,7 +189,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.set_domain_cache_full_url('opencdn3.sys-qa.com', True)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -203,7 +206,7 @@ class TestCdnClient(unittest.TestCase):
                                 domain = 'opencdn3.sys-qa.com',
                                 blackList = blackList,
                                 allowEmpty = True)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -219,7 +222,7 @@ class TestCdnClient(unittest.TestCase):
             response = self.cdn_client.set_domain_ip_acl(
                                 domain = 'opencdn3.sys-qa.com',
                                 blackList = blackList)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -233,7 +236,7 @@ class TestCdnClient(unittest.TestCase):
         try:
             limitRate = 1024
             response = self.cdn_client.set_domain_limit_rate('opencdn3.sys-qa.com', limitRate)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -254,7 +257,7 @@ class TestCdnClient(unittest.TestCase):
                 "signArg": "sign",
                 "timeArg": "t"
             }
-            self.cdn_client.set_request_auth('opencdn3.sys-qa.com', request_auth)
+            self.cdn_client.set_domain_request_auth('opencdn3.sys-qa.com', request_auth)
         except BceServerError as e:
             error = e
         finally:
@@ -274,10 +277,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_pv_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600, withRegion = '')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -297,10 +300,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_flow_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600, withRegion = '')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -319,10 +322,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_src_flow_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -337,10 +340,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_hitrate_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -355,10 +358,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_httpcode_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -373,10 +376,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_topn_url_stat(
                                     domain = 'opencdn3.sys-qa.com',
-                                    startTime = '2017-01-16T12:00:00Z',
-                                    endTime = '2017-01-16T14:00:00Z',
+                                    startTime = '2019-03-05T12:00:00Z',
+                                    endTime = '2019-03-06T13:00:00Z',
                                     period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -391,10 +394,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_topn_referer_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-16T12:00:00Z',
-                                        endTime = '2017-01-16T14:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -409,10 +412,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_uv_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-16T12:00:00Z',
-                                        endTime = '2017-01-16T14:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -432,10 +435,10 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_avg_speed_stat(
                                         domain = 'opencdn3.sys-qa.com',
-                                        startTime = '2017-01-17T12:00:00Z',
-                                        endTime = '2017-01-17T13:00:00Z',
+                                        startTime = '2019-03-05T12:00:00Z',
+                                        endTime = '2019-03-06T13:00:00Z',
                                         period = 3600)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -451,7 +454,7 @@ class TestCdnClient(unittest.TestCase):
             tasks.append({'url': 'http://opencdn3.sys-qa.com/1.jpg'})
             tasks.append({'url': 'http://opencdn3.sys-qa.com/', "type":"directory"})
             response = self.cdn_client.purge(tasks)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -464,11 +467,11 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.list_purge_tasks(
-                                id = 'eJwztjA3swQAAy4BEg==',
+                                # id = 'eJwztjA3swQAAy4BEg==',
                                 url = 'http://opencdn3.sys-qa.com/1.jpg',
-                                startTime = '2017-01-18T10:00:00Z',
-                                endTime = '2017-01-18T12:50:00Z')
-            print response
+                                startTime = '2019-03-05T12:00:00Z',
+                                endTime = '2019-03-06T13:00:00Z')
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -484,7 +487,7 @@ class TestCdnClient(unittest.TestCase):
             tasks.append({'url': 'http://opencdn3.sys-qa.com/1.jpg'})
             tasks.append({'url': 'http://opencdn3.sys-qa.com/2.jpg'})
             response = self.cdn_client.prefetch(tasks)
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -497,10 +500,10 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.list_prefetch_tasks(
-                                id = 'c942f806-1246-5870-e724-1d579b56d438',
-                                startTime = '2017-01-18T10:00:00Z',
-                                endTime = '2017-01-18T12:50:00Z')
-            print response
+                                # id = 'c942f806-1246-5870-e724-1d579b56d438',
+                                startTime = '2019-03-05T12:00:00Z',
+                                endTime = '2019-03-06T13:00:00Z',)
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -513,7 +516,7 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.list_quota()
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -527,9 +530,9 @@ class TestCdnClient(unittest.TestCase):
         try:
             response = self.cdn_client.get_domain_log(
                                     domain = 'opencdn3.sys-qa.com',
-                                    startTime = '2017-01-18T10:00:00Z',
-                                    endTime = '2017-01-18T12:50:00Z')
-            print response
+                                    startTime = '2019-03-05T12:00:00Z',
+                                    endTime = '2019-03-06T13:00:00Z')
+            print(response)
         except BceServerError as e:
             error = e
         finally:
@@ -542,12 +545,49 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.ip_query(action = 'describeIp', ip = '112.67.254.34')
-            print response
+            print(response)
         except BceServerError as e:
             error = e
         finally:
             self.assertIsNone(error)
 
+    def test_set_seo(self):
+        """
+        test_set_seo
+        """
+        error = None
+        try:
+            self.cdn_client.set_seo(domain='opencdn3.sys-qa.com', push_record=True, directory_origin=True)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_seo(self):
+        """
+        test_get_seo
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_seo(domain='opencdn3.sys-qa.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_follow_protocol(self):
+        """
+        test_set_follow_protocol
+        """
+        error = None
+        try:
+            response = self.cdn_client.set_follow_protocol(domain='opencdn3.sys-qa.com', follow=True)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
 
 if __name__ == "__main__":
     unittest.main()
