@@ -159,6 +159,142 @@ class VcrClient(BceBaseClient):
                                   body=json.dumps(body),
                                   config=config)
 
+    @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
+    def add_face_image(self, lib, brief, image, config=None):
+        """
+        :param lib: private face lib
+        :param brief: private face brief
+        :param image: private face image
+        :return: **Http Response**
+        """
+        body = {
+            'brief': brief,
+            'image': image
+        }
+        return self._send_request(http_methods.POST, '/v1/face/lib/%s' % lib,
+                                  body=json.dumps(body),
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode))
+    def del_face_brief(self, lib, brief, config=None):
+        """
+        :param lib: private face lib
+        :param brief: private face brief
+        :return: **Http Response**
+        """
+        params = {
+            'brief': brief
+        }
+        return self._send_request(http_methods.DELETE, '/v1/face/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
+    def del_face_image(self, lib, brief, image, config=None):
+        """
+        :param lib: private face lib
+        :param brief: private face brief
+        :param image: private face image
+        :return: **Http Response**
+        """
+        params = {
+            'brief': brief,
+            'image': image
+        }
+        return self._send_request(http_methods.DELETE, '/v1/face/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
+    @required(lib=(str, unicode))
+    def get_face_lib(self, lib, config=None):
+        """
+        :param lib: private face lib
+        :return: **Http Response**
+        """
+        return self._send_request(http_methods.GET, '/v1/face/lib/%s' % lib,
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode))
+    def get_face_brief(self, lib, brief, config=None):
+        """
+        :param lib: private face lib
+        :param brief: private face brief
+        :return: **Http Response**
+        """
+        params = {
+            'brief': brief
+        }
+        return self._send_request(http_methods.GET, '/v1/face/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode), image=(str, unicode))
+    def add_logo_image(self, lib, brief, image, config=None):
+        """
+        :param lib: private logo lib
+        :param brief: private logo brief
+        :param image: private logo image
+        :return: **Http Response**
+        """
+        body = {
+            'brief': brief,
+            'image': image
+        }
+        return self._send_request(http_methods.POST, '/v1/logo/lib/%s' % lib,
+                                  body=json.dumps(body),
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode))
+    def del_logo_brief(self, lib, brief, config=None):
+        """
+        :param lib: private logo lib
+        :param brief: private logo brief
+        :return: **Http Response**
+        """
+        params = {
+            'brief': brief
+        }
+        return self._send_request(http_methods.DELETE, '/v1/logo/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
+    @required(lib=(str, unicode), image=(str, unicode))
+    def del_logo_image(self, lib, image, config=None):
+        """
+        :param lib: private logo lib
+        :param image: private logo image
+        :return: **Http Response**
+        """
+        params = {
+            'image': image
+        }
+        return self._send_request(http_methods.DELETE, '/v1/logo/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
+    @required(lib=(str, unicode))
+    def get_logo_lib(self, lib, config=None):
+        """
+        :param lib: private logo lib
+        :return: **Http Response**
+        """
+        return self._send_request(http_methods.GET, '/v1/logo/lib/%s' % lib,
+                                  config=config)
+
+    @required(lib=(str, unicode), brief=(str, unicode))
+    def get_logo_brief(self, lib, brief, config=None):
+        """
+        :param lib: private logo lib
+        :param brief: private logo brief
+        :return: **Http Response**
+        """
+        params = {
+            'brief': brief
+        }
+        return self._send_request(http_methods.GET, '/v1/logo/lib/%s' % lib,
+                                  params=params,
+                                  config=config)
+
     @staticmethod
     def _merge_config(self, config):
         if config is None:

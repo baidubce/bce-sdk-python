@@ -701,6 +701,9 @@ class CfcClient(bce_base_client.BceBaseClient):
             body_parser = cfc_handler.parse_json
         headers = headers or {}
         headers[http_headers.CONTENT_TYPE] = http_content_types.JSON
+        if config.security_token is not None:
+            headers = headers or {}
+            headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
         return self.send_request(config, bce_v1_signer.sign,
                                  [cfc_handler.parse_error, body_parser],
                                  http_method, CfcClient.prefix + path,
@@ -748,7 +751,6 @@ class CfcClient(bce_base_client.BceBaseClient):
         user_agent = user_agent.replace('\n', '')
         user_agent = compat.convert_to_bytes(user_agent)
         headers[http_headers.USER_AGENT] = user_agent
-
         body = compat.convert_to_bytes(body)
         if not body:
             headers[http_headers.CONTENT_LENGTH] = 0
@@ -771,7 +773,6 @@ class CfcClient(bce_base_client.BceBaseClient):
         path = compat.convert_to_bytes(path)
         headers[http_headers.AUTHORIZATION] = sign_function(
             config.credentials, http_method, path, headers, params, headers_to_sign=headers_to_sign)
-
         encoded_params = utils.get_canonical_querystring(params, False)
         if len(encoded_params) > 0:
             uri = path + b'?' + encoded_params
@@ -790,7 +791,6 @@ class CfcClient(bce_base_client.BceBaseClient):
 
                 headers[http_headers.AUTHORIZATION] = sign_function(
                     config.credentials, http_method, path, headers, params, headers_to_sign=headers_to_sign)
-
                 if retries_attempted > 0 and offset is not None:
                     body.seek(offset)
 
