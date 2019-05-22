@@ -45,8 +45,8 @@ AK = b''
 SK = b''
 '''
 HOST = b'http://bcc.bce-api.baidu.com'
-AK = b''
-SK = b''
+AK = b'******'
+SK = b'******'
 
 instance_id = 'i-hsGJHguK'
 volume_id = 'v-OBhaubpM'
@@ -831,7 +831,7 @@ if __name__ == '__main__':
     """
     Caesar Test
     """
-    #suite.addTest(TestBccClient("test_stop_instance"))
+    suite.addTest(TestBccClient("test_stop_instance"))
     #suite.addTest(TestBccClient("test_start_instance"))
     #suite.addTest(TestBccClient("test_create_instance"))
     #suite.addTest(TestBccClient("test_resize_instance"))

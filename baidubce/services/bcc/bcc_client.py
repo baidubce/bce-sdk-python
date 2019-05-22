@@ -31,6 +31,7 @@ from baidubce.http import http_methods
 from baidubce.services.bcc import bcc_model
 from baidubce.utils import aes128_encrypt_16char_key
 from baidubce.utils import required
+from baidubce import compat
 
 _logger = logging.getLogger(__name__)
 
@@ -422,7 +423,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         params = {
             'start': None
@@ -451,7 +452,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'forceStop': force_stop
@@ -484,7 +485,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'forceStop': force_stop
@@ -518,7 +519,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         secret_access_key = self.config.credentials.secret_access_key
         cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
         path = b'/instance/%s' % instance_id
@@ -550,7 +551,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'name': name
@@ -585,7 +586,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'desc': desc
@@ -632,7 +633,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         secret_access_key = self.config.credentials.secret_access_key
         cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
         path = b'/instance/%s' % instance_id
@@ -664,7 +665,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -705,7 +706,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'cpuCount': cpu_count,
@@ -742,7 +743,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'securityGroupId': security_group_id
@@ -770,7 +771,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
             'securityGroupId': security_group_id
@@ -790,7 +791,7 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str),
               tags=list)
     def bind_instance_to_tags(self, instance_id, tags, config=None):
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
         body = {
@@ -805,7 +806,7 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str),
               tags=list)
     def unbind_instance_from_tags(self, instance_id, tags, config=None):
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
         body = {
@@ -836,7 +837,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s/vnc' % instance_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -872,7 +873,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        instance_id = instance_id.encode(encoding='utf-8')
+        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         if billing is None:
             billing = default_billing_to_purchase_reserved
@@ -1101,7 +1102,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -1125,7 +1126,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         body = {
             'instanceId': instance_id
@@ -1156,7 +1157,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         body = {
             'instanceId': instance_id
@@ -1182,7 +1183,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -1217,7 +1218,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         body = {
             'newCdsSizeInGB': new_cds_size
@@ -1260,7 +1261,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         body = {
             'snapshotId': snapshot_id
@@ -1303,7 +1304,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
         if billing is None:
             billing = default_billing_to_purchase_reserved
@@ -1336,7 +1337,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 volume_id,
                                 cdsName,
                                 config=None):
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
 
         body = {
@@ -1353,7 +1354,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 volume_id,
                                 billing=None,
                                 config=None):
-        volume_id = volume_id.encode(encoding='utf-8')
+        volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
 
         if billing is None:
@@ -1528,7 +1529,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -1546,7 +1547,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -1563,7 +1564,7 @@ class BccClient(bce_base_client.BceBaseClient):
                           name,
                           destRegions,
                           config=None):
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
         body = {
@@ -1580,7 +1581,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def cancle_remote_copy_image(self,
                                  image_id,
                                  config=None):
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
         params = {
@@ -1594,7 +1595,7 @@ class BccClient(bce_base_client.BceBaseClient):
                     account=None,
                     account_id=None,
                     config=None):
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
         body = {}
@@ -1615,7 +1616,7 @@ class BccClient(bce_base_client.BceBaseClient):
                     account=None,
                     account_id=None,
                     config=None):
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
         body = {}
@@ -1634,7 +1635,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_shared_user(self,
                          image_id,
                          config=None):
-        image_id = image_id.encode(encoding='utf-8')
+        image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s/sharedUsers' % image_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -1767,7 +1768,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        snapshot_id = snapshot_id.encode(encoding='utf-8')
+        snapshot_id = compat.convert_to_bytes(snapshot_id)
         path = b'/snapshot/%s' % snapshot_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -1785,7 +1786,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        snapshot_id = snapshot_id.encode(encoding='utf-8')
+        snapshot_id = compat.convert_to_bytes(snapshot_id)
         path = b'/snapshot/%s' % snapshot_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -1909,7 +1910,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        security_group_id = security_group_id.encode(encoding='utf-8')
+        security_group_id = compat.convert_to_bytes(security_group_id)
         path = b'/securityGroup/%s' % security_group_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -1941,7 +1942,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        security_group_id = security_group_id.encode(encoding='utf-8')
+        security_group_id = compat.convert_to_bytes(security_group_id)
         path = b'/securityGroup/%s' % security_group_id
         params = {'authorizeRule': ''}
         if client_token is None:
@@ -1978,7 +1979,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        security_group_id = security_group_id.encode(encoding='utf-8')
+        security_group_id = compat.convert_to_bytes(security_group_id)
         path = b'/securityGroup/%s' % security_group_id
         params = {'revokeRule': ''}
         if client_token is None:
@@ -2044,7 +2045,7 @@ class BccClient(bce_base_client.BceBaseClient):
                    volume_ids=None,
                    config=None):
 
-        asp_id = asp_id.encode(encoding='utf-8')
+        asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
 
         body = {
@@ -2063,7 +2064,7 @@ class BccClient(bce_base_client.BceBaseClient):
                    volume_ids=None,
                    config=None):
 
-        asp_id = asp_id.encode(encoding='utf-8')
+        asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
 
         body = {
@@ -2080,7 +2081,7 @@ class BccClient(bce_base_client.BceBaseClient):
                    asp_id=None,
                    config=None):
 
-        asp_id = asp_id.encode(encoding='utf-8')
+        asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
@@ -2101,7 +2102,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(asp_id=(bytes, str))
     def get_asp(self, asp_id=None, config=None):
-        asp_id = asp_id.encode(encoding='utf-8')
+        asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -2160,7 +2161,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(keypair_id=(bytes, str))
     def get_keypair(self, keypair_id=None, config=None):
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         return self._send_request(http_methods.GET, path, config=config)
 
@@ -2171,7 +2172,7 @@ class BccClient(bce_base_client.BceBaseClient):
                        instance_ids=None,
                        config=None):
 
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         body = {
             'instanceIds': instance_ids
@@ -2189,7 +2190,7 @@ class BccClient(bce_base_client.BceBaseClient):
                        instance_ids=None,
                        config=None):
 
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         body = {
             'instanceIds': instance_ids
@@ -2205,7 +2206,7 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_id=None,
                        config=None):
 
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
 
         return self._send_request(http_methods.DELETE, path, config=config)
@@ -2217,7 +2218,7 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_name=None,
                        config=None):
 
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         body = {
             'name': keypair_name
@@ -2236,7 +2237,7 @@ class BccClient(bce_base_client.BceBaseClient):
                             keypair_desc=None,
                             config=None):
 
-        keypair_id = keypair_id.encode(encoding='utf-8')
+        keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         body = {
             'description': keypair_desc
