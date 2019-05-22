@@ -14,8 +14,8 @@
 This module defines string constants for HTTP methods.
 """
 
-GET = 'GET'
-PUT = 'PUT'
-POST = 'POST'
-DELETE = 'DELETE'
-HEAD = 'HEAD'
+GET = b'GET'
+PUT = b'PUT'
+POST = b'POST'
+DELETE = b'DELETE'
+HEAD = b'HEAD'

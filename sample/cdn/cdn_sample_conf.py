@@ -22,10 +22,10 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'cdn.baidubce.com'
+HOST = b'cdn.baidubce.com'
 # online AK SK
-SK = ''
-AK = ''
+SK = b''
+AK = b''
 
 logger = logging.getLogger('baidubce.services.cdn.cdnclient')
 fh = logging.FileHandler('sample.log')

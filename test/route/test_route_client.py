@@ -17,27 +17,26 @@ This module for test.
 """
 
 import os
-
 import sys
 import unittest
 import uuid
 
-
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.route import route_client
 
-vpc_id = 'vpc-8dpfkp4e4f46'
-route_table_id = 'rt-j0vaaviaggpt'
-route_rule_id = 'rr-2fjn3rx9imj8'
+if sys.version < '3':
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
-
+# config parameters
+vpc_id = 'vpc-qnp2czzhjtq3'
+route_table_id = 'rt-dq264fi14d59'
+route_rule_id = 'rr-qky0vq2xhihy'
 
 
 def generate_client_token_by_uuid():
@@ -49,7 +48,9 @@ def generate_client_token_by_uuid():
     """
     return str(uuid.uuid4())
 
+
 generate_client_token = generate_client_token_by_uuid
+
 
 class TestRouteClient(unittest.TestCase):
     """
@@ -59,9 +60,9 @@ class TestRouteClient(unittest.TestCase):
         """
         set up
         """
-        HOST = 'bcc.bce-api.baidu.com'
-        AK = '4f4b13eda66e42e29225bb02d9193a48'
-        SK = '507b4a729f6a44feab398a6a5984304d'
+        HOST = b'bcc.bj.baidubce.com'
+        AK = b''
+        SK = b''
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = route_client.RouteClient(config)
 
@@ -72,9 +73,9 @@ class TestRouteClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.the_client.create_route(route_table_id,
-                                              '192.168.241.0/24',
-                                              '3.3.3.3/32',
-                                              'custom', 'test', 'i-kcZqtDGO',
+                                              '172.16.0.64/26',
+                                              '192.168.0.0/24',
+                                              'vpn', 'test', 'vpn-bzynq4nub6b1',
                                               client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -82,11 +83,10 @@ class TestRouteClient(unittest.TestCase):
         """
         test case for get_route
         """
-        print self.the_client.get_route(route_table_id=route_table_id)
-
-        #self.assertEqual(
-        #    type(self.the_client.get_route(vpc_id)),
-        #    baidubce.bce_response.BceResponse)
+        print(self.the_client.get_route(vpc_id))
+        self.assertEqual(
+           type(self.the_client.get_route(vpc_id)),
+           baidubce.bce_response.BceResponse)
 
     def test_delete_route(self):
         """
@@ -99,9 +99,11 @@ class TestRouteClient(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    #suite.addTest(TestRouteClient("test_create_route"))
-    suite.addTest(TestRouteClient("test_get_route"))
-    #suite.addTest(TestRouteClient("test_delete_route"))
+    # suite.addTest(TestRouteClient("test_create_route"))
+    # suite.addTest(TestRouteClient("test_get_route"))
+    suite.addTest(TestRouteClient("test_delete_route"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
+
+
 

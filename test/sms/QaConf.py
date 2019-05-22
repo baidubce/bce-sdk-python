@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 #coding=utf8
 
-SMS_HOST = '10.40.25.34:8887'	#dbl-bigdata-jeep02.dbl01.baidu.com
-SMS_AK = 'f7874554659e4df4a51d8982268be3db'
-SMS_SK = 'bca17dddf3b8419da43fcf61bfb81f97'
+import logging
+from baidubce.bce_client_configuration import BceClientConfiguration
+from baidubce.auth.bce_credentials import BceCredentials
+
+SMS_HOST = b'HOST:PORT'
+SMS_AK = b'ak'
+SMS_SK = b'sk'
+
+logger = logging.getLogger('baidubce.services.sms.smsclient')
+fh = logging.FileHandler('sms_sample.log')
+fh.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(fh)
+
+config = BceClientConfiguration(credentials=BceCredentials(SMS_AK, SMS_SK), endpoint=SMS_HOST)

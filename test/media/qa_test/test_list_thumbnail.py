@@ -36,10 +36,10 @@ class TestListThumbnail(mediaBase.MediaBase):
     """test create thumbnail"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'listthumb'
-        self.pipeline_name = self.convertName(self.pre)
-        self.key = 'hd.mp4'
+        self.pipeline_name = self.pre
+        self.key = '10s.mp4'
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):
@@ -50,7 +50,7 @@ class TestListThumbnail(mediaBase.MediaBase):
             resp = self.client.create_pipeline(self.pipeline_name, self.sourceBucket,
                    self.targetBucket)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -68,7 +68,7 @@ class TestListThumbnail(mediaBase.MediaBase):
                         while(1):
                             resp = self.client.get_thumbnail_job(each_job.job_id)
                             if resp.job_status != 'SUCCESS' and resp.job_status != 'FAILED':
-                                print 'please wait ....\n'
+                                print('please wait ....\n')
                                 time.sleep(5)
                             else:
                                 break
@@ -109,7 +109,7 @@ class TestListThumbnail(mediaBase.MediaBase):
         while(1):
             resp = self.client.get_thumbnail_job(job_id)
             if resp.job_status != 'SUCCESS':
-                print 'please wait ....\n'
+                print('please wait ....\n')
                 time.sleep(5)
             else:
                 break

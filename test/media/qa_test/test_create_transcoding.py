@@ -34,14 +34,14 @@ class TestCreateTranscoding(mediaBase.MediaBase):
     """test create transcoding"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'createjob'
-        self.pipeline_name = self.convertName(self.pre)
-        self.preset_name = self.pipeline_name
+        self.pipeline_name = self.pre
+        self.preset_name = 'bce.video_mp4_640x360_520kbps'
         self.container = 'mp4'
-        self.source_key = 'hd.mp4'
+        self.source_key = '10s.mp4'
         self.target_key = 'job_test_result.mp4'
-        self.watermark = 'watermark.jpg'
+        self.watermark = '120X90.jpg'
         self.capacity = 1
         self.watermark_id = None
         self.client = media_client.MediaClient(media_config.config)
@@ -55,7 +55,7 @@ class TestCreateTranscoding(mediaBase.MediaBase):
             resp = self.client.create_pipeline(self.pipeline_name, self.sourceBucket,
                    self.targetBucket, pipeline_config=config)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -63,7 +63,7 @@ class TestCreateTranscoding(mediaBase.MediaBase):
         try:
             resp = self.client.create_preset(self.preset_name, self.container, True)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -82,7 +82,7 @@ class TestCreateTranscoding(mediaBase.MediaBase):
                         while(1):
                             resp = self.client.get_job(each_job.job_id)
                             if resp.job_status != 'SUCCESS' and resp.job_status != 'FAILED':
-                                print 'please wait ....\n'
+                                print('please wait ....\n')
                                 time.sleep(5)
                             else:
                                 break
@@ -123,15 +123,15 @@ class TestCreateTranscoding(mediaBase.MediaBase):
 
     def test_create_transcoding_file_name_chinese(self):
         """create transcoding with file name is chinese"""
-        source = {'sourceKey': '测试视频.mp4'}
-        target = {'targetKey': '测试视频_结果.mp4', 'presetName': self.preset_name}
+        source = {'sourceKey': '中文名称测试.mp4'}
+        target = {'targetKey': '中文名称测试_结果.mp4', 'presetName': self.preset_name}
         resp = self.client.create_job(self.pipeline_name, source, target)
         nose.tools.assert_is_not_none(resp.job_id)
 
     def test_create_transcoding_file_name_spacial_chars(self):
         """create transcoding with file name has spacial chars"""
-        source = {'sourceKey': 'job_测试_123.mp4'}
-        target = {'targetKey': '<测试视频结果>.mp4',
+        source = {'sourceKey': 'test--*--中文.mp4'}
+        target = {'targetKey': 'test--*--中文.mp4',
                   'presetName': self.preset_name}
         resp = self.client.create_job(self.pipeline_name, source, target)
         nose.tools.assert_is_not_none(resp.job_id)

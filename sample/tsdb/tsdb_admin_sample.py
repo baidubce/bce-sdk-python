@@ -18,8 +18,9 @@ import string
 import time
 import sys
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version_info[0] == 2 :
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 import tsdb_admin_sample_conf
 from baidubce.exception import BceServerError
@@ -39,14 +40,14 @@ if __name__ == "__main__":
     tsdb_admin_client = TsdbAdminClient(tsdb_admin_sample_conf.config)
 
     # create database sample
-    database_name = 'pythonsdksample'  # instance name
-    description = 'description'    # optional
+    database_name = b'pythonsdksample'  # instance name
+    description = b'descriptionchen'    # optional
     ingest_datapoints_monthly = 1  # write quota
     store_bytes_quota = 0 # optional, byte quota
     purchase_length = 1 # unit: month
-    coupon_name = ''    # optional, use the coupon to purchase
+    coupon_name = b'xxxxxxxxxx'    # optional, use the coupon to purchase
     
-    client_token = 'testtttt' # when you retry, please use the same client_token
+    client_token = b'testxx' # when you retry, please use the same client_token
     try:
         result = tsdb_admin_client.create_database(
                 client_token=client_token,
@@ -56,24 +57,25 @@ if __name__ == "__main__":
                 purchase_length=purchase_length,
                 store_bytes_quota=store_bytes_quota,
                 coupon_name=coupon_name)
-        print result
+        print(result)
     except BaseException as e:
-        print e
+        print(e)
+
     # delete database
-    database_id = 'tsdb-xxxxx'
+    database_id = b'tsdb-xxxxxxxxxxx'
     try:
         response = tsdb_admin_client.delete_database(database_id)
-        print response
+        print(response)
     except BaseException as e:
-        print e
+        print(e)
 
     # get database info
-    database_id = 'tsdb-xxxxx'
-    print tsdb_admin_client.get_database(database_id)
+    database_id = b'tsdb-xxxxxxxxxxx'
+    print(tsdb_admin_client.get_database(database_id))
 
     # get all databases
     result = tsdb_admin_client.get_all_databases()
-    print result
+    print(result)
 
     
         

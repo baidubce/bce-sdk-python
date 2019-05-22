@@ -16,11 +16,14 @@ import datetime
 import os
 import time
 import random
+import sys
 
 class MediaBase(object):
     """media base class"""
     def __init__(self):
         """init some Variable"""
+
+        '''
         self.timeout = 30
 #        self.sourceBucket = 'bucketin1'
 #        self.targetBucket = 'bucketout1'
@@ -34,6 +37,21 @@ class MediaBase(object):
         self.fileKeyChName = '媒体信息测试.mp3'
         self.fileKeySpecialChars = 'test#@$%^()&test.mp3'
         self.prefix = 'mct_py_sdk_'
+        '''
+
+        self.timeout = 30
+        self.sourceBucket = 'testmctjjm'
+        self.targetBucket = 'testmctjjm'
+        self.watermarkBucket = 'testmctjjm'
+        # fileName is EnglishName
+        self.fileKeyEnName = 'mediainfotest.mp4'
+        self.fileKeyContainFolder = 'media/info/mediainfotest.mp4'
+        self.fileKeyChName = '媒体信息测试.mp3'
+        self.fileKeySpecialChars = 'test#@$%^()&test.mp3'
+        self.prefix = 'test_'
+        self.PY2 = sys.version_info[0] == 2
+        self.PY3 = sys.version_info[0] == 3
+
          
     def convertName(self, name):
         """return  diffrent name"""

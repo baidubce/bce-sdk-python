@@ -117,11 +117,11 @@ class TestInfiniteClient(unittest.TestCase):
                 ('content-type', 'application/json;charset=UTF-8')
             ])
         send_http_request.return_value = mock_http_response
-        
+
         file_name = os.path.normpath(os.path.dirname(__file__)) + '/what.jpg'
         with open(file_name, 'rb') as f:
             payload = f.read()
-        res = self.infinite_client.predict(
+        res = self.infinite_client.debug(
             endpoint_name='ep1',
             variant_name="v1",
             body=payload,
@@ -145,8 +145,8 @@ class TestInfiniteClient(unittest.TestCase):
                 ('x-bce-request-id', 'predict_x_bce_req_id'),
                 ('content-type', 'application/json;charset=UTF-8')
             ])
+
         send_http_request.return_value = mock_http_response
-        
         res = self.infinite_client.get_endpoint_list()
         data = json.loads(res.Body)
         self.assertEqual(data['endpoint_list'], ep_list)
@@ -177,8 +177,8 @@ class TestInfiniteClient(unittest.TestCase):
                 ('x-bce-request-id', 'predict_x_bce_req_id'),
                 ('content-type', 'application/json;charset=UTF-8')
             ])
+
         send_http_request.return_value = mock_http_response
-        
         res = self.infinite_client.get_endpoint_info(endpoint_name='ep1')
         data = json.loads(res.Body)
         self.assertEqual(data['endpoint_name'], 'ep1')
