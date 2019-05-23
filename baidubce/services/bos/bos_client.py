@@ -506,7 +506,7 @@ class BosClient(BceBaseClient):
                            params={b'trash': b''},
                            config=config)
 
-    @required(bucket_name=(bytes, str), key=bytes)
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def generate_pre_signed_url(self,
                                 bucket_name,
                                 key,
@@ -532,6 +532,7 @@ class BosClient(BceBaseClient):
         :return:
             **URL string**
         """
+        key = compat.convert_to_bytes(key)
         config = self._merge_config(config)
         headers = headers or {}
         params = params or {}
@@ -768,7 +769,7 @@ class BosClient(BceBaseClient):
         response.data = http_response
         return True
 
-    @required(bucket_name=(bytes, str), key=bytes)
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def get_object(self, bucket_name, key, range=None, config=None):
         """
 
@@ -778,6 +779,7 @@ class BosClient(BceBaseClient):
         :param config:
         :return:
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -796,7 +798,7 @@ class BosClient(BceBaseClient):
             f.close()
         return True
 
-    @required(bucket_name=(bytes, str), key=bytes)
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def get_object_as_string(self, bucket_name, key, range=None, config=None):
         """
 
@@ -806,12 +808,13 @@ class BosClient(BceBaseClient):
         :param config:
         :return:
         """
+        key = compat.convert_to_bytes(key)
         response = self.get_object(bucket_name, key, range=range, config=config)
         s = response.data.read()
         response.data.close()
         return s
 
-    @required(bucket_name=(bytes, str), key=bytes, file_name=bytes)
+    @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
     def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None):
         """
         Get Content of Object and Put Content to File
@@ -830,6 +833,8 @@ class BosClient(BceBaseClient):
         :return:
             **HTTP Response**
         """
+        key = compat.convert_to_bytes(key)
+        file_name = compat.convert_to_bytes(file_name)
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -842,7 +847,7 @@ class BosClient(BceBaseClient):
                 file_name,
                 self._get_config_parameter(config, 'recv_buf_size')))
 
-    @required(bucket_name=(bytes, str), key=bytes)
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def get_object_meta_data(self, bucket_name, key, config=None):
         """
         Get head of object
@@ -855,13 +860,14 @@ class BosClient(BceBaseClient):
         :return:
             **_GetObjectMetaDataResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(http_methods.HEAD, bucket_name, key, config=config)
 
     @required(bucket_name=(bytes, str),
-              key=bytes,
+              key=(bytes, str),
               data=object,
               content_length=compat.integer_types,
-              content_md5=bytes)
+              content_md5=(bytes, str))
     def append_object(self, bucket_name, key, data,
                      content_md5,
                      content_length,
@@ -886,6 +892,8 @@ class BosClient(BceBaseClient):
         :return:
             **HTTP Response**
         """
+        key = compat.convert_to_bytes(key)
+        content_md5 = compat.convert_to_bytes(content_md5)
         headers = self._prepare_object_headers(
             content_length=content_length,
             content_md5=content_md5,
@@ -913,7 +921,7 @@ class BosClient(BceBaseClient):
             config=config)
 
     @required(bucket_name=(bytes, str),
-                           key=bytes,
+                           key=(bytes, str),
                            data=(bytes, str))
     def append_object_from_string(self, bucket_name, key, data,
                                   content_md5=None,
@@ -928,6 +936,7 @@ class BosClient(BceBaseClient):
         Create an appendable object and put content of string to the object
         or add content of string to an appendable object
         """
+        key = compat.convert_to_bytes(key)
         if isinstance(data, str):
             data = data.encode(baidubce.DEFAULT_ENCODING)
 
@@ -955,10 +964,10 @@ class BosClient(BceBaseClient):
                 fp.close()
 
     @required(bucket_name=(bytes, str),
-              key=bytes,
+              key=(bytes, str),
               data=object,
               content_length=compat.integer_types,
-              content_md5=bytes)
+              content_md5=(bytes, str))
     def put_object(self, bucket_name, key, data,
                    content_length,
                    content_md5,
@@ -986,6 +995,8 @@ class BosClient(BceBaseClient):
         :return:
             **HTTP Response**
         """
+        key = compat.convert_to_bytes(key)
+        content_md5 = compat.convert_to_bytes(content_md5)
         headers = self._prepare_object_headers(
             content_length=content_length,
             content_md5=content_md5,
@@ -1009,7 +1020,7 @@ class BosClient(BceBaseClient):
             headers=headers,
             config=config)
 
-    @required(bucket=(bytes, str), key=bytes, data=(bytes, str))
+    @required(bucket=(bytes, str), key=(bytes, str), data=(bytes, str))
     def put_object_from_string(self, bucket, key, data,
                                content_md5=None,
                                content_type=None,
@@ -1035,6 +1046,7 @@ class BosClient(BceBaseClient):
         :return:
             **HTTP Response**
         """
+        key = compat.convert_to_bytes(key)
         if isinstance(data, str):
             data = data.encode(baidubce.DEFAULT_ENCODING)
 
@@ -1057,7 +1069,7 @@ class BosClient(BceBaseClient):
             if fp is not None:
                 fp.close()
 
-    @required(bucket=(bytes, str), key=bytes, file_name=bytes)
+    @required(bucket=(bytes, str), key=(bytes, str), file_name=(bytes, str))
     def put_object_from_file(self, bucket, key, file_name,
                              content_length=None,
                              content_md5=None,
@@ -1085,6 +1097,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         fp = open(file_name, 'rb')
         try:
             if content_length is None:
@@ -1110,9 +1123,9 @@ class BosClient(BceBaseClient):
             fp.close()
 
     @required(source_bucket_name=(bytes, str),
-              source_key=bytes,
+              source_key=(bytes, str),
               target_bucket_name=(bytes, str),
-              target_key=bytes)
+              target_key=(bytes, str))
     def copy_object(self,
                     source_bucket_name, source_key,
                     target_bucket_name, target_key,
@@ -1140,6 +1153,8 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        source_key = compat.convert_to_bytes(source_key)
+        target_key = compat.convert_to_bytes(target_key)
         headers = self._prepare_object_headers(
             content_type=content_type,
             user_metadata=user_metadata,
@@ -1170,7 +1185,7 @@ class BosClient(BceBaseClient):
             config=config,
             body_parser=bos_handler.parse_copy_object_response)
 
-    @required(bucket_name=(bytes, str))
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def delete_object(self, bucket_name, key, config=None):
         """
         Delete Object
@@ -1183,6 +1198,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(http_methods.DELETE, bucket_name, key, config=config)
 
     @required(bucket_name=(bytes, str), key_list=list)
@@ -1261,10 +1277,10 @@ class BosClient(BceBaseClient):
                                   params={b'logging': b''},
                                   config=config)
 
-    @required(bucket_name=(bytes, str))    
-    def initiate_multipart_upload(self, 
-                                  bucket_name, 
-                                  key, 
+    @required(bucket_name=(bytes, str), key=(bytes, str))
+    def initiate_multipart_upload(self,
+                                  bucket_name,
+                                  key,
                                   content_type=None,
                                   storage_class=None,
                                   user_headers=None,
@@ -1280,6 +1296,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse**
         """
+        key = compat.convert_to_bytes(key)
         headers = {}
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
@@ -1304,7 +1321,7 @@ class BosClient(BceBaseClient):
             config=config)
 
     @required(bucket_name=(bytes, str),
-              key=bytes,
+              key=(bytes, str),
               upload_id=(bytes, str),
               part_number=int,
               part_size=compat.integer_types,
@@ -1342,6 +1359,7 @@ class BosClient(BceBaseClient):
         :return:
                **HttpResponse**
         """
+        key = compat.convert_to_bytes(key)
         if part_number < bos.MIN_PART_NUMBER or part_number > bos.MAX_PART_NUMBER:
             raise ValueError('Invalid part_number %d. The valid range is from %d to %d.' % (
                 part_number, bos.MIN_PART_NUMBER, bos.MAX_PART_NUMBER))
@@ -1365,9 +1383,9 @@ class BosClient(BceBaseClient):
             config=config)
 
     @required(source_bucket_name=(bytes, str),
-              source_key=bytes,
+              source_key=(bytes, str),
               target_bucket_name=(bytes, str),
-              target_key=bytes,
+              target_key=(bytes, str),
               upload_id=(bytes, str),
               part_number=int,
               part_size=compat.integer_types,
@@ -1401,7 +1419,8 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse**
         """
-
+        source_key = compat.convert_to_bytes(source_key)
+        target_key = compat.convert_to_bytes(target_key)
         headers = self._prepare_object_headers(
                          content_type=content_type,
                          user_metadata=user_metadata)
@@ -1422,11 +1441,11 @@ class BosClient(BceBaseClient):
             config=config)
 
     @required(bucket_name=(bytes, str),
-              key=bytes,
+              key=(bytes, str),
               upload_id=(bytes, str),
               part_number=int,
               part_size=compat.integer_types,
-              file_name=bytes,
+              file_name=(bytes, str),
               offset=compat.integer_types)
     def upload_part_from_file(self, bucket_name, key, upload_id,
                               part_number, part_size, file_name, offset, part_md5=None,
@@ -1444,6 +1463,7 @@ class BosClient(BceBaseClient):
         :param config:
         :return:
         """
+        key = compat.convert_to_bytes(key)
         f = open(file_name, 'rb')
         try:
             f.seek(offset)
@@ -1453,7 +1473,7 @@ class BosClient(BceBaseClient):
             f.close()
 
     @required(bucket_name=(bytes, str),
-              key=bytes,
+              key=(bytes, str),
               upload_id=(bytes, str),
               part_list=list)
     def complete_multipart_upload(self, bucket_name, key,
@@ -1478,6 +1498,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse**
         """
+        key = compat.convert_to_bytes(key)
         headers = self._prepare_object_headers(
             content_type=http_content_types.JSON,
             user_metadata=user_metadata)
@@ -1490,7 +1511,7 @@ class BosClient(BceBaseClient):
             headers=headers,
             params={b'uploadId': upload_id})
 
-    @required(bucket_name=(bytes, str), key=bytes, upload_id=(bytes, str))
+    @required(bucket_name=(bytes, str), key=(bytes, str), upload_id=(bytes, str))
     def abort_multipart_upload(self, bucket_name, key, upload_id, config=None):
         """
         Abort upload a part which is being uploading.
@@ -1506,10 +1527,11 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse**
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(http_methods.DELETE, bucket_name, key,
                                   params={b'uploadId': upload_id})
 
-    @required(bucket_name=(bytes, str), key=bytes, upload_id=(bytes, str))
+    @required(bucket_name=(bytes, str), key=(bytes, str), upload_id=(bytes, str))
     def list_parts(self, bucket_name, key, upload_id,
                    max_parts=None, part_number_marker=None,
                    config=None):
@@ -1533,6 +1555,7 @@ class BosClient(BceBaseClient):
         :return:
             **_ListPartsResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         params = {b'uploadId': upload_id}
         if max_parts is not None:
             params[b'maxParts'] = max_parts
@@ -1541,7 +1564,7 @@ class BosClient(BceBaseClient):
 
         return self._send_request(http_methods.GET, bucket_name, key, params=params, config=config)
 
-    @required(bucket_name=(bytes, str), key=bytes, upload_id=(bytes, str))
+    @required(bucket_name=(bytes, str), key=(bytes, str), upload_id=(bytes, str))
     def list_all_parts(self, bucket_name, key, upload_id, config=None):
         """
 
@@ -1551,6 +1574,7 @@ class BosClient(BceBaseClient):
         :param config:
         :return:
         """
+        key = compat.convert_to_bytes(key)
         part_number_marker = None
         while True:
             response = self.list_parts(bucket_name, key, upload_id,
@@ -1629,7 +1653,7 @@ class BosClient(BceBaseClient):
             else:
                 break
 
-    @required(bucket_name=(bytes, str), key=(bytes), acl=(list, dict))
+    @required(bucket_name=(bytes, str), key=(bytes, str), acl=(list, dict))
     def set_object_acl(self, bucket_name, key, acl, config=None):
         """
         Set Access Control Level of object
@@ -1642,6 +1666,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         self._send_request(http_methods.PUT,
                            bucket_name,
                            key,
@@ -1651,7 +1676,7 @@ class BosClient(BceBaseClient):
                            params={b'acl': b''},
                            config=config)
 
-    @required(bucket_name=(bytes, str), key=(bytes))
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def set_object_canned_acl(self, bucket_name, key,
             canned_acl=None,
             grant_read=None,
@@ -1681,6 +1706,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         headers = None
         num_args = 0
         if canned_acl is not None:
@@ -1705,20 +1731,21 @@ class BosClient(BceBaseClient):
                            params={b'acl': b''},
                            config=config)
 
-    @required(bucket_name=(bytes, str), key=(bytes))
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def get_object_acl(self, bucket_name, key, config=None):
         """
         Get Access Control Level of object
 
         :type bucket: string
         :param bucket: None
-        
+
         :type key: string
         :param key: None
 
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(
                 http_methods.GET,
                 bucket_name,
@@ -1726,7 +1753,7 @@ class BosClient(BceBaseClient):
                 params={b'acl': b''},
                 config=config)
 
-    @required(bucket_name=(bytes, str), key=(bytes))
+    @required(bucket_name=(bytes, str), key=(bytes, str))
     def delete_object_acl(self, bucket_name, key, config=None):
         """
         Get Access Control Level of  object
@@ -1740,6 +1767,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         return self._send_request(
                 http_methods.DELETE,
                 bucket_name,
@@ -1747,7 +1775,7 @@ class BosClient(BceBaseClient):
                 params={b'acl': b''},
                 config=config)
 
-    @required(bucket_name=(bytes, str), key=(bytes), url=(bytes, str))
+    @required(bucket_name=(bytes, str), key=(bytes, str), url=(bytes, str))
     def fetch_object(self, bucket_name, key, url,
             fetch_mode=None,
             storage_class=None,
@@ -1771,6 +1799,7 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        key = compat.convert_to_bytes(key)
         headers = {}
         headers[http_headers.BOS_FETCH_SOURCE] = compat.convert_to_bytes(url)
         if fetch_mode is not None:
@@ -1899,7 +1928,7 @@ class BosClient(BceBaseClient):
         if config.security_token is not None:
             headers = headers or {}
             headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
-            
+
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
