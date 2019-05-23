@@ -20,7 +20,7 @@ from builtins import bytes
 import baidubce.protocol
 import baidubce.region
 from baidubce.retry.retry_policy import BackOffRetryPolicy
-# from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce import compat
 
 
 class BceClientConfiguration(object):
@@ -37,7 +37,7 @@ class BceClientConfiguration(object):
                  retry_policy=None,
                  security_token=None):
         self.credentials = credentials
-        self.endpoint = endpoint
+        self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
         self.region = region
         self.connection_timeout_in_mills = connection_timeout_in_mills

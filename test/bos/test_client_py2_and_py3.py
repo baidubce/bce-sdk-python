@@ -2384,7 +2384,7 @@ class TestBceClientConfiguration(TestClient):
         """test BceClientConfiguration"""
         conf = BceClientConfiguration(1, 2, 3, 4, 5, 6, 7)
         self.assertEqual(conf.credentials, 1)
-        self.assertEqual(conf.endpoint, 2)
+        self.assertEqual(conf.endpoint, compat.convert_to_bytes(2))
         self.assertEqual(conf.protocol, 3)
         self.assertEqual(conf.region, 4)
         self.assertEqual(conf.connection_timeout_in_mills, 5)
