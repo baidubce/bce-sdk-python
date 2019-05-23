@@ -20,18 +20,14 @@ import logging
 import baidubce
 from baidubce.auth import bce_credentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-#from baidubce.retry_policy import NoRetryPolicy
 from baidubce.retry.retry_policy import NoRetryPolicy
 
-#HOST="10.26.208.32:9998"
-#HOST="10.99.19.14:8080"
-
 # online
-HOST=b"bj.bcebos.com"
-ACCESS_KEY=b""
-SECRET_KEY=b""
+HOST=""
+ACCESS_KEY=""
+SECRET_KEY=""
 DISPLAY_NAME = 'PASSPORT:1504517149'
-OWNER_ID = ''
+OWNER_ID = ""
 
 
 # sandbox

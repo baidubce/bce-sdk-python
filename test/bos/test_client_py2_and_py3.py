@@ -311,9 +311,9 @@ def mock_client_send_request_wrapper(throw, status_code):
 class TestClient(unittest.TestCase):
     """TestClient"""
     BUCKET = "test-bucket%d" % os.getpid()
-    KEY = b"test_object%d" % os.getpid()
+    KEY = "test_object%d" % os.getpid()
     KEY = compat.convert_to_bytes(KEY)
-    FILENAME = b"temp_file%d" % os.getpid()
+    FILENAME = "temp_file%d" % os.getpid()
 
     def setUp(self):
         """Start test"""
