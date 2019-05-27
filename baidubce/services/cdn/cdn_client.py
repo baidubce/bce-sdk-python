@@ -344,6 +344,23 @@ class CdnClient(bce_base_client.BceBaseClient):
             body=json.dumps({'requestAuth': requestAuth}),
             config=config)
 
+    def get_domain_stats(self, param, config=None):
+        """
+        query stats of the domain or uid or tagId, eg : flow pv
+        :param param: the stats query param
+        :type param: cdn_stats_param.CdnStatsParam
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.POST,
+            '/stat/query',
+            body=json.dumps(param.__dict__),
+            config=config)
+
     def get_domain_pv_stat(self, domain=None,
                         startTime=None, endTime=None,
                         period=300, withRegion=None, config=None):

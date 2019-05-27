@@ -24,6 +24,7 @@ from baidubce import compat
 from baidubce import exception
 from baidubce.exception import BceServerError
 from baidubce.services.cdn.cdn_client import CdnClient
+from baidubce.services.cdn.cdn_stats_param import CdnStatsParam
 
 import imp
 import sys 
@@ -388,6 +389,229 @@ def test_ip_query(c):
     response = c.ip_query(action = 'describeIp', ip = '221.195.34.1')
     print(response)
 
+
+def test_get_domain_stats_avg_speed(c):
+    """
+    test_get_domain_stats_avg_speed
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'avg_speed'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_avg_speed_region(c):
+    """
+    test_get_domain_stats_avg_speed_region
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=None,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'avg_speed_region'
+    param.prov = 'beijing'
+    param.isp = 'ct'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_pv(c):
+    """
+    test_get_domain_stats_pv
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'pv'
+    param.level = 'edge'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_pv_src(c):
+    """
+    test_get_domain_stats_pv_src
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'pv_src'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_pv_region(c):
+    """
+    test_get_domain_stats_pv_region
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'pv_region'
+    param.prov = 'beijing'
+    param.isp = 'ct'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_uv(c):
+    """
+    test_get_domain_stats_uv
+    """
+    param = CdnStatsParam(start_time='2019-05-25T00:00:00Z', end_time='2019-05-26T00:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=3600, groupBy='')
+    param.metric = 'uv'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_flow(c):
+    """
+    test_get_domain_stats_flow
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'flow'
+    param.level = 'edge'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_flow_protocol(c):
+    """
+    test_get_domain_stats_flow_protocol
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'flow_protocol'
+    param.protocol = 'http'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_flow_region(c):
+    """
+    test_get_domain_stats_flow_region
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'flow_region'
+    param.prov = 'beijing'
+    param.isp = 'ct'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_src_flow(c):
+    """
+    test_get_domain_stats_src_flow
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'src_flow'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_real_hit(c):
+    """
+    test_get_domain_stats_real_hit
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'real_hit'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_pv_hit(c):
+    """
+    test_get_domain_stats_pv_hit
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'pv_hit'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_httpcode(c):
+    """
+    test_get_domain_stats_httpcode
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'httpcode'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_src_httpcode(c):
+    """
+    test_get_domain_stats_src_httpcode
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'src_httpcode'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_httpcode_region(c):
+    """
+    test_get_domain_stats_src_httpcode
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'httpcode_region'
+    param.prov = 'beijing'
+    param.isp = 'ct'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_top_urls(c):
+    """
+    test_get_domain_stats_top_urls
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'top_urls'
+    param.extra = 200
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_top_referers(c):
+    """
+    test_get_domain_stats_top_referers
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'top_referers'
+    param.extra = 200
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_top_domains(c):
+    """
+    test_get_domain_stats_top_domains
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', period=300, groupBy='')
+    param.metric = 'top_domains'
+    param.extra = 200
+    response = c.get_domain_stats(param)
+    print(response)
+
+
+def test_get_domain_stats_error(c):
+    """
+    test_get_domain_stats_error
+    """
+    param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
+                          key=['opencdn3.sys-qa.com'], period=300, groupBy='')
+    param.metric = 'error'
+    response = c.get_domain_stats(param)
+    print(response)
+
+
 if __name__ == "__main__":
     import logging
 
@@ -427,3 +651,23 @@ if __name__ == "__main__":
     # test_get_seo(c)
     # test_set_follow_protocol(c)
     # test_ip_query(c)
+    # test_get_domain_stats_avg_speed(c)
+    # test_get_domain_stats_avg_speed_region(c)
+    # test_get_domain_stats_pv(c)
+    # test_get_domain_stats_pv_region(c)
+    # test_get_domain_stats_pv_src(c)
+    # test_get_domain_stats_flow(c)
+    # test_get_domain_stats_flow_protocol(c)
+    # test_get_domain_stats_flow_region(c)
+    # test_get_domain_stats_src_flow(c)
+    # test_get_domain_stats_pv_hit(c)
+    # test_get_domain_stats_pv_hit(c)
+    # test_get_domain_stats_real_hit(c)
+    # test_get_domain_stats_httpcode(c)
+    # test_get_domain_stats_httpcode_region(c)
+    # test_get_domain_stats_src_httpcode(c)
+    # test_get_domain_stats_error(c)
+    # test_get_domain_stats_top_urls(c)
+    # test_get_domain_stats_top_referers(c)
+    # test_get_domain_stats_top_domains(c)
+    # test_get_domain_stats_uv(c)
