@@ -30,6 +30,7 @@ from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.utils import required
 from baidubce import utils
+from baidubce.services.cdn.cdn_stats_param import CdnStatsParam
 
 _logger = logging.getLogger(__name__)
 
@@ -344,6 +345,7 @@ class CdnClient(bce_base_client.BceBaseClient):
             body=json.dumps({'requestAuth': requestAuth}),
             config=config)
 
+    @required(param=CdnStatsParam)
     def get_domain_stats(self, param, config=None):
         """
         query stats of the domain or uid or tagId, eg : flow pv
