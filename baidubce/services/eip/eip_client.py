@@ -69,7 +69,7 @@ class EipClient(BceBaseClient):
         :type config: baidubce.BceClientConfiguration
         :param config:
 
-        :return: created eip address, for example,{"eip":"180.181.3.133"}
+        :return: created eip address, for example,{"eip":"x.x.x.x"}
         """
         body = {
             'name': name,
@@ -305,11 +305,11 @@ class EipClient(BceBaseClient):
                 {
                     "eipList": [
                         {
-                            "name":"eip-xrllt5M-1",
-                            "eip": "180.181.3.133",
+                            "name":"eip-xxxxxxx-1",
+                            "eip": "x.x.x.x",
                             "status":"binded",
                             "instanceType": "BCC",
-                            "instanceId": "i-IyWRtII7",
+                            "instanceId": "i-xxxxxxx",
                             "bandwidthInMbps": 5,
                             "paymentTiming":"Prepaid",
                             "billingMethod":"ByBandwidth",
@@ -317,11 +317,11 @@ class EipClient(BceBaseClient):
                             "expireTime":"2016-04-08T08:13:09Z"
                         },
                         {
-                            "name":"eip-scewa1M-1",
-                            "eip": "180.181.3.134",
+                            "name":"eip-xxxxxxx-1",
+                            "eip": "x.x.x.x",
                             "status":"binded",
                             "instanceType": "BCC",
-                            "instanceId": "i-KjdgweC4",
+                            "instanceId": "i-xxxxxxx",
                             "bandwidthInMbps": 1,
                             "paymentTiming":"Postpaid",
                             "billingMethod":"ByTraffic",
@@ -329,7 +329,7 @@ class EipClient(BceBaseClient):
                             "expireTime":null
                         },
                     ],
-                    "marker":"eip-xrllt5M-1",
+                    "marker":"eip-xxxxxxx-1",
                     "isTruncated": true,
                     "nextMarker": "eip-DCB50387",
                     "maxKeys": 2
