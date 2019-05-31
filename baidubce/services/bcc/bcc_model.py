@@ -92,14 +92,14 @@ class SecurityGroupRuleModel(object):
 		Only works for direction = "ingress".
 	param: sourceIp: 
 		The source ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
-		other supported formats such as 10.159.6.18/12 or 10.159.6.186. Only supports IPV4.
+		other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
 		Only works for  direction = "ingress".
 	param: destGroupId: 
 		The id of destination securitygroup.
 		Only works for  direction = "egress".
 	param: destIp: 
 		The destination ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
-		other supported formats such as 10.159.6.18/12 or 10.159.6.186. Only supports IPV4.
+		other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
 		Only works for  direction = "egress".
 	param: securityGroupId: 
 		The id of the securitygroup for the rule.
