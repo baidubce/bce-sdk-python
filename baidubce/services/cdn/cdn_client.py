@@ -139,6 +139,9 @@ class CdnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
+        if domain[0] == '*':
+            domain = '%2A' + domain[1:]
+
         return self._send_request(
             http_methods.GET,
             '/domain/' + domain + '/config',
