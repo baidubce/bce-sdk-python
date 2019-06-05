@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,8 @@ This module defines some constants for BOS
 """
 
 MAX_PUT_OBJECT_LENGTH = 5 * 1024 * 1024 * 1024
+MAX_APPEND_OBJECT_LENGTH = 5 * 1024 * 1024 * 1024
 MAX_USER_METADATA_SIZE = 2 * 1024
 MIN_PART_NUMBER = 1
 MAX_PART_NUMBER = 10000
-URL_PREFIX = "/"
+URL_PREFIX = b"/"

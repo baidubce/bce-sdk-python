@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,13 @@
 This module defines a common configuration class for BCE.
 """
 
+from future.utils import iteritems
+from builtins import str
+from builtins import bytes
 import baidubce.protocol
 import baidubce.region
-from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce.retry.retry_policy import BackOffRetryPolicy
+from baidubce import compat
 
 
 class BceClientConfiguration(object):
@@ -30,9 +34,10 @@ class BceClientConfiguration(object):
                  connection_timeout_in_mills=None,
                  send_buf_size=None,
                  recv_buf_size=None,
-                 retry_policy=None):
+                 retry_policy=None,
+                 security_token=None):
         self.credentials = credentials
-        self.endpoint = endpoint
+        self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
         self.region = region
         self.connection_timeout_in_mills = connection_timeout_in_mills
@@ -42,6 +47,7 @@ class BceClientConfiguration(object):
             self.retry_policy = BackOffRetryPolicy()
         else:
             self.retry_policy = retry_policy
+        self.security_token = security_token
 
     def merge_non_none_values(self, other):
         """
@@ -49,7 +55,7 @@ class BceClientConfiguration(object):
         :param other:
         :return:
         """
-        for k, v in other.__dict__.items():
+        for k, v in iteritems(other.__dict__):
             if v is not None:
                 self.__dict__[k] = v
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,9 @@ connections can use more system resources because of the extra work to encrypt n
 HTTP is available in case users need it.
 """
 
-from utils import Expando
+from .utils import Expando
+from builtins import str
+from builtins import bytes
 
 HTTP = Expando({'name': 'http', 'default_port': 80})
 HTTPS = Expando({'name': 'https', 'default_port': 443})

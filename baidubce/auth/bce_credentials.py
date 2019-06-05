@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@ Provides access to the BCE credentials used for accessing BCE services: BCE acce
 secret access key.
 These credentials are used to securely sign requests to BCE services.
 """
-
+from baidubce import compat
 
 class BceCredentials(object):
     """
@@ -23,5 +23,5 @@ class BceCredentials(object):
     BCE access key ID and secret access key.
     """
     def __init__(self, access_key_id, secret_access_key):
-        self.access_key_id = access_key_id
-        self.secret_access_key = secret_access_key
+        self.access_key_id = compat.convert_to_bytes(access_key_id)
+        self.secret_access_key = compat.convert_to_bytes(secret_access_key)

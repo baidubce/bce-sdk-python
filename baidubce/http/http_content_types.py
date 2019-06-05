@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License") you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -14,5 +14,5 @@
 This module defines string constants for some content types.
 """
 
-JSON = 'application/json; charset=utf-8'
-OCTET_STREAM = 'application/octet-stream'
+JSON = b'application/json; charset=utf-8'
+OCTET_STREAM = b'application/octet-stream'

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -13,12 +13,12 @@
 Samples for sms client.
 """
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
 import logging
 import os
-import sys
-import time
+
+if sys.version_info[0] == 2 :
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
@@ -32,18 +32,82 @@ logging.basicConfig(level=logging.DEBUG, filename='./sms_sample.log', filemode='
 LOG = logging.getLogger(__name__)
 CONF = sms_sample_conf
 
-tpl = 'smsTpl:e7476122a1c24e37b3b0de19d04ae900'
-phone_numbers = ['13800138000']
-
 if __name__ == '__main__':
     sms_client = sms.SmsClient(CONF.config)
-    print '-------send a message--------'
-    r = sms_client.send_message('{"code":"1234"}', phone_numbers, tpl)
-    print r
-    print '-------get message info------'
-    message_id = r.message_id
-    r = sms_client.get_message_info(message_id)
-    print r
-    print '-------get quota-------------'
-    r = sms_client.get_quota()
-    print r
+    try:
+        # query user quota
+        LOG.debug('\n\n\nSample 1: Query quota\n\n\n')
+        response = sms_client.query_quota()
+        print (response.max_send_per_day, response.max_receive_per_phone_number_day,\
+            response.sent_today)
+        
+        # create template
+        LOG.debug('\n\n\nSample 2: Create template \n\n\n')
+        response = sms_client.create_template('python-sdk-test',
+                                              '${PYTHON} SDK ${CODE}',
+                                              'dkwL6mUT-7JNv-H5Z3')
+        template_id = response.data.template_id
+        print (template_id)
+        
+        # query template list
+        LOG.debug('\n\n\nSample 3: Query template list\n\n\n')
+        response = sms_client.get_template_list()
+        valid_template_id = None
+        valid_template_content = None
+        for temp in response.template_list:
+            print (temp.template_id, temp.name, temp.content, \
+                    temp.status, temp.create_time, temp.update_time)
+            if temp.status == u'VALID':
+                valid_template_id = temp.template_id
+                valid_template_content = temp.content
+                
+        # query template
+        LOG.debug('\n\n\nSample 4: Query template\n\n\n')
+        response = sms_client.get_template_detail(template_id)
+        print (response.template_id, response.name, response.content,\
+            response.status, response.create_time, response.update_time)
+
+        # delete template
+        LOG.debug('\n\n\nSample 5: Delete template\n\n\n')
+        sms_client.delete_template(template_id)
+        print ('delete ok')
+        
+        # send message
+        LOG.debug('\n\n\nSample 6: Send Message \n\n\n')
+        response = sms_client.send_message(valid_template_id, ['138xxxxxxxx'],
+                                           {'code': "10"})
+
+        message_id = response.message_id
+        print (response.message_id)
+
+        # query message
+        LOG.debug('\n\n\nSample 7: query Message \n\n\n')
+        response = sms_client.query_message_detail(message_id)
+
+        print (response.message_id, response.receiver, response.content, response.send_time)
+
+        # send message 2
+        LOG.debug('\n\n\nSample 8: Send Message 2\n\n\n')
+        response = sms_client.send_message_2('dkwL6mUT-7JNv-hznY', valid_template_id,
+                                             '13811561311', {'code': "10"})
+
+        message_id = response.request_id
+        print (message_id)
+
+        # query message
+        LOG.debug('\n\n\nSample 8: query Message \n\n\n')
+        response = sms_client.query_message_detail(message_id)
+
+        print (response.message_id, response.receiver, response.content, response.send_time)
+
+        # stat receiver
+        LOG.debug('\n\n\nSample 9: query receiver quota\n\n\n')
+        response = sms_client.stat_receiver('13800138000')
+        print (response.max_receive_per_phone_number_day, response.received_today)
+        
+    except ex.BceHttpClientError as e:
+        if isinstance(e.last_error, ex.BceServerError):
+            LOG.error('send request failed. Response %s, code: %s, msg: %s'
+                      % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            LOG.error('send request failed. Unknown exception: %s' % e)
