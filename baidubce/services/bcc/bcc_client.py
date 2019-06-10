@@ -431,7 +431,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, params=params, config=config)
 
     @required(instance_id=(bytes, str))  # ***Unicode***
-    def stop_instance(self, instance_id, force_stop=False, config=None):
+    def stop_instance(self, instance_id, force_stop=False, stopWithNoCharge=False, config=None):
         """
         Stopping the instance owned by the user.
         You can stop the instance only when the instance is Running,
@@ -455,7 +455,8 @@ class BccClient(bce_base_client.BceBaseClient):
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
-            'forceStop': force_stop
+            'forceStop': force_stop,
+            'stopWithNoCharge': stopWithNoCharge
         }
         params = {
             'stop': None
