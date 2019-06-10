@@ -48,7 +48,7 @@ HOST = b'http://bcc.bce-api.baidu.com'
 AK = b''
 SK = b''
 
-instance_id = 'i-hsGJHguK'
+instance_id = 'i-mrfLMLeL'
 volume_id = 'v-OBhaubpM'
 image_id = 'm-gtkIuqV8'
 snapshot_id = 's-7mEwKt4F'
@@ -203,9 +203,11 @@ class TestBccClient(unittest.TestCase):
         """
         test case for stop_instance
         """
+        stopWithNoCharge = False
         self.assertEqual(
-            type(self.client.stop_instance(instance_id,
-                                           force_stop)),
+            type(self.client.stop_instance(instance_id=instance_id,
+                                           stopWithNoCharge=stopWithNoCharge,
+                                           force_stop=force_stop)),
             baidubce.bce_response.BceResponse)
 
     def test_reboot_instance(self):
