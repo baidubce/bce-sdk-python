@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,8 @@ This module defines exceptions for BCE.
 """
 
 from baidubce import utils
-
+from builtins import str
+from builtins import bytes
 
 class BceError(Exception):
     """Base Error of BCE."""
@@ -31,7 +32,7 @@ class BceClientError(BceError):
 
 class BceServerError(BceError):
     """Error from BCE servers."""
-    REQUEST_EXPIRED = 'RequestExpired'
+    REQUEST_EXPIRED = b'RequestExpired'
 
     """Error threw when connect to server."""
     def __init__(self, message, status_code=None, code=None, request_id=None):

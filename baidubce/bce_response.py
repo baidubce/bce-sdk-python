@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -13,8 +13,11 @@
 """
 This module provides a general response class for BCE services.
 """
-
+from future.utils import iteritems
+from builtins import str
+from builtins import bytes
 from baidubce import utils
+from baidubce import compat
 from baidubce.http import http_headers
 
 
@@ -31,11 +34,11 @@ class BceResponse(object):
         :param headers:
         :return:
         """
-        for k, v in headers.items():
-            if k.startswith(http_headers.BCE_PREFIX):
-                k = 'bce_' + k[len(http_headers.BCE_PREFIX):]
+        for k, v in iteritems(headers):
+            if k.startswith(compat.convert_to_string(http_headers.BCE_PREFIX)):
+                k = 'bce_' + k[len(compat.convert_to_string(http_headers.BCE_PREFIX)):]
             k = utils.pythonize_name(k.replace('-', '_'))
-            if k.lower() == http_headers.ETAG.lower():
+            if k.lower() == compat.convert_to_string(http_headers.ETAG.lower()):
                 v = v.strip('"')
             setattr(self.metadata, k, v)
 

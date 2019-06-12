@@ -151,7 +151,7 @@ def sign(credentials, http_method, path, headers, params,
     return result
 
 if __name__ == "__main__":
-    credentials = BceCredentials("0b0f67dfb88244b289b72b142befad0c","bad522c2126a4618a8125f4b6cf6356f")
+    credentials = BceCredentials("your_AK","your_SK")
     http_method = "PUT"
     path = "/v1/test/myfolder/readme.txt"
     headers = {"host": "bj.bcebos.com",

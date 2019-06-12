@@ -216,7 +216,7 @@ BOS提供set_bucket_acl方法来实现指定用户对Bucket的访问权限设置
 
     bos_client.set_bucket_acl(
         bucket_name,
-        [{'grantee': [{'id': 'b124deeaf6f641c9ac27700b41a350a8'},
+        [{'grantee': [{'id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'},
                       {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
           'permission': ['FULL_CONTROL']}])
 
