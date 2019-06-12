@@ -1,4 +1,7 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -9,19 +12,16 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Configuration for bos samples.
+Configuration for sms samples.
 """
-
-#!/usr/bin/env python
-#coding=utf-8
 
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'sms.bj.baidubce.com'
-AK = 'Your AK'
-SK = 'Your SK'
+HOST = b'sms.bj.baidubce.com'
+AK = b'Your AK'
+SK = b'Your SK'
 
 logger = logging.getLogger('baidubce.services.sms.smsclient')
 fh = logging.FileHandler('sms_sample.log')

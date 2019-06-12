@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License") you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -16,56 +16,82 @@ This module defines string constants for HTTP headers
 
 # Standard HTTP Headers
 
-AUTHORIZATION = "Authorization"
+AUTHORIZATION = b"Authorization"
 
-CONTENT_DISPOSITION = "Content-Disposition"
+CACHE_CONTROL = b"Cache-Control"
 
-CONTENT_ENCODING = "Content-Encoding"
+CONTENT_DISPOSITION = b"Content-Disposition"
 
-CONTENT_LENGTH = "Content-Length"
+CONTENT_ENCODING = b"Content-Encoding"
 
-CONTENT_MD5 = "Content-MD5"
+CONTENT_LENGTH = b"Content-Length"
 
-CONTENT_RANGE = "Content-Range"
+CONTENT_MD5 = b"Content-MD5"
 
-CONTENT_TYPE = "Content-Type"
+CONTENT_RANGE = b"Content-Range"
 
-DATE = "Date"
+CONTENT_TYPE = b"Content-Type"
 
-ETAG = "ETag"
+DATE = b"Date"
 
-EXPIRES = "Expires"
+ETAG = b"ETag"
 
-HOST = "Host"
+EXPIRES = b"Expires"
 
-LAST_MODIFIED = "Last-Modified"
+HOST = b"Host"
 
-RANGE = "Range"
+LAST_MODIFIED = b"Last-Modified"
 
-SERVER = "Server"
+RANGE = b"Range"
 
-USER_AGENT = "User-Agent"
+SERVER = b"Server"
+
+USER_AGENT = b"User-Agent"
 
 # BCE Common HTTP Headers
 
-BCE_PREFIX = "x-bce-"
+BCE_PREFIX = b"x-bce-"
 
-BCE_ACL = "x-bce-acl"
+BCE_ACL = b"x-bce-acl"
 
-BCE_CONTENT_SHA256 = "x-bce-content-sha256"
+BCE_CONTENT_SHA256 = b"x-bce-content-sha256"
 
-BCE_COPY_METADATA_DIRECTIVE = "x-bce-metadata-directive"
+BCE_COPY_METADATA_DIRECTIVE = b"x-bce-metadata-directive"
 
-BCE_COPY_SOURCE = "x-bce-copy-source"
+BCE_COPY_SOURCE = b"x-bce-copy-source"
 
-BCE_COPY_SOURCE_IF_MATCH = "x-bce-copy-source-if-match"
+BCE_COPY_SOURCE_IF_MATCH = b"x-bce-copy-source-if-match"
 
-BCE_DATE = "x-bce-date"
+BCE_COPY_SOURCE_IF_MODIFIED_SINCE = b"x-bce-copy-source-if-modified-since"
 
-BCE_USER_METADATA_PREFIX = "x-bce-meta-"
+BCE_COPY_SOURCE_IF_NONE_MATCH = b"x-bce-copy-source-if-none-match"
 
-BCE_REQUEST_ID = "x-bce-request-id"
+BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE = b"x-bce-copy-source-if-unmodified-since"
+
+BCE_COPY_SOURCE_RANGE = b"x-bce-copy-source-range"
+
+BCE_DATE = b"x-bce-date"
+
+BCE_USER_METADATA_PREFIX = b"x-bce-meta-"
+
+BCE_REQUEST_ID = b"x-bce-request-id"
 
 # BOS HTTP Headers
 
-BOS_DEBUG_ID = "x-bce-bos-debug-id"
+BOS_DEBUG_ID = b"x-bce-bos-debug-id"
+
+BOS_STORAGE_CLASS = b"x-bce-storage-class"
+
+BOS_GRANT_READ = b'x-bce-grant-read'
+
+BOS_GRANT_FULL_CONTROL = b'x-bce-grant-full-control'
+
+BOS_FETCH_SOURCE = b"x-bce-fetch-source"
+
+BOS_FETCH_MODE = b"x-bce-fetch-mode"
+
+BOS_SERVER_SIDE_ENCRYPTION = b"x-bce-server-side-encryption"
+
+# STS HTTP Headers
+
+STS_SECURITY_TOKEN = b"x-bce-security-token"

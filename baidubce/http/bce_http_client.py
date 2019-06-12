@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -13,21 +13,21 @@
 """
 This module provide http request function for bce services.
 """
-
+from future.utils import iteritems, iterkeys, itervalues
+from builtins import str, bytes
 import logging
-import httplib
+import http.client
 import sys
 import time
 import traceback
-import urlparse
 
 import baidubce
+from baidubce import compat
 from baidubce import utils
 from baidubce.bce_response import BceResponse
 from baidubce.exception import BceHttpClientError
 from baidubce.exception import BceClientError
 from baidubce.http import http_headers
-
 
 _logger = logging.getLogger(__name__)
 
@@ -41,11 +41,12 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis):
     :param connection_timeout_in_millis
     :type connection_timeout_in_millis int
     """
+    host = compat.convert_to_string(host)
     if protocol.name == baidubce.protocol.HTTP.name:
-        return httplib.HTTPConnection(
+        return http.client.HTTPConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     elif protocol.name == baidubce.protocol.HTTPS.name:
-        return httplib.HTTPSConnection(
+        return http.client.HTTPSConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     else:
         raise ValueError(
@@ -53,16 +54,20 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis):
 
 
 def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
+    # putrequest() need that http_method and uri is Ascii on Py2 and unicode \
+    # on Py3
+    http_method = compat.convert_to_string(http_method)
+    uri = compat.convert_to_string(uri)
     conn.putrequest(http_method, uri, skip_host=True, skip_accept_encoding=True)
 
-    for k, v in headers.items():
+    for k, v in iteritems(headers):
         k = utils.convert_to_standard_string(k)
         v = utils.convert_to_standard_string(v)
         conn.putheader(k, v)
     conn.endheaders()
 
     if body:
-        if isinstance(body, (str, unicode)):
+        if isinstance(body, (bytes,str)):
             conn.send(body)
         else:
             total = int(headers[http_headers.CONTENT_LENGTH])
@@ -88,8 +93,9 @@ def check_headers(headers):
     :param headers:
     :return:
     """
-    for k, v in headers.iteritems():
-        if isinstance(v, (str, unicode)) and '\n' in v:
+    for k, v in iteritems(headers):
+        if isinstance(v, (bytes,str)) and \
+        b'\n' in compat.convert_to_bytes(v):
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))
 
 
@@ -115,28 +121,29 @@ def send_request(
     :return:
     :rtype: baidubce.BceResponse
     """
-    _logger.debug('%s request start: %s %s, %s, %s',
+    _logger.debug(b'%s request start: %s %s, %s, %s',
                   http_method, path, headers, params, body)
-
     headers = headers or {}
 
     user_agent = 'bce-sdk-python/%s/%s/%s' % (
-        baidubce.SDK_VERSION, sys.version, sys.platform)
+        compat.convert_to_string(baidubce.SDK_VERSION), sys.version, sys.platform)
     user_agent = user_agent.replace('\n', '')
+    user_agent = compat.convert_to_bytes(user_agent)
     headers[http_headers.USER_AGENT] = user_agent
+ 
     should_get_new_date = False
     if http_headers.BCE_DATE not in headers:
         should_get_new_date = True
     headers[http_headers.HOST] = config.endpoint
 
-    if isinstance(body, unicode):
+    if isinstance(body, str):
         body = body.encode(baidubce.DEFAULT_ENCODING)
     if not body:
         headers[http_headers.CONTENT_LENGTH] = 0
-    elif isinstance(body, str):
+    elif isinstance(body, bytes):
         headers[http_headers.CONTENT_LENGTH] = len(body)
     elif http_headers.CONTENT_LENGTH not in headers:
-        raise ValueError('No %s is specified.' % http_headers.CONTENT_LENGTH)
+        raise ValueError(b'No %s is specified.' % http_headers.CONTENT_LENGTH)
 
     # store the offset of fp body
     offset = None
@@ -147,13 +154,13 @@ def send_request(
 
     headers[http_headers.HOST] = host
     if port != config.protocol.default_port:
-        headers[http_headers.HOST] += ':' + str(port)
+        headers[http_headers.HOST] += b':' + compat.convert_to_bytes(port)
     headers[http_headers.AUTHORIZATION] = sign_function(
         config.credentials, http_method, path, headers, params)
 
     encoded_params = utils.get_canonical_querystring(params, False)
     if len(encoded_params) > 0:
-        uri = path + '?' + encoded_params
+        uri = path + b'?' + encoded_params
     else:
         uri = path
     check_headers(headers)
@@ -172,17 +179,33 @@ def send_request(
 
             if retries_attempted > 0 and offset is not None:
                 body.seek(offset)
-
+            
             conn = _get_connection(protocol, host, port, config.connection_timeout_in_mills)
+
+            _logger.debug('request args:method=%s, uri=%s, headers=%s,patams=%s, body=%s',
+                    http_method, uri, headers, params, body)
 
             http_response = _send_http_request(
                 conn, http_method, uri, headers, body, config.send_buf_size)
-
-
+            
             headers_list = http_response.getheaders()
+
+            # on py3 ,values of headers_list is decoded with ios-8859-1 from
+            # utf-8 binary bytes
+
+            # headers_list[*][0] is lowercase on py2
+            # headers_list[*][0] is raw value py3
+            if compat.PY3 and isinstance(headers_list, list):
+                temp_heads = []
+                for k, v in headers_list:
+                    k = k.encode('latin-1').decode('utf-8')
+                    v = v.encode('latin-1').decode('utf-8')
+                    k = k.lower()
+                    temp_heads.append((k, v))
+                headers_list = temp_heads
+
             _logger.debug(
                 'request return: status=%d, headers=%s' % (http_response.status, headers_list))
-
             response = BceResponse()
             response.set_metadata_from_headers(dict(headers_list))
 

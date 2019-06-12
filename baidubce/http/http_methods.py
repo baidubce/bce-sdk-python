@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License") you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,8 @@
 This module defines string constants for HTTP methods.
 """
 
-GET = 'GET'
-PUT = 'PUT'
-POST = 'POST'
-DELETE = 'DELETE'
-HEAD = 'HEAD'
+GET = b'GET'
+PUT = b'PUT'
+POST = b'POST'
+DELETE = b'DELETE'
+HEAD = b'HEAD'

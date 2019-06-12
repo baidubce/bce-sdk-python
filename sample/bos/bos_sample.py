@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -40,6 +40,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     __logger = logging.getLogger(__name__)
 
+    source_bucket = 'sourcebucket'
+    target_bucket = 'targetbucket'
+    source_key = 'sourcekey' + _random_string(6)
+    target_key = 'targetkey' + _random_string(6)
+    prefix = 'prefix' + _random_string(6)
     bucket_name = 'samplebucket'
     key = 'samplekey' + _random_string(6)
     file_name = 'samplefile'
@@ -89,6 +94,22 @@ if __name__ == "__main__":
     bos_client.get_object_to_file(bucket_name, key, download)
     __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
 
+    # put an appendable object
+    append_key = 'test_append_key'
+    result = bos_client.append_object_from_string(bucket_name=bucket_name,
+                                                  key=append_key,
+                                                  data='This is string content.')
+    next_offset = result.metadata.bce_next_append_offset
+    
+    bos_client.append_object_from_string(bucket_name=bucket_name,
+                                         key=append_key,
+                                         data='append content.',
+                                         offset=int(next_offset))
+    response = bos_client.get_object_as_string(bucket_name=bucket_name, key=append_key)
+    __logger.debug("[Sample] append object value:%s", response)
+
+    bos_client.delete_object(bucket_name, append_key)
+
     # copy a object
     bos_client.copy_object(bucket_name, key, bucket_name, key + ".copy",)
 
@@ -99,6 +120,10 @@ if __name__ == "__main__":
 
     # delete an object
     bos_client.delete_object(bucket_name, key)
+
+    # delete multiple objects
+    key_list = ['key1', 'key2', 'key3']
+    bos_client.delete_multiple_object(bucket_name, key_list)
 
     ######################################################################################################
     #            acl operation samples
@@ -115,7 +140,7 @@ if __name__ == "__main__":
     # set bucket acl from BucketAccessControl list
     bos_client.set_bucket_acl(
         bucket_name,
-        [{'grantee': [{'id': 'b124deeaf6f641c9ac27700b41a350a8'},
+        [{'grantee': [{'id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'},
                       {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
           'permission': ['FULL_CONTROL']}])
 
@@ -156,6 +181,44 @@ if __name__ == "__main__":
         })
         part_number += 1
 
+    # copy a object part by part
+
+    # step 1: init multi-upload
+    upload_id = bos_client.initiate_multipart_upload(target_bucket, target_key).upload_id
+    upload_id_about = bos_client.initiate_multipart_upload(target_bucket, 
+                                                           target_key + "_about").upload_id
+    
+    # step 2: upload copy part by part
+    left_size = int(bos_client.get_object_meta_data(source_bucket, 
+                                                    source_key).metadata.content_length)
+    offset = 0
+    part_number = 1
+    part_list = []
+    while left_size > 0:
+        part_size = 5 * 1024 * 1024
+        if left_size < part_size: 
+            part_size = left_size
+        response = bos_client.upload_part_copy(source_bucket, 
+                                               source_key, 
+                                               target_bucket, 
+                                               target_key, 
+                                               upload_id, 
+                                               part_number, 
+                                               part_size, 
+                                               offset)
+        left_size -= part_size
+        offset += part_size
+        part_list.append({"partNumber": part_number,
+                          "eTag": response.etag})
+        part_number += 1
+
+    # step 3: update meta_data
+    metadata = {'meta_key': 'meta_value'}
+    bos_client.copy_object(source_bucket_name = source_bucket,
+                           source_key = source_key,
+                           target_bucket_name = target_bucket,
+                           target_key = target_key,
+                           user_metadata = metadata)
     # list multi-uploads
     response = bos_client.list_multipart_uploads(bucket_name)
     for upload in response.uploads:
@@ -169,8 +232,68 @@ if __name__ == "__main__":
     # SuperFile step 3: complete multi-upload
     bos_client.complete_multipart_upload(bucket_name, key, upload_id, part_list)
 
-    # about multi-upload
+    # abort multi-upload
     bos_client.abort_multipart_upload(bucket_name, key + "_about", upload_id_about)
+
+    ######################################################################################################
+    #            logging operation samples
+    ######################################################################################################
+    
+    # put bucket logging
+    bos_client.put_bucket_logging(source_bucket, target_bucket, prefix)
+
+    # get bucket logging
+    response = bos_client.get_bucket_logging(bucket_name)
+    
+    # delete bucket loggint
+    bos_client.delet_bucket_loggint(bucket_name)
+
+    ######################################################################################################
+    #            lifecycle operation samples
+    ######################################################################################################
+
+    # put bucket lifecycle
+    rule = {}
+    rule['id'] = 'rule1'
+    rule['status'] = 'enabled'
+    rule['action'] = {}
+    rule['action']['name'] = 'Transition' 
+    rule['action']['storageClass'] = 'STANDARD_IA'
+    rule['resource'] = [bucket_name + prefix]
+    rule['condition'] = {}
+    rule['condition']['time'] = {"dateGreaterThan": '2017-03-28T00:00:00Z'}
+    rules=[]
+    rules.append(rule)
+    bos_client.put_bucket_lifecycle(bucket_name, rules)
+
+    # get bucket lifecycle
+    response = bos_client.get_bucket_lifecycle(bucket_name)
+
+    # delete bucket lifecycle
+    response = bos_client.delete_bucket_lifecycle(bucket_name)
+
+    ######################################################################################################
+    #            cors operation samples
+    ######################################################################################################
+    
+    #put bucket cors
+    conf={}
+    conf['allowedOrigins'] = ['http://www.boluor.com']
+    conf['allowedMethods'] = ['GET', 'HEAD', 'DELETE']
+    conf['allowedHeaders'] = ['Authorization', 'x-bce-test', 'x-bce-test2']
+    conf['allowedExposeHeaders'] = ['user-custom-expose-header']
+    conf['maxAgeSeconds'] = 3600
+
+    cors_confs=[]
+    cors_confs.append(conf)
+
+    bos_client.put_bucket_cors(bucket_name, cors_confs)
+
+    #get bucket cors
+    response = bos_client.get_bucket_cors(bucket_name)
+
+    #delete bucket cors
+    response = bos_client.delete_bucket_cors(bucket_name)
 
     ######################################################################################################
     #            failure samples
