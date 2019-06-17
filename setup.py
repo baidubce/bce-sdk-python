@@ -14,17 +14,17 @@
 The setup script to install BCE SDK for python
 """
 from __future__ import absolute_import
-from builtins import str
-import sys 
+import io
+import os
+import re
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-from baidubce import SDK_VERSION
 
-PY3 = sys.version_info[0]==3
-if PY3 and isinstance(SDK_VERSION, bytes):
-    SDK_VERSION = SDK_VERSION.decode("utf-8")
+
+with io.open(os.path.join("baidubce", "__init__.py"), "rt") as f:
+    SDK_VERSION = re.search(r"SDK_VERSION = b'(.*?)'", f.read()).group(1)
 
 setup(
     name='bce-python-sdk',
@@ -32,9 +32,7 @@ setup(
     install_requires=['pycrypto>=2.4',
                       'future>=0.6.0',
                       'six>=1.4.0'],
-    requires=['pycrypto',
-              'future',
-              'six'],
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     packages=['baidubce',
               'baidubce.auth',
               'baidubce.http',
@@ -58,7 +56,7 @@ setup(
               'baidubce.services.infinite',
               'baidubce.services.bcc',
               'baidubce.services.tsdb'
-    ],
+              ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
     author='',
