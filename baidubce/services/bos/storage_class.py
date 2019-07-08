@@ -17,3 +17,4 @@ The type of storage to use for the object. Defaults to 'STANDARD'
 STANDARD = b"STANDARD"
 STANDARD_IA = b"STANDARD_IA"
 COLD = b"COLD"
+ARCHIVE= b"ARCHIVE"

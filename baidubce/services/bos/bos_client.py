@@ -787,6 +787,31 @@ class BosClient(BceBaseClient):
             headers=BosClient._get_range_header_dict(range),
             config=config,
             body_parser=BosClient._parse_bos_object)
+# restore object
+    @required(bucket_name=(bytes, str), key=(bytes, str))
+    def restore_object(self, bucket_name, key, days = None, tier = "Standard", config=None):
+        """
+
+        :param bucket_name:
+        :param key:
+        :param config:
+        :return:
+        """
+        key = compat.convert_to_bytes(key)
+        headers = {}
+        if days is not None:
+            headers[http_headers.BCE_RESTORE_DAYS] = days
+        if tier not in ("Standard", "Expedited"):
+            raise ValueError('valid tier:%s for restore_object.The valid value is \"Standard\" and \"Expedited\"' )
+        headers[http_headers.BCE_RESTORE_TIER] = tier
+        return self._send_request(
+            http_methods.POST,
+            bucket_name,
+            key,
+            headers=BosClient._get_range_header_dict(range),
+            params={b'restore': b''},
+            config=config,
+            body_parser=BosClient._parse_bos_object)
 
     @staticmethod
     def _save_body_to_file(http_response, response, file_name, buf_size):

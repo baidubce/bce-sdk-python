@@ -92,6 +92,10 @@ BOS_FETCH_MODE = b"x-bce-fetch-mode"
 
 BOS_SERVER_SIDE_ENCRYPTION = b"x-bce-server-side-encryption"
 
+BOS_RESTORE_TIER = b"x-bce-restore-tier"
+
+BOS_RESTORE_DAYS = b"x-bce-restore-days"
+
 # STS HTTP Headers
 
 STS_SECURITY_TOKEN = b"x-bce-security-token"
