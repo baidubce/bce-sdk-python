@@ -184,6 +184,36 @@ class BosClient(BceBaseClient):
                            config=config)
 
     @required(bucket_name=(bytes, str))
+    def set_bucket_storage_class(self, bucket_name, storage_class=None, config=None):
+        """
+
+        :param bucket_name:
+        :param config:
+        :return:
+        """
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps({'storageClass': storage_class},
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'storageClass': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_storage_class(self, bucket_name, config=None):
+        """
+
+        :param bucket_name:
+        :param config:
+        :return:
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'storageClass': b''},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
     def delete_bucket(self, bucket_name, config=None):
         """
         Delete a Bucket(Must Delete all the Object in Bucket before)
@@ -800,15 +830,15 @@ class BosClient(BceBaseClient):
         key = compat.convert_to_bytes(key)
         headers = {}
         if days is not None:
-            headers[http_headers.BCE_RESTORE_DAYS] = days
+            headers[http_headers.BOS_RESTORE_DAYS] = days
         if tier not in ("Standard", "Expedited"):
             raise ValueError('valid tier:%s for restore_object.The valid value is \"Standard\" and \"Expedited\"' )
-        headers[http_headers.BCE_RESTORE_TIER] = tier
+        headers[http_headers.BOS_RESTORE_TIER] = tier
         return self._send_request(
             http_methods.POST,
             bucket_name,
             key,
-            headers=BosClient._get_range_header_dict(range),
+            headers=headers,
             params={b'restore': b''},
             config=config,
             body_parser=BosClient._parse_bos_object)
