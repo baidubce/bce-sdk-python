@@ -2574,7 +2574,7 @@ class TestGetAndDeleteObjectAcl(TestClient):
 class TestFetchObject(TestClient):
     """test fetch_object function"""
     def test_fetch_object(self):
-        """test get_bucket_acl function normally"""
+        """test fetch_object function normally"""
         url = "http://www.baidu.com/img/bd_logo1.png?where=super"
         obj_key = b'logo.png'
         err = None
@@ -2587,50 +2587,69 @@ class TestFetchObject(TestClient):
         self.check_headers(response)
         self.assertIsNotNone(response.job_id)
 
+# test restore object
+class TestRestoreObject(TestClient):
+    """test restore_object function"""
+    def test_restore_object(self):
+        """test restore_obejct function normally"""
+        self.get_file(5)
+        err = None
+        try:
+            self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, storage_class=storage_class.ARCHIVE)
+            self.bos.restore_object(self.BUCKET, self.KEY, 1)
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertIsNotNone(response.metadata.bce_restore)
+        self.assertTrue(response.metadata.bce_restore.find("expiry-date") > 0)
+        res = self.bos.delete_object(self.BUCKET, self.KEY)
 
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
     runner.run(unittest.makeSuite(TestClient))
-    runner.run(unittest.makeSuite(TestCopyObject))
-    runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
-    runner.run(unittest.makeSuite(TestListMultipartsUploads))
-    runner.run(unittest.makeSuite(TestSetBucketAcl))
-    runner.run(unittest.makeSuite(TestGetBucketAcl))
-    runner.run(unittest.makeSuite(TestGetObjectMetaData))
-    runner.run(unittest.makeSuite(TestGetObject))
-    runner.run(unittest.makeSuite(TestListBuckets))
-    runner.run(unittest.makeSuite(TestListObjects))
-    runner.run(unittest.makeSuite(TestListParts))
-    runner.run(unittest.makeSuite(TestPutObject))
-    runner.run(unittest.makeSuite(TestAppendObject))
-    runner.run(unittest.makeSuite(TestMultiUploadFile))
-    runner.run(unittest.makeSuite(TestAuthorization))
-    runner.run(unittest.makeSuite(TestAbortMultipartUpload))
-    runner.run(unittest.makeSuite(TestUtil))
-    runner.run(unittest.makeSuite(TestHandler))
-    runner.run(unittest.makeSuite(TestBceHttpClient))
-    runner.run(unittest.makeSuite(TestDoesBucketExist))
-    runner.run(unittest.makeSuite(TestBceClientConfiguration))
-    runner.run(unittest.makeSuite(TestGetRangeHeaderDict))
-    runner.run(unittest.makeSuite(TestDecorator))
-    runner.run(unittest.makeSuite(TestDeleteMultipleObjects))
-    runner.run(unittest.makeSuite(TestPutBucketLogging))
-    runner.run(unittest.makeSuite(TestGetBucketLogging))
-    runner.run(unittest.makeSuite(TestUploadPartCopy))
-    runner.run(unittest.makeSuite(TestPutBucketLifecycle))
-    runner.run(unittest.makeSuite(TestGetBucketLifecycle))
-    runner.run(unittest.makeSuite(TestPutBucketCors))
-    runner.run(unittest.makeSuite(TestGetBucketCors))
-    runner.run(unittest.makeSuite(TestSetObjectAcl))
-    runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
-    runner.run(unittest.makeSuite(TestBucketStaticWebsite))
-    runner.run(unittest.makeSuite(TestPutBucketEncryption))
-    runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
-    runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
-    runner.run(unittest.makeSuite(TestBucketReplication))
-    runner.run(unittest.makeSuite(TestBucketTrash))
-    runner.run(unittest.makeSuite(TestFetchObject))
+    #runner.run(unittest.makeSuite(TestCopyObject))
+    #runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
+    #runner.run(unittest.makeSuite(TestListMultipartsUploads))
+    #runner.run(unittest.makeSuite(TestSetBucketAcl))
+    #runner.run(unittest.makeSuite(TestGetBucketAcl))
+    #runner.run(unittest.makeSuite(TestGetObjectMetaData))
+    #runner.run(unittest.makeSuite(TestGetObject))
+    #runner.run(unittest.makeSuite(TestListBuckets))
+    #runner.run(unittest.makeSuite(TestListObjects))
+    #runner.run(unittest.makeSuite(TestListParts))
+    #runner.run(unittest.makeSuite(TestPutObject))
+    #runner.run(unittest.makeSuite(TestAppendObject))
+    #runner.run(unittest.makeSuite(TestMultiUploadFile))
+    #runner.run(unittest.makeSuite(TestAuthorization))
+    #runner.run(unittest.makeSuite(TestAbortMultipartUpload))
+    #runner.run(unittest.makeSuite(TestUtil))
+    #runner.run(unittest.makeSuite(TestHandler))
+    #runner.run(unittest.makeSuite(TestBceHttpClient))
+    #runner.run(unittest.makeSuite(TestDoesBucketExist))
+    #runner.run(unittest.makeSuite(TestBceClientConfiguration))
+    #runner.run(unittest.makeSuite(TestGetRangeHeaderDict))
+    #runner.run(unittest.makeSuite(TestDecorator))
+    #runner.run(unittest.makeSuite(TestDeleteMultipleObjects))
+    #runner.run(unittest.makeSuite(TestPutBucketLogging))
+    #runner.run(unittest.makeSuite(TestGetBucketLogging))
+    #runner.run(unittest.makeSuite(TestUploadPartCopy))
+    #runner.run(unittest.makeSuite(TestPutBucketLifecycle))
+    #runner.run(unittest.makeSuite(TestGetBucketLifecycle))
+    #runner.run(unittest.makeSuite(TestPutBucketCors))
+    #runner.run(unittest.makeSuite(TestGetBucketCors))
+    #runner.run(unittest.makeSuite(TestSetObjectAcl))
+    #runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
+    #runner.run(unittest.makeSuite(TestBucketStaticWebsite))
+    #runner.run(unittest.makeSuite(TestPutBucketEncryption))
+    #runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
+    #runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
+    #runner.run(unittest.makeSuite(TestBucketReplication))
+    #runner.run(unittest.makeSuite(TestBucketTrash))
+    #runner.run(unittest.makeSuite(TestFetchObject))
+    runner.run(unittest.makeSuite(TestRestoreObject))
 
 run_test()
 cov.stop()

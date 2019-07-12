@@ -19,6 +19,7 @@ import string
 import bos_sample_conf
 from baidubce import exception
 from baidubce.services.bos import canned_acl
+from baidubce.services.bos import storage_class
 from baidubce.services.bos.bos_client import BosClient
 
 
@@ -124,6 +125,10 @@ if __name__ == "__main__":
     # delete multiple objects
     key_list = ['key1', 'key2', 'key3']
     bos_client.delete_multiple_object(bucket_name, key_list)
+
+    # put an archive object and restore object with days=2
+    bos_client.put_object_from_file(bucket_name, key, file_name, storage_class=storage_class.ARCHIVE)
+    bos_client.restore_object(bucket_name, key, days=2)
 
     ######################################################################################################
     #            acl operation samples
