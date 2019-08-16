@@ -21,7 +21,7 @@ import baidubce
 import sys
 import time
 import traceback
-import re
+import base64
 
 from baidubce import bce_base_client
 from baidubce import utils
@@ -32,10 +32,12 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services.cfc import cfc_handler
+from baidubce.services.cfc import models
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 from baidubce.utils import required
 from baidubce import compat
+
 
 if compat.PY3:
     from urllib.parse import quote
@@ -139,7 +141,7 @@ class CfcClient(bce_base_client.BceBaseClient):
     def create_function(self, function_name, description=None, environment=None,
                         handler=None, memory_size=128, region='bj',
                         zip_file=None, publish=False, run_time='python2',
-                        timeout=3, dry_run=False, config=None):
+                        timeout=3, dry_run=False, code_zip_file=None, config=None):
         """
         Create cfc function
 
@@ -179,6 +181,9 @@ class CfcClient(bce_base_client.BceBaseClient):
         :param timeout: 1-300 The default is 3 seconds.
         :type timeout: int
 
+        :param code_zip_file: the file path of the zipped code.
+        :type code_zip_file: string
+
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
@@ -186,7 +191,6 @@ class CfcClient(bce_base_client.BceBaseClient):
             environment = {}
         data = {
             'Code': {
-                'ZipFile': zip_file,
                 'Publish': publish,
                 'DryRun': dry_run
             },
@@ -201,6 +205,13 @@ class CfcClient(bce_base_client.BceBaseClient):
                 'Variables': environment
             }
         }
+        if code_zip_file:
+            code_file = open(code_zip_file, 'rb')
+            code = code_file.read()
+            code_base64 = base64.b64encode(code).decode('utf-8')
+            data['Code']['ZipFile'] = code_base64
+        else:
+            data['Code']['ZipFile'] = zip_file
         params = {}
         return self._send_request(
             http_methods.POST,
@@ -676,6 +687,198 @@ class CfcClient(bce_base_client.BceBaseClient):
             '/functions/' + function_name + "/aliases/" + alias_name,
             body={},
             params={},
+            config=config)
+
+    def list_triggers(self, function_brn, config=None):
+        """
+        list_triggers
+        :param function_brn  (required) The cfc function brn.
+        :type function_brn string
+
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return: message result as following format
+            {
+              "Relation": [
+                {
+                  "RelationId": "brn:bce:cfc-http-trigger:bj:cd64f99c69d7c404b61de0a4f1865834:b8542048977633ad0a867aefc33fd32a/cfc/GET/cfc/docs",
+                  "Sid": "cfc-dfbd5359-1afb-49e7-81d7-16554056c79d",
+                  "Source": "cfc-http-trigger/v1/CFCAPI",
+                  "Target": "brn:bce:cfc:bj:cd64f99c69d7c404b61de0a4f1865834:function:helloCFCDocs:$LATEST",
+                  "Data": {
+                    "AuthType": "anonymous",
+                    "Brn": "brn:bce:cfc-http-trigger:bj:cd64f99c69d7c404b61de0a4f1865834:b8542048977633ad0a867aefc33fd32a/cfc/GET/cfc/docs",
+                    "EndpointPrefix": "https://6ewfn1337kndc.cfc-execute.bj.baidubce.com",
+                    "Method": "GET",
+                    "ResourcePath": "/cfc/docs"
+                  }
+                },
+                {
+                  "RelationId": "brn:bce:cfc-http-trigger:bj:cd64f99c69d7c404b61de0a4f1865834:b8542048977633ad0a867aefc33fd32a/cfc/POST,PUT/cfc/docs/edit",
+                  "Sid": "cfc-dfbd5359-1afb-49e7-81d7-16554056c79d",
+                  "Source": "cfc-http-trigger/v1/CFCAPI",
+                  "Target": "brn:bce:cfc:bj:cd64f99c69d7c404b61de0a4f1865834:function:helloCFCDocs:$LATEST",
+                  "Data": {
+                    "AuthType": "anonymous",
+                    "Brn": "brn:bce:cfc-http-trigger:bj:cd64f99c69d7c404b61de0a4f1865834:b8542048977633ad0a867aefc33fd32a/cfc/POST,PUT/cfc/docs/edit",
+                    "EndpointPrefix": "https://6ewfn1337kndc.cfc-execute.bj.baidubce.com",
+                    "Method": "POST,PUT",
+                    "ResourcePath": "/cfc/docs/edit"
+                  }
+                }
+              ]
+            }
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if function_brn is not None:
+            params["FunctionBrn"] = function_brn
+        return self._send_request(
+            http_methods.GET,
+            '/relation',
+            body={},
+            params=params,
+            config=config)
+
+    def create_trigger(self, function_brn, source=None, trigger_data=None, config=None):
+        """
+        create_trigger
+        :param function_brn  (required) The cfc function brn.
+        :type function_brn string
+
+        :param source. The trigger source type. For example, models.CRONTAB_TRIGGER
+        :type source string
+
+        :param trigger_data The trigger data. You can get details from
+            https://cloud.baidu.com/doc/CFC/s/Kjwvz47o9/#relationconfiguration
+        :type trigger_data models.AbstractTriggerDateModel
+
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:  message result as following format
+            {
+                "Relation": {
+                    "Sid": "cfc-c53bef4e-2cac-4bc6-84c1-2d5ec2f8bec2",
+                    "RelationId" : "00457f0b-20d8-4f3d-8555-c2u121f38313",
+                    "Source": "string",
+                    "Target": "brn:bce:cfc:bj:640c8817bd1de2928d47256dd0620ce5:function:test:$LATEST",
+                    "Data": {
+                        "EventType":["PutObject", "PostObject"],
+                        "Prefix":"images/",
+                        "Suffix":".jpg",
+                        "Status":"enabled"
+                    }
+                }
+            }
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        data = {}
+        if function_brn is not None:
+            data["Target"] = function_brn
+        if source is not None:
+            data["Source"] = source
+        if trigger_data is not None:
+            if isinstance(trigger_data, models.AbstractTriggerDataModel):
+                data["Source"] = trigger_data.get_trigger_source()
+                data["Data"] = trigger_data.serialize()
+            else:
+                data["Data"] = trigger_data
+        return self._send_request(
+            http_methods.POST,
+            '/relation',
+            body=json.dumps(data),
+            params={},
+            config=config)
+
+    def update_trigger(self, function_brn, relation_id, trigger_data, source=None, config=None):
+        """
+        create_trigger
+        :param function_brn  (required) The cfc function brn.
+        :type function_brn string
+
+        :param source  (required) The trigger source type. For example, models.CRONTAB_TRIGGER
+        :type source string
+
+        :param relation_id  (required) The relation_id.
+        :type relation_id string
+
+        :param trigger_data The trigger data. You can get details from
+            https://cloud.baidu.com/doc/CFC/s/Kjwvz47o9/#relationconfiguration
+        :type trigger_data models.AbstractTriggerDateModel
+
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return: message result as following format
+            {
+                "Relation": {
+                    "Sid": "cfc-c53bef4e-2cac-4bc6-84c1-2d5ec2f8bec2",
+                    "RelationId" : "00457f0b-20d8-4f3d-8555-c2u121f38313",
+                    "Source": "string",
+                    "Target": "brn:bce:cfc:bj:640c8817bd1de2928d47256dd0620ce5:function:test:$LATEST",
+                    "Data": {
+                        "EventType":["PutObject", "PostObject"],
+                        "Prefix":"images/",
+                        "Suffix":".jpg",
+                        "Status":"enabled"
+                    }
+                }
+            }
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        data = {}
+        if function_brn is not None:
+            data["Target"] = function_brn
+        if source is not None:
+            data["Source"] = source
+        if trigger_data is not None:
+            if isinstance(trigger_data, models.AbstractTriggerDataModel):
+                data["Source"] = trigger_data.get_trigger_source()
+                data["Data"] = trigger_data.serialize()
+            else:
+                data["Data"] = trigger_data
+        if relation_id is not None:
+            data["RelationId"] = relation_id
+
+        return self._send_request(
+            http_methods.PUT,
+            '/relation',
+            body=json.dumps(data),
+            params={},
+            config=config)
+
+    def delete_trigger(self, function_brn, source, relation_id, config=None):
+        """
+        delete_trigger
+        :param function_brn  (required) The cfc function brn.
+        :type function_brn string
+
+        :param source  (required) The trigger source type.
+        :type source string
+
+        :param relation_id  (required) The relation_id.
+        :type relation_id string
+
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if function_brn is not None:
+            params["Target"] = function_brn
+        if source is not None:
+            params["Source"] = source
+        if relation_id is not None:
+            params["RelationId"] = relation_id
+        return self._send_request(
+            http_methods.DELETE,
+            '/relation',
+            body={},
+            params=params,
             config=config)
 
     @staticmethod
