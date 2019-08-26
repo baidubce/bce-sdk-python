@@ -819,7 +819,7 @@ class BosClient(BceBaseClient):
             body_parser=BosClient._parse_bos_object)
 # restore object
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def restore_object(self, bucket_name, key, days = None, tier = "Standard", config=None):
+    def restore_object(self, bucket_name, key, days=None, tier="Standard", config=None):
         """
 
         :param bucket_name:
