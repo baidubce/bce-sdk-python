@@ -184,13 +184,14 @@ class BosClient(BceBaseClient):
                            config=config)
 
     @required(bucket_name=(bytes, str))
-    def set_bucket_storage_class(self, bucket_name, storage_class=None, config=None):
+    def set_bucket_storage_class(self, bucket_name, storage_class, config=None):
         """
 
         :param bucket_name:
         :param config:
         :return:
         """
+        storage_class = compat.convert_to_string(storage_class)
         return self._send_request(http_methods.PUT,
                            bucket_name,
                            body=json.dumps({'storageClass': storage_class},

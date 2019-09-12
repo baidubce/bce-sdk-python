@@ -2606,6 +2606,15 @@ class TestRestoreObject(TestClient):
         self.assertTrue(response.metadata.bce_restore.find("expiry-date") > 0)
         res = self.bos.delete_object(self.BUCKET, self.KEY)
 
+class TestBucketStorageclass(TestClient):
+    """test bucket storageclass"""
+    def test_bucket_storage_class(self):
+        """test bucket storageclass"""
+        self.bos.set_bucket_storage_class(self.BUCKET, storage_class=storage_class.COLD)
+        response = self.bos.get_bucket_storage_class(self.BUCKET)
+        self.assertEqual(response.storage_class, "COLD")
+        self.bos.set_bucket_storage_class(self.BUCKET, storage_class=storage_class.STANDARD)
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2650,6 +2659,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketTrash))
     runner.run(unittest.makeSuite(TestFetchObject))
     runner.run(unittest.makeSuite(TestRestoreObject))
+    runner.run(unittest.makeSuite(TestBucketStorageclass))
 
 run_test()
 cov.stop()
