@@ -39,7 +39,7 @@ OWNER_ID = ""
 ALIGNED_SIZE = 10 * 1024 * 1024
 
 
-logger = logging.getLogger("baidubce.services.bos")
+logger = logging.getLogger("baidubce.http.bce_http_client")
 fh = logging.FileHandler("test_client.log")
 fh.setLevel(logging.DEBUG)
 
