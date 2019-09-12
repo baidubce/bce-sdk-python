@@ -3,7 +3,7 @@
 mkdir -p output/dist
 
 export LC_ALL="en_US.UTF-8"
-VERSION="0.8.31"
+VERSION=$(awk -F"'" '$1 ~ /SDK_VERSION/ {print $2}' baidubce/__init__.py)
 TARGET="bce-python-sdk-$VERSION"
 mkdir $TARGET
 cp -rf baidubce sample setup.py README.txt $TARGET
