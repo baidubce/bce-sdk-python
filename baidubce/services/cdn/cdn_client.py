@@ -59,6 +59,572 @@ class CdnClient(bce_base_client.BceBaseClient):
             '/domain',
             config=config)
 
+    def list_user_domains(self, status, rule=None, config=None):
+        """
+        get user domain list
+
+        :param status: Specify the domain whose return 'status' is status
+        :type status: string
+        :param rule: domain Fuzzy Matching
+        :type rule: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {}
+        params['status'] = status 
+
+        if rule is not None:
+            params['rule'] = rule
+
+        return self._send_request(
+            http_methods.GET, '/user/domains',
+            params=params,
+            config=config)
+
+    def valid_domain(self, domain, config=None):
+        """
+        query if a domain can be create
+        
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET,
+            '/domain/' + domain + '/valid',
+            config=config)
+
+    def get_domain_cache_full_url(self, domain, config=None):
+        """
+        get cache full url of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'cacheFullUrl': ''},
+            config=config)
+
+
+    def set_domain_error_page(self, domain, error_page, config=None):
+        """
+        update error_page of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param error_page: Detailed configuration of custom error jump pages
+        :type error_page: list<ErrorPage>
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'errorPage': ''},
+            body=json.dumps({'errorPage': error_page}),
+            config=config)
+
+    def get_domain_error_page(self, domain, config=None):
+        """
+        get error page configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'errorPage': ''},
+            config=config)
+
+
+    def get_domain_referer_acl(self, domain, config=None):
+        """
+        get referer acl configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'refererACL': ''},
+            config=config)
+
+
+    def get_domain_ip_acl(self, domain, config=None):
+        """
+        get ip acl configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'ipACL': ''},
+            config=config)
+
+
+    def set_domain_cors(self, domain, cors, config=None):
+        """
+        update cors of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param cors: Accelerating Cross-domain Settings for Domain Names
+        :type cors
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'cors': ''},
+            body=json.dumps({'cors': cors}),
+            config=config)
+
+    def get_domain_cors(self, domain, config=None):
+        """
+        get cors configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'cors': ''},
+            config=config)
+
+    def set_domain_access_limit(self, domain, access_limit, config=None):
+        """
+        update access limit of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param access_limit: Setting IP Access Limitation
+        :type AccessLimit
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'accessLimit': ''},
+            body=json.dumps({'accessLimit': access_limit}),
+            config=config)
+
+    def get_domain_access_limit(self, domain, config=None):
+        """
+        get access limit configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'accessLimit': ''},
+            config=config)
+
+    def set_domain_client_ip(self, domain, client_ip, config=None):
+        """
+        update Getting Real User IP Settings
+        :param domain: the domain name
+        :type domain: string
+        :param client_ip: Getting Real User IP Settings
+        :type ClientIp
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'clientIp': ''},
+            body=json.dumps({'clientIp': client_ip}),
+            config=config)
+
+    def get_domain_client_ip(self, domain, config=None):
+        """
+        get client ip configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'clientIp': ''},
+            config=config)
+
+    def set_domain_range_switch(self, domain, range_switch, config=None):
+        """
+        update range backsource Settings
+        :param domain: the domain name
+        :type domain: string
+        :param range_switch: rangre backsource settings
+        :type bool
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'rangeSwitch': ''},
+            body=json.dumps({'rangeSwitch': range_switch}),
+            config=config)
+
+    def get_domain_range_switch(self, domain, config=None):
+        """
+        get range switch configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'rangeSwitch': ''},
+            config=config)
+
+    def set_domain_mobile_access(self, domain, mobile_access, config=None):
+        """
+        update mobile access Settings
+        :param domain: the domain name
+        :type domain: string
+        :param mobile_access: mobile access settings
+        :type MobileAccess
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'mobileAccess': ''},
+            body=json.dumps({'mobileAccess': mobile_access}),
+            config=config)
+
+    def get_domain_mobile_access(self, domain, config=None):
+        """
+        get mobile access configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'mobileAccess': ''},
+            config=config)
+
+    def set_domain_http_header(self, domain, http_header, config=None):
+        """
+        update http header Settings
+        :param domain: the domain name
+        :type domain: string
+        :param http_header: http header settings
+        :type HttpHeader
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'httpHeader': ''},
+            body=json.dumps({'httpHeader': http_header}),
+            config=config)
+
+    def get_domain_http_header(self, domain, config=None):
+        """
+        get http header configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'httpHeader': ''},
+            config=config)
+
+    def set_domain_file_trim(self, domain, file_trim, config=None):
+        """
+        update file trim Settings
+        :param domain: the domain name
+        :type domain: string
+        :param file_trim: file trim settings
+        :type bool
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'fileTrim': ''},
+            body=json.dumps({'fileTrim': file_trim}),
+            config=config)
+
+    def get_domain_file_trim(self, domain, config=None):
+        """
+        get file trim configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'fileTrim': ''},
+            config=config)
+
+    def set_domain_media_drag(self, domain, media_drag, config=None):
+        """
+        update media drag Settings
+        :param domain: the domain name
+        :type domain: string
+        :param media_drag: media drag settings
+        :type MediaDragConf
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'mediaDrag': ''},
+            body=json.dumps({'mediaDragConf': media_drag}),
+            config=config)
+
+    def get_domain_media_drag(self, domain, config=None):
+        """
+        get range switch configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'mediaDrag': ''},
+            config=config)
+
+    def set_domain_compress(self, domain, compress, config=None):
+        """
+        update compress Settings
+        :param domain: the domain name
+        :type domain: string
+        :param compress: media drag settings
+        :type compress
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'compress': ''},
+            body=json.dumps({'compress': compress}),
+            config=config)
+
+    def get_domain_compress(self, domain, config=None):
+        """
+        get compress configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'compress': ''},
+            config=config)
+
+    def get_domain_records(self, Type=None, start_time=None, end_time=None,
+            url=None, marker=None, config=None):
+        """
+        Query refresh and preload records
+        :param Type: None
+        :type string
+        :param start_time: None
+        :type Timestamp
+        :param end_time: None
+        :type Timestamp
+        :param url: None
+        :type string
+        :param marker: None
+        :type string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+
+        params = {}
+
+        if Type is not None:
+            params['type'] = Type
+
+        if start_time is not None:
+            params['startTime'] = start_time
+
+        if end_time is not None:
+            params['endTime'] = end_time
+
+        if url is not None:
+            params['url'] = url
+        
+        if marker is not None:
+            params['marker'] = marker
+
+        if params is None:
+            params = {}
+
+        return self._send_request(
+            http_methods.GET, '/cache/records',
+            params = params,
+            config=config)
+
+    def set_dsa(self, action, config=None):
+        """
+        set das enable
+        :param action: dsa enable
+        :type string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/dsa',
+            body=json.dumps({'action': action}),
+            config=config)
+
+    def set_domain_dsa(self, domain, dsa, config=None):
+        """
+        update domain dsa Settings
+        :param domain: the domain name
+        :type domain: string
+        :param dsa: domain dsa settings
+        :type DSA
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'dsa': ''},
+            body=json.dumps({'dsa': dsa}),
+            config=config)
+
+    def get_dsa_domains(self, config=None):
+        """
+        get dsa domain list
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET,
+            '/dsa/domain',
+            config=config)
+
+    def get_log_list(self, log, config=None):
+        """
+        get log list
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.POST,
+            '/log/list',
+            body=json.dumps(log),
+            config=config)
+
     def create_domain(self, domain, origin, config=None):
         """
         create domain
