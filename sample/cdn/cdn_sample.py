@@ -49,7 +49,7 @@ def test_create_domain(c):
     origin = [
                 {'peer': '1.2.3.4'}
              ]
-    response = c.create_domain('www.example.com', origin)
+    response = c.create_domain('test-sdk.sys-qa.com', origin)
     print(response)
 
 
@@ -57,7 +57,7 @@ def test_delete_domain(c):
     """
     test_delete_domain
     """
-    response = c.delete_domain('www.example.com')
+    response = c.delete_domain('test-sdk.sys-qa.com')
     print(response)
 
 
@@ -612,6 +612,332 @@ def test_get_domain_stats_error(c):
     print(response)
 
 
+def test_list_user_domains(c):
+    """
+    test list user domains with status,rule
+    """
+    status = 'ALL'
+    rule = None
+
+    response = c.list_user_domains(status, rule)
+    print(response)
+
+
+def test_valid_domain(c):
+    """
+    test valid domain
+    """
+    response = c.valid_domain('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_get_domain_cache_full_url(c):
+    """
+    test get domain cache full url
+    """
+    response = c.get_domain_cache_full_url('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_error_page(c):
+    """
+    test set domain error page
+    """
+    error_page = [
+                    {'code': 404, 'redirectCode':302, 'url': '/customer_404.html'},
+                    {'code': 403, 'url': '/customer_403.html'}
+                 ]
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_error_page(domain, error_page);
+    print(response)
+
+
+def test_get_domain_error_page(c):
+    """
+    test get domain error page
+    """
+    response = c.get_domain_error_page('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_get_domain_ip_acl(c):
+    """
+    test get domain ip acl
+    """
+    response = c.get_domain_ip_acl('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_get_domain_referer_acl(c):
+    """
+    test get domain referer acl
+    """
+    response = c.get_domain_referer_acl('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_cors(c):
+    """
+    test set domain cors
+    """
+    cors = {
+                "allow": "on",
+                "originList": ["http://www.baidu.com", "http://*.bce.com"]
+            }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_cors(domain, cors);
+    print(response)
+
+
+def test_get_domain_cors(c):
+    """
+    test get domain cors
+    """
+    response = c.get_domain_cors('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_access_limit(c):
+    """
+    test set domain access limit
+    """
+    access_limit = {
+                "enabled": True,
+                "limit": 2000
+            }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_access_limit(domain, access_limit);
+    print(response)
+
+
+def test_get_domain_access_limit(c):
+    """
+    test get domain access limit
+    """
+    response = c.get_domain_access_limit('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_client_ip(c):
+    """
+    test set domain client ip
+    """
+    client_ip = {
+                "enabled": True,
+                "name": "True-Client-Ip"
+            }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_client_ip(domain, client_ip);
+    print(response)
+
+
+def test_get_domain_client_ip(c):
+    """
+    test get domain client_ip
+    """
+    response = c.get_domain_client_ip('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_range_switch(c):
+    """
+    test set domain range switch
+    """
+    range_switch = True
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_range_switch(domain, range_switch);
+    print(response)
+
+
+def test_get_domain_range_switch(c):
+    """
+    test get domain range switch
+    """
+    response = c.get_domain_range_switch('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_mobile_access(c):
+    """
+    test set domain mobile access 
+    """
+    mobile_access = {
+        "distinguishClient": True
+    }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_mobile_access(domain, mobile_access);
+    print(response)
+
+
+def test_get_domain_mobile_access(c):
+    """
+    test get domain mobile access
+    """
+    response = c.get_domain_mobile_access('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_http_header(c):
+    """
+    test set domain http header
+    """
+    http_header = [
+        {"type": "origin", "header": "x-auth-cn", "value":"xxxxxxxxx", "action": "add"},
+        {"type": "response", "header": "content-type", "value":"application/octet-stream", "action": "add"}
+    ]
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_http_header(domain, http_header);
+    print(response)
+
+
+def test_get_domain_http_header(c):
+    """
+    test get domain http header
+    """
+    response = c.get_domain_http_header('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_file_trim(c):
+    """
+    test set domain file trim
+    """
+    file_trim = True
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_file_trim(domain, file_trim);
+    print(response)
+
+
+def test_get_domain_file_trim(c):
+    """
+    test get domain file trim
+    """
+    response = c.get_domain_file_trim('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_media_drag(c):
+    """
+    test set domain media drag
+    """
+    media_drag = {
+        "mp4":{
+            "fileSuffix":[
+                "mp4",
+                "m4a"
+            ],
+            "startArgName":"startIndex",
+            "dragMode":"second"
+        },
+        "flv":{
+            "dragMode":"byteAV"
+        }
+    }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_media_drag(domain, media_drag);
+    print(response)
+
+
+def test_get_domain_media_drag(c):
+    """
+    test get domain media drag
+    """
+    response = c.get_domain_media_drag('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_set_domain_compress(c):
+    """
+    test set domain compress
+    """
+    compress = {"allow": True, "type": "gzip"}
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_compress(domain, compress);
+    print(response)
+
+
+def test_get_domain_compress(c):
+    """
+    test get domain compress
+    """
+    response = c.get_domain_compress('test-sdk.sys-qa.com')
+    print(response)
+
+
+def test_get_domain_records(c):
+    """
+    Query refresh and preload records
+    """
+
+    Type = "purge"
+    start_time = '2019-05-26T00:00:00Z'
+    end_time = '2019-05-26T01:00:00Z'
+    url = 'http://test-sdk.sys-qa.com/path/to/directory/'
+    marker = None
+
+    response = c.get_domain_records(Type, start_time, end_time, url, marker)
+    print(response)
+
+
+def test_set_dsa(c):
+    """
+    test set dsa
+    """
+    action = "enable"
+    response = c.set_dsa(action)
+    print(response)
+
+
+def test_set_domain_dsa(c):
+    """
+    test set domain dsa
+    """
+    dsa = {
+        "enabled":True,
+        "rules":[
+            {
+                "type":"suffix",
+                "value":".mp4;.jpg;.php"
+            },
+            {
+                "type":"path",
+                "value":"/path"
+            },
+            {
+                "type":"exactPath",
+                "value":"/path/to/file.mp4"
+            }
+        ],
+        "comment":"test"
+    }
+    domain = 'test-sdk.sys-qa.com'
+    response = c.set_domain_dsa(domain, dsa);
+    print(response)
+
+
+def test_get_dsa_domains(c):
+    """
+    get dsa domain list
+    """
+    response = c.get_dsa_domains()
+    print(response)
+
+
+def test_get_log_list(c):
+    """
+    get log list
+    """
+    log = { "type":2,
+            "domains":["test-sdk.sys-qa.com"],
+            "startTime":"2019-03-04T00:00:00Z",
+            "endTime":"2019-03-04T23:00:00Z",
+            "pageNo":1,
+            "pageSize":1000
+        }
+    response = c.get_log_list(log)
+    print(response)
+
+
 if __name__ == "__main__":
     import logging
 
@@ -620,7 +946,41 @@ if __name__ == "__main__":
 
     c = CdnClient(cdn_sample_conf.config)
     # test_list_domains(c)
+
+    # test_list_user_domains(c)
+    # test_valid_domain(c)
+
     # test_create_domain(c)
+
+    # test_get_domain_cache_full_url(c)
+    # test_set_domain_error_page(c)
+    # test_get_domain_error_page(c)
+    # test_get_domain_referer_acl(c)
+    # test_get_domain_ip_acl(c)
+    # test_set_domain_cors(c)
+    # test_get_domain_cors(c)
+    # test_set_domain_access_limit(c)
+    # test_get_domain_access_limit(c)
+    # test_set_domain_client_ip(c)
+    # test_get_domain_client_ip(c)
+    # test_set_domain_range_switch(c)
+    # test_get_domain_range_switch(c)
+    # test_set_domain_mobile_access(c)
+    # test_get_domain_mobile_access(c)
+    # test_set_domain_http_header(c)
+    # test_get_domain_http_header(c)
+    # test_set_domain_file_trim(c)
+    # test_get_domain_file_trim(c)
+    # test_set_domain_media_drag(c)
+    # test_get_domain_media_drag(c)
+    # test_set_domain_compress(c)
+    # test_get_domain_compress(c)
+    # test_get_domain_records(c)
+    # test_set_dsa(c)
+    # test_set_domain_dsa(c)
+    # test_get_dsa_domains(c)
+    # test_get_log_list(c)
+
     # test_delete_domain(c)
     # test_enable_domain(c)
     # test_disable_domain(c)
@@ -671,3 +1031,4 @@ if __name__ == "__main__":
     # test_get_domain_stats_top_referers(c)
     # test_get_domain_stats_top_domains(c)
     # test_get_domain_stats_uv(c)
+
