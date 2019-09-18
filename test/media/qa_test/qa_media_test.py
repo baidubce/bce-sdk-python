@@ -1,7 +1,5 @@
 """
 This module is test models of media sdk..
-
-Authors: liumingxi(liumingxi@baidu.com)
 Date:    2019/04/15 16:50:06
 """
 

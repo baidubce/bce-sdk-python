@@ -8,7 +8,6 @@
  
 """
 File: test_create_watermark.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/23 19:42:24
 """
 

@@ -8,7 +8,6 @@
  
 """
 File: test_create_preset.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/15 10:15:40
 """
 import os

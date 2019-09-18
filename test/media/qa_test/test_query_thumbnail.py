@@ -8,7 +8,6 @@
  
 """
 File: test_query_thumbnail.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/25 15:15:40
 """
 import os

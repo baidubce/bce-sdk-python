@@ -8,7 +8,6 @@
  
 """
 File: test_delete_preset.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/29 14:44:40
 """
 import os

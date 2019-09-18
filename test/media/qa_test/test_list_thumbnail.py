@@ -8,7 +8,6 @@
  
 """
 File: test_list_thumbnail.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/25 15:38:40
 """
 import os

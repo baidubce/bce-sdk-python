@@ -8,7 +8,6 @@
  
 """
 File: media_config.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/10 15:14:13
 """
 

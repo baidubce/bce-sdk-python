@@ -8,7 +8,6 @@
  
 """
 File: test_list_transcoding.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/07/2 14:09:40
 """
 

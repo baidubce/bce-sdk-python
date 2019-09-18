@@ -8,7 +8,6 @@
  
 """
 File: test_delete_pipeline.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/12 15:57:40
 """
 
