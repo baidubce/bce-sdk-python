@@ -8,7 +8,6 @@
  
 """
 File: test_query_transcoding.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/07/2 11:09:40
 """
 import os

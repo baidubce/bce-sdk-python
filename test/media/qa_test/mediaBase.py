@@ -8,7 +8,6 @@
  
 """
 File: media_base.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/11 11:06:20
 """
 

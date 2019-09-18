@@ -8,7 +8,6 @@
  
 """
 File: test_query_media_info.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/25 18:55:00
 """
 import os

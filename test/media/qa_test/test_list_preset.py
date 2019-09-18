@@ -8,7 +8,6 @@
  
 """
 File: test_list_preset.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/29 14:27:40
 """
 import os

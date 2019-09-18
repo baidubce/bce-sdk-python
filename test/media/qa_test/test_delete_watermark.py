@@ -8,7 +8,6 @@
  
 """
 File: test_delete_watermark.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/24 10:42:24
 """
 

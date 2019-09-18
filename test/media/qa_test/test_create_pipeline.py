@@ -8,7 +8,6 @@
  
 """
 File: test_create_pipeline.py
-Author: wangpeng41(wangpeng41@baidu.com)
 Date: 2015/06/10 15:15:40
 """
 
