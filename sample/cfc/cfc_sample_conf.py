@@ -12,18 +12,15 @@
 Configuration for sts samples.
 """
 
-#!/usr/bin/env python
-#coding=utf-8
-
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'http://cfc.bj.baidubce.com'
-AK = 'ak'
-SK = 'sk'
+HOST = b'http://cfc.bj.baidubce.com'
+AK = b'ak'
+SK = b'sk'
 
-logger = logging.getLogger('baidubce.services.cfc.bosclient')
+logger = logging.getLogger('baidubce.services.cfc.client')
 fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.DEBUG)
 

@@ -6,15 +6,17 @@
 VCA Test
 """
 import logging
+from builtins import str
+from builtins import bytes
 
 #从Python SDK导入BOS配置管理模块以及安全认证模块
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
 #设置BosClient的Host，Access Key ID和Secret Access Key
-vca_host = "http://vca.bj.baidubce.com"
-access_key_id = "1c0105c636634826808bd46abf01cc19"
-secret_access_key = "5a91b5378e6a4dad9fe38e9a2257d87d"
+vca_host = b"http://vca.bj.baidubce.com"
+access_key_id = b""
+secret_access_key = b""
 
 #设置日志文件的句柄和日志级别
 logger = logging.getLogger('baidubce.services.vca.vcaclient')

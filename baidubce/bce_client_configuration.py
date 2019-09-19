@@ -14,9 +14,13 @@
 This module defines a common configuration class for BCE.
 """
 
+from future.utils import iteritems
+from builtins import str
+from builtins import bytes
 import baidubce.protocol
 import baidubce.region
-from baidubce.retry_policy import BackOffRetryPolicy
+from baidubce.retry.retry_policy import BackOffRetryPolicy
+from baidubce import compat
 
 
 class BceClientConfiguration(object):
@@ -33,7 +37,7 @@ class BceClientConfiguration(object):
                  retry_policy=None,
                  security_token=None):
         self.credentials = credentials
-        self.endpoint = endpoint
+        self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
         self.region = region
         self.connection_timeout_in_mills = connection_timeout_in_mills
@@ -51,7 +55,7 @@ class BceClientConfiguration(object):
         :param other:
         :return:
         """
-        for k, v in other.__dict__.items():
+        for k, v in iteritems(other.__dict__):
             if v is not None:
                 self.__dict__[k] = v
 

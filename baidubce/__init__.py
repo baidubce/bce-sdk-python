@@ -13,10 +13,11 @@
 """
 This module defines some common string constants.
 """
+from builtins import str
+from builtins import bytes
+from . import protocol
 
-import protocol
-
-SDK_VERSION = '0.8.24'
-DEFAULT_SERVICE_DOMAIN = 'bcebos.com'
-URL_PREFIX = '/v1'
+SDK_VERSION = b'0.8.31'
+DEFAULT_SERVICE_DOMAIN = b'bcebos.com'
+URL_PREFIX = b'/v1'
 DEFAULT_ENCODING = 'UTF-8'

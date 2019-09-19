@@ -22,8 +22,10 @@ import unittest
 
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
-reload(sys)
-sys.setdefaultencoding('utf-8')
+
+if sys.version_info[0] == 2 :
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 from baidubce.services.tsdb.tsdb_admin_client import TsdbAdminClient
 import tsdb_admin_test_config
@@ -36,7 +38,7 @@ class TestTsdbAdminClient(unittest.TestCase):
         self.tsdb_admin_client = TsdbAdminClient(tsdb_admin_test_config.config)
 
     def tearDown(self):
-        print "ok"
+        print("ok")
 
     def test_create_database(self):
         """
@@ -44,10 +46,11 @@ class TestTsdbAdminClient(unittest.TestCase):
         """
         error = None
         try:
-            response = self.tsdb_admin_client.create_database(client_token='abttt',
-                database_name='python4', description='pythonsdktest',
-                ingest_datapoints_monthly=1, purchase_length=1)
-            print response
+            response = self.tsdb_admin_client.create_database(client_token=b'abttta',
+                database_name=b'python43', description=b'pythonsdktest',
+                ingest_datapoints_monthly=1, purchase_length=1,
+                store_bytes_quota=0, coupon_name = b'xxxxxxx' )
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -59,8 +62,8 @@ class TestTsdbAdminClient(unittest.TestCase):
         """
         error = None
         try:
-            response = self.tsdb_admin_client.delete_database('tsdb-xxxxxxxx')
-            print response
+            response = self.tsdb_admin_client.delete_database(b'tsdb-xxxxxxxx')
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -72,8 +75,8 @@ class TestTsdbAdminClient(unittest.TestCase):
         """
         error = None
         try:
-            response = self.tsdb_admin_client.get_database('tsdb-xxxxxxxx')
-            print response
+            response = self.tsdb_admin_client.get_database(b'tsdb-xxxxxxxxx')
+            print(response)
         except BaseException as e:
             error = e
         finally:
@@ -86,7 +89,7 @@ class TestTsdbAdminClient(unittest.TestCase):
         error = None
         try:
             response = self.tsdb_admin_client.get_all_databases()
-            print response
+            print(response)
         except BaseException as e:
             error = e
         finally:

@@ -17,9 +17,11 @@ This module provides a client class for VCA.
 import copy
 import json
 import logging
+from builtins import str
+from builtins import bytes
 
 from baidubce.auth import bce_v1_signer
-from baidubce import bce_base_client
+from baidubce.bce_base_client import BceBaseClient
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
@@ -28,14 +30,15 @@ from baidubce.utils import required
 _logger = logging.getLogger(__name__)
 
 
-class VcaClient(bce_base_client.BceBaseClient):
+class VcaClient(BceBaseClient):
     """
     vca client
     """
-    def __init__(self, config=None):
-        bce_base_client.BceBaseClient.__init__(self, config)
 
-    @required(source=(str, unicode))
+    def __init__(self, config=None):
+        BceBaseClient.__init__(self, config)
+
+    @required(source=(bytes, str))
     def put_media(self, source, preset=None, notification=None, config=None):
         """
         Analyze a media.
@@ -54,11 +57,11 @@ class VcaClient(bce_base_client.BceBaseClient):
             body['preset'] = preset
         if notification is not None:
             body['notification'] = notification
-        return self._send_request(http_methods.PUT, '/v2/media',
+        return self._send_request(http_methods.PUT, b'/v2/media',
                                   body=json.dumps(body),
                                   config=config)
 
-    @required(source=(str, unicode))
+    @required(source=(bytes, str))
     def get_media(self, source, config=None):
         """
         Get analyze result, make sure called put_media before calling get_media
@@ -66,8 +69,8 @@ class VcaClient(bce_base_client.BceBaseClient):
         :type source: string or unicode
         :return: **Http Response**
         """
-        return self._send_request(http_methods.GET, '/v2/media',
-                                  params={'source': source},
+        return self._send_request(http_methods.GET, b'/v2/media',
+                                  params={b'source': source},
                                   config=config)
 
     @staticmethod

@@ -14,7 +14,7 @@
 This module provides general http handler functions for processing http responses from TSDB services.
 """
 
-import httplib
+import http.client
 import json
 from baidubce import utils
 from baidubce.exception import BceClientError
@@ -48,7 +48,7 @@ def dict_to_python_object(d):
     :return:
     """
     attr = {}
-    for k, v in d.items():
+    for k, v in list(d.items()):
         k = str(k)
         attr[k] = v
     return Expando(attr)
