@@ -18,7 +18,7 @@ import random
 import string
 import time
 
-if sys.version_info[0] == 2 :
+if sys.version_info[0] == 2:
     reload(sys)
     sys.setdefaultencoding('utf-8')
 

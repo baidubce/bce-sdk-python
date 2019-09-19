@@ -77,7 +77,7 @@ class BccClient(bce_base_client.BceBaseClient):
               memory_capacity_in_gb=int,
               image_id=(bytes, str))  # ***Unicode***
     def create_instance(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
-                        billing=None, create_cds_list=None, root_disk_size_in_gb = 0, root_disk_storage_type = None,
+                        billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
                         network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None,
                         admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None,
                         gpuCard=None, fpgaCard=None,
@@ -792,6 +792,12 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str),
               tags=list)
     def bind_instance_to_tags(self, instance_id, tags, config=None):
+        """
+        :param instance_id:
+        :param tags:
+        :param config:
+        :return:
+        """
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
@@ -807,6 +813,12 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str),
               tags=list)
     def unbind_instance_from_tags(self, instance_id, tags, config=None):
+        """
+        :param instance_id:
+        :param tags:
+        :param config:
+        :return:
+        """
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
@@ -1338,6 +1350,12 @@ class BccClient(bce_base_client.BceBaseClient):
                                 volume_id,
                                 cdsName,
                                 config=None):
+        """
+        :param volume_id:
+        :param cdsName:
+        :param config:
+        :return:
+        """
         volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
 
@@ -1355,6 +1373,12 @@ class BccClient(bce_base_client.BceBaseClient):
                                 volume_id,
                                 billing=None,
                                 config=None):
+        """
+        :param volume_id:
+        :param billing:
+        :param config:
+        :return:
+        """
         volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
 
@@ -1565,6 +1589,13 @@ class BccClient(bce_base_client.BceBaseClient):
                           name,
                           destRegions,
                           config=None):
+        """
+        :param image_id:
+        :param name:
+        :param destRegions:
+        :param config:
+        :return:
+        """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
@@ -1582,6 +1613,11 @@ class BccClient(bce_base_client.BceBaseClient):
     def cancle_remote_copy_image(self,
                                  image_id,
                                  config=None):
+        """
+        :param image_id:
+        :param config:
+        :return:
+        """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
@@ -1596,6 +1632,13 @@ class BccClient(bce_base_client.BceBaseClient):
                     account=None,
                     account_id=None,
                     config=None):
+        """
+        :param image_id:
+        :param account:
+        :param account_id:
+        :param config:
+        :return:
+        """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
@@ -1617,6 +1660,13 @@ class BccClient(bce_base_client.BceBaseClient):
                     account=None,
                     account_id=None,
                     config=None):
+        """
+        :param image_id:
+        :param account:
+        :param account_id:
+        :param config:
+        :return:
+        """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
 
@@ -1636,6 +1686,11 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_shared_user(self,
                          image_id,
                          config=None):
+        """
+        :param image_id:
+        :param config:
+        :return:
+        """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s/sharedUsers' % image_id
         return self._send_request(http_methods.GET, path, config=config)
@@ -1644,6 +1699,11 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_os(self,
                 instance_ids=None,
                 config=None):
+        """
+        :param instance_ids:
+        :param config:
+        :return:
+        """
         path = b'/image/os'
         instance_id_list = instance_ids
         body = {
@@ -2019,7 +2079,15 @@ class BccClient(bce_base_client.BceBaseClient):
                    retention_days=None,
                    client_token=None,
                    config=None):
-
+        """
+        :param asp_name:
+        :param time_points:
+        :param repeat_week_days:
+        :param retention_days:
+        :param client_token:
+        :param config:
+        :return:
+        """
         path = b'/asp'
         params = None
         if client_token is None:
@@ -2045,7 +2113,12 @@ class BccClient(bce_base_client.BceBaseClient):
                    asp_id=None,
                    volume_ids=None,
                    config=None):
-
+        """
+        :param asp_id:
+        :param volume_ids:
+        :param config:
+        :return:
+        """
         asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
 
@@ -2064,7 +2137,12 @@ class BccClient(bce_base_client.BceBaseClient):
                    asp_id=None,
                    volume_ids=None,
                    config=None):
-
+        """
+        :param asp_id:
+        :param volume_ids:
+        :param config:
+        :return:
+        """
         asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
 
@@ -2081,12 +2159,24 @@ class BccClient(bce_base_client.BceBaseClient):
     def delete_asp(self,
                    asp_id=None,
                    config=None):
-
+        """
+        :param asp_id:
+        :param config:
+        :return:
+        """
         asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
     def list_asps(self, marker=None, max_keys=None, asp_name=None, volume_name=None, config=None):
+        """
+        :param marker:
+        :param max_keys:
+        :param asp_name:
+        :param volume_name:
+        :param config:
+        :return:
+        """
         path = b'/asp'
         params = None
         if marker is not None or max_keys is not None or asp_name is not None or volume_name is not None:
@@ -2103,6 +2193,11 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(asp_id=(bytes, str))
     def get_asp(self, asp_id=None, config=None):
+        """
+        :param asp_id:
+        :param config:
+        :return:
+        """
         asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
         return self._send_request(http_methods.GET, path, config=config)
@@ -2117,6 +2212,12 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_name=None,
                        keypair_desc=None,
                        config=None):
+        """
+        :param keypair_name:
+        :param keypair_desc:
+        :param config:
+        :return:
+        """
         path = b'/keypair'
         body = {
             'name': keypair_name,
@@ -2135,6 +2236,13 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_desc=None,
                        public_key=None,
                        config=None):
+        """
+        :param keypair_name:
+        :param keypair_desc:
+        :param public_key:
+        :param config:
+        :return:
+        """
         path = b'/keypair'
         body = {
             'name': keypair_name,
@@ -2150,6 +2258,12 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     def list_keypairs(self, marker=None, max_keys=None, config=None):
+        """
+        :param marker:
+        :param max_keys:
+        :param config:
+        :return:
+        """
         path = b'/keypair'
         params = None
         if marker is not None or max_keys is not None:
@@ -2162,6 +2276,11 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(keypair_id=(bytes, str))
     def get_keypair(self, keypair_id=None, config=None):
+        """
+        :param keypair_id:
+        :param config:
+        :return:
+        """
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
         return self._send_request(http_methods.GET, path, config=config)
@@ -2172,6 +2291,12 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_id=None,
                        instance_ids=None,
                        config=None):
+        """
+        :param keypair_id:
+        :param instance_ids:
+        :param config:
+        :return:
+        """
 
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
@@ -2190,6 +2315,12 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_id=None,
                        instance_ids=None,
                        config=None):
+        """
+        :param keypair_id:
+        :param instance_ids:
+        :param config:
+        :return:
+        """
 
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
@@ -2206,6 +2337,11 @@ class BccClient(bce_base_client.BceBaseClient):
     def delete_keypair(self,
                        keypair_id=None,
                        config=None):
+        """
+        :param keypair_id:
+        :param config:
+        :return:
+        """
 
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
@@ -2218,6 +2354,12 @@ class BccClient(bce_base_client.BceBaseClient):
                        keypair_id=None,
                        keypair_name=None,
                        config=None):
+        """
+        :param keypair_id:
+        :param keypair_name:
+        :param config:
+        :return:
+        """
 
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id
@@ -2237,6 +2379,12 @@ class BccClient(bce_base_client.BceBaseClient):
                             keypair_id=None,
                             keypair_desc=None,
                             config=None):
+        """
+        :param keypair_id:
+        :param keypair_desc:
+        :param config:
+        :return:
+        """
 
         keypair_id = compat.convert_to_bytes(keypair_id)
         path = b'/keypair/%s' % keypair_id

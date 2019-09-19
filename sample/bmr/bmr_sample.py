@@ -90,7 +90,9 @@ if __name__ == '__main__':
                     group_type='Master',
                     instance_type='g.small',
                     instance_count=1,
-                    name='ig-master'
+                    name='ig-master',
+                    rootDiskSizeInGB='',
+                    rootDiskMediumType='',
                 ),
                 bmr.instance_group(
                     group_type='Core',
@@ -213,3 +215,4 @@ if __name__ == '__main__':
                       % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             LOG.error('send request failed. Unknown exception: %s' % e)
+

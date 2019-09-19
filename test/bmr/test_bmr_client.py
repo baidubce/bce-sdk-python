@@ -18,7 +18,7 @@ import unittest
 import os
 import sys
 import json
-
+import mock
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 
@@ -74,14 +74,13 @@ class TestBmrClient(unittest.TestCase):
 
     def setUp(self):
         HOST = 'bmr.bce-api.baidu.com'
-        AK = 'ak'
-        SK = 'sk'
+        AK = 'fd9fb2c253b14f81a0ff322a2c4c5585'
+        SK = '5b90507268ec4304a166f6fbefaa87d2'
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK),
             endpoint=HOST
         )
         self.bmr_client = bmr.BmrClient(config)
-
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_create_cluster(self, send_http_request):
         """
@@ -115,6 +114,12 @@ class TestBmrClient(unittest.TestCase):
             name='cluster03')
         self.assertEqual(res.cluster_id, 'c003')
 
+    def test_save_template(self):
+        bmr.BmrClient.save_template()
+
+    def test_list_cluster(self):
+        response=bmr.BmrClient.list_clusters()
+        print (response)
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_scale_cluster(self, send_http_request):
         """
