@@ -25,7 +25,6 @@ from baidubce.http import handler
 from baidubce.http import http_methods
 from baidubce.utils import required
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -33,13 +32,12 @@ class DumapClient(bce_base_client.BceBaseClient):
     """
     DumapClient
     """
-    X_APP_ID = 'x-app-id'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
-    @required(app_id=str, uri=str, params=dict)
-    def call_open_api(self, app_id, uri, params, config=None):
+    @required(app_id=(bytes, str), uri=(bytes, str), params=dict)
+    def call_open_api(self, app_id=None, uri=None, params=None, body=None, method=b'GET', config=None):
         """
         call open_api
         :param app_id: app_id
@@ -48,19 +46,29 @@ class DumapClient(bce_base_client.BceBaseClient):
         :type uri: string
         :param params: dict
         :type params:request params
-
+        :param body: request body (default: None)
+        :type body: string
+        :param method: http method (default GET)
+        :type method: http_methods
         :param config: None
         :type config: baidubce.BceClientConfiguration
 
         :return:
         :rtype: baidubce.bce_response.BceResponse
                 """
-        return self._send_request(
-            http_methods.GET,
-            uri,
+        response = self._send_request(
+            http_method=method,
+            path=uri,
             params=params,
-            headers={DumapClient.X_APP_ID: app_id},
-            config=config)
+            body=body,
+            headers={b'x-app-id': app_id},
+            config=config
+        )
+
+        if response.body:
+            return response.body.decode("utf-8")
+        else:
+            return response
 
     @staticmethod
     def _merge_config(self, config):
@@ -76,16 +84,18 @@ class DumapClient(bce_base_client.BceBaseClient):
             body=None, headers=None, params=None,
             config=None):
         config = self._merge_config(self, config)
-        headers['x-bce-request-id'] = uuid.uuid4()
+        headers[b'x-bce-request-id'] = uuid.uuid4()
+        headers[b'Content-Type'] = b'application/json;charset=utf-8'
 
         return bce_http_client.send_request(
-            config, sign_wrapper(['host', 'x-bce-date', 'x-bce-request-id', 'x-app-id']),
+            config, sign_wrapper([b'host', b'x-bce-date', b'x-bce-request-id', b'x-app-id']),
             [handler.parse_error, parse_none],
             http_method, path, body, headers, params)
 
 
 def sign_wrapper(headers_to_sign):
     """wrapper the bce_v1_signer.sign()."""
+
     def _wrapper(credentials, http_method, path, headers, params):
         return bce_v1_signer.sign(credentials, http_method, path, headers, params,
                                   headers_to_sign=headers_to_sign)
@@ -108,6 +118,6 @@ def parse_none(http_response, response):
     """
     body = http_response.read()
     if body:
-        response.body=body
+        response.body = body
     http_response.close()
     return True

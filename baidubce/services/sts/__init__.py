@@ -14,4 +14,4 @@
 This module defines some constants for STS
 """
 
-URL_PREFIX = "/v1/"
+URL_PREFIX = b"/v1/"

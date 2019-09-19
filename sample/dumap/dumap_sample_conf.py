@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
+# Copyright (c) 2018 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with
@@ -22,12 +22,12 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 #
-HOST = 'lbs.baidubce.com'
+HOST = b'lbs.baidubce.com'
 # online AK SK
-AK = ''
-SK = ''
+AK = b''
+SK = b''
 # console app_id
-APP_ID = ''
+APP_ID = b''
 
 logger = logging.getLogger('baidubce.services.dumap.DumapClient')
 fh = logging.FileHandler('sample.log')

@@ -39,9 +39,9 @@ class TestListPipeline(mediaBase.MediaBase):
     """test list pipeline"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'listpipe'
-        self.pipeline_name = self.convertName(self.pre)
+        self.pipeline_name = self.pre
         self.client = media_client.MediaClient(media_config.config)
 
     def setUp(self):

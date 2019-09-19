@@ -15,7 +15,6 @@ Unit tests for bmr client.
 """
 
 import unittest
-import mock
 import os
 import sys
 import json
@@ -26,6 +25,13 @@ sys.path.append(file_path + '/../../')
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bmr import bmr_client as bmr
+
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
+if PY3:
+    import unittest.mock as mock
+else:
+    import mock as mock
 
 
 class MockHttpResponse(object):

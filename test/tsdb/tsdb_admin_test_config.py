@@ -18,7 +18,7 @@ import logging
 import baidubce
 from baidubce.auth import bce_credentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.retry_policy import NoRetryPolicy
+from baidubce.retry.retry_policy import NoRetryPolicy
 
 
 HOST='tsdb.<region>.baidubce.com' #such as tsdb.bj.baidubce.com

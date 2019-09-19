@@ -13,33 +13,51 @@
 """
 The setup script to install BCE SDK for python
 """
-
+from __future__ import absolute_import
+import io
+import os
+import re
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-from baidubce import SDK_VERSION
+
+with io.open(os.path.join("baidubce", "__init__.py"), "rt") as f:
+    SDK_VERSION = re.search(r"SDK_VERSION = b'(.*?)'", f.read()).group(1)
 
 setup(
     name='bce-python-sdk',
     version=SDK_VERSION,
+    install_requires=['pycrypto>=2.4',
+                      'future>=0.6.0',
+                      'six>=1.4.0'],
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     packages=['baidubce',
               'baidubce.auth',
               'baidubce.http',
+              'baidubce.retry',
               'baidubce.services',
               'baidubce.services.bos',
+              'baidubce.services.sts',
               'baidubce.services.bmr',
               'baidubce.services.dumap',
               'baidubce.services.media',
               'baidubce.services.vcr',
               'baidubce.services.vca',
+              'baidubce.services.mvs',
               'baidubce.services.sms',
               'baidubce.services.cdn',
-              'baidubce.services.sts',
+              'baidubce.services.blb',
+              'baidubce.services.eip',
+              'baidubce.services.route',
+              'baidubce.services.subnet',
+              'baidubce.services.vpc',
               'baidubce.services.cfc',
               'baidubce.services.infinite',
-              'baidubce.services.tsdb'],
+              'baidubce.services.bcc',
+              'baidubce.services.tsdb'
+              ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
     author='',

@@ -34,7 +34,7 @@ class TestQueryTranscoding(mediaBase.MediaBase):
     """test create transcoding"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'queryjob'
         self.pipeline_name = self.convertName(self.pre)
         self.preset_name = self.pipeline_name
@@ -55,7 +55,7 @@ class TestQueryTranscoding(mediaBase.MediaBase):
             resp = self.client.create_pipeline(self.pipeline_name, self.sourceBucket,
                    self.targetBucket, pipeline_config=config)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -64,7 +64,7 @@ class TestQueryTranscoding(mediaBase.MediaBase):
         try:
             resp = self.client.create_preset(self.preset_name, self.container, True)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -75,7 +75,7 @@ class TestQueryTranscoding(mediaBase.MediaBase):
             target = {'targetKey': self.target_key, 'presetName': self.preset_name}
             resp = self.client.create_job(self.pipeline_name, source, target)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_is_not_none(resp.job_id)
@@ -95,7 +95,7 @@ class TestQueryTranscoding(mediaBase.MediaBase):
                         while(1):
                             resp = self.client.get_job(each_job.job_id)
                             if resp.job_status != 'SUCCESS' and resp.job_status != 'FAILED':
-                                print 'please wait ....\n'
+                                print('please wait ....\n')
                                 time.sleep(5)
                             else:
                                 break
@@ -132,4 +132,4 @@ class TestQueryTranscoding(mediaBase.MediaBase):
         with nose.tools.assert_raises_regexp(BceClientError, 
                 'job_id can\'t be empty string'):
             resp = self.client.get_job('')
-            print resp 
+            print(resp) 

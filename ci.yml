@@ -1,0 +1,15 @@
+Global:
+    tool : build_submitter
+Default:
+    profile : [publish]
+Profiles:
+    - profile:
+      name : dev
+      env: cmc_standard
+      command : bash build.sh
+      release : false
+    - profile:
+      name :  publish
+      env: cmc_standard
+      command : bash build.sh
+      release : true

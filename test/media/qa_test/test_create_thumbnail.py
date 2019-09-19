@@ -39,13 +39,13 @@ class TestCreateThumbnail(mediaBase.MediaBase):
     """test create thumbnail"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'createthumb'
-        self.pipeline_name = self.convertName(self.pre)
+        self.pipeline_name = self.pre
         self.container = 'mp4'
         self.capacity = 1
-        self.key = 'hd.mp4'
-        self.key_prefix = '/thumbnail/job'
+        self.key = '10s.mp4'
+        self.key_prefix = '/00mingxioutput'
         self.target_format = 'jpg'
         self.sizing_policy = 'keep'
         self.width_in_pixel = 640
@@ -64,7 +64,7 @@ class TestCreateThumbnail(mediaBase.MediaBase):
             resp = self.client.create_pipeline(self.pipeline_name, self.sourceBucket, 
                     self.targetBucket)
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         finally:
             nose.tools.assert_true(succ)
@@ -82,7 +82,7 @@ class TestCreateThumbnail(mediaBase.MediaBase):
                         while(1):
                             resp = self.client.get_thumbnail_job(each_job.job_id)
                             if resp.job_status != 'SUCCESS' and resp.job_status != 'FAILED':
-                                print 'please wait ....\n'
+                                print('please wait ....\n')
                                 time.sleep(5)
                             else:
                                 break
@@ -146,7 +146,7 @@ class TestCreateThumbnail(mediaBase.MediaBase):
     
     def test_create_thumbnail_with_key_is_chiness(self):
         """create thumbnail job with key is chiness"""
-        self.key = '测试视频.mp4'
+        self.key = 'test--*--中文.mp4'
         source = {'key': self.key}
         resp = self.client.create_thumbnail_job(self.pipeline_name, source)
         nose.tools.assert_is_not_none(resp)
@@ -524,7 +524,7 @@ class TestCreateThumbnail(mediaBase.MediaBase):
             'endTimeInSecond': 20
                     }
         resp = self.client.create_thumbnail_job(self.pipeline_name, source, capture=capture)
-        print resp
+        print(resp)
         nose.tools.assert_is_not_none(resp.job_id)
 
     def test_create_thumbnail_interval_less_0(self):

@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # set bucket acl from BucketAccessControl list
     bos_client.set_bucket_acl(
         bucket_name,
-        [{'grantee': [{'id': 'b124deeaf6f641c9ac27700b41a350a8'},
+        [{'grantee': [{'id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'},
                       {'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}],
           'permission': ['FULL_CONTROL']}])
 

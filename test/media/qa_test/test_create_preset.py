@@ -39,7 +39,7 @@ class TestCreatePreset(mediaBase.MediaBase):
     """test create preset"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'createpreset'
         self.preset_name = self.convertName(self.pre)
         self.container = 'mp4'
@@ -55,7 +55,7 @@ class TestCreatePreset(mediaBase.MediaBase):
             self.watermark_id = self.client.create_watermark(self.watermarkBucket, 
                    self.key).watermark_id
         except Exception as e:
-            print e.message
+            print(e.message)
             succ = False
         nose.tools.assert_true(succ)
 
@@ -148,7 +148,7 @@ class TestCreatePreset(mediaBase.MediaBase):
 
     def test_create_preset_with_name_equal_40_chars(self):
         """create preset with name equal 40 chars"""
-        print len(self.preset_name)
+        print(len(self.preset_name))
         nose.tools.assert_equal(len(self.preset_name), 40)
         transmux = True
         resp = self.client.create_preset(self.preset_name, self.container, transmux)
@@ -661,7 +661,7 @@ class TestCreatePreset(mediaBase.MediaBase):
                 'BceServerError: watermark: %s does not exist' % self.watermark_id):
             resp = self.client.create_preset(self.preset_name, self.container, \
                 False, video=video, watermark_id=self.watermark_id)
-            print resp.content
+            print(resp.content)
         self.watermark_id = None
 
     def test_create_preset_with_watermarkid_empty(self):

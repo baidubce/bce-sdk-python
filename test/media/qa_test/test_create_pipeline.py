@@ -38,7 +38,7 @@ class TestCreatePipeline(mediaBase.MediaBase):
     """test create pipeline"""
     def __init__(self):
         """construction """
-        super(self.__class__, self).__init__()
+        mediaBase.MediaBase.__init__(self)
         self.pre = self.prefix + 'createpipe'
         self.pipeline_name = self.convertName(self.pre)
         self.client = media_client.MediaClient(media_config.config)
@@ -93,9 +93,9 @@ class TestCreatePipeline(mediaBase.MediaBase):
                     self.sourceBucket, self.targetBucket, pipeline_config=capacity)
         except BceHttpClientError as e:
             msg = e.last_error.message
-            print msg
+            print(msg)
             used = msg.split(':')[2]
-            print used
+            print(used)
 
         pipeline_name = self.convertName(self.pre)
         capacity = {'capacity': 100 - int(used)}
@@ -230,7 +230,7 @@ class TestCreatePipeline(mediaBase.MediaBase):
     def test_create_pipeline_name_longer_than_40(self):
         """pipeline name longer than 40 chars"""
         self.pipeline_name = self.pipeline_name + '012'
-        print len(self.pipeline_name)
+        print(len(self.pipeline_name))
         assert len(self.pipeline_name) == 41, 'pipelineName length is not 41'
         try:
             self.client.create_pipeline(self.pipeline_name, self.sourceBucket, self.targetBucket)
@@ -288,3 +288,5 @@ class TestCreatePipeline(mediaBase.MediaBase):
             if isinstance(e.last_error, BceServerError):
                 assert e.last_error.message.startswith(
                         'description:description=size must be between 0 and 128')
+
+

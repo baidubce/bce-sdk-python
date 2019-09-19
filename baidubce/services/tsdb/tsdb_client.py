@@ -14,7 +14,7 @@
 This module provides a client class for TSDB.
 """
 
-import cStringIO
+import io
 import copy
 import json
 import logging
@@ -53,12 +53,12 @@ class TsdbClient(BceBaseClient):
         :type use_gzip: boolean
         """
 
-        path = '/v1/datapoint'
-        body = json.dumps({"datapoints": datapoints})
+        path = b'/v1/datapoint'
+        body = json.dumps({"datapoints": datapoints}).encode('utf-8')
         headers={http_headers.CONTENT_TYPE: http_content_types.JSON}
         if use_gzip:
             body = self._gzip_compress(body)
-            headers[http_headers.CONTENT_ENCODING] = 'gzip'
+            headers[http_headers.CONTENT_ENCODING] = b'gzip'
         return self._send_request(
                 http_methods.POST,
                 path=path,
@@ -66,7 +66,7 @@ class TsdbClient(BceBaseClient):
                 headers=headers,
                 body_parser=tsdb_handler.parse_json
             )
-    
+
     def get_metrics(self):
         """
         list metrics
@@ -75,7 +75,7 @@ class TsdbClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
 
-        path = '/v1/metric'
+        path = b"/v1/metric"
         return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_fields(self, metric):
@@ -88,7 +88,8 @@ class TsdbClient(BceBaseClient):
         :return: field dict. {field1:{type: 'Number'},field2:{type: 'String'}}
         :rtype: baidubce.bce_response.BceResponse
         """
-        path = '/v1/metric/' + metric + '/field'
+        metric = utils.convert_to_standard_string(metric)
+        path = b'/v1/metric/' + metric + b'/field'
         return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_tags(self, metric):
@@ -101,7 +102,8 @@ class TsdbClient(BceBaseClient):
         :return: {tagk1:[tagk11,tagk21,..],tagk2:[tagk21,tagk22,..]..}
         :rtype: baidubce.bce_response.BceResponse
         """
-        path = '/v1/metric/' + metric + '/tag'
+        metric = utils.convert_to_standard_string(metric)
+        path = b'/v1/metric/' + metric + b'/tag'
         return self._send_request(http_methods.GET, path=path, body_parser=tsdb_handler.parse_json)
 
     def get_datapoints(self, query_list, disable_presampling=False):
@@ -117,12 +119,12 @@ class TsdbClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
 
-        path = '/v1/datapoint'
+        path = b'/v1/datapoint'
         params = {'query': '', 'disablePresampling': disable_presampling}
         body = json.dumps({"queries": query_list})
         return self._send_request(http_methods.PUT, path=path, params=params,
                 body=body, body_parser=tsdb_handler.parse_json)
-    
+
     def get_rows_with_sql(self, statement):
         """
         get_rows_with_sql
@@ -134,7 +136,7 @@ class TsdbClient(BceBaseClient):
         :rtype: baidubce.bce_response.BceResponse
         """
 
-        path = '/v1/row'
+        path = b'/v1/row'
         params = {'sql': statement}
         return self._send_request(http_methods.GET, path=path, params=params,
                 body_parser=tsdb_handler.parse_json)
@@ -164,7 +166,7 @@ class TsdbClient(BceBaseClient):
             **URL string**
         """
 
-        path = '/v1/datapoint'
+        path = b'/v1/datapoint'
         params = {
             'query': json.dumps({"queries": query_list}),
             'disablePresampling': disable_presampling
@@ -196,7 +198,7 @@ class TsdbClient(BceBaseClient):
             **URL string**
         """
 
-        path = '/v1/row'
+        path = b'/v1/row'
         params = {'sql': statement}
         return self._generate_pre_signed_url(path, timestamp, expiration_in_seconds,
                         params, headers, headers_to_sign, protocol, config)
@@ -235,7 +237,7 @@ class TsdbClient(BceBaseClient):
 
         full_host = endpoint_host
         if endpoint_port != config.protocol.default_port:
-            full_host += ':' + str(endpoint_port)
+            full_host += b':' + str(endpoint_port)
         headers[http_headers.HOST] = full_host
 
         params[http_headers.AUTHORIZATION.lower()] = bce_v1_signer.sign(
@@ -247,16 +249,15 @@ class TsdbClient(BceBaseClient):
             timestamp,
             expiration_in_seconds,
             headers_to_sign)
-
+        
         return "%s://%s%s?%s" % (protocol.name,
-                                 full_host,
-                                 path,
-                                 utils.get_canonical_querystring(params, False))
-
-    def _gzip_compress(self, str): 
-        out = cStringIO.StringIO() 
-        with gzip.GzipFile(fileobj=out, mode="w") as f: 
-            f.write(str) 
+                                 full_host.decode(),
+                                 path.decode(),
+                                 utils.get_canonical_querystring(params, False).decode())
+    def _gzip_compress(self, str):
+        out = io.BytesIO()
+        with gzip.GzipFile(fileobj=out, mode="w") as f:
+            f.write(str)
         return out.getvalue()
 
     def _merge_config(self, config):
