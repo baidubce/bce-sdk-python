@@ -631,7 +631,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         body = {
 
         }
-        path = '/template/list'
+        path = '/execute_plan/list'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
         schedulePlanId=(str, unicode),
