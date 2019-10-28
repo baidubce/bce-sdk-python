@@ -1884,9 +1884,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = b'/securityGroup'
-        params = None
-        if instance_id is not None or marker is not None or max_keys is not None:
-            params = {}
+        params = {}
         if instance_id is not None:
             params['instanceId'] = instance_id
         if vpc_id is not None:
