@@ -47,9 +47,15 @@ def test_create_domain(c):
     test_create_domain
     """
     origin = [
-                {'peer': '1.2.3.4'}
+                {'peer': '1.2.3.5'}
              ]
-    response = c.create_domain('test-sdk.sys-qa.com', origin)
+
+    other_config = {
+                "form":"image",
+                "defaultHost":"1.2.3.4"
+            }
+
+    response = c.create_domain('test-sdk.sys-qa.com', origin, other_config)
     print(response)
 
 
