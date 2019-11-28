@@ -625,23 +625,35 @@ class CdnClient(bce_base_client.BceBaseClient):
             body=json.dumps(log),
             config=config)
 
-    def create_domain(self, domain, origin, config=None):
+    def create_domain(self, domain, origin, other=None, config=None):
         """
         create domain
         :param domain: the domain name
         :type domain: string
         :param origin: the origin address list
         :type origin: list<OriginPeer>
+        :param other: the other config
+        :type other: list<CONFIG>
         :param config: None
         :type config: baidubce.BceClientConfiguration
 
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
+        body = {}
+        body['origin'] = origin
+
+        if other is not None:
+            if other.get('defaultHost') is not None:
+                body['defaultHost'] = other['defaultHost']
+
+            if other.get('form') is not None:
+                body['form'] = other['form']
+
         return self._send_request(
             http_methods.PUT,
             '/domain/' + domain,
-            body=json.dumps({'origin': origin}),
+            body=json.dumps(body),
             config=config)
 
     def delete_domain(self, domain, config=None):

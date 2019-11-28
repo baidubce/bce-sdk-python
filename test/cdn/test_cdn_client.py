@@ -67,6 +67,73 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
+    def test_create_domain_form(self):
+        """
+        create_domain with form config
+        """
+        self.cdn_client.delete_domain('www.example.com')
+
+        error = None
+        try:
+            origin = [
+                {'peer': '1.2.3.5'}
+             ]
+
+            other_config = {
+                "form":"image"
+            }
+            response = self.cdn_client.create_domain('www.example.com', origin, other_config)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_create_domain_defaulthost(self):
+        """
+        create_domain with defaultHost config
+        """
+        self.cdn_client.delete_domain('www.example.com')
+
+        error = None
+        try:
+            origin = [
+                {'peer': '1.2.3.5'}
+             ]
+
+            other_config = {
+                "defaultHost":"1.2.3.4"
+            }
+            response = self.cdn_client.create_domain('www.example.com', origin, other_config)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_create_domain_other(self):
+        """
+        create_domain with other config
+        """
+        self.cdn_client.delete_domain('www.example.com')
+
+        error = None
+        try:
+            origin = [
+                {'peer': '1.2.3.5'}
+             ]
+
+            other_config = {
+                "form":"image",
+                "defaultHost":"1.2.3.4"
+            }
+            response = self.cdn_client.create_domain('www.example.com', origin, other_config)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
     def test_list_domains(self):
         """
         test_list_domains
