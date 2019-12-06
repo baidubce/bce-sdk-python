@@ -361,8 +361,6 @@ class BtsClient(BceBaseClient):
         """
         print("------- scan -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
-
-        print(json.dumps(scan_args, default=scan_args_2_dict))
         return self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(scan_args, default=scan_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})

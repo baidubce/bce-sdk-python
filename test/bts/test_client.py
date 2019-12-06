@@ -29,8 +29,6 @@ if PY3:
 else:
     import mock as mock
 
-# import mock
-
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bts import bts_client as bts
@@ -107,7 +105,7 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
+        instance_name = b"ins01"
         create_instance_args = CreateInstanceArgs('CommonPerformance')
         res = self.bts_client.create_instance(instance_name, create_instance_args)
 
@@ -127,7 +125,7 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        res = self.bts_client.drop_instance("ins02")
+        res = self.bts_client.drop_instance(b"ins02")
         self.assertEqual(res.status, 200)
 
     def test_list_instances(self):
@@ -189,7 +187,7 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        res = self.bts_client.show_instance("ins01")
+        res = self.bts_client.show_instance(b"ins01")
         self.assertEqual(res.status, 200)
 
     def test_create_table(self):
@@ -206,8 +204,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b"ins01"
+        table_name = b"tab01"
         create_table_args = CreateTableArgs()
         create_table_args.table_version = 0
         create_table_args.compress_type = "SNAPPY_ALL"
@@ -231,8 +229,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b"ins01"
+        table_name = b"tab01"
         update_table_args = UpdateTableArgs()
         update_table_args.table_version = "1534587498000000"
         update_table_args.compress_type = "NONE"
@@ -255,8 +253,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         res = self.bts_client.drop_table(instance_name, table_name)
         self.assertEqual(res.status, 200)
 
@@ -284,7 +282,7 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        res = self.bts_client.show_table('ins01', 'tab01')
+        res = self.bts_client.show_table(b'ins01', b'tab01')
         self.assertEqual(res.status, 200)
 
     def test_list_tables(self):
@@ -317,7 +315,7 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        res = self.bts_client.list_tables('ins01')
+        res = self.bts_client.list_tables(b'ins01')
         self.assertEqual(res.status, 200)
 
     def test_put_row(self):
@@ -334,8 +332,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         row = Row()
         row.rowkey = "row01"
         cell1 = Cell("c1", "v1")
@@ -359,8 +357,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         batch_put_row = BatchPutRowArgs()
         for i in range(2, 15):
             row = Row()
@@ -388,8 +386,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         query_row_args = QueryRowArgs()
         query_row_args.rowkey = "row011"
         cell1 = QueryCell()
@@ -412,8 +410,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         batch_query_row_args = BatchQueryRowArgs()
         batch_query_row_args.max_version = 2
 
@@ -464,8 +462,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         query_row_args = QueryRowArgs()
         query_row_args.rowkey = "row1"
         query_row_args.cells.append(QueryCell("c1").__dict__)
@@ -522,8 +520,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b'ins01'
+        table_name = b'tab01'
         batch_query_row_args = BatchQueryRowArgs()
         batch_query_row_args.max_versions = 2
 
@@ -585,8 +583,8 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = "ins01"
-        table_name = "tab01"
+        instance_name = b"ins01"
+        table_name = b"tab01"
         scan_args = ScanArgs()
         scan_args.start_rowkey = "row1"
         scan_args.include_start = "true"

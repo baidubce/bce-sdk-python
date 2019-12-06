@@ -11,6 +11,7 @@
 """
 Samples for bts client.
 """
+
 import bts_sample_conf
 
 from baidubce.services.bts.bts_client import BtsClient
@@ -24,6 +25,21 @@ from baidubce.services.bts.model import QueryRowArgs
 from baidubce.services.bts.model import Row
 from baidubce.services.bts.model import ScanArgs
 from baidubce.services.bts.model import UpdateTableArgs
+
+'''
+# inorder to both support python2 and python3
+import os
+import sys
+
+file_path = os.path.normpath(os.path.dirname(__file__))
+sys.path.append(file_path + '/../../')
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
+if PY3:
+    from sample.bts import bts_sample_conf
+else:
+    import bts_sample_conf
+'''
 
 if __name__ == "__main__":
     import logging
@@ -39,17 +55,17 @@ if __name__ == "__main__":
     ######################################################################################################
 
     # create instance
-    instance_name = "instance1"
+    instance_name = b'instance1'
     createInstanceArgs = CreateInstanceArgs('CommonPerformance')
     response = bts_client.create_instance(instance_name, createInstanceArgs)
     print(response)
 
-    instance_name = "instance2"
+    instance_name = b'instance2'
     response = bts_client.create_instance(instance_name)
     print(response)
 
     # show instance
-    instance_name = "instance1"
+    instance_name = b'instance1'
     response = bts_client.show_instance(instance_name)
     print(response)
 
@@ -58,17 +74,17 @@ if __name__ == "__main__":
     print(response.instances)
 
     # drop instance
-    instance_name = "instance2"
+    instance_name = b'instance2'
     response = bts_client.drop_instance(instance_name)
     print(response)
 
     ######################################################################################################
     #            table operation samples
     ######################################################################################################
-    instance_name = "instance1"
+    instance_name = b'instance1'
 
     # create table
-    table_name = "tab01"
+    table_name = b'tab01'
     createTableArgs = CreateTableArgs()
     createTableArgs.table_version = 0
     createTableArgs.compress_type = "SNAPPY_ALL"
@@ -79,7 +95,7 @@ if __name__ == "__main__":
     print(response)
 
     # show table
-    table_name = "tab01"
+    table_name = b'tab01'
     response = bts_client.show_table(instance_name, table_name)
     print(response)
 
@@ -88,7 +104,7 @@ if __name__ == "__main__":
     print(response)
 
     # update table
-    table_name = "tab01"
+    table_name = b'tab01'
     show_table_response = bts_client.show_table(instance_name, table_name)
     updateTableArgs = UpdateTableArgs()
     updateTableArgs.table_version = show_table_response.table_version
@@ -99,15 +115,15 @@ if __name__ == "__main__":
     print(response)
 
     # drop table
-    table_name = "tab03"
+    table_name = b'tab03'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
 
     ######################################################################################################
     #            row operation samples
     ######################################################################################################
-    instance_name = "instance1"
-    table_name = "tab01"
+    instance_name = b'instance1'
+    table_name = b'tab01'
 
     # put row
     row = Row()
