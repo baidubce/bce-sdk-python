@@ -16,8 +16,20 @@ Test models of BTS.
 """
 
 import unittest
+import os
+import sys
 import json
-import mock
+
+file_path = os.path.normpath(os.path.dirname(__file__))
+sys.path.append(file_path + '/../../')
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
+if PY3:
+    import unittest.mock as mock
+else:
+    import mock as mock
+
+# import mock
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
@@ -118,7 +130,6 @@ class TestBtsClient(unittest.TestCase):
         res = self.bts_client.drop_instance("ins02")
         self.assertEqual(res.status, 200)
 
-
     def test_list_instances(self):
         """
         test case for list_instances
@@ -156,7 +167,6 @@ class TestBtsClient(unittest.TestCase):
         res = self.bts_client.list_instances()
         self.assertEqual(res.status, 200)
 
-
     def test_show_instance(self):
         """
         test case for show_instance
@@ -181,7 +191,6 @@ class TestBtsClient(unittest.TestCase):
 
         res = self.bts_client.show_instance("ins01")
         self.assertEqual(res.status, 200)
-
 
     def test_create_table(self):
         """
