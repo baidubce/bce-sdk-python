@@ -46,6 +46,19 @@ class BtsClient(BceBaseClient):
 
     # ------------- instance operation -----------
     def create_instance(self, instance_name, create_instance_args=None, config=None):
+        """
+        create instance
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param create_instance_args: arguments for create instance
+        :type create_instance_args: CreateInstanceArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- create instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         if create_instance_args is None:
@@ -55,22 +68,68 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def drop_instance(self, instance_name, config=None):
+        """
+        drop instance
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- drop instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
     def list_instances(self, config=None):
+        """
+        list instances
+
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- list instances -------")
         path = b"/v1/instances"
         return self._send_request(http_methods.GET, path=path, config=config)
 
     def show_instance(self, instance_name, config=None):
+        """
+        show instance
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- show instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         return self._send_request(http_methods.GET, path=path, config=config)
 
     # ------------- table operation -----------
     def create_table(self, instance_name, table_name, create_table_args, config=None):
+        """
+        create table
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param create_table_args: arguments for create table
+        :type create_table_args: CreateTableArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- create table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -78,6 +137,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def update_table(self, instance_name, table_name, update_table_args, config=None):
+        """
+        update table
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param update_table_args: arguments for update table
+        :type update_table_args: UpdateTableArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- update table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -85,22 +159,74 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def drop_table(self, instance_name, table_name, config=None):
+        """
+        drop table
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- drop table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
     def show_table(self, instance_name, table_name, config=None):
+        """
+        show table
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- show table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.GET, path=path, config=config)
 
     def list_tables(self, instance_name, config=None):
+        """
+        list tables
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- list table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/tables"
         return self._send_request(http_methods.GET, path=path, config=config)
 
     # ------------- row operation -----------
     def put_row(self, instance_name, table_name, put_row_args, config=None):
+        """
+        put row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param put_row_args: arguments for put row
+        :type put_row_args: Row
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- put row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -108,6 +234,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def batch_put_row(self, instance_name, table_name, batch_put_row_args, config=None):
+        """
+        batch put row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param batch_put_row_args: arguments for batch put row
+        :type batch_put_row_args: BatchPutRowArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- batch put row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -115,6 +256,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def delete_row(self, instance_name, table_name, delete_row_args, config=None):
+        """
+        delete row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param delete_row_args: arguments for delete row
+        :type delete_row_args: QueryRowArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- delete row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
@@ -122,6 +278,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def batch_delete_row(self, instance_name, table_name, batch_delete_row_args, config=None):
+        """
+        batch delete row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param batch_delete_row_args: arguments for batch delete row
+        :type batch_delete_row_args: BatchQueryRowArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- batch delete row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
@@ -129,6 +300,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def get_row(self, instance_name, table_name, get_row_args, config=None):
+        """
+        get row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param get_row_args: arguments for get row
+        :type get_row_args: QueryRowArg
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- get row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.GET, path=path, config=config,
@@ -136,6 +322,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def batch_get_row(self, instance_name, table_name, batch_get_row_args, config=None):
+        """
+        batch get row
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param batch_get_row_args: arguments for batch get row
+        :type batch_get_row_args: BatchQueryRowArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- batch get row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.GET, path=path, config=config,
@@ -143,6 +344,21 @@ class BtsClient(BceBaseClient):
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def scan(self, instance_name, table_name, scan_args, config=None):
+        """
+        scan
+
+        :param instance_name: instance name
+        :type instance_name: string
+        :param table_name: table name
+        :type table_name: string
+        :param scan_args: arguments for scan
+        :type scan_args: ScanArgs
+        :param config: None
+        :type config: BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
         print("------- scan -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
 

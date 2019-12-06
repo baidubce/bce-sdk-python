@@ -14,17 +14,44 @@ This module defines some Argument classes for BTS
 
 
 class CreateInstanceArgs(object):
+    """
+    Create Instance Args
+    :param storage_type  instance's storage type. eg.CommonPerformance
+    :type storage_type string
+    """
     def __init__(self, storage_type=None):
         self.storage_type = storage_type
 
 
 def create_instance_args_2_dict(args):
+    """
+    change create_instance_args to dict
+
+    :param args: create instance args
+    :type args: CreateInstanceArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'storageType': args.storage_type
     }
 
 
 class CreateTableArgs(object):
+    """
+    Create Table Args
+    :param table_version  table's version
+    :type table_version int64
+    :param compress_type  table's compress type. eg.SNAPPY_ALL
+    :type compress_type string
+    :param ttl  time to live
+    :type ttl int
+    :param storage_type  instance's storage type. eg.CommonPerformance
+    :type storage_type string
+    :param max_versions  table's max data versions.
+    :type max_versions int
+    """
     def __init__(self, table_version=0, compress_type="NONE", ttl=0, storage_type=None, max_versions=1):
         self.table_version = table_version
         self.compress_type = compress_type
@@ -34,6 +61,15 @@ class CreateTableArgs(object):
 
 
 def create_table_args_2_dict(args):
+    """
+    change create_table_args to dict
+
+    :param args: create table args
+    :type args: CreateTableArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'tableVersion': args.table_version,
         'compressType': args.compress_type,
@@ -44,6 +80,17 @@ def create_table_args_2_dict(args):
 
 
 class UpdateTableArgs(object):
+    """
+    Update Table Args
+    :param table_version  table's version
+    :type table_version int64
+    :param compress_type  table's compress type. eg.SNAPPY_ALL
+    :type compress_type string
+    :param ttl time to live
+    :type ttl int
+    :param max_versions  table's max data versions.
+    :type max_versions int
+    """
     def __init__(self, table_version=1, compress_type=None, ttl=None, max_versions=None):
         self.table_version = table_version
         self.compress_type = compress_type
@@ -52,6 +99,15 @@ class UpdateTableArgs(object):
 
 
 def update_table_args_2_dict(args):
+    """
+    change update_table_args to dict
+
+    :param args: update table args
+    :type args: UpdateTableArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'tableVersion': args.table_version,
         'compressType': args.compress_type,
@@ -61,14 +117,28 @@ def update_table_args_2_dict(args):
 
 
 class Cell(object):
+    """
+    Cell
+    :param column
+    :type column string
+    :param value
+    :type value string
+    """
     def __init__(self, column, value):
         self.column = column
         self.value = value
 
 
 class Row(object):
+    """
+    Row
+    :param rowkey
+    :type rowkey string
+    :param cells
+    :type cells []
+    """
     def __init__(self, rowkey=None):
-        self.rowkey = rowkey
+        self.row_key = rowkey
         self.cells = []
 
     def append_cell(self, cell):
@@ -79,6 +149,11 @@ class Row(object):
 
 
 class BatchPutRowArgs(object):
+    """
+    Batch Put Row Args
+    :param rows
+    :type rows []
+    """
     def __init__(self):
         self.rows = []
 
@@ -90,11 +165,25 @@ class BatchPutRowArgs(object):
 
 
 class QueryCell(object):
+    """
+    Query Cell
+    :param column
+    :type column string
+    """
     def __init__(self, column=None):
         self.column = column
 
 
 class QueryRowArgs(object):
+    """
+    Query Row Arg
+    :param rowkey
+    :type rowkey string
+    :param max_versions
+    :type max_versions int
+    :param cells
+    :type cells []
+    """
     def __init__(self, rowkey=None, max_versions=None):
         self.rowkey = rowkey
         self.max_versions = max_versions
@@ -108,6 +197,15 @@ class QueryRowArgs(object):
 
 
 def query_row_args_2_dict(args):
+    """
+    change query_row_args to dict
+
+    :param args: query row args
+    :type args: QueryRowArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'rowkey': args.rowkey,
         'maxVersions': args.max_versions,
@@ -116,6 +214,13 @@ def query_row_args_2_dict(args):
 
 
 class BatchQueryRowArgs(object):
+    """
+    Batch Query Row Args
+    :param rows
+    :type rows []
+    :param max_versions
+    :type max_versions int
+    """
     def __init__(self, max_versions=1):
         self.rows = []
         self.max_versions = max_versions
@@ -128,6 +233,15 @@ class BatchQueryRowArgs(object):
 
 
 def batch_query_row_args_2_dict(args):
+    """
+    change batch_query_row_args to dict
+
+    :param args: batch query row args
+    :type args: BatchQueryRowArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'maxVersions': args.max_versions,
         'rows': args.rows
@@ -135,6 +249,23 @@ def batch_query_row_args_2_dict(args):
 
 
 class ScanArgs(object):
+    """
+    Scan Args
+    :param start_rowkey
+    :type start_rowkey string
+    :param include_start
+    :type include_start bool
+    :param stop_rowkey
+    :type stop_rowkey string
+    :param include_stop
+    :type include_stop bool
+    :param limit
+    :type limit int
+    :param max_versions
+    :type max_versions int
+    :param selector
+    :type selector []
+    """
     def __init__(self, start_rowkey=None, include_start=True, stop_rowkey=None,
                  include_stop=False, limit=None, max_versions=1):
         self.start_rowkey = start_rowkey
@@ -153,6 +284,15 @@ class ScanArgs(object):
 
 
 def scan_args_2_dict(args):
+    """
+    change scan_args to dict
+
+    :param args: scan row args
+    :type args: ScanArgs
+
+    :return:
+    :rtype dict
+    """
     return {
         'startRowkey': args.start_rowkey,
         'includeStart': args.include_start,
