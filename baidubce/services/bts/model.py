@@ -142,9 +142,24 @@ class Row(object):
         self.cells = []
 
     def append_cell(self, cell):
+        """
+        append cell
+
+        :param cell: column & value
+        :type cell: Cell
+
+        :return:
+        :rtype
+        """
         self.cells.append(cell)
 
     def get_cell(self):
+        """
+        get cell
+
+        :return cells:
+        :rtype Cell[]
+        """
         return self.cells
 
 
@@ -158,9 +173,24 @@ class BatchPutRowArgs(object):
         self.rows = []
 
     def append_row(self, row):
+        """
+        append row
+
+        :param row:
+        :type row: Row
+
+        :return:
+        :rtype
+        """
         self.rows.append(row)
 
     def get_row(self):
+        """
+        get row
+
+        :return rows:
+        :rtype Row[]
+        """
         return self.rows
 
 
@@ -190,9 +220,24 @@ class QueryRowArgs(object):
         self.cells = []
 
     def append_cell(self, cell):
+        """
+        append cell
+
+        :param cell: column & value
+        :type cell: Cell
+
+        :return:
+        :rtype
+        """
         self.cells.append(cell)
 
     def get_cell(self):
+        """
+        get cell
+
+        :return cells:
+        :rtype Cell[]
+        """
         return self.cells
 
 
@@ -226,9 +271,24 @@ class BatchQueryRowArgs(object):
         self.max_versions = max_versions
 
     def append_row(self, row):
+        """
+        append row
+
+        :param row:
+        :type row: Row
+
+        :return:
+        :rtype
+        """
         self.rows.append(row)
 
     def get_rows(self):
+        """
+        get row
+
+        :return rows:
+        :rtype Row[]
+        """
         return self.rows
 
 
@@ -277,9 +337,24 @@ class ScanArgs(object):
         self.selector = []
 
     def append_selector(self, query_cell):
+        """
+        append selector
+
+        :param query_cell:
+        :type query_cell: QueryCell
+
+        :return:
+        :rtype
+        """
         self.selector.append(query_cell)
 
     def get_selector(self):
+        """
+        get selector
+
+        :return selector:
+        :rtype query_cell[]
+        """
         return self.selector
 
 
