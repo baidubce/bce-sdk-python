@@ -13,6 +13,8 @@ Samples for bts client.
 """
 
 import bts_sample_conf
+# Python3
+# from sample.bts import bts_sample_conf
 
 from baidubce.services.bts.bts_client import BtsClient
 from baidubce.services.bts.model import BatchPutRowArgs
@@ -25,21 +27,6 @@ from baidubce.services.bts.model import QueryRowArgs
 from baidubce.services.bts.model import Row
 from baidubce.services.bts.model import ScanArgs
 from baidubce.services.bts.model import UpdateTableArgs
-
-'''
-# inorder to both support python2 and python3
-import os
-import sys
-
-file_path = os.path.normpath(os.path.dirname(__file__))
-sys.path.append(file_path + '/../../')
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
-if PY3:
-    from sample.bts import bts_sample_conf
-else:
-    import bts_sample_conf
-'''
 
 if __name__ == "__main__":
     import logging
