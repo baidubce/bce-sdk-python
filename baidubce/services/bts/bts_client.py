@@ -59,7 +59,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- create instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         if create_instance_args is None:
             create_instance_args = CreateInstanceArgs()
@@ -79,7 +78,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- drop instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
@@ -93,7 +91,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- list instances -------")
         path = b"/v1/instances"
         return self._send_request(http_methods.GET, path=path, config=config)
 
@@ -109,7 +106,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- show instance -------")
         path = bts.URL_PREFIX + b"/" + instance_name
         return self._send_request(http_methods.GET, path=path, config=config)
 
@@ -130,7 +126,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- create table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(create_table_args, default=create_table_args_2_dict),
@@ -152,7 +147,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- update table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(update_table_args, default=update_table_args_2_dict),
@@ -172,7 +166,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- drop table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
@@ -190,7 +183,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- show table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
         return self._send_request(http_methods.GET, path=path, config=config)
 
@@ -206,7 +198,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- list table -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/tables"
         return self._send_request(http_methods.GET, path=path, config=config)
 
@@ -227,7 +218,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- put row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(put_row_args.__dict__),
@@ -249,7 +239,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- batch put row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(batch_put_row_args.__dict__),
@@ -271,7 +260,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- delete row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                                   body=json.dumps(delete_row_args, default=query_row_args_2_dict),
@@ -293,7 +281,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- batch delete row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                                   body=json.dumps(batch_delete_row_args, default=batch_query_row_args_2_dict),
@@ -315,7 +302,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- get row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(get_row_args, default=query_row_args_2_dict),
@@ -337,7 +323,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- batch get row -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(batch_get_row_args, default=batch_query_row_args_2_dict),
@@ -359,7 +344,6 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        print("------- scan -------")
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(scan_args, default=scan_args_2_dict),
