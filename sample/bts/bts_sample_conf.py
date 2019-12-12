@@ -19,7 +19,7 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'bts-sandbox.baidu-int.com'
+HOST = 'bts.bd.baidubce.com'
 AK = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 SK = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
