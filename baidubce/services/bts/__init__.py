@@ -15,3 +15,5 @@ This module defines some constants for BTS
 """
 
 URL_PREFIX = b"/v1/instance"
+INVALID_ARGS_ERROR = "Please input valid argument."
+
