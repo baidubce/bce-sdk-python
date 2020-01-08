@@ -19,7 +19,7 @@ class CreateInstanceArgs(object):
     :param storage_type  instance's storage type. eg.CommonPerformance
     :type storage_type string
     """
-    def __init__(self, storage_type=None):
+    def __init__(self, storage_type=""):
         self.storage_type = storage_type
 
 
@@ -52,7 +52,7 @@ class CreateTableArgs(object):
     :param max_versions  table's max data versions.
     :type max_versions int
     """
-    def __init__(self, table_version=0, compress_type="NONE", ttl=0, storage_type=None, max_versions=1):
+    def __init__(self, table_version=0, compress_type="", ttl=0, storage_type="", max_versions=1):
         self.table_version = table_version
         self.compress_type = compress_type
         self.ttl = ttl
@@ -124,7 +124,7 @@ class Cell(object):
     :param value
     :type value string
     """
-    def __init__(self, column, value):
+    def __init__(self, column="", value=""):
         self.column = column
         self.value = value
 
@@ -137,8 +137,8 @@ class Row(object):
     :param cells
     :type cells []
     """
-    def __init__(self, rowkey=None):
-        self.row_key = rowkey
+    def __init__(self, rowkey=""):
+        self.rowkey = rowkey
         self.cells = []
 
     def append_cell(self, cell):
@@ -200,7 +200,7 @@ class QueryCell(object):
     :param column
     :type column string
     """
-    def __init__(self, column=None):
+    def __init__(self, column=""):
         self.column = column
 
 
@@ -214,7 +214,7 @@ class QueryRowArgs(object):
     :param cells
     :type cells []
     """
-    def __init__(self, rowkey=None, max_versions=0):
+    def __init__(self, rowkey="", max_versions=0):
         self.rowkey = rowkey
         self.max_versions = max_versions
         self.cells = []
@@ -326,7 +326,7 @@ class ScanArgs(object):
     :param selector
     :type selector []
     """
-    def __init__(self, start_rowkey=None, include_start=True, stop_rowkey=None,
+    def __init__(self, start_rowkey="", include_start=True, stop_rowkey="",
                  include_stop=False, limit=None, max_versions=0):
         self.start_rowkey = start_rowkey
         self.include_start = include_start

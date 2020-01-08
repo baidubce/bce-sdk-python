@@ -31,7 +31,7 @@ else:
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.services.bts import bts_client as bts
+from baidubce.services.bts import bts_client as bts, INVALID_ARGS_ERROR
 from baidubce.services.bts.model import BatchPutRowArgs
 from baidubce.services.bts.model import BatchQueryRowArgs
 from baidubce.services.bts.model import Cell
@@ -49,9 +49,9 @@ class MockHttpResponse(object):
     Mock HttpResponse
     """
 
-    def __init__(self, status, content=None, header_list=None):
+    def __init__(self, status, result=None, header_list=None):
         self.status = status
-        self.content = content
+        self.result = result
         self.header_list = header_list
 
     def read(self):
@@ -60,7 +60,7 @@ class MockHttpResponse(object):
 
         :return: self.content
         """
-        return self.content
+        return self.result
 
     def getheaders(self):
         """
@@ -97,7 +97,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -117,7 +117,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -154,7 +154,7 @@ class TestBtsClient(unittest.TestCase):
         }
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=json.dumps(res_body),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -179,7 +179,7 @@ class TestBtsClient(unittest.TestCase):
         }
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=json.dumps(res_body),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -196,7 +196,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -221,7 +221,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -245,7 +245,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -274,7 +274,7 @@ class TestBtsClient(unittest.TestCase):
         }
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=json.dumps(res_body),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -307,7 +307,7 @@ class TestBtsClient(unittest.TestCase):
         }
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=json.dumps(res_body),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -324,7 +324,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -349,7 +349,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -378,7 +378,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -402,7 +402,7 @@ class TestBtsClient(unittest.TestCase):
         """
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps({}),
+            result=json.dumps({}),
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -452,9 +452,18 @@ class TestBtsClient(unittest.TestCase):
                 }
             ]
         }
+
+        res = Results()
+        row1 = Row("row1")
+        cell1 = Cell("c1", "v1_1", 1571049818321)
+        cell2 = Cell("c2", "v2_1", 1571049818321)
+        row1.cells.append(cell1)
+        row1.cells.append(cell2)
+        res.result.append(row1)
+
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=res.result,
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -510,9 +519,25 @@ class TestBtsClient(unittest.TestCase):
                 }
             ]
         }
+
+        res = Results()
+        row1 = Row("row1")
+        cell1 = Cell("c1", "v1_1", 1571049818321)
+        cell2 = Cell("c2", "v2_1", 1571049818321)
+        row1.cells.append(cell1)
+        row1.cells.append(cell2)
+        res.result.append(row1)
+
+        row2 = Row("row2")
+        cell3 = Cell("c3", "v3_1", 1571049818321)
+        row2.cells.append(cell3)
+        cell4 = Cell("c4", "v4_1", 1571049818321)
+        row2.cells.append(cell4)
+        res.result.append(row2)
+
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=res.result,
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -539,7 +564,7 @@ class TestBtsClient(unittest.TestCase):
         res = self.bts_client.batch_get_row(instance_name, table_name, batch_query_row_args)
         self.assertEqual(res.status, 200)
 
-    def test_scan(self):
+    def test_scan(self,):
         """
         test case for scan
         """
@@ -570,12 +595,26 @@ class TestBtsClient(unittest.TestCase):
                         }
                     ]
                 }
-            ],
-            "nextStartKey": ""
+            ]
         }
+
+        res = Results()
+        row1 = Row("row1")
+        cell1 = Cell("c1", "v1_1", 1571049818321)
+        cell2 = Cell("c2", "v2_1", 1571049818321)
+        row1.cells.append(cell1)
+        row1.cells.append(cell2)
+        res.result.append(row1)
+
+        row2 = Row("row2")
+        cell3 = Cell("c2", "v2_1", 1571049818321)
+        row2.cells.append(cell3)
+        res.result.append(row2)
+
+
         mock_http_response = MockHttpResponse(
             200,
-            content=json.dumps(res_body),
+            result=res.result,
             header_list=[
                 ('x-bce-request-id', '7869616F-7A68-6977-656E-406261696475'),
                 ('content-type', 'application/json;charset=UTF-8')
@@ -583,23 +622,43 @@ class TestBtsClient(unittest.TestCase):
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
 
-        instance_name = b"ins01"
-        table_name = b"tab01"
-        scan_args = ScanArgs()
-        scan_args.start_rowkey = "row1"
-        scan_args.include_start = "true"
-        scan_args.stop_rowkey = "row2"
-        scan_args.include_stop = "true"
-        scan_args.selector.append(QueryCell("c1").__dict__)
-        scan_args.selector.append(QueryCell("c2").__dict__)
-        scan_args.max_versions = 1
-        scan_args.limit = 20
-        res = self.bts_client.scan(instance_name, table_name, scan_args)
-        self.assertEqual(res.status, 200)
 
+class Cell(object):
+    """
+    Cell
+    :param column
+    :type column string
+    :param value
+    :type value string
+    """
+    def __init__(self, column="", value="", timestamp=0):
+        self.column = column
+        self.value = value
+        self.timestamp = timestamp
+
+
+class Result(object):
+    """
+    Result
+    :param rowkey
+    :type rowkey string
+    :param cells
+    :type cells []
+    """
+    def __init__(self, rowkey=""):
+        self.rowkey = rowkey
+        self.cells = []
+
+class Results(object):
+    """
+    ScanResult
+    :param result
+    :type result []
+    """
+
+    def __init__(self):
+        self.result = []
 
 if __name__ == '__main__':
     unittest.main()
-
-
 
