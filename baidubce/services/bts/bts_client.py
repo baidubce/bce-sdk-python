@@ -17,6 +17,7 @@ This module provides a client class for BTS.
 import copy
 import json
 import logging
+import urllib
 
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
@@ -218,6 +219,11 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+
+        put_row_args.rowkey = urllib.quote(put_row_args.rowkey)
+        for i in range(len(put_row_args.cells)):
+            put_row_args.cells[i]["value"] = urllib.quote(put_row_args.cells[i]["value"])
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(put_row_args.__dict__),
@@ -239,6 +245,12 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        for i in range(len(batch_put_row_args.rows)):
+            batch_put_row_args.rows[i]["rowkey"] = urllib.quote(batch_put_row_args.rows[i]["rowkey"])
+            for j in range(len(batch_put_row_args.rows[i]["cells"])):
+                batch_put_row_args.rows[i]["cells"][j]["value"] = \
+                    urllib.quote(batch_put_row_args.rows[i]["cells"][j]["value"])
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(batch_put_row_args.__dict__),
@@ -260,6 +272,8 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        delete_row_args.rowkey = urllib.quote(delete_row_args.rowkey)
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                                   body=json.dumps(delete_row_args, default=query_row_args_2_dict),
@@ -281,6 +295,9 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        for i in range(len(batch_delete_row_args.rows)):
+            batch_delete_row_args.rows[i]["rowkey"] = urllib.quote(batch_delete_row_args.rows[i]["rowkey"])
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                                   body=json.dumps(batch_delete_row_args, default=batch_query_row_args_2_dict),
@@ -302,10 +319,17 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        get_row_args.rowkey = urllib.quote(get_row_args.rowkey)
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
-        return self._send_request(http_methods.GET, path=path, config=config,
+        response = self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(get_row_args, default=query_row_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+        if (response.result != None):
+            response.result[0].rowkey = urllib.unquote(str(response.result[0].rowkey))
+            for i in range(len(response.result[0].cells)):
+                response.result[0].cells[i].value = urllib.unquote(str(response.result[0].cells[i].value))
+        return response
 
     def batch_get_row(self, instance_name, table_name, batch_get_row_args, config=None):
         """
@@ -323,10 +347,20 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        for i in range(len(batch_get_row_args.rows)):
+            batch_get_row_args.rows[i]["rowkey"] = urllib.quote(batch_get_row_args.rows[i]["rowkey"])
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
-        return self._send_request(http_methods.GET, path=path, config=config,
+        response = self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(batch_get_row_args, default=batch_query_row_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+        if (response.result != None):
+            for i in range(len(response.result)):
+                response.result[i].rowkey = urllib.unquote(str(response.result[i].rowkey))
+                for j in range(len(response.result[i].cells)):
+                    response.result[i].cells[j].value = urllib.unquote(str(response.result[i].cells[j].value))
+        return response
+
 
     def scan(self, instance_name, table_name, scan_args, config=None):
         """
@@ -344,10 +378,19 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
+        scan_args.start_rowkey = urllib.quote(scan_args.start_rowkey)
+        scan_args.stop_rowkey = urllib.quote(scan_args.stop_rowkey)
+
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
-        return self._send_request(http_methods.GET, path=path, config=config,
+        response = self._send_request(http_methods.GET, path=path, config=config,
                                   body=json.dumps(scan_args, default=scan_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+        if (response.result != None):
+            for i in range(len(response.result)):
+                response.result[i].rowkey = urllib.unquote(str(response.result[i].rowkey))
+                for j in range(len(response.result[i].cells)):
+                    response.result[i].cells[j].value = urllib.unquote(str(response.result[i].cells[j].value))
+        return response
 
     def _merge_config(self, config):
         if config is None:
