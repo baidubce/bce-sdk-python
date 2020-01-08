@@ -91,10 +91,10 @@ class UpdateTableArgs(object):
     :param max_versions  table's max data versions.
     :type max_versions int
     """
-    def __init__(self, table_version=1, compress_type=None, ttl=None, max_versions=None):
+    def __init__(self, table_version=1, compress_type=None, time_to_live=None, max_versions=None):
         self.table_version = table_version
         self.compress_type = compress_type
-        self.ttl = ttl
+        self.time_to_live = time_to_live
         self.max_versions = max_versions
 
 
@@ -111,7 +111,7 @@ def update_table_args_2_dict(args):
     return {
         'tableVersion': args.table_version,
         'compressType': args.compress_type,
-        'ttl': args.ttl,
+        'ttl': args.time_to_live,
         'maxVersions': args.max_versions
     }
 
@@ -214,7 +214,7 @@ class QueryRowArgs(object):
     :param cells
     :type cells []
     """
-    def __init__(self, rowkey=None, max_versions=None):
+    def __init__(self, rowkey=None, max_versions=0):
         self.rowkey = rowkey
         self.max_versions = max_versions
         self.cells = []
@@ -266,7 +266,7 @@ class BatchQueryRowArgs(object):
     :param max_versions
     :type max_versions int
     """
-    def __init__(self, max_versions=1):
+    def __init__(self, max_versions=0):
         self.rows = []
         self.max_versions = max_versions
 
@@ -327,7 +327,7 @@ class ScanArgs(object):
     :type selector []
     """
     def __init__(self, start_rowkey=None, include_start=True, stop_rowkey=None,
-                 include_stop=False, limit=None, max_versions=1):
+                 include_stop=False, limit=None, max_versions=0):
         self.start_rowkey = start_rowkey
         self.include_start = include_start
         self.stop_rowkey = stop_rowkey
