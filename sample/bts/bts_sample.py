@@ -94,7 +94,7 @@ if __name__ == "__main__":
     print(response)
 
     # show table
-    table_name = 'tab02k'
+    table_name = 'tab02'
     response = bts_client.show_table(instance_name, table_name)
     print(response)
     
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     print(response)
     
     # drop table
-    table_name = 'tab02k'
+    table_name = 'tab02'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
 
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     row1 = Row()
     row1.rowkey = "row1"
     cell1 = Cell("c1", "v1_1")
-    cell2 = Cell("c2", "V2_1")
+    cell2 = Cell("c2", "v2_1")
     cells = [cell1.__dict__, cell2.__dict__]
     row1.cells = cells
 
