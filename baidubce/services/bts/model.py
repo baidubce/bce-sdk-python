@@ -329,7 +329,7 @@ class ScanArgs(object):
     :type selector []
     """
     def __init__(self, start_rowkey="", include_start=True, stop_rowkey="",
-                 include_stop=False, limit=None, max_versions=0):
+                 include_stop=False, limit=0, max_versions=0):
         self.start_rowkey = start_rowkey
         self.include_start = include_start
         self.stop_rowkey = stop_rowkey
