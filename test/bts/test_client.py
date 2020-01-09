@@ -31,7 +31,7 @@ else:
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.services.bts import bts_client as bts, INVALID_ARGS_ERROR
+from baidubce.services.bts import bts_client as bts
 from baidubce.services.bts.model import BatchPutRowArgs
 from baidubce.services.bts.model import BatchQueryRowArgs
 from baidubce.services.bts.model import Cell
@@ -235,7 +235,7 @@ class TestBtsClient(unittest.TestCase):
         update_table_args.table_version = "1534587498000000"
         update_table_args.compress_type = "NONE"
         update_table_args.max_versions = 20
-        update_table_args.time_to_live = 86400
+        update_table_args.ttl = 86400
         res = self.bts_client.update_table(instance_name, table_name, update_table_args)
         self.assertEqual(res.status, 200)
 
@@ -621,6 +621,20 @@ class TestBtsClient(unittest.TestCase):
             ])
         send_http_request = mock.Mock(return_value=mock_http_response)
         self.bts_client._send_request = send_http_request
+
+        instance_name = b"ins01"
+        table_name = b"tab01"
+        scan_args = ScanArgs()
+        scan_args.start_rowkey = "row1"
+        scan_args.include_start = "true"
+        scan_args.stop_rowkey = "row2"
+        scan_args.include_stop = "true"
+        scan_args.selector.append(QueryCell("c1").__dict__)
+        scan_args.selector.append(QueryCell("c2").__dict__)
+        scan_args.max_versions = 1
+        scan_args.limit = 20
+        res = self.bts_client.scan(instance_name, table_name, scan_args)
+        self.assertEqual(res.status, 200)
 
 
 class Cell(object):
