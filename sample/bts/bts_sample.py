@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -40,7 +41,6 @@ if __name__ == "__main__":
     ######################################################################################################
     #            instance operation samples
     ######################################################################################################
-
     # create instance
     instance_name = 'instance1'
     createInstanceArgs = CreateInstanceArgs('CommonPerformance')
@@ -48,20 +48,26 @@ if __name__ == "__main__":
     print(response)
 
     instance_name = 'instance2'
-    response = bts_client.create_instance(instance_name)
+    createInstanceArgs = CreateInstanceArgs()
+    createInstanceArgs.storage_type = 'CommonPerformance'
+    response = bts_client.create_instance(instance_name, createInstanceArgs)
     print(response)
 
+    instance_name = 'instance3'
+    response = bts_client.create_instance(instance_name)
+    print(response)
+    
     # show instance
-    instance_name = 'instance1'
+    instance_name = 'instance2'
     response = bts_client.show_instance(instance_name)
     print(response)
 
     # list instances
     response = bts_client.list_instances()
     print(response.instances)
-
+    
     # drop instance
-    instance_name = 'instance2'
+    instance_name = 'instance3'
     response = bts_client.drop_instance(instance_name)
     print(response)
 
@@ -81,28 +87,34 @@ if __name__ == "__main__":
     response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
-    # show table
-    table_name = 'tab01'
-    response = bts_client.show_table(instance_name, table_name)
+    table_name = 'tab02'
+    createTableArgs = CreateTableArgs()
+    createTableArgs.table_version = 0
+    response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
+    # show table
+    table_name = 'tab02k'
+    response = bts_client.show_table(instance_name, table_name)
+    print(response)
+    
     # list tables
     response = bts_client.list_tables(instance_name)
     print(response)
-
+    
     # update table
-    table_name = 'tab01'
+    table_name = 'tab02'
     show_table_response = bts_client.show_table(instance_name, table_name)
     updateTableArgs = UpdateTableArgs()
     updateTableArgs.table_version = show_table_response.table_version
     updateTableArgs.compress_type = "NONE"
-    updateTableArgs.max_versions = 20
-    updateTableArgs.time_to_live = 86400
+    updateTableArgs.max_versions = 19
+    updateTableArgs.ttl = 0
     response = bts_client.update_table(instance_name, table_name, updateTableArgs)
     print(response)
-
+    
     # drop table
-    table_name = 'tab03'
+    table_name = 'tab02k'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
 
@@ -113,97 +125,221 @@ if __name__ == "__main__":
     table_name = 'tab01'
 
     # put row
-    row = Row()
-    row.rowkey = "row1"
+    row1 = Row()
+    row1.rowkey = "row1"
     cell1 = Cell("c1", "v1_1")
-    cell2 = Cell("c2", "v2_1")
+    cell2 = Cell("c2", "V2_1")
     cells = [cell1.__dict__, cell2.__dict__]
-    row.cells = cells
+    row1.cells = cells
 
-    response = bts_client.put_row(instance_name, table_name, row)
+    response = bts_client.put_row(instance_name, table_name, row1)
+    print(response)
+    
+    # put row
+    row2 = Row()
+    row2.rowkey = "row1 11a_+你好  hi  _/  hi2 + + "
+    cell1 = Cell("c1", "v1_2  ++值是1—4— ， ；可")
+    cell2 = Cell("c2", "v2_2")
+    cells = [cell1.__dict__, cell2.__dict__]
+    row2.cells = cells
+
+    response = bts_client.put_row(instance_name, table_name, row2)
     print(response)
 
     # batch put row
-    batchPutRow = BatchPutRowArgs()
+    batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
         row = Row()
         row.rowkey = "row" + str(i)
         for j in range(3):
             col = "c" + str(j)
-            val = "v" + str(j) + "_1"
+            val = "v" + str(j) + "_2"
             cell = Cell(col, val)
             row.cells.append(cell.__dict__)
-        batchPutRow.rows.append(row.__dict__)
+        batchPutRow1.rows.append(row.__dict__)
 
-    response = bts_client.batch_put_row(instance_name, table_name, batchPutRow)
+    response = bts_client.batch_put_row(instance_name, table_name, batchPutRow1)
+    print(response)
+
+    # batch put row
+    batchPutRow2 = BatchPutRowArgs()
+    for i in range(2, 5):
+        row = Row()
+        row.rowkey = "row +" + str(i) + "jk@ +行 +  "
+        for j in range(3):
+            col = "c" + str(j)
+            val = "v" + str(j) + "_4——值  =+  "
+            cell = Cell(col, val)
+            row.cells.append(cell.__dict__)
+        batchPutRow2.rows.append(row.__dict__)
+
+    response = bts_client.batch_put_row(instance_name, table_name, batchPutRow2)
     print(response)
 
     # delete row
-    queryRowArgs = QueryRowArgs()
-    queryRowArgs.rowkey = "row1"
+    queryRowArgs1 = QueryRowArgs()
+    queryRowArgs1.rowkey = "row2"
     cell1 = QueryCell()
     cell1.column = "c1"
-    queryRowArgs.cells.append(cell1.__dict__)
-    response = bts_client.delete_row(instance_name, table_name, queryRowArgs)
+    queryRowArgs1.cells.append(cell1.__dict__)
+    response = bts_client.delete_row(instance_name, table_name, queryRowArgs1)
+    print(response)
+
+    # delete row
+    queryRowArgs2 = QueryRowArgs()
+    queryRowArgs2.rowkey = "row +" + str(4) + "jk@ +行 +  "
+    cell2 = QueryCell()
+    cell2.column = "c1"
+    queryRowArgs2.cells.append(cell2.__dict__)
+    response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
     print(response)
 
     # batch delete row
-    batchQueryRowArgs = BatchQueryRowArgs()
+    batchQueryRowArgs1 = BatchQueryRowArgs()
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row1"
     queryRowArgs1.cells.append(QueryCell("c0").__dict__)
     queryRowArgs1.cells.append(QueryCell("c1").__dict__)
-    batchQueryRowArgs.rows.append(queryRowArgs1.__dict__)
+    batchQueryRowArgs1.rows.append(queryRowArgs1.__dict__)
 
     queryRowArgs2 = QueryRowArgs()
     queryRowArgs2.rowkey = "row2"
     queryRowArgs2.cells.append(QueryCell("c1").__dict__)
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
-    batchQueryRowArgs.rows.append(queryRowArgs2.__dict__)
+    batchQueryRowArgs1.rows.append(queryRowArgs2.__dict__)
 
-    response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs)
+    response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs1)
     print(response)
+
+    # batch delete row
+    batchQueryRowArgs2 = BatchQueryRowArgs()
+    queryRowArgs3 = QueryRowArgs()
+    queryRowArgs3.rowkey = "row +" + str(3) + "jk@ +行 +  "
+    queryRowArgs3.cells.append(QueryCell("c0").__dict__)
+    queryRowArgs3.cells.append(QueryCell("c1").__dict__)
+    batchQueryRowArgs2.rows.append(queryRowArgs3.__dict__)
+
+    queryRowArgs4 = QueryRowArgs()
+    queryRowArgs4.rowkey = "row +" + str(4) + "jk@ +行 +  "
+    queryRowArgs4.cells.append(QueryCell("c1").__dict__)
+    queryRowArgs4.cells.append(QueryCell("c2").__dict__)
+    batchQueryRowArgs2.rows.append(queryRowArgs4.__dict__)
+
+    response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
+    print(response)
+    
+    # get row
+    queryRowArgs1 = QueryRowArgs()
+    queryRowArgs1.rowkey = "row4"
+    queryRowArgs1.cells.append(QueryCell("c0").__dict__)
+    queryRowArgs1.cells.append(QueryCell("c1").__dict__)
+    queryRowArgs1.max_versions = 2
+    response = bts_client.get_row(instance_name, table_name, queryRowArgs1)
+    if response is not None and response.result is not None:
+        print("rowkey: " + response.result[0].rowkey)
+        for i in range(len(response.result[0].cells)):
+            print("  column: " + response.result[0].cells[i].column)
+            print("  value: " + response.result[0].cells[i].value)
 
     # get row
-    queryRowArgs = QueryRowArgs()
-    queryRowArgs.rowkey = "row1"
-    queryRowArgs.cells.append(QueryCell("c1").__dict__)
-    queryRowArgs.cells.append(QueryCell("c2").__dict__)
-    queryRowArgs.max_versions = 2
-    response = bts_client.get_row(instance_name, table_name, queryRowArgs)
-    print(response)
-
+    queryRowArgs2 = QueryRowArgs()
+    queryRowArgs2.rowkey = "row +" + str(2) + "jk@ +行 +  "
+    queryRowArgs2.cells.append(QueryCell("c1").__dict__)
+    queryRowArgs2.cells.append(QueryCell("c2").__dict__)
+    queryRowArgs2.max_versions = 2
+    response = bts_client.get_row(instance_name, table_name, queryRowArgs2)
+    if response is not None and response.result is not None:
+        print("rowkey: " + response.result[0].rowkey)
+        for i in range(len(response.result[0].cells)):
+            print("  column: " + response.result[0].cells[i].column)
+            print("  value: " + response.result[0].cells[i].value)
+    
     # batch get row
-    batchQueryRowArgs = BatchQueryRowArgs()
-    batchQueryRowArgs.max_versions = 2
+    batchQueryRowArgs1 = BatchQueryRowArgs()
+    batchQueryRowArgs1.max_versions = 2
 
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row12"
     queryRowArgs1.cells.append(QueryCell("c0").__dict__)
     queryRowArgs1.cells.append(QueryCell("c1").__dict__)
-    batchQueryRowArgs.rows.append(queryRowArgs1.__dict__)
+    batchQueryRowArgs1.rows.append(queryRowArgs1.__dict__)
 
     queryRowArgs2 = QueryRowArgs()
     queryRowArgs2.rowkey = "row13"
     queryRowArgs2.cells.append(QueryCell("c1").__dict__)
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
-    batchQueryRowArgs.rows.append(queryRowArgs2.__dict__)
+    batchQueryRowArgs1.rows.append(queryRowArgs2.__dict__)
 
-    response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs)
-    print(response)
+    response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs1)
+    if response is not None and response.result is not None:
+        for i in range(len(response.result)):
+            print("rowkey: " + response.result[i].rowkey)
+            for j in range(len(response.result[i].cells)):
+                print("  column: " + response.result[i].cells[j].column)
+                print("  value: " + response.result[i].cells[j].value)
+
+    # batch get row
+    batchQueryRowArgs2 = BatchQueryRowArgs()
+    batchQueryRowArgs2.max_versions = 2
+
+    queryRowArgs3 = QueryRowArgs()
+    queryRowArgs3.rowkey = "row +" + str(2) + "jk@ +行 +  "
+    queryRowArgs3.cells.append(QueryCell("c0").__dict__)
+    queryRowArgs3.cells.append(QueryCell("c1").__dict__)
+    batchQueryRowArgs2.rows.append(queryRowArgs3.__dict__)
+
+    queryRowArgs4 = QueryRowArgs()
+    queryRowArgs4.rowkey = "row +" + str(3) + "jk@ +行 +  "
+    queryRowArgs4.cells.append(QueryCell("c0").__dict__)
+    queryRowArgs4.cells.append(QueryCell("c2").__dict__)
+    batchQueryRowArgs2.rows.append(queryRowArgs4.__dict__)
+
+    response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs2)
+    if response is not None and response.result is not None:
+        for i in range(len(response.result)):
+            print("rowkey: " + response.result[i].rowkey)
+            for j in range(len(response.result[i].cells)):
+                print("  column: " + response.result[i].cells[j].column)
+                print("  value: " + response.result[i].cells[j].value)
 
     # scan
-    scanArgs = ScanArgs()
-    scanArgs.start_rowkey = "row10"
-    scanArgs.include_start = "false"
-    scanArgs.stop_rowkey = "row14"
-    scanArgs.include_stop = "true"
-    scanArgs.selector.append(QueryCell("c0").__dict__)
-    scanArgs.selector.append(QueryCell("c1").__dict__)
-    scanArgs.selector.append(QueryCell("c2").__dict__)
-    scanArgs.max_versions = 2
-    scanArgs.limit = 20
+    scanArgs1 = ScanArgs()
+    scanArgs1.start_rowkey = "row2"
+    scanArgs1.include_start = True
+    scanArgs1.stop_rowkey = "row3"
+    scanArgs1.include_stop = True
+    scanArgs1.selector.append(QueryCell("c0").__dict__)
+    scanArgs1.selector.append(QueryCell("c1").__dict__)
+    scanArgs1.selector.append(QueryCell("c2").__dict__)
+    scanArgs1.max_versions = 2
+    scanArgs1.limit = 20
 
-    response = bts_client.scan(instance_name, table_name, scanArgs)
-    print(response)
+    response = bts_client.scan(instance_name, table_name, scanArgs1)
+    if response is not None and response.result is not None:
+        for i in range(len(response.result)):
+            print("rowkey: " + response.result[i].rowkey)
+            for j in range(len(response.result[i].cells)):
+                print("  column: " + response.result[i].cells[j].column)
+                print("  value: " + response.result[i].cells[j].value)
+                print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+
+    # scan
+    scanArgs2 = ScanArgs()
+    scanArgs2.start_rowkey = "row +" + str(2) + "jk@ +行 +  "
+    scanArgs2.include_start = True
+    scanArgs2.stop_rowkey = "row +" + str(4) + "jk@ +行 +  "
+    scanArgs2.include_stop = True
+    scanArgs2.selector.append(QueryCell("c0").__dict__)
+    scanArgs2.selector.append(QueryCell("c1").__dict__)
+    scanArgs2.selector.append(QueryCell("c2").__dict__)
+    scanArgs2.max_versions = 2
+    scanArgs2.limit = 200
+
+    response = bts_client.scan(instance_name, table_name, scanArgs2)
+    if response is not None and response.result is not None:
+        for i in range(len(response.result)):
+            print("rowkey: " + response.result[i].rowkey)
+            for j in range(len(response.result[i].cells)):
+                print("  column: " + response.result[i].cells[j].column)
+                print("  value: " + response.result[i].cells[j].value)
 
