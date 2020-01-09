@@ -17,7 +17,6 @@ import bts_sample_conf
 # Python3
 # from sample.bts import bts_sample_conf
 
-from baidubce.services.bts import INVALID_ARGS_ERROR
 from baidubce.services.bts.bts_client import BtsClient
 from baidubce.services.bts.model import BatchPutRowArgs
 from baidubce.services.bts.model import BatchQueryRowArgs
@@ -42,7 +41,6 @@ if __name__ == "__main__":
     ######################################################################################################
     #            instance operation samples
     ######################################################################################################
-
     # create instance
     instance_name = b'instance1'
     createInstanceArgs = CreateInstanceArgs('CommonPerformance')
@@ -50,20 +48,26 @@ if __name__ == "__main__":
     print(response)
 
     instance_name = b'instance2'
-    response = bts_client.create_instance(instance_name)
+    createInstanceArgs = CreateInstanceArgs()
+    createInstanceArgs.storage_type = 'CommonPerformance'
+    response = bts_client.create_instance(instance_name, createInstanceArgs)
     print(response)
 
+    instance_name = b'instance3'
+    response = bts_client.create_instance(instance_name)
+    print(response)
+    
     # show instance
-    instance_name = b'instance1'
+    instance_name = b'instance2'
     response = bts_client.show_instance(instance_name)
     print(response)
 
     # list instances
     response = bts_client.list_instances()
     print(response.instances)
-
+    
     # drop instance
-    instance_name = b'instance2'
+    instance_name = b'instance3'
     response = bts_client.drop_instance(instance_name)
     print(response)
 
@@ -83,15 +87,21 @@ if __name__ == "__main__":
     response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
-    # show table
-    table_name = b'tab01'
-    response = bts_client.show_table(instance_name, table_name)
+    table_name = b'tab02'
+    createTableArgs = CreateTableArgs()
+    createTableArgs.table_version = 0
+    response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
+    # show table
+    table_name = b'tab02'
+    response = bts_client.show_table(instance_name, table_name)
+    print(response)
+    
     # list tables
     response = bts_client.list_tables(instance_name)
     print(response)
-
+    
     # update table
     table_name = b'tab02'
     show_table_response = bts_client.show_table(instance_name, table_name)
@@ -102,9 +112,9 @@ if __name__ == "__main__":
     updateTableArgs.ttl = 0
     response = bts_client.update_table(instance_name, table_name, updateTableArgs)
     print(response)
-
+    
     # drop table
-    table_name = b'tab02'
+    table_name = b'tab03'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
 
@@ -117,14 +127,14 @@ if __name__ == "__main__":
     # put row
     row1 = Row()
     row1.rowkey = "row1"
-    cell1 = Cell("c1", "v1_5")
-    cell2 = Cell("c2", "")
+    cell1 = Cell("c1", "v1_1")
+    cell2 = Cell("c2", "v2_1")
     cells = [cell1.__dict__, cell2.__dict__]
     row1.cells = cells
 
     response = bts_client.put_row(instance_name, table_name, row1)
     print(response)
-
+    
     # put row
     row2 = Row()
     row2.rowkey = "row1 11a_+你好  hi  _/  hi2 + + "
@@ -135,7 +145,7 @@ if __name__ == "__main__":
 
     response = bts_client.put_row(instance_name, table_name, row2)
     print(response)
-
+    
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
@@ -144,7 +154,7 @@ if __name__ == "__main__":
         for j in range(3):
             col = "c" + str(j)
             val = "v" + str(j) + "_2"
-            cell = Cell(col, "")
+            cell = Cell(col, val)
             row.cells.append(cell.__dict__)
         batchPutRow1.rows.append(row.__dict__)
 
@@ -165,7 +175,7 @@ if __name__ == "__main__":
 
     response = bts_client.batch_put_row(instance_name, table_name, batchPutRow2)
     print(response)
-
+    
     # delete row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row2"
@@ -220,18 +230,16 @@ if __name__ == "__main__":
 
     # get row
     queryRowArgs1 = QueryRowArgs()
-    queryRowArgs1.rowkey = "row2"
+    queryRowArgs1.rowkey = "row4"
     queryRowArgs1.cells.append(QueryCell("c0").__dict__)
     queryRowArgs1.cells.append(QueryCell("c1").__dict__)
     queryRowArgs1.max_versions = 2
     response = bts_client.get_row(instance_name, table_name, queryRowArgs1)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         print("rowkey: " + response.result[0].rowkey)
         for i in range(len(response.result[0].cells)):
             print("  column: " + response.result[0].cells[i].column)
             print("  value: " + response.result[0].cells[i].value)
-    else:
-        print(response)
 
     # get row
     queryRowArgs2 = QueryRowArgs()
@@ -240,14 +248,12 @@ if __name__ == "__main__":
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
     queryRowArgs2.max_versions = 2
     response = bts_client.get_row(instance_name, table_name, queryRowArgs2)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         print("rowkey: " + response.result[0].rowkey)
         for i in range(len(response.result[0].cells)):
             print("  column: " + response.result[0].cells[i].column)
             print("  value: " + response.result[0].cells[i].value)
-    else:
-        print(response)
-
+    
     # batch get row
     batchQueryRowArgs1 = BatchQueryRowArgs()
     batchQueryRowArgs1.max_versions = 2
@@ -265,14 +271,12 @@ if __name__ == "__main__":
     batchQueryRowArgs1.rows.append(queryRowArgs2.__dict__)
 
     response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs1)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         for i in range(len(response.result)):
             print("rowkey: " + response.result[i].rowkey)
             for j in range(len(response.result[i].cells)):
                 print("  column: " + response.result[i].cells[j].column)
                 print("  value: " + response.result[i].cells[j].value)
-    else:
-        print(response)
 
     # batch get row
     batchQueryRowArgs2 = BatchQueryRowArgs()
@@ -291,14 +295,12 @@ if __name__ == "__main__":
     batchQueryRowArgs2.rows.append(queryRowArgs4.__dict__)
 
     response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs2)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         for i in range(len(response.result)):
             print("rowkey: " + response.result[i].rowkey)
             for j in range(len(response.result[i].cells)):
                 print("  column: " + response.result[i].cells[j].column)
                 print("  value: " + response.result[i].cells[j].value)
-    else:
-        print(response)
 
     # scan
     scanArgs1 = ScanArgs()
@@ -313,15 +315,13 @@ if __name__ == "__main__":
     scanArgs1.limit = 20
 
     response = bts_client.scan(instance_name, table_name, scanArgs1)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         for i in range(len(response.result)):
             print("rowkey: " + response.result[i].rowkey)
             for j in range(len(response.result[i].cells)):
                 print("  column: " + response.result[i].cells[j].column)
                 print("  value: " + response.result[i].cells[j].value)
                 print("  timestamp: " + str(response.result[i].cells[j].timestamp))
-    else:
-        print(response)
 
     # scan
     scanArgs2 = ScanArgs()
@@ -336,11 +336,10 @@ if __name__ == "__main__":
     scanArgs2.limit = 200
 
     response = bts_client.scan(instance_name, table_name, scanArgs2)
-    if response is not INVALID_ARGS_ERROR and response.result is not None:
+    if response is not None and response.result is not None:
         for i in range(len(response.result)):
             print("rowkey: " + response.result[i].rowkey)
             for j in range(len(response.result[i].cells)):
                 print("  column: " + response.result[i].cells[j].column)
                 print("  value: " + response.result[i].cells[j].value)
-    else:
-        print(response)
+

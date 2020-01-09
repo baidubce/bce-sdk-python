@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2014 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -91,6 +92,7 @@ class UpdateTableArgs(object):
     :param max_versions  table's max data versions.
     :type max_versions int
     """
+    # 不能将table_version初始化为None，否则后端会认为是创建表
     def __init__(self, table_version=1, compress_type=None, ttl=None, max_versions=None):
         self.table_version = table_version
         self.compress_type = compress_type

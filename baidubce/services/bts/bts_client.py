@@ -221,7 +221,8 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if put_row_args is None or put_row_args.rowkey == "":
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         put_row_args.rowkey = urllib.quote(put_row_args.rowkey)
         for i in range(len(put_row_args.cells)):
             put_row_args.cells[i]["value"] = urllib.quote(put_row_args.cells[i]["value"])
@@ -248,10 +249,12 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_put_row_args is None:
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         for i in range(len(batch_put_row_args.rows)):
             if batch_put_row_args.rows[i]["rowkey"] == "":
-                return INVALID_ARGS_ERROR
+                print INVALID_ARGS_ERROR
+                return None
             batch_put_row_args.rows[i]["rowkey"] = urllib.quote(batch_put_row_args.rows[i]["rowkey"])
             for j in range(len(batch_put_row_args.rows[i]["cells"])):
                 batch_put_row_args.rows[i]["cells"][j]["value"] = \
@@ -279,7 +282,8 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if delete_row_args is None or delete_row_args.rowkey == "":
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         delete_row_args.rowkey = urllib.quote(delete_row_args.rowkey)
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
@@ -304,10 +308,12 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_delete_row_args is None:
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         for i in range(len(batch_delete_row_args.rows)):
             if batch_delete_row_args.rows[i]["rowkey"] == "":
-                return INVALID_ARGS_ERROR
+                print INVALID_ARGS_ERROR
+                return None
             batch_delete_row_args.rows[i]["rowkey"] = urllib.quote(batch_delete_row_args.rows[i]["rowkey"])
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
@@ -332,14 +338,15 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if get_row_args is None or get_row_args.rowkey == "":
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         get_row_args.rowkey = urllib.quote(get_row_args.rowkey)
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(get_row_args, default=query_row_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        if response is not INVALID_ARGS_ERROR and response.result is not None:
+        if response.result is not None:
             response.result[0].rowkey = urllib.unquote(str(response.result[0].rowkey))
             for i in range(len(response.result[0].cells)):
                 response.result[0].cells[i].value = urllib.unquote(str(response.result[0].cells[i].value))
@@ -362,17 +369,19 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_get_row_args is None:
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         for i in range(len(batch_get_row_args.rows)):
             if batch_get_row_args.rows[i]["rowkey"] == "":
-                return INVALID_ARGS_ERROR
+                print INVALID_ARGS_ERROR
+                return None
             batch_get_row_args.rows[i]["rowkey"] = urllib.quote(batch_get_row_args.rows[i]["rowkey"])
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(batch_get_row_args, default=batch_query_row_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        if response is not INVALID_ARGS_ERROR and response.result is not None:
+        if response.result is not None:
             for i in range(len(response.result)):
                 response.result[i].rowkey = urllib.unquote(str(response.result[i].rowkey))
                 for j in range(len(response.result[i].cells)):
@@ -396,7 +405,8 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if scan_args is None:
-            return INVALID_ARGS_ERROR
+            print INVALID_ARGS_ERROR
+            return None
         scan_args.start_rowkey = urllib.quote(scan_args.start_rowkey)
         scan_args.stop_rowkey = urllib.quote(scan_args.stop_rowkey)
 
@@ -404,8 +414,7 @@ class BtsClient(BceBaseClient):
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(scan_args, default=scan_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        print response
-        if response is not INVALID_ARGS_ERROR and response.result is not None:
+        if response.result is not None:
             for i in range(len(response.result)):
                 response.result[i].rowkey = urllib.unquote(str(response.result[i].rowkey))
                 for j in range(len(response.result[i].cells)):
