@@ -52,7 +52,7 @@ if __name__ == "__main__":
     instance_name = b'instance2'
     response = bts_client.create_instance(instance_name)
     print(response)
-    
+
     # show instance
     instance_name = b'instance1'
     response = bts_client.show_instance(instance_name)
@@ -99,10 +99,10 @@ if __name__ == "__main__":
     updateTableArgs.table_version = show_table_response.table_version
     updateTableArgs.compress_type = "NONE"
     updateTableArgs.max_versions = 19
-    updateTableArgs.time_to_live = 0
+    updateTableArgs.ttl = 0
     response = bts_client.update_table(instance_name, table_name, updateTableArgs)
     print(response)
-    
+
     # drop table
     table_name = b'tab02'
     response = bts_client.drop_table(instance_name, table_name)
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     response = bts_client.put_row(instance_name, table_name, row1)
     print(response)
-    
+
     # put row
     row2 = Row()
     row2.rowkey = "row1 11a_+你好  hi  _/  hi2 + + "
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     response = bts_client.put_row(instance_name, table_name, row2)
     print(response)
-    
+
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     response = bts_client.batch_put_row(instance_name, table_name, batchPutRow1)
     print(response)
-    
+
     # batch put row
     batchPutRow2 = BatchPutRowArgs()
     for i in range(2, 5):
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     queryRowArgs2.cells.append(cell2.__dict__)
     response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
     print(response)
-    
+
     # batch delete row
     batchQueryRowArgs1 = BatchQueryRowArgs()
     queryRowArgs1 = QueryRowArgs()
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs1)
     print(response)
-    
+
     # batch delete row
     batchQueryRowArgs2 = BatchQueryRowArgs()
     queryRowArgs3 = QueryRowArgs()
@@ -217,7 +217,7 @@ if __name__ == "__main__":
 
     response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
     print(response)
-    
+
     # get row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row2"
@@ -232,7 +232,7 @@ if __name__ == "__main__":
             print("  value: " + response.result[0].cells[i].value)
     else:
         print(response)
-    
+
     # get row
     queryRowArgs2 = QueryRowArgs()
     queryRowArgs2.rowkey = "row +" + str(2) + "jk@ +行 +  "
@@ -247,7 +247,7 @@ if __name__ == "__main__":
             print("  value: " + response.result[0].cells[i].value)
     else:
         print(response)
-    
+
     # batch get row
     batchQueryRowArgs1 = BatchQueryRowArgs()
     batchQueryRowArgs1.max_versions = 2
@@ -273,7 +273,7 @@ if __name__ == "__main__":
                 print("  value: " + response.result[i].cells[j].value)
     else:
         print(response)
-    
+
     # batch get row
     batchQueryRowArgs2 = BatchQueryRowArgs()
     batchQueryRowArgs2.max_versions = 2

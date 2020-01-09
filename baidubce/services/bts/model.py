@@ -19,7 +19,7 @@ class CreateInstanceArgs(object):
     :param storage_type  instance's storage type. eg.CommonPerformance
     :type storage_type string
     """
-    def __init__(self, storage_type=""):
+    def __init__(self, storage_type=None):
         self.storage_type = storage_type
 
 
@@ -52,7 +52,7 @@ class CreateTableArgs(object):
     :param max_versions  table's max data versions.
     :type max_versions int
     """
-    def __init__(self, table_version=0, compress_type="", ttl=0, storage_type="", max_versions=1):
+    def __init__(self, table_version=0, compress_type=None, ttl=0, storage_type=None, max_versions=1):
         self.table_version = table_version
         self.compress_type = compress_type
         self.ttl = ttl
@@ -91,10 +91,10 @@ class UpdateTableArgs(object):
     :param max_versions  table's max data versions.
     :type max_versions int
     """
-    def __init__(self, table_version=1, compress_type=None, time_to_live=None, max_versions=None):
+    def __init__(self, table_version=1, compress_type=None, ttl=None, max_versions=None):
         self.table_version = table_version
         self.compress_type = compress_type
-        self.time_to_live = time_to_live
+        self.ttl = ttl
         self.max_versions = max_versions
 
 
@@ -111,7 +111,7 @@ def update_table_args_2_dict(args):
     return {
         'tableVersion': args.table_version,
         'compressType': args.compress_type,
-        'ttl': args.time_to_live,
+        'ttl': args.ttl,
         'maxVersions': args.max_versions
     }
 
