@@ -15,6 +15,7 @@ Samples for bts client.
 
 import bts_sample_conf
 
+from baidubce import exception
 from baidubce.services.bts.bts_client import BtsClient
 from baidubce.services.bts.model import BatchPutRowArgs
 from baidubce.services.bts.model import BatchQueryRowArgs
@@ -133,8 +134,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.put_row(instance_name, table_name, row1)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
     
     # put row
     row2 = Row()
@@ -147,9 +148,9 @@ if __name__ == "__main__":
     try:
         response = bts_client.put_row(instance_name, table_name, row2)
         print(response)
-    except Exception as e:
-        print(e)
-    
+    except exception.BceError as e:
+        __logger.debug(e)
+
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
@@ -165,8 +166,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.batch_put_row(instance_name, table_name, batchPutRow1)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
     
     # batch put row
     batchPutRow2 = BatchPutRowArgs()
@@ -183,8 +184,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.batch_put_row(instance_name, table_name, batchPutRow2)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
     
     # delete row
     queryRowArgs1 = QueryRowArgs()
@@ -196,8 +197,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.delete_row(instance_name, table_name, queryRowArgs1)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # delete row
     queryRowArgs2 = QueryRowArgs()
@@ -209,8 +210,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
     
     # batch delete row
     batchQueryRowArgs1 = BatchQueryRowArgs()
@@ -229,8 +230,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs1)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # batch delete row
     batchQueryRowArgs2 = BatchQueryRowArgs()
@@ -249,8 +250,8 @@ if __name__ == "__main__":
     try:
         response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
         print(response)
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
     
     # get row
     queryRowArgs1 = QueryRowArgs()
@@ -267,8 +268,8 @@ if __name__ == "__main__":
                 print("  column: " + response.result[0].cells[i].column)
                 print("  value: " + response.result[0].cells[i].value)
                 print("  timestamp: " + str(response.result[0].cells[i].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # get row
     queryRowArgs2 = QueryRowArgs()
@@ -285,8 +286,8 @@ if __name__ == "__main__":
                 print("  column: " + response.result[0].cells[i].column)
                 print("  value: " + response.result[0].cells[i].value)
                 print("  timestamp: " + str(response.result[0].cells[i].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # batch get row
     batchQueryRowArgs1 = BatchQueryRowArgs()
@@ -313,8 +314,8 @@ if __name__ == "__main__":
                     print("  column: " + response.result[i].cells[j].column)
                     print("  value: " + response.result[i].cells[j].value)
                     print("  timestamp: " + str(response.result[i].cells[j].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # batch get row
     batchQueryRowArgs2 = BatchQueryRowArgs()
@@ -341,8 +342,8 @@ if __name__ == "__main__":
                     print("  column: " + response.result[i].cells[j].column)
                     print("  value: " + response.result[i].cells[j].value)
                     print("  timestamp: " + str(response.result[i].cells[j].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # scan
     scanArgs1 = ScanArgs()
@@ -365,8 +366,8 @@ if __name__ == "__main__":
                     print("  column: " + response.result[i].cells[j].column)
                     print("  value: " + response.result[i].cells[j].value)
                     print("  timestamp: " + str(response.result[i].cells[j].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
 
     # scan
     scanArgs2 = ScanArgs()
@@ -389,6 +390,8 @@ if __name__ == "__main__":
                     print("  column: " + response.result[i].cells[j].column)
                     print("  value: " + response.result[i].cells[j].value)
                     print("  timestamp: " + str(response.result[i].cells[j].timestamp))
-    except Exception as e:
-        print(e)
+    except exception.BceError as e:
+        __logger.debug(e)
+
+
 
