@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # list instances
     response = bts_client.list_instances()
     print(response.instances)
-
+    
     # drop instance
     instance_name = b'instance3'
     response = bts_client.drop_instance(instance_name)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     createTableArgs.max_versions = 10
     response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
-
+    
     table_name = b'tab02'
     createTableArgs = CreateTableArgs()
     createTableArgs.table_version = 0
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     table_name = b'tab02'
     response = bts_client.show_table(instance_name, table_name)
     print(response)
-    
+
     # list tables
     response = bts_client.list_tables(instance_name)
     print(response)
@@ -130,8 +130,11 @@ if __name__ == "__main__":
     cells = [cell1.__dict__, cell2.__dict__]
     row1.cells = cells
 
-    response = bts_client.put_row(instance_name, table_name, row1)
-    print(response)
+    try:
+        response = bts_client.put_row(instance_name, table_name, row1)
+        print(response)
+    except Exception as e:
+        print(e)
     
     # put row
     row2 = Row()
@@ -141,8 +144,11 @@ if __name__ == "__main__":
     cells = [cell1.__dict__, cell2.__dict__]
     row2.cells = cells
 
-    response = bts_client.put_row(instance_name, table_name, row2)
-    print(response)
+    try:
+        response = bts_client.put_row(instance_name, table_name, row2)
+        print(response)
+    except Exception as e:
+        print(e)
     
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
@@ -156,9 +162,12 @@ if __name__ == "__main__":
             row.cells.append(cell.__dict__)
         batchPutRow1.rows.append(row.__dict__)
 
-    response = bts_client.batch_put_row(instance_name, table_name, batchPutRow1)
-    print(response)
-
+    try:
+        response = bts_client.batch_put_row(instance_name, table_name, batchPutRow1)
+        print(response)
+    except Exception as e:
+        print(e)
+    
     # batch put row
     batchPutRow2 = BatchPutRowArgs()
     for i in range(2, 5):
@@ -171,17 +180,24 @@ if __name__ == "__main__":
             row.cells.append(cell.__dict__)
         batchPutRow2.rows.append(row.__dict__)
 
-    response = bts_client.batch_put_row(instance_name, table_name, batchPutRow2)
-    print(response)
-
+    try:
+        response = bts_client.batch_put_row(instance_name, table_name, batchPutRow2)
+        print(response)
+    except Exception as e:
+        print(e)
+    
     # delete row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row2"
     cell1 = QueryCell()
     cell1.column = "c1"
     queryRowArgs1.cells.append(cell1.__dict__)
-    response = bts_client.delete_row(instance_name, table_name, queryRowArgs1)
-    print(response)
+
+    try:
+        response = bts_client.delete_row(instance_name, table_name, queryRowArgs1)
+        print(response)
+    except Exception as e:
+        print(e)
 
     # delete row
     queryRowArgs2 = QueryRowArgs()
@@ -189,9 +205,13 @@ if __name__ == "__main__":
     cell2 = QueryCell()
     cell2.column = "c1"
     queryRowArgs2.cells.append(cell2.__dict__)
-    response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
-    print(response)
 
+    try:
+        response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
+        print(response)
+    except Exception as e:
+        print(e)
+    
     # batch delete row
     batchQueryRowArgs1 = BatchQueryRowArgs()
     queryRowArgs1 = QueryRowArgs()
@@ -206,8 +226,11 @@ if __name__ == "__main__":
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
     batchQueryRowArgs1.rows.append(queryRowArgs2.__dict__)
 
-    response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs1)
-    print(response)
+    try:
+        response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs1)
+        print(response)
+    except Exception as e:
+        print(e)
 
     # batch delete row
     batchQueryRowArgs2 = BatchQueryRowArgs()
@@ -223,21 +246,29 @@ if __name__ == "__main__":
     queryRowArgs4.cells.append(QueryCell("c2").__dict__)
     batchQueryRowArgs2.rows.append(queryRowArgs4.__dict__)
 
-    response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
-    print(response)
-
+    try:
+        response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
+        print(response)
+    except Exception as e:
+        print(e)
+    
     # get row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row4"
     queryRowArgs1.cells.append(QueryCell("c0").__dict__)
     queryRowArgs1.cells.append(QueryCell("c1").__dict__)
     queryRowArgs1.max_versions = 2
-    response = bts_client.get_row(instance_name, table_name, queryRowArgs1)
-    if response is not None and response.result is not None:
-        print("rowkey: " + response.result[0].rowkey)
-        for i in range(len(response.result[0].cells)):
-            print("  column: " + response.result[0].cells[i].column)
-            print("  value: " + response.result[0].cells[i].value)
+
+    try:
+        response = bts_client.get_row(instance_name, table_name, queryRowArgs1)
+        if response.result is not None:
+            print("rowkey: " + response.result[0].rowkey)
+            for i in range(len(response.result[0].cells)):
+                print("  column: " + response.result[0].cells[i].column)
+                print("  value: " + response.result[0].cells[i].value)
+                print("  timestamp: " + str(response.result[0].cells[i].timestamp))
+    except Exception as e:
+        print(e)
 
     # get row
     queryRowArgs2 = QueryRowArgs()
@@ -245,13 +276,18 @@ if __name__ == "__main__":
     queryRowArgs2.cells.append(QueryCell("c1").__dict__)
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
     queryRowArgs2.max_versions = 2
-    response = bts_client.get_row(instance_name, table_name, queryRowArgs2)
-    if response is not None and response.result is not None:
-        print("rowkey: " + response.result[0].rowkey)
-        for i in range(len(response.result[0].cells)):
-            print("  column: " + response.result[0].cells[i].column)
-            print("  value: " + response.result[0].cells[i].value)
-    
+
+    try:
+        response = bts_client.get_row(instance_name, table_name, queryRowArgs2)
+        if response.result is not None:
+            print("rowkey: " + response.result[0].rowkey)
+            for i in range(len(response.result[0].cells)):
+                print("  column: " + response.result[0].cells[i].column)
+                print("  value: " + response.result[0].cells[i].value)
+                print("  timestamp: " + str(response.result[0].cells[i].timestamp))
+    except Exception as e:
+        print(e)
+
     # batch get row
     batchQueryRowArgs1 = BatchQueryRowArgs()
     batchQueryRowArgs1.max_versions = 2
@@ -268,13 +304,17 @@ if __name__ == "__main__":
     queryRowArgs2.cells.append(QueryCell("c2").__dict__)
     batchQueryRowArgs1.rows.append(queryRowArgs2.__dict__)
 
-    response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs1)
-    if response is not None and response.result is not None:
-        for i in range(len(response.result)):
-            print("rowkey: " + response.result[i].rowkey)
-            for j in range(len(response.result[i].cells)):
-                print("  column: " + response.result[i].cells[j].column)
-                print("  value: " + response.result[i].cells[j].value)
+    try:
+        response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs1)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except Exception as e:
+        print(e)
 
     # batch get row
     batchQueryRowArgs2 = BatchQueryRowArgs()
@@ -292,13 +332,17 @@ if __name__ == "__main__":
     queryRowArgs4.cells.append(QueryCell("c2").__dict__)
     batchQueryRowArgs2.rows.append(queryRowArgs4.__dict__)
 
-    response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs2)
-    if response is not None and response.result is not None:
-        for i in range(len(response.result)):
-            print("rowkey: " + response.result[i].rowkey)
-            for j in range(len(response.result[i].cells)):
-                print("  column: " + response.result[i].cells[j].column)
-                print("  value: " + response.result[i].cells[j].value)
+    try:
+        response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs2)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except Exception as e:
+        print(e)
 
     # scan
     scanArgs1 = ScanArgs()
@@ -312,14 +356,17 @@ if __name__ == "__main__":
     scanArgs1.max_versions = 2
     scanArgs1.limit = 100
 
-    response = bts_client.scan(instance_name, table_name, scanArgs1)
-    if response is not None and response.result is not None:
-        for i in range(len(response.result)):
-            print("rowkey: " + response.result[i].rowkey)
-            for j in range(len(response.result[i].cells)):
-                print("  column: " + response.result[i].cells[j].column)
-                print("  value: " + response.result[i].cells[j].value)
-                print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    try:
+        response = bts_client.scan(instance_name, table_name, scanArgs1)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except Exception as e:
+        print(e)
 
     # scan
     scanArgs2 = ScanArgs()
@@ -333,11 +380,15 @@ if __name__ == "__main__":
     scanArgs2.max_versions = 2
     scanArgs2.limit = 200
 
-    response = bts_client.scan(instance_name, table_name, scanArgs2)
-    if response is not None and response.result is not None:
-        for i in range(len(response.result)):
-            print("rowkey: " + response.result[i].rowkey)
-            for j in range(len(response.result[i].cells)):
-                print("  column: " + response.result[i].cells[j].column)
-                print("  value: " + response.result[i].cells[j].value)
+    try:
+        response = bts_client.scan(instance_name, table_name, scanArgs2)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except Exception as e:
+        print(e)
 
