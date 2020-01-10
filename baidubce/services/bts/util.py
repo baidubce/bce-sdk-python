@@ -13,6 +13,7 @@ This module provides some python2 and python3's compatible functions for BTS.
 """
 
 import sys
+import logging
 
 from baidubce.services.bts import PYTHON_VERSION_ERROR
 
@@ -22,6 +23,8 @@ if PY3:
     import urllib.parse
 else:
     import urllib
+
+_logger = logging.getLogger(__name__)
 
 
 def _encode(s):
@@ -40,6 +43,7 @@ def _encode(s):
         return urllib.parse.quote(s)
 
     ex = Exception(PYTHON_VERSION_ERROR)
+    _logger.debug(ex)
     raise ex
 
 
@@ -59,5 +63,6 @@ def _decode(s):
         return urllib.parse.unquote(s)
 
     ex = Exception(PYTHON_VERSION_ERROR)
+    _logger.debug(ex)
     raise ex
 
