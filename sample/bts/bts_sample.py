@@ -14,8 +14,6 @@ Samples for bts client.
 """
 
 import bts_sample_conf
-# Python3
-# from sample.bts import bts_sample_conf
 
 from baidubce.services.bts.bts_client import BtsClient
 from baidubce.services.bts.model import BatchPutRowArgs
@@ -41,43 +39,44 @@ if __name__ == "__main__":
     ######################################################################################################
     #            instance operation samples
     ######################################################################################################
+    
     # create instance
-    instance_name = 'instance1'
+    instance_name = b'instance1'
     createInstanceArgs = CreateInstanceArgs('CommonPerformance')
     response = bts_client.create_instance(instance_name, createInstanceArgs)
     print(response)
 
-    instance_name = 'instance2'
+    instance_name = b'instance2'
     createInstanceArgs = CreateInstanceArgs()
     createInstanceArgs.storage_type = 'CommonPerformance'
     response = bts_client.create_instance(instance_name, createInstanceArgs)
     print(response)
 
-    instance_name = 'instance3'
+    instance_name = b'instance3'
     response = bts_client.create_instance(instance_name)
     print(response)
     
     # show instance
-    instance_name = 'instance2'
+    instance_name = b'instance1'
     response = bts_client.show_instance(instance_name)
     print(response)
 
     # list instances
     response = bts_client.list_instances()
     print(response.instances)
-    
+
     # drop instance
-    instance_name = 'instance3'
+    instance_name = b'instance3'
     response = bts_client.drop_instance(instance_name)
     print(response)
-
+    
     ######################################################################################################
     #            table operation samples
     ######################################################################################################
-    instance_name = 'instance1'
-
+    instance_name = b'instance1'
+    
     # create table
-    table_name = 'tab01'
+    table_name = b'tab01'
     createTableArgs = CreateTableArgs()
     createTableArgs.table_version = 0
     createTableArgs.compress_type = "SNAPPY_ALL"
@@ -87,14 +86,14 @@ if __name__ == "__main__":
     response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
-    table_name = 'tab02'
+    table_name = b'tab02'
     createTableArgs = CreateTableArgs()
     createTableArgs.table_version = 0
     response = bts_client.create_table(instance_name, table_name, createTableArgs)
     print(response)
 
     # show table
-    table_name = 'tab02'
+    table_name = b'tab02'
     response = bts_client.show_table(instance_name, table_name)
     print(response)
     
@@ -103,27 +102,27 @@ if __name__ == "__main__":
     print(response)
     
     # update table
-    table_name = 'tab02'
+    table_name = b'tab02'
     show_table_response = bts_client.show_table(instance_name, table_name)
     updateTableArgs = UpdateTableArgs()
     updateTableArgs.table_version = show_table_response.table_version
     updateTableArgs.compress_type = "NONE"
-    updateTableArgs.max_versions = 19
-    updateTableArgs.ttl = 0
+    updateTableArgs.max_versions = 27
+    updateTableArgs.ttl = 86400
     response = bts_client.update_table(instance_name, table_name, updateTableArgs)
     print(response)
     
     # drop table
-    table_name = 'tab02'
+    table_name = b'tab03'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
-
+    
     ######################################################################################################
     #            row operation samples
     ######################################################################################################
-    instance_name = 'instance1'
-    table_name = 'tab01'
-
+    instance_name = b'instance1'
+    table_name = b'tab02'
+    
     # put row
     row1 = Row()
     row1.rowkey = "row1"
@@ -138,14 +137,14 @@ if __name__ == "__main__":
     # put row
     row2 = Row()
     row2.rowkey = "row1 11a_+你好  hi  _/  hi2 + + "
-    cell1 = Cell("c1", "v1_2  ++值是1—4— ， ；可")
-    cell2 = Cell("c2", "v2_2")
+    cell1 = Cell("c1", "v1_1  ++值是1—4— ， ；可")
+    cell2 = Cell("c2", "v2_1")
     cells = [cell1.__dict__, cell2.__dict__]
     row2.cells = cells
 
     response = bts_client.put_row(instance_name, table_name, row2)
     print(response)
-
+    
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
@@ -312,7 +311,7 @@ if __name__ == "__main__":
     scanArgs1.selector.append(QueryCell("c1").__dict__)
     scanArgs1.selector.append(QueryCell("c2").__dict__)
     scanArgs1.max_versions = 2
-    scanArgs1.limit = 20
+    scanArgs1.limit = 100
 
     response = bts_client.scan(instance_name, table_name, scanArgs1)
     if response is not None and response.result is not None:
