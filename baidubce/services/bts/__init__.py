@@ -15,5 +15,5 @@ This module defines some constants for BTS
 """
 
 URL_PREFIX = b"/v1/instance"
-INVALID_ARGS_ERROR = "Invalid Args Error: Please input valid argument."
-PYTHON_VERSION_ERROR = "Python Version Error: Please check your python config."
+INVALID_ARGS_ERROR = "The argument is invalid."
+PYTHON_VERSION_ERROR = "Check your python version."
