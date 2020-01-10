@@ -58,3 +58,4 @@ def _decode(s):
         return urllib.parse.unquote(s)
     else:
         return PYTHON_VERSION_ERROR
+

@@ -26,7 +26,7 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services import bts
-from baidubce.services.bts import INVALID_ARGS_ERROR, PYTHON_VERSION_ERROR
+from baidubce.services.bts import INVALID_ARGS_ERROR
 from baidubce.services.bts.model import batch_query_row_args_2_dict
 from baidubce.services.bts.model import create_instance_args_2_dict
 from baidubce.services.bts.model import CreateInstanceArgs

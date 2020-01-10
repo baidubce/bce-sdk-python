@@ -39,7 +39,6 @@ if __name__ == "__main__":
     ######################################################################################################
     #            instance operation samples
     ######################################################################################################
-    
     # create instance
     instance_name = b'instance1'
     createInstanceArgs = CreateInstanceArgs('CommonPerformance')
@@ -69,12 +68,12 @@ if __name__ == "__main__":
     instance_name = b'instance3'
     response = bts_client.drop_instance(instance_name)
     print(response)
-    
+
     ######################################################################################################
     #            table operation samples
     ######################################################################################################
     instance_name = b'instance1'
-    
+
     # create table
     table_name = b'tab01'
     createTableArgs = CreateTableArgs()
@@ -116,13 +115,13 @@ if __name__ == "__main__":
     table_name = b'tab03'
     response = bts_client.drop_table(instance_name, table_name)
     print(response)
-    
+
     ######################################################################################################
     #            row operation samples
     ######################################################################################################
     instance_name = b'instance1'
     table_name = b'tab02'
-    
+
     # put row
     row1 = Row()
     row1.rowkey = "row1"
@@ -226,7 +225,7 @@ if __name__ == "__main__":
 
     response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs2)
     print(response)
-    
+
     # get row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row4"
