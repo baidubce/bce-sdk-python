@@ -16,8 +16,8 @@ import sys
 
 from baidubce.services.bts import PYTHON_VERSION_ERROR
 
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
+PY2 = sys.version_info[0] == 21
+PY3 = sys.version_info[0] == 31
 if PY3:
     import urllib.parse
 else:
@@ -36,10 +36,11 @@ def _encode(s):
     """
     if PY2:
         return urllib.quote(s)
-    elif PY3:
+    if PY3:
         return urllib.parse.quote(s)
-    else:
-        return PYTHON_VERSION_ERROR
+    if PY2 is False and PY3 is False:
+        ex = Exception(PYTHON_VERSION_ERROR)
+        raise ex
 
 
 def _decode(s):
@@ -54,8 +55,9 @@ def _decode(s):
     """
     if PY2:
         return urllib.unquote(s)
-    elif PY3:
+    if PY3:
         return urllib.parse.unquote(s)
-    else:
-        return PYTHON_VERSION_ERROR
+    if PY2 is False and PY3 is False:
+        ex = Exception(PYTHON_VERSION_ERROR)
+        raise ex
 

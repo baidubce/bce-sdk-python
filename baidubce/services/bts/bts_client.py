@@ -224,9 +224,16 @@ class BtsClient(BceBaseClient):
         if put_row_args is None or put_row_args.rowkey == "":
             print(INVALID_ARGS_ERROR)
             return None
-        put_row_args.rowkey = _encode(put_row_args.rowkey)
-        for i in range(len(put_row_args.cells)):
-            put_row_args.cells[i]["value"] = _encode(put_row_args.cells[i]["value"])
+        try:
+            if put_row_args.rowkey == "":
+                print(INVALID_ARGS_ERROR)
+                return None
+            put_row_args.rowkey = _encode(put_row_args.rowkey)
+            for i in range(len(put_row_args.cells)):
+                put_row_args.cells[i]["value"] = _encode(put_row_args.cells[i]["value"])
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -252,14 +259,18 @@ class BtsClient(BceBaseClient):
         if batch_put_row_args is None:
             print(INVALID_ARGS_ERROR)
             return None
-        for i in range(len(batch_put_row_args.rows)):
-            if batch_put_row_args.rows[i]["rowkey"] == "":
-                print(INVALID_ARGS_ERROR)
-                return None
-            batch_put_row_args.rows[i]["rowkey"] = _encode(batch_put_row_args.rows[i]["rowkey"])
-            for j in range(len(batch_put_row_args.rows[i]["cells"])):
-                batch_put_row_args.rows[i]["cells"][j]["value"] = \
-                    _encode(batch_put_row_args.rows[i]["cells"][j]["value"])
+        try:
+            for i in range(len(batch_put_row_args.rows)):
+                if batch_put_row_args.rows[i]["rowkey"] == "":
+                    print(INVALID_ARGS_ERROR)
+                    return None
+                batch_put_row_args.rows[i]["rowkey"] = _encode(batch_put_row_args.rows[i]["rowkey"])
+                for j in range(len(batch_put_row_args.rows[i]["cells"])):
+                    batch_put_row_args.rows[i]["cells"][j]["value"] = \
+                        _encode(batch_put_row_args.rows[i]["cells"][j]["value"])
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -285,7 +296,14 @@ class BtsClient(BceBaseClient):
         if delete_row_args is None or delete_row_args.rowkey == "":
             print(INVALID_ARGS_ERROR)
             return None
-        delete_row_args.rowkey = _encode(delete_row_args.rowkey)
+        try:
+            if delete_row_args.rowkey == "":
+                print(INVALID_ARGS_ERROR)
+                return None
+            delete_row_args.rowkey = _encode(delete_row_args.rowkey)
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
@@ -311,11 +329,15 @@ class BtsClient(BceBaseClient):
         if batch_delete_row_args is None:
             print(INVALID_ARGS_ERROR)
             return None
-        for i in range(len(batch_delete_row_args.rows)):
-            if batch_delete_row_args.rows[i]["rowkey"] == "":
-                print(INVALID_ARGS_ERROR)
-                return None
-            batch_delete_row_args.rows[i]["rowkey"] = _encode(batch_delete_row_args.rows[i]["rowkey"])
+        try:
+            for i in range(len(batch_delete_row_args.rows)):
+                if batch_delete_row_args.rows[i]["rowkey"] == "":
+                    print(INVALID_ARGS_ERROR)
+                    return None
+                batch_delete_row_args.rows[i]["rowkey"] = _encode(batch_delete_row_args.rows[i]["rowkey"])
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
@@ -338,19 +360,27 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        if get_row_args is None or get_row_args.rowkey == "":
-            print(INVALID_ARGS_ERROR)
+        try:
+            if get_row_args is None or get_row_args.rowkey == "":
+                print(INVALID_ARGS_ERROR)
+                return None
+            get_row_args.rowkey = _encode(get_row_args.rowkey)
+        except Exception as e:
+            print(e)
             return None
-        get_row_args.rowkey = _encode(get_row_args.rowkey)
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(get_row_args, default=query_row_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        if response.result is not None:
-            response.result[0].rowkey = _decode(str(response.result[0].rowkey))
-            for i in range(len(response.result[0].cells)):
-                response.result[0].cells[i].value = _decode(str(response.result[0].cells[i].value))
+        try:
+            if response.result is not None:
+                response.result[0].rowkey = _decode(str(response.result[0].rowkey))
+                for i in range(len(response.result[0].cells)):
+                    response.result[0].cells[i].value = _decode(str(response.result[0].cells[i].value))
+        except Exception as e:
+            print(e)
+            return None
         return response
 
     def batch_get_row(self, instance_name, table_name, batch_get_row_args, config=None):
@@ -372,21 +402,29 @@ class BtsClient(BceBaseClient):
         if batch_get_row_args is None:
             print(INVALID_ARGS_ERROR)
             return None
-        for i in range(len(batch_get_row_args.rows)):
-            if batch_get_row_args.rows[i]["rowkey"] == "":
-                print(INVALID_ARGS_ERROR)
-                return None
-            batch_get_row_args.rows[i]["rowkey"] = _encode(batch_get_row_args.rows[i]["rowkey"])
+        try:
+            for i in range(len(batch_get_row_args.rows)):
+                if batch_get_row_args.rows[i]["rowkey"] == "":
+                    print(INVALID_ARGS_ERROR)
+                    return None
+                batch_get_row_args.rows[i]["rowkey"] = _encode(batch_get_row_args.rows[i]["rowkey"])
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(batch_get_row_args, default=batch_query_row_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        if response.result is not None:
-            for i in range(len(response.result)):
-                response.result[i].rowkey = _decode(str(response.result[i].rowkey))
-                for j in range(len(response.result[i].cells)):
-                    response.result[i].cells[j].value = _decode(str(response.result[i].cells[j].value))
+        try:
+            if response.result is not None:
+                for i in range(len(response.result)):
+                    response.result[i].rowkey = _decode(str(response.result[i].rowkey))
+                    for j in range(len(response.result[i].cells)):
+                        response.result[i].cells[j].value = _decode(str(response.result[i].cells[j].value))
+        except Exception as e:
+            print(e)
+            return None
         return response
 
     def scan(self, instance_name, table_name, scan_args, config=None):
@@ -408,20 +446,28 @@ class BtsClient(BceBaseClient):
         if scan_args is None:
             print(INVALID_ARGS_ERROR)
             return None
-        if scan_args.start_rowkey is not "":
-            scan_args.start_rowkey = _encode(scan_args.start_rowkey)
-        if scan_args.stop_rowkey is not "":
-            scan_args.stop_rowkey = _encode(scan_args.stop_rowkey)
+        try:
+            if scan_args.start_rowkey is not "":
+                scan_args.start_rowkey = _encode(scan_args.start_rowkey)
+            if scan_args.stop_rowkey is not "":
+                scan_args.stop_rowkey = _encode(scan_args.stop_rowkey)
+        except Exception as e:
+            print(e)
+            return None
 
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                       body=json.dumps(scan_args, default=scan_args_2_dict),
                                       headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
-        if response.result is not None:
-            for i in range(len(response.result)):
-                response.result[i].rowkey = _decode(str(response.result[i].rowkey))
-                for j in range(len(response.result[i].cells)):
-                    response.result[i].cells[j].value = _decode(str(response.result[i].cells[j].value))
+        try:
+            if response.result is not None:
+                for i in range(len(response.result)):
+                    response.result[i].rowkey = _decode(str(response.result[i].rowkey))
+                    for j in range(len(response.result[i].cells)):
+                        response.result[i].cells[j].value = _decode(str(response.result[i].cells[j].value))
+        except Exception as e:
+            print(e)
+            return None
         return response
 
     def _merge_config(self, config):
