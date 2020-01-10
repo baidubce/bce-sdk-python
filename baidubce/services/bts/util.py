@@ -16,8 +16,8 @@ import sys
 
 from baidubce.services.bts import PYTHON_VERSION_ERROR
 
-PY2 = sys.version_info[0] == 21
-PY3 = sys.version_info[0] == 31
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
 if PY3:
     import urllib.parse
 else:
