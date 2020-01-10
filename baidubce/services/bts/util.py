@@ -15,6 +15,7 @@ This module provides some python2 and python3's compatible functions for BTS.
 import sys
 import logging
 
+from baidubce.exception import BceClientError
 from baidubce.services.bts import PYTHON_VERSION_ERROR
 
 PY2 = sys.version_info[0] == 2
@@ -42,7 +43,7 @@ def _encode(s):
     if PY3:
         return urllib.parse.quote(s)
 
-    ex = Exception(PYTHON_VERSION_ERROR)
+    ex = BceClientError(PYTHON_VERSION_ERROR)
     _logger.debug(ex)
     raise ex
 
@@ -62,7 +63,7 @@ def _decode(s):
     if PY3:
         return urllib.parse.unquote(s)
 
-    ex = Exception(PYTHON_VERSION_ERROR)
+    ex = BceClientError(PYTHON_VERSION_ERROR)
     _logger.debug(ex)
     raise ex
 

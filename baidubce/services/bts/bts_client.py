@@ -20,6 +20,7 @@ import logging
 
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
+from baidubce.exception import BceError, BceClientError
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_content_types
@@ -222,7 +223,7 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if put_row_args is None or put_row_args.rowkey == "":
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
@@ -254,13 +255,13 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_put_row_args is None:
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
             for i in range(len(batch_put_row_args.rows)):
                 if batch_put_row_args.rows[i]["rowkey"] == "":
-                    ex = Exception(INVALID_ARGS_ERROR)
+                    ex = BceClientError(INVALID_ARGS_ERROR)
                     _logger.debug(ex)
                     raise ex
                 batch_put_row_args.rows[i]["rowkey"] = _encode(batch_put_row_args.rows[i]["rowkey"])
@@ -292,7 +293,7 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if delete_row_args is None or delete_row_args.rowkey == "":
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
@@ -322,13 +323,13 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_delete_row_args is None:
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
             for i in range(len(batch_delete_row_args.rows)):
                 if batch_delete_row_args.rows[i]["rowkey"] == "":
-                    ex = Exception(INVALID_ARGS_ERROR)
+                    ex = BceClientError(INVALID_ARGS_ERROR)
                     _logger.debug(ex)
                     raise ex
                 batch_delete_row_args.rows[i]["rowkey"] = _encode(batch_delete_row_args.rows[i]["rowkey"])
@@ -358,7 +359,7 @@ class BtsClient(BceBaseClient):
         """
         try:
             if get_row_args is None or get_row_args.rowkey == "":
-                ex = Exception(INVALID_ARGS_ERROR)
+                ex = BceClientError(INVALID_ARGS_ERROR)
                 _logger.debug(ex)
                 raise ex
             get_row_args.rowkey = _encode(get_row_args.rowkey)
@@ -395,13 +396,13 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if batch_get_row_args is None:
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
             for i in range(len(batch_get_row_args.rows)):
                 if batch_get_row_args.rows[i]["rowkey"] == "":
-                    ex = Exception(INVALID_ARGS_ERROR)
+                    ex = BceClientError(INVALID_ARGS_ERROR)
                     _logger.debug(ex)
                     raise ex
                 batch_get_row_args.rows[i]["rowkey"] = _encode(batch_get_row_args.rows[i]["rowkey"])
@@ -439,7 +440,7 @@ class BtsClient(BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         if scan_args is None:
-            ex = Exception(INVALID_ARGS_ERROR)
+            ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
         try:
