@@ -20,7 +20,7 @@ import logging
 
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
-from baidubce.exception import BceError, BceClientError
+from baidubce.exception import BceClientError
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_content_types
