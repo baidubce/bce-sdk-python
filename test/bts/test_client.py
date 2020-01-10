@@ -336,8 +336,8 @@ class TestBtsClient(unittest.TestCase):
         table_name = b'tab01'
         row = Row()
         row.rowkey = "row01"
-        cell1 = Cell("c1", "v1")
-        cell2 = Cell("c2", "v2")
+        cell1 = TestCell("c1", "v1")
+        cell2 = TestCell("c2", "v2")
         cells = [cell1.__dict__, cell2.__dict__]
         row.cells = cells
         res = self.bts_client.put_row(instance_name, table_name, row)
@@ -366,7 +366,7 @@ class TestBtsClient(unittest.TestCase):
             for j in range(3):
                 col = "c" + str(j)
                 val = "v" + str(j)
-                cell = Cell(col, val)
+                cell = TestCell(col, val)
                 row.cells.append(cell.__dict__)
             batch_put_row.rows.append(row.__dict__)
         res = self.bts_client.batch_put_row(instance_name, table_name, batch_put_row)
@@ -455,8 +455,8 @@ class TestBtsClient(unittest.TestCase):
 
         res = Results()
         row1 = Row("row1")
-        cell1 = Cell("c1", "v1_1", 1571049818321)
-        cell2 = Cell("c2", "v2_1", 1571049818321)
+        cell1 = TestCell("c1", "v1_1", 1571049818321)
+        cell2 = TestCell("c2", "v2_1", 1571049818321)
         row1.cells.append(cell1)
         row1.cells.append(cell2)
         res.result.append(row1)
@@ -522,16 +522,16 @@ class TestBtsClient(unittest.TestCase):
 
         res = Results()
         row1 = Row("row1")
-        cell1 = Cell("c1", "v1_1", 1571049818321)
-        cell2 = Cell("c2", "v2_1", 1571049818321)
+        cell1 = TestCell("c1", "v1_1", 1571049818321)
+        cell2 = TestCell("c2", "v2_1", 1571049818321)
         row1.cells.append(cell1)
         row1.cells.append(cell2)
         res.result.append(row1)
 
         row2 = Row("row2")
-        cell3 = Cell("c3", "v3_1", 1571049818321)
+        cell3 = TestCell("c3", "v3_1", 1571049818321)
         row2.cells.append(cell3)
-        cell4 = Cell("c4", "v4_1", 1571049818321)
+        cell4 = TestCell("c4", "v4_1", 1571049818321)
         row2.cells.append(cell4)
         res.result.append(row2)
 
@@ -600,14 +600,14 @@ class TestBtsClient(unittest.TestCase):
 
         res = Results()
         row1 = Row("row1")
-        cell1 = Cell("c1", "v1_1", 1571049818321)
-        cell2 = Cell("c2", "v2_1", 1571049818321)
+        cell1 = TestCell("c1", "v1_1", 1571049818321)
+        cell2 = TestCell("c2", "v2_1", 1571049818321)
         row1.cells.append(cell1)
         row1.cells.append(cell2)
         res.result.append(row1)
 
         row2 = Row("row2")
-        cell3 = Cell("c2", "v2_1", 1571049818321)
+        cell3 = TestCell("c2", "v2_1", 1571049818321)
         row2.cells.append(cell3)
         res.result.append(row2)
 
@@ -637,7 +637,7 @@ class TestBtsClient(unittest.TestCase):
         self.assertEqual(res.status, 200)
 
 
-class Cell(object):
+class TestCell(object):
     """
     Cell
     :param column
@@ -663,6 +663,7 @@ class Result(object):
         self.rowkey = rowkey
         self.cells = []
 
+
 class Results(object):
     """
     ScanResult
@@ -672,6 +673,7 @@ class Results(object):
 
     def __init__(self):
         self.result = []
+
 
 if __name__ == '__main__':
     unittest.main()
