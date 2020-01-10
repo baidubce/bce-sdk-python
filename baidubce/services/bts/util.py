@@ -38,9 +38,9 @@ def _encode(s):
         return urllib.quote(s)
     if PY3:
         return urllib.parse.quote(s)
-    if PY2 is False and PY3 is False:
-        ex = Exception(PYTHON_VERSION_ERROR)
-        raise ex
+
+    ex = Exception(PYTHON_VERSION_ERROR)
+    raise ex
 
 
 def _decode(s):
@@ -57,7 +57,7 @@ def _decode(s):
         return urllib.unquote(s)
     if PY3:
         return urllib.parse.unquote(s)
-    if PY2 is False and PY3 is False:
-        ex = Exception(PYTHON_VERSION_ERROR)
-        raise ex
+
+    ex = Exception(PYTHON_VERSION_ERROR)
+    raise ex
 
