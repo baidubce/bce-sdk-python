@@ -19,9 +19,9 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'bmr.bj.baidubce.com'
-AK = 'USER-AK'
-SK = 'USER-SK'
+HOST = 'http://bmr.fsh.baidubce.com'
+AK = 'e7612edde15f401bbcaac404f0cddc76'
+SK = 'd17ed86b93184054bb912036910fd71f'
 
 logger = logging.getLogger('baidubce.services.bmr.bmrclient')
 fh = logging.FileHandler('bmr_sample.log')

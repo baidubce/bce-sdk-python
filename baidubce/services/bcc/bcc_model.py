@@ -120,6 +120,10 @@ class SecurityGroupRuleModel(object):
 
 
 class TagModel(object):
+    """
+    TAGModel
+    """
+
     def __init__(self, tagKey=None, tagValue=None):
         self.tagKey = tagKey
         self.tagValue = tagValue
