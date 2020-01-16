@@ -178,7 +178,7 @@ class BmrClient(bce_base_client.BceBaseClient):
 
     @required(cluster_id=(str, unicode),
               instance_group_config=list)
-    def scale_cluster(self, cluster_id, instance_group_config):
+    def scale_cluster(self, cluster_id, instance_group_config, deleteClientIds=None):
         """
         Scale cluster
         :param cluster_id: cluster id
@@ -198,6 +198,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         body = {
             "instanceGroups": instance_group_config
         }
+        if deleteClientIds is not None:
+            body['instances'] = deleteClientIds
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body))
 
 
