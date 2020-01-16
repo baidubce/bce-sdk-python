@@ -67,7 +67,7 @@ def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
     conn.endheaders()
 
     if body:
-        if isinstance(body, (bytes,str)):
+        if isinstance(body, (bytes, str)):
             conn.send(body)
         else:
             total = int(headers[http_headers.CONTENT_LENGTH])
@@ -94,7 +94,7 @@ def check_headers(headers):
     :return:
     """
     for k, v in iteritems(headers):
-        if isinstance(v, (bytes,str)) and \
+        if isinstance(v, (bytes, str)) and \
         b'\n' in compat.convert_to_bytes(v):
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))
 
@@ -212,7 +212,6 @@ def send_request(
             for handler_function in response_handler_functions:
                 if handler_function(http_response, response):
                     break
-
             return response
         except Exception as e:
             if conn is not None:

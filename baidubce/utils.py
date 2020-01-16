@@ -506,6 +506,12 @@ def aes128_encrypt_16char_key(adminpass, secretkey):
 
 
 def aes128_encrypt_16char_key(adminpass, secretkey):
+    """
+
+    :param adminpass: adminpass
+    :param secretkey: secretkey
+    :return: cipheradminpass
+    """
 
     # Python3: encrypt admin password by AES128
 

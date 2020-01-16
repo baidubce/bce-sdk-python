@@ -783,7 +783,7 @@ class BosClient(BceBaseClient):
         headers_list = http_response.getheaders()
         if compat.PY3:
             temp_heads = []
-            for k,v in headers_list:
+            for k, v in headers_list:
                 k = k.lower()
                 temp_heads.append((k, v))
             headers_list = temp_heads
