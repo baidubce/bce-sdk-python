@@ -176,7 +176,7 @@ class BmrClient(bce_base_client.BceBaseClient):
 
 
 
-    @required(cluster_id=(str, unicode),
+    @required(cluster_id=value_type,
               instance_group_config=list)
     def scale_cluster(self, cluster_id, instance_group_config, deleteClientIds=None):
         """
@@ -272,9 +272,8 @@ class BmrClient(bce_base_client.BceBaseClient):
                 compat.convert_to_string(step_id))
         return self._send_request(http_methods.GET, path)
     @required(
-        clusterId=(str, unicode),
-        stepId=(str, unicode)
-
+        clusterId=value_type,
+        stepId=value_type
     )
     def cancel_step(self, clusterId, stepId):
         """
@@ -318,8 +317,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/%s/instanceGroup' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.GET, path)
 
-    @required(templateId=(str, unicode),
-              adminPassword=(str, unicode))
+    @required(templateId=value_type,
+              adminPassword=value_type)
     def creat_cluster_by_template(self, templateId, adminPassword, logUri=None, steps=None):
         """
         create cluster by template
@@ -347,7 +346,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/create'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
-    @required(cluster_id=(str, unicode))
+    @required(cluster_id=value_type)
     def describe_cluster(self, cluster_id):
         """
         :param cluster_id: clusterId
@@ -361,8 +360,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         path ='/cluster/detail'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
-    @required(clusterId=(str, unicode),
-              newName=(str, unicode))
+    @required(clusterId=value_type,
+              newName=value_type)
     def rename_cluster(self, clusterId, newName):
         """
         rename a cluster
@@ -380,7 +379,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/rename'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
-    @required(clusterId=(str, unicode))
+    @required(clusterId=value_type)
     def save_template(self, clusterId):
         """
         save template by a cluster
@@ -392,10 +391,10 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/%s/save_template' % clusterId
         return self._send_request(http_methods.GET, path)
 
-    @required(image_Type=(str, unicode),
-              image_Version=(str, unicode),
+    @required(image_Type=value_type,
+              image_Version=value_type,
               instance_Groups=list,
-              name=(str, unicode))
+              name=value_type)
     def create_template(self, image_Type,
                         image_Version,
                         name,
@@ -466,7 +465,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(
-        templateId=(str, unicode)
+        templateId=value_type
     )
     def delete_template(self, templateId, adminPassword='bmrtest@123'):
         """
@@ -486,7 +485,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(
-        templateId=(str, unicode)
+        templateId=value_type
     )
     def describe_template(self, templateId, adminPassword='bmrtest@123'):
         """
@@ -520,8 +519,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(
-        clusterId=(str, unicode),
-        instanceId=(str, unicode)
+        clusterId=value_type,
+        instanceId=value_type
     )
     def add_eip(self, clusterId, instanceId):
         """
@@ -539,8 +538,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(
-        clusterId=(str, unicode),
-        instanceId=(str, unicode)
+        clusterId=value_type,
+        instanceId=value_type
     )
     def delete_eip(self, clusterId, instanceId):
         """
@@ -557,10 +556,10 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/eip/delete'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        name=(str, unicode),
-        templateId=(str, unicode),
+        name=value_type,
+        templateId=value_type,
         period=int,
-        timeUnit=(str, unicode)
+        timeUnit=value_type
     )
     def create_schedule(self, name,
                         templateId,
@@ -596,7 +595,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/execute_plan/create'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        schedulePlanId=(str, unicode)
+        schedulePlanId=value_type
     )
     def delete_schedule(self, schedulePlanId):
         """
@@ -611,7 +610,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/execute_plan/delete'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        schedulePlanId=(str, unicode)
+        schedulePlanId=value_type
     )
     def detail_schedule(self, schedulePlanId):
         """
@@ -636,7 +635,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/execute_plan/list'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        schedulePlanId=(str, unicode),
+        schedulePlanId=value_type,
         pageNo=int,
         pageSize=int
     )
@@ -657,7 +656,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/execute_plan/history'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        shcedulePlanId=(str, unicode)
+        shcedulePlanId=value_type
     )
     def start_schedule(self, shcedulePlanId):
         """
@@ -673,7 +672,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(
-        shcedulePlanId=(str, unicode)
+        shcedulePlanId=value_type
     )
     def stop_schedule(self, shcedulePlanId):
         """
@@ -688,7 +687,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/execute_plan/stop'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
-        schedulePlanId=(str, unicode)
+        schedulePlanId=value_type
     )
     def update_schedule(self, schedulePlanId, steps=None, schedule=None):
         """
@@ -1019,7 +1018,7 @@ def instancegroup_config(id, instanceCount):
     return instancegroup_config
 @required(
     period=int,
-    periodUnit=(str, unicode),
+    periodUnit=value_type,
 )
 def schedule_properties(period, periodUnit, startTime=None, endTime=None):
     """
