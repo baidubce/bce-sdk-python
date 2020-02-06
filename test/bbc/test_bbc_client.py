@@ -117,7 +117,7 @@ class TestBbcClient(unittest.TestCase):
 
     def test_start_instance(self):
         """
-        test start instance.
+        test start bbc instance.
         """
         response = self.client.start_instance(instance_id=instance_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
@@ -189,7 +189,7 @@ class TestBbcClient(unittest.TestCase):
 
     def test_release_instance(self):
         """
-        test release the specified instance
+        test release the specified bbc instance
         """
         response = self.client.release_instance(instance_id=instance_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
@@ -206,7 +206,7 @@ class TestBbcClient(unittest.TestCase):
 
     def test_get_vpc_subnet(self):
         """
-        test get the information of subnet/vpc of the specified instance
+        test get the information of subnet/vpc of the specified bbc instance
         """
         bbc_ids = [instance_id]
         response = self.client.get_vpc_subnet(bbc_ids=bbc_ids)
@@ -215,7 +215,7 @@ class TestBbcClient(unittest.TestCase):
 
     def test_unbind_tags(self):
         """
-        test unbind the existing label of the instance
+        test unbind the existing labels of the instance
         """
 
         response = self.client.unbind_tags(instance_id=instance_id, change_tags=change_tags)
@@ -251,7 +251,7 @@ class TestBbcClient(unittest.TestCase):
 
     def test_get_flavor_raid(self):
         """
-        test get the  raid of the specified flavor
+        test get the raid of the specified flavor
         """
         response = self.client.get_flavor_raid(flavor_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
