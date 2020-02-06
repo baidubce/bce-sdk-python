@@ -31,8 +31,8 @@ if PY2:
     sys.setdefaultencoding('utf8')
 
 HOST = b'http://bbc.bj.baidubce.com'
-AK = b'******'
-SK = b'******'
+AK = b''
+SK = b''
 
 instance_id = 'i-wUHUDrhI'
 image_id = 'm-BPwwiJYh'
