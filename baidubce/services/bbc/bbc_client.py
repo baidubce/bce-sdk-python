@@ -71,28 +71,28 @@ class BbcClient(bce_base_client.BceBaseClient):
                          client_token=None, config=None):
 
         """
-        Create a bcc Instance with the specified options.
-        You must fill the field of clientToken,which is especially for keeping idempotent.
+        Create a bbc instance with the specified options.
+        You must fill the field of clientToken, which is especially for keeping idempotent.
         This is an asynchronous interface.
 
         :param flavor_id:
-            The id of flavor, list all available image in BccClient.list_images.
+            The id of flavor, list all available flavors in BbcClient.list_flavors.
         :type flavor_id: string
 
         :param image_id:
-            The id of image, list all available image in BccClient.list_images.
+            The id of image, list all available images in BbcClient.list_images.
         :type image_id: string
 
         :param raid_id:
-            The id of raid, list all available image in BccClient.list_images.
+            The id of raid, list all available raids in BbcClient.get_flavor_raid.
         :type raid_id: string
 
         :param root_disk_size_in_gb:
             System disk size of the physical machine to be created
-        :type root_disk_size_in_gb int
+        :type root_disk_size_in_gb: int
 
         :param purchase_count:
-            The number of instance to buy, the default value is 1.
+            The number of instances to buy, the default value is 1.
         :type purchase_count: int
 
         :param zone_name:
@@ -107,7 +107,7 @@ class BbcClient(bce_base_client.BceBaseClient):
 
         :param billing:
             Billing information.
-        :type billing: bcc_model.Billing
+        :type billing: bbc_model.Billing
 
         :param name:
             The optional parameter to desc the instance that will be created.
@@ -182,12 +182,12 @@ class BbcClient(bce_base_client.BceBaseClient):
         :param marker:
             The optional parameter marker specified in the original request to specify
             where in the results to begin listing.
-            Together with the marker, specifies the list result which listing should begin.
+            Together with the marker, specify the list result which listing should begin.
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
         :param max_keys:
-            The optional parameter to specifies the max number of list result to return.
+            The optional parameter to specify the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
@@ -216,7 +216,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str))
     def get_instance(self, instance_id, config=None):
         """
-        Get the detail information of specified instance.
+        Get the detailed information of specified instance.
 
         :param instance_id:
             The id of instance.
@@ -522,7 +522,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         :type instance_id: string
 
         :param change_tags:
-            List of tags to be unbundled
+            List of tags to be unbind
         :type change_tags: list
 
         :return:
@@ -654,7 +654,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         :type marker: string
 
         :param max_keys:
-            The optional parameter to specifies the max number of list result to return.
+            The optional parameter to specify the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
@@ -718,7 +718,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         :type marker: string
 
         :param max_keys:
-            The optional parameter to specifies the max number of list result to return.
+            The optional parameter to specify the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
 
