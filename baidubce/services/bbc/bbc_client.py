@@ -41,7 +41,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     Bbc client sdk
     """
 
-    def __init__(self, config = None):
+    def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
     def _merge_config(self, config=None):
@@ -54,7 +54,7 @@ class BbcClient(bce_base_client.BceBaseClient):
 
     def _send_request(self, http_method, path,
                       body=None, headers=None, params=None,
-                      config=None, body_parser=None, api_version = b'/v1'):
+                      config=None, body_parser=None, api_version=b'/v1'):
         config = self._merge_config(config)
         if body_parser is None:
             body_parser = handler.parse_json
@@ -346,7 +346,7 @@ class BbcClient(bce_base_client.BceBaseClient):
 
 
 
-    def modify_instance_desc(self, instance_id, desc, config = None):
+    def modify_instance_desc(self, instance_id, desc, config=None):
         """
         Modifying the description  of the instance.
         You can modify the description only when the instance is Running or Stopped ,
@@ -378,7 +378,7 @@ class BbcClient(bce_base_client.BceBaseClient):
               image_id=(bytes, str),
               admin_pass=(bytes, str))
     def rebuild_instance(self, instance_id, image_id, admin_pass,
-                         is_preserve_data = True, raid_id = None, sys_root_size = 20, config=None):
+                         is_preserve_data=True, raid_id=None, sys_root_size=20, config=None):
         """
         Rebuilding the instance owned by the user.
         After rebuilding the instance,
@@ -494,7 +494,7 @@ class BbcClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     @required(bbc_ids = list)
-    def get_vpc_subnet(self, bbc_ids, config = None):
+    def get_vpc_subnet(self, bbc_ids, config=None):
         """
         Query VPC / Subnet information by BBC instance id
 
@@ -513,7 +513,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body = json.dumps(body), config = config)
 
     @required(instance_id=(bytes, str), change_tags = list)
-    def unbind_tags(self, instance_id, change_tags, config = None):
+    def unbind_tags(self, instance_id, change_tags, config=None):
         """
         Unbind the tags of existing instances
 
@@ -544,7 +544,7 @@ class BbcClient(bce_base_client.BceBaseClient):
                                   params = params, config = config)
 
 
-    def list_flavors(self, config = None):
+    def list_flavors(self, config=None):
         """
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -554,7 +554,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, config = config)
 
     @required(flavor_id = (bytes, str))
-    def get_flavor(self, flavor_id, config = None):
+    def get_flavor(self, flavor_id, config=None):
         """
         :param flavor_id:
             The id of flavor.
@@ -569,7 +569,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, config = config)
 
     @required(flavor_id=(bytes, str))
-    def get_flavor_raid(self, flavor_id, config = None):
+    def get_flavor_raid(self, flavor_id, config=None):
         """
         :param flavor_id:
             The id of flavor.
@@ -706,7 +706,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-    def get_operation_log(self, marker = None, max_keys = 100, start_time = None, end_time = None, config = None):
+    def get_operation_log(self, marker=None, max_keys=100, start_time=None, end_time=None, config=None):
         """
         Querying information about physical machine operation logs
 
