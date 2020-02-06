@@ -13,6 +13,7 @@
 """
 Unit tests for bbc client.
 """
+import sys
 import random
 import string
 import time
@@ -24,18 +25,24 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bbc import bbc_client
 
+PY2 = sys.version_info[0]==2
+if PY2:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+
 HOST = b'http://bbc.bj.baidubce.com'
 AK = b'******'
 SK = b'******'
 
-instance_id = 'i-zOrPY8FS'
-image_id = 'm-QMy52OqH'
+instance_id = 'i-wUHUDrhI'
+image_id = 'm-BPwwiJYh'
 flavor_id = 'BBC-I2-01'
 raid_id = 'raid-malo48xg'
 snapshot_id = 's-Ro9vAnQE'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-hweloYd8'
-subnet_id = "604cebcd-740d-49d1-a1ac-72a91f5e34aa"
+#subnet_id = "604cebcd-740d-49d1-a1ac-72a91f5e34aa"
+subnet_id = "sbn-e7dp3hmvvv43"
 
 
 force_stop = False
@@ -81,7 +88,7 @@ class TestBbcClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         zone_name = 'cn-bj-a'
-        name = 'test_bcc_instance'
+        name = 'test_bcc_instance2'
         response = self.client.create_instance(flavor_id=flavor_id, image_id=image_id,
                                                raid_id=raid_id, zone_name=zone_name,
                                                client_token=client_token, name=name,
@@ -127,7 +134,7 @@ class TestBbcClient(unittest.TestCase):
         response = self.client.stop_instance(instance_id=instance_id, force_stop=force_stop)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
-        time.sleep(20)
+        time.sleep(10)
         instance_status = self.client.get_instance(instance_id).status
         self.assertEqual(instance_status, "Stopped")
 
@@ -172,7 +179,7 @@ class TestBbcClient(unittest.TestCase):
         """
         test rebuild bbc instance
         """
-        rebuild_image_id = "m-QMy52OqH"
+        rebuild_image_id = "m-BPwwiJYh"
         is_preserve_data = False
         response = self.client.rebuild_instance(instance_id=instance_id, image_id=rebuild_image_id,
                                                 admin_pass=admin_pass, is_preserve_data=is_preserve_data,
@@ -259,6 +266,13 @@ class TestBbcClient(unittest.TestCase):
         response = self.client.create_image_from_instance_id(image_name=image_name, instance_id=instance_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+        time.sleep(20)
+        images = self.client.list_images().images
+        image_names = []
+        for image in images:
+            image_names.append(image.name)
+        self.assertTrue(image_name in image_names)
+
 
     def test_list_images(self):
         """
@@ -290,10 +304,17 @@ class TestBbcClient(unittest.TestCase):
         """
         test delete image
         """
-        test_delete_image_id = "m-asSxFQyC"
+        test_delete_image_id = "m-QMy52OqH"
         response = self.client.delete_image(image_id=test_delete_image_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+        time.sleep(5)
+        images = self.client.list_images().images
+        image_ids = []
+        for image in images:
+            image_ids.append(image.id)
+        self.assertTrue(test_delete_image_id not in image_ids)
+
 
 
     def test_get_operation_log(self):
@@ -304,6 +325,7 @@ class TestBbcClient(unittest.TestCase):
         response = self.client.get_operation_log()
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+
 
 
 
