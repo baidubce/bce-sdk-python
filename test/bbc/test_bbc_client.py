@@ -88,7 +88,7 @@ class TestBbcClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         zone_name = 'cn-bj-a'
-        name = 'test_bcc_instance2'
+        name = 'test_bbc_instance'
         response = self.client.create_instance(flavor_id=flavor_id, image_id=image_id,
                                                raid_id=raid_id, zone_name=zone_name,
                                                client_token=client_token, name=name,
