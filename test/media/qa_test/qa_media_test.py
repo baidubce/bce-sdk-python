@@ -58,6 +58,7 @@ class TestDict(unittest.TestCase):
         """
         creatPipe = TestCreatePipeline()
         creatPipe.test_create_pipeline_normal()
+        creatPipe.test_create_pipeline_default_capacity()
 
     def test_create_Preset(self):
         """qa test creat preset
@@ -65,6 +66,7 @@ class TestDict(unittest.TestCase):
         """
         creatPreset = TestCreatePreset()
         creatPreset.test_create_preset_with_clip_normal()
+        creatPreset.test_create_preset_with_transmode()
 
     def test_create_watermark(self):
         """qa test creat watermark

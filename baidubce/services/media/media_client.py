@@ -195,8 +195,6 @@ class MediaClient(BceBaseClient):
             body_content['description'] = ""
         if pipeline_config is not None:
             body_content['config'] = pipeline_config
-        else:
-            body_content['config'] = {'capacity': 20}
         if pipeline_name == '':
             raise BceClientError('pipeline_name can\'t be empty string')
         if source_bucket == '':
@@ -268,6 +266,8 @@ class MediaClient(BceBaseClient):
             video=None,
             encryption=None,
             watermark_id=None,
+            extra_config=None,
+            trans_config=None,
             config=None):
         """
         Create a preset
@@ -301,6 +301,10 @@ class MediaClient(BceBaseClient):
             body_content['encryption'] = encryption
         if watermark_id is not None:
             body_content['watermarkId'] = watermark_id
+        if extra_config is not None:
+            body_content['extraCfg'] = extra_config
+        if trans_config is not None:
+            body_content['transCfg'] = trans_config
         return self._send_request(
             http_methods.POST,
             '/preset',
