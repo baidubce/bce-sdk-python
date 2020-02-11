@@ -689,3 +689,22 @@ class TestCreatePreset(mediaBase.MediaBase):
         resp = self.client.create_preset(self.preset_name, self.container, 
                 True, watermark_id=None)
         nose.tools.assert_is_not_none(resp)
+
+    def test_create_preset_with_transmode(self):
+        """test create preset with transmode"""
+        trans_cfg = {'transMode': 'cae'}
+        video = {
+                "codec": "h264",
+                "codecOptions": {
+                    "profile": "high"
+                },
+                "bitRateInBps": 6000000,
+                "maxWidthInPixel": 1280,
+                "maxHeightInPixel": 720,
+                "sizingPolicy": "keep",
+            }
+        resp = self.client.create_preset(self.preset_name + "_cae", self.container,
+                                         False, video=video, trans_config=trans_cfg)
+        nose.tools.assert_is_not_none(resp)
+        preset = self.client.get_preset(self.preset_name + "_cae")
+        nose.tools.assert_equal(preset.trans_cfg.trans_mode, "cae")

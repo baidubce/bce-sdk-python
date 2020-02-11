@@ -62,7 +62,16 @@ class TestCreatePipeline(mediaBase.MediaBase):
         ret = self.client.create_pipeline(self.pipeline_name, self.sourceBucket, 
                    self.targetBucket, description=desc, pipeline_config=capacity)
         nose.tools.assert_is_not_none(ret)
-    
+
+    def test_create_pipeline_default_capacity(self):
+        """create pipeline with default capacity"""
+        desc = "it's a test pipeline!!!"
+        ret = self.client.create_pipeline(self.pipeline_name + "_default", self.sourceBucket,
+                   self.targetBucket, description=desc)
+        nose.tools.assert_is_not_none(ret)
+        pipeline_default = self.client.get_pipeline(self.pipeline_name + "_default")
+        nose.tools.assert_equal(pipeline_default.config.capacity, 20)
+
     def test_create_pipeline_with_name_none(self):
         """create pipeline with pipeline name is none"""
         desc = "it's a test pipeline!!!"
