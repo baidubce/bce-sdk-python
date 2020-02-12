@@ -2,3 +2,6 @@
 output
 build_submitter*
 .idea
+bce_python_sdk.egg-info
+build
+dist

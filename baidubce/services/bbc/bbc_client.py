@@ -68,7 +68,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     @required(flavor_id = (bytes, str), image_id = (bytes, str), raid_id = (bytes, str))
     def create_instance(self, flavor_id, image_id, raid_id, root_disk_size_in_gb=20, purchase_count=1,
                         zone_name=None, subnet_id=None, billing=None, name=None, admin_pass=None,
-                         client_token=None, config=None):
+                        deploy_set_id=None, client_token=None, config=None):
 
         """
         Create a bbc instance with the specified options.
@@ -125,6 +125,10 @@ class BbcClient(bce_base_client.BceBaseClient):
             https://cloud.baidu.com/doc/BBC/s/3jwvxu9iz#%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E4%BC%A0%E8%BE%93%E8%A7%84%E8%8C%83
         :type admin_pass: string
 
+        :deploy_set_id:
+            The id of the deploy set
+        :type deploy_set_id: string
+
         :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
@@ -167,6 +171,8 @@ class BbcClient(bce_base_client.BceBaseClient):
             body['subnetId'] = subnet_id
         if name is not None:
             body['name'] = name
+        if deploy_set_id is not None:
+            body['deploySetId'] = deploy_set_id
         if admin_pass is not None:
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
@@ -510,7 +516,7 @@ class BbcClient(bce_base_client.BceBaseClient):
             'bbcIds': bbc_ids
         }
 
-        return self._send_request(http_methods.POST, path, body = json.dumps(body), config = config)
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), config = config)
 
     @required(instance_id=(bytes, str), change_tags = list)
     def unbind_tags(self, instance_id, change_tags, config=None):
@@ -540,8 +546,8 @@ class BbcClient(bce_base_client.BceBaseClient):
             'changeTags': change_tags
         }
 
-        return self._send_request(http_methods.PUT, path, body = json.dumps(body),
-                                  params = params, config = config)
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body),
+                                  params=params, config=config)
 
 
     def list_flavors(self, config=None):
@@ -566,7 +572,7 @@ class BbcClient(bce_base_client.BceBaseClient):
         """
         flavor_id = compat.convert_to_bytes(flavor_id)
         path = b'/flavor/%s' % flavor_id
-        return self._send_request(http_methods.GET, path, config = config)
+        return self._send_request(http_methods.GET, path, config=config)
 
     @required(flavor_id=(bytes, str))
     def get_flavor_raid(self, flavor_id, config=None):
@@ -725,14 +731,15 @@ class BbcClient(bce_base_client.BceBaseClient):
         :param start_time:
             The start time of the physical machine operation (UTC time),
             the format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
-        :type start_time: String
-            The start time of the physical machine operation (UTC time),
-            the format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type start_time: string
 
         :params end_time
             The end time of the physical machine operation (UTC time),
             the format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
-        :type end_time: String
+        :type end_time: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         path = b'/operationLog'
         params = {}
@@ -745,7 +752,105 @@ class BbcClient(bce_base_client.BceBaseClient):
         if end_time is not None:
             params['endTime'] = end_time
 
-        return self._send_request(http_methods.GET, path, params = params, config = config)
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(concurrency=int, strategy=(bytes, str))
+    def create_deploy_set(self, concurrency, strategy, name=None, desc=None, client_token=None, config=None):
+        """
+        Create a deploy set based on a specified policy and concurrency
+
+        :param concurrency:
+            Deployment set concurrency, range [1,5]
+        :type concurrency: int
+
+        :param strategy:
+            Deployment set strategy, currently BBC strategy only supports: "tor_ha", "host_ha"
+        :type strategy: string
+
+        :param name:
+            Deployment set name, supports uppercase and lowercase letters, numbers,
+            Chinese, and -_ /. Special characters, must start with a letter, length 1-65
+        :type name: string
+
+        :param desc:
+            Deployment set description
+        :type desc: string
+
+        :param client_token:
+            An ASCII string whose length is less than 64.
+            The request will be idempotent if client token is provided.
+            If the clientToken is not specified by the user,
+            a random String generated by default algorithm will be used.
+            See more detail at
+            https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
+        :type client_token: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/deployset'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "strategy": strategy,
+            "concurrency": concurrency
+        }
+        if name is not None:
+            body["name"] = name
+        if desc is not None:
+            body['desc'] = desc
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def list_deploy_sets(self, config=None):
+        """
+        List all deploy sets
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/deployset'
+        return self._send_request(http_methods.GET, path, config=config)
+
+    @required(deploy_set_ids=(bytes, str))
+    def get_deploy_set(self, deploy_set_id, config=None):
+        """
+        Get the specified deploy set
+
+        :param deploy_set_id:
+            The id of the deploy set
+        :type deploy_set_id: String
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        deploy_set_id = compat.convert_to_bytes(deploy_set_id)
+        path = b'/deployset/%s' % deploy_set_id
+        return self._send_request(http_methods.GET, path, config=config)
+
+    @required(deploy_set_ids=(bytes, str))
+    def delete_deploy_set(self, deploy_set_id, config=None):
+        """
+        Delete the specified deploy sets
+
+        :param deploy_set_ids:
+            The ids of the deploy sets you want to delete
+        :type deploy_set_ids: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        deploy_set_id = compat.convert_to_bytes(deploy_set_id)
+        path = b'/deployset/%s' % deploy_set_id
+        return self._send_request(http_methods.DELETE, path, config=config)
+
+
+
+
+
 
 
 
