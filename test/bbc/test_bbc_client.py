@@ -34,15 +34,14 @@ HOST = b'http://bbc.bj.baidubce.com'
 AK = b''
 SK = b''
 
-instance_id = 'i-wUHUDrhI'
+instance_id = 'i-fJ50WcB5'
 image_id = 'm-BPwwiJYh'
 flavor_id = 'BBC-I2-01'
 raid_id = 'raid-malo48xg'
 snapshot_id = 's-Ro9vAnQE'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-hweloYd8'
-#subnet_id = "604cebcd-740d-49d1-a1ac-72a91f5e34aa"
-subnet_id = "sbn-e7dp3hmvvv43"
+subnet_id = "604cebcd-740d-49d1-a1ac-72a91f5e34aa"
 
 
 force_stop = False
@@ -93,6 +92,21 @@ class TestBbcClient(unittest.TestCase):
                                                raid_id=raid_id, zone_name=zone_name,
                                                client_token=client_token, name=name,
                                                admin_pass=admin_pass, subnet_id=subnet_id)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_instance_with_deploy_set(self):
+        """
+        test create bbc instance with specified deploy set
+        """
+        client_token = generate_client_token()
+        zone_name = 'cn-bj-a'
+        name = 'test_bbc_deploy_set'
+        deploy_set_id = 'dset-Ut1FNWme'
+        response = self.client.create_instance(flavor_id=flavor_id, image_id=image_id,
+                                               raid_id=raid_id, zone_name=zone_name,
+                                               client_token=client_token, name=name,
+                                               admin_pass=admin_pass, deploy_set_id=deploy_set_id, subnet_id=subnet_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -325,6 +339,60 @@ class TestBbcClient(unittest.TestCase):
         response = self.client.get_operation_log()
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+
+    def test_create_deploy_set(self):
+        """
+        test create deploy set
+        """
+        concurrency = 1
+        strategy = "tor_ha"
+        desc = "test deploy set"
+        name = "test_deploy_set"
+        response = self.client.create_deploy_set(concurrency=concurrency, strategy=strategy,
+                                                 desc=desc, name=name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_deploy_sets(self):
+        """
+        test list deploy sets
+        """
+        existing_deploy_set_id = "dset-8j5RpRsO"
+        response = self.client.list_deploy_sets()
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+        deploy_set_ids = []
+        for deploy_set in response.deploy_set_list:
+            deploy_set_ids.append(deploy_set.deploy_set_id)
+        self.assertTrue(existing_deploy_set_id in deploy_set_ids)
+
+    def test_get_deploy_set(self):
+        """
+        test get deploy set
+        """
+        deploy_set_id = "dset-8j5RpRsO"
+        response = self.client.get_deploy_set(deploy_set_id=deploy_set_id)
+        print(response)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        self.assertEqual(response.deploy_set_id, deploy_set_id)
+
+    def test_delete_deploy_set(self):
+        """
+        test delete deploy sets
+        """
+        delete_deploy_set_id = "dset-8j5RpRsO"
+        response = self.client.delete_deploy_set(deploy_set_id=delete_deploy_set_id)
+        print(response)
+        deploy_sets = self.client.list_deploy_sets().deploy_set_list
+        deploy_set_ids = []
+        for deploy_set in deploy_sets:
+            deploy_set_ids.append(deploy_set.deploy_set_id)
+        self.assertTrue(delete_deploy_set_id not in deploy_set_ids)
+
+
+
+
+
 
 
 
