@@ -20,6 +20,7 @@ import logging
 #from baidubce import bce_base_client
 from baidubce.bce_base_client import BceBaseClient
 from baidubce.auth import bce_v1_signer
+from baidubce.bce_response import BceResponse
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_content_types
@@ -27,6 +28,7 @@ from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
+from baidubce.services.media import media_handler
 from baidubce.utils import required
 
 _logger = logging.getLogger(__name__)
@@ -211,6 +213,49 @@ class MediaClient(BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
+    @required(pipeline_name=(bytes, str), pipeline=(BceResponse, dict))
+    def update_pipeline(
+            self,
+            pipeline_name,
+            pipeline,
+            config=None):
+        """
+        Update a pipeline
+
+        :param pipeline_name: the preset name
+        :type pipeline_name: string
+        :param pipeline: the update body
+        :type pipeline: Object
+        :returns:
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/pipeline/' + pipeline_name,
+            body=json.dumps(pipeline, default=lambda o: o.__dict__),
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            config=config)
+
+    @required(pipelien_name=(bytes, str))
+    def get_pipeline_for_update(self, pipeline_name, config=None):
+        """
+        Get the specific pipeline information without converting camel key to a "pythonic" name
+
+        :param pipeline_name: The pipeline name
+        :type pipeline_name: string or unicode
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if pipeline_name == '':
+            raise BceClientError('pipeline_name can\'t be empty string')
+        return self._send_request(http_methods.GET, '/pipeline/' + pipeline_name,
+                                  config=config, body_parser=media_handler.parse_json)
+
     @required(pipeline_name=(bytes, str))
     def get_pipeline(self, pipeline_name, config=None):
         """
@@ -312,6 +357,32 @@ class MediaClient(BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config)
 
+    @required(preset_name=(bytes, str), preset=(BceResponse, dict))
+    def update_preset(
+            self,
+            preset_name,
+            preset,
+            config=None):
+        """
+        Update a preset
+
+        :param preset_name: the preset name
+        :type preset_name: string
+        :param preset: the update body
+        :type preset: Object
+        :returns:
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/preset/' + preset_name,
+            body=json.dumps(preset, default=lambda o: o.__dict__),
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            config=config)
+
     @required(preset_name=(bytes, str))
     def get_preset(self, preset_name, config=None):
         """
@@ -327,6 +398,23 @@ class MediaClient(BceBaseClient):
         if preset_name == '':
             raise BceClientError('preset_name can\'t be empty string')
         return self._send_request(http_methods.GET, '/preset/' + preset_name, config=config)
+
+    @required(preset_name=(bytes, str))
+    def get_preset_for_update(self, preset_name, config=None):
+        """
+        Get the specific preset information without converting camel key to a "pythonic" name
+
+        :param preset_name: The preset name
+        :type preset_name: string or unicode
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if preset_name == '':
+            raise BceClientError('preset_name can\'t be empty string')
+        return self._send_request(http_methods.GET, '/preset/' + preset_name,
+                                  config=config, body_parser=media_handler.parse_json)
 
     @required(preset_name=(bytes, str))
     def delete_preset(self, preset_name, config=None):
@@ -519,6 +607,82 @@ class MediaClient(BceBaseClient):
         if watermark_id == '':
             raise BceClientError('watermark_id can\'t be empty string')
         return self._send_request(http_methods.DELETE, '/watermark/' + watermark_id, config=config)
+
+    def list_notifications(self, config=None):
+        """
+        List notifications
+
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(http_methods.GET, '/notification', config=config)
+
+    @required(
+        name=(bytes, str),
+        endpoint=(bytes, str))
+    def create_notification(
+            self,
+            name,
+            endpoint,
+            config=None):
+        """
+        Create a notification
+
+        :param name: The notification name
+        :type name: string or unicode
+        :param endpoint: The endpoint
+        :type endpoint: string or unicode
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if name == '':
+            raise BceClientError('name can\'t be empty string')
+        if endpoint == '':
+            raise BceClientError('endpoint can\'t be empty string')
+        body_content = {'name': name,
+                        'endpoint': endpoint}
+        return self._send_request(
+            http_methods.POST,
+            '/notification',
+            body=json.dumps(body_content),
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            config=config)
+
+    @required(name=(bytes, str))
+    def get_notification(self, name, config=None):
+        """
+        Get the specific notification information
+
+        :param name: The notification name
+        :type name: string or unicode
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if name == '':
+            raise BceClientError('name can\'t be empty string')
+        return self._send_request(http_methods.GET, '/notification/' + name, config=config)
+
+    @required(name=(bytes, str))
+    def delete_notification(self, name, config=None):
+        """
+        Delete the specific notification
+
+        :param name: The notification name
+        :type name: string or unicode
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if name == '':
+            raise BceClientError('name can\'t be empty string')
+        return self._send_request(http_methods.DELETE, '/notification/' + name, config=config)
 
     def _get_config_parameter(self, config, attr):
         result = None

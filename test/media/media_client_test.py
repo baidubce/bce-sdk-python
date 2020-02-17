@@ -66,6 +66,33 @@ class TestMediaPreset(TestMediaClient):
         finally:
             self.assertIsNone(err)
 
+    def test_update_preset(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            bit_rate_in_bps = 256000
+            bit_rate_in_bps_for_update = 80000
+            audio = dict()
+            audio['bitRateInBps'] = bit_rate_in_bps
+            preset_name = "test_for_update"
+            preset = self.the_client.get_preset_for_update(preset_name)
+            preset.audio.bitRateInBps = bit_rate_in_bps_for_update
+            self.the_client.update_preset(preset_name, preset)
+            preset = self.the_client.get_preset(preset_name)
+            self.assertEqual(preset.audio.bit_rate_in_bps, bit_rate_in_bps_for_update)
+
+            body = {"presetName": preset_name, "description": "", "container": "mp4", "transmux": False, "audio": {"bitRateInBps": bit_rate_in_bps}}
+            self.the_client.update_preset(preset_name, body)
+            preset = self.the_client.get_preset(preset_name)
+            self.assertEqual(preset.audio.bit_rate_in_bps, bit_rate_in_bps)
+
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
     def test_list_presets(self):
         """
         A test case
@@ -105,6 +132,26 @@ class TestMediaPipeline(TestMediaClient):
     """
     TestMediaJob
     """
+
+    def test_update_pipeline(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            notification = "test"
+            pipeline_name = "pipelineyu4"
+            my_pipeline = self.the_client.get_pipeline_for_update(pipeline_name)
+            my_pipeline.config.notification = notification
+            self.the_client.update_pipeline(pipeline_name, my_pipeline)
+            my_pipeline = self.the_client.get_pipeline(pipeline_name)
+            self.assertEqual(my_pipeline.config.notification, notification)
+
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
     def test_list_pipelines(self):
         """
         A test case
@@ -152,6 +199,64 @@ class TestMediaPipeline(TestMediaClient):
             self.the_client.delete_pipeline("321123321123")
         except BceHttpClientError as e:
             assert True
+
+
+class TestMediaNotification(TestMediaClient):
+    """
+    TestMediaNotification
+    """
+    def test_list_notifications(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            result = self.the_client.list_notifications()
+            assert len(result.notifications) > 0
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+    def test_create_notifications(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            self.the_client.create_notification("test_for_create", "http://bce.baidu.com")
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+    def test_get_notification(self):
+        """
+        A test case
+        """
+        err = None
+        time.sleep(20)
+        try:
+            name = "test"
+            notification = self.the_client.get_notification(name)
+            assert notification.name, name
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+    def test_delete_notification(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            self.the_client.create_notification("test_fo_delete", "http://bce.baidu.com")
+            self.the_client.delete_notification("test_fo_delete")
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
 
 
 class TestMediaJob(TestMediaClient):
