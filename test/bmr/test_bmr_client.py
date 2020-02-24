@@ -81,6 +81,7 @@ class TestBmrClient(unittest.TestCase):
             endpoint=HOST
         )
         self.bmr_client = bmr.BmrClient(config)
+
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_create_cluster(self, send_http_request):
         """
@@ -114,12 +115,24 @@ class TestBmrClient(unittest.TestCase):
             name='cluster03')
         self.assertEqual(res.cluster_id, 'c003')
 
-    def test_save_template(self):
-        bmr.BmrClient.save_template()
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_save_template(self, send_http_request):
+        res_body = {}
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'savetemplate01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        self.bmr_client.save_template('test-clusterId')
 
     def test_list_cluster(self):
-        response=bmr.BmrClient.list_clusters()
-        print (response)
+        response = bmr.BmrClient.list_clusters()
+        print(response)
+
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_scale_cluster(self, send_http_request):
         """
@@ -432,6 +445,41 @@ class TestBmrClient(unittest.TestCase):
         send_http_request.return_value = mock_http_response
         res = self.bmr_client.list_instance_groups('c001')
         self.assertEqual(res.instance_groups[1].id, '002')
+
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_bind_eip(self, send_http_request):
+        """
+        test case for bind_eip
+        """
+        res_body = {}
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'bindeip01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        res = self.bmr_client.bind_eip('clusterId1', 'instanceId1', 'xx.xx.xx.xx')
+
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_unbind_eip(self, send_http_request):
+        """
+        test case for bind_eip
+        """
+        res_body = {}
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'unbindeip01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        self.bmr_client.unbind_eip('clusterId1', 'instanceId1', 'xx.xx.xx.xx')
+
 
 if __name__ == '__main__':
     unittest.main()
