@@ -22,7 +22,7 @@ import sys
 
 from baidubce.auth import bce_v1_signer
 from baidubce import bce_base_client
-from baidubce import compat 
+from baidubce import compat
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
@@ -554,6 +554,48 @@ class BmrClient(bce_base_client.BceBaseClient):
             'instanceId': instanceId
         }
         path = '/eip/delete'
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+    @required(
+        clusterId=value_type,
+        instanceId=value_type,
+        eip=value_type
+    )
+    def bind_eip(self, clusterId, instanceId, eip):
+        """
+        bind eip for instance of cluseter
+        :param clusterId: clusterId
+        :param instanceId: instanceId
+        :param eip: eip
+        :return: baidubce.bce_response.BceResponse
+        """
+        params = None
+        body = {
+            'clusterId': clusterId,
+            'instanceId': instanceId,
+            'eip': eip
+        }
+        path = '/eip/bind'
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+    @required(
+        clusterId=value_type,
+        instanceId=value_type,
+        eip=value_type
+    )
+    def unbind_eip(self, clusterId, instanceId, eip):
+        """
+        unbind eip for instance of cluseter
+        :param clusterId: clusterId
+        :param instanceId: instanceId
+        :param eip: eip
+        :return: baidubce.bce_response.BceResponse
+        """
+        params = None
+        body = {
+            'clusterId': clusterId,
+            'instanceId': instanceId,
+            'eip': eip
+        }
+        path = '/eip/unbind'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     @required(
         name=value_type,
