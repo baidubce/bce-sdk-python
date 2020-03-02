@@ -67,7 +67,8 @@ class BmrClient(bce_base_client.BceBaseClient):
                        vpc_id=None,
                        subnet_id=None,
                        security_group=None,
-                       availability_zone=None):
+                       availability_zone=None,
+                       templateType=None):
         """
         Create cluster
 
@@ -119,6 +120,8 @@ class BmrClient(bce_base_client.BceBaseClient):
             body['securityGroup'] = security_group
         if availability_zone is not None:
             body['availabilityZone'] = availability_zone
+        if templateType is not None:
+            body['templateType'] = templateType
 
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
@@ -407,7 +410,8 @@ class BmrClient(bce_base_client.BceBaseClient):
                         systemSecurityGroup=None,
                         serviceHaEnabled=False,
                         safeModeEnabled=False,
-                        applications=None):
+                        applications=None,
+                        templateType=None):
         """
         create a template
         :param image_Type: image_Type
@@ -461,6 +465,8 @@ class BmrClient(bce_base_client.BceBaseClient):
             body['systemSecurityGroup'] = systemSecurityGroup
         if applications is not None:
             body['applications'] = applications
+        if templateType is not None:
+            body['templateType'] = templateType
         path='/template/create'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
