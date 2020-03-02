@@ -480,6 +480,37 @@ class TestBmrClient(unittest.TestCase):
         send_http_request.return_value = mock_http_response
         self.bmr_client.unbind_eip('clusterId1', 'instanceId1', 'xx.xx.xx.xx')
 
+    @mock.patch('baidubce.http.bce_http_client._send_http_request')
+    def test_create_template(self, send_http_request):
+        res_body = {}
+        mock_http_response = MockHttpResponse(
+            200,
+            content=json.dumps(res_body),
+            header_list=[
+                ('x-bce-request-id', 'createtemplate01'),
+                ('content-type', 'application/json;charset=UTF-8')
+            ]
+        )
+        send_http_request.return_value = mock_http_response
+        self.bmr_client.create_template(
+            'hadoop',
+            '2.1.0',
+            [
+                bmr.instance_group(
+                    'Master',
+                    'g.small',
+                    1,
+                    'ig-master'),
+                bmr.instance_group(
+                    'Core',
+                    'g.small',
+                    2,
+                    'ig-core')
+            ],
+            auto_terminate=True,
+            log_uri='bos://path/to/log',
+            name='cluster03',
+            templateType='kafka')
 
 if __name__ == '__main__':
     unittest.main()
