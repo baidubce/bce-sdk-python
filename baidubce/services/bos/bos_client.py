@@ -1961,6 +1961,8 @@ class BosClient(BceBaseClient):
 
     @staticmethod
     def _get_path(config, bucket_name=None, key=None):
+        if config.cname_enabled:
+            return utils.append_uri(bos.URL_PREFIX, key)
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
 
     def _merge_config(self, config):

@@ -35,7 +35,8 @@ class BceClientConfiguration(object):
                  send_buf_size=None,
                  recv_buf_size=None,
                  retry_policy=None,
-                 security_token=None):
+                 security_token=None,
+                 cname_enabled=False):
         self.credentials = credentials
         self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
@@ -48,6 +49,7 @@ class BceClientConfiguration(object):
         else:
             self.retry_policy = retry_policy
         self.security_token = security_token
+        self.cname_enabled = cname_enabled
 
     def merge_non_none_values(self, other):
         """
