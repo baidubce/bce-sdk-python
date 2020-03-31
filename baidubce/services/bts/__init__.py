@@ -11,13 +11,9 @@
 # and limitations under the License.
 
 """
-This module defines some common string constants.
+This module defines some constants for BTS
 """
-from builtins import str
-from builtins import bytes
-from . import protocol
 
-SDK_VERSION = b'0.8.38'
-DEFAULT_SERVICE_DOMAIN = b'bcebos.com'
-URL_PREFIX = b'/v1'
-DEFAULT_ENCODING = 'UTF-8'
+URL_PREFIX = b"/v1/instance"
+INVALID_ARGS_ERROR = "The argument is invalid."
+PYTHON_VERSION_ERROR = "Check your python version."
