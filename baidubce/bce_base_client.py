@@ -20,6 +20,10 @@ from builtins import str, bytes
 import baidubce
 from baidubce import bce_client_configuration
 from baidubce.exception import BceClientError
+from baidubce.auth import bce_v1_signer
+from baidubce.http import handler
+from baidubce.http import bce_http_client
+
 
 class BceBaseClient(object):
     """
@@ -43,7 +47,6 @@ class BceBaseClient(object):
         if self.config.endpoint is None:
             self.config.endpoint = self._compute_endpoint()
 
-
     def _compute_service_id(self):
         return self.__module__.split('.')[2]
 
@@ -61,3 +64,27 @@ class BceBaseClient(object):
                 self.config.protocol,
                 self.service_id,
                 baidubce.DEFAULT_SERVICE_DOMAIN)
+
+    def _send_request(self, http_method, path, headers=None, params=None, body=None):
+        return bce_http_client.send_request(
+            self.config, bce_v1_signer.sign, [handler.parse_error, handler.parse_json],
+            http_method, path, body, headers, params)
+
+    def _get_config(self, apiDict, apiName):
+        return copy.deepcopy(apiDict[apiName])
+
+    def _add_header(self, apiConfig, key, value):
+        self._set_if_nonnull(apiConfig["headers"], key, value)
+
+    def _add_query(self, apiConfig, key, value):
+        # key-only query parameter's value is "" and can satisfy non-null
+        self._set_if_nonnull(apiConfig["queries"], key, value)
+
+    def _add_path_param(self, apiConfig, key, value):
+        if value is None:
+            raise BceClientError(b"Path param can't be none.")
+        apiConfig["path"] = apiConfig["path"].replace("[" + key + "]", value)
+
+    def _set_if_nonnull(self, params, param_name=None, value=None):
+        if value is not None:
+            params[param_name] = value
