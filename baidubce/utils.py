@@ -380,7 +380,7 @@ def print_object(obj):
     """
     tmp = []
     for k, v in iteritems(obj.__dict__):
-        if not k.startswith('__'):
+        if not k.startswith('__') and k != "raw_data":
             if isinstance(v, bytes):
                 tmp.append("%s:'%s'" % (k, v))
             # str is unicode
