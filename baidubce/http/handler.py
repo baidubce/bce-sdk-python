@@ -40,6 +40,7 @@ def parse_json(http_response, response):
     if body:
         body = compat.convert_to_string(body)
         response.__dict__.update(json.loads(body, object_hook=utils.dict_to_python_object).__dict__)
+        response.__dict__["raw_data"] = body
     http_response.close()
     return True
 
