@@ -170,6 +170,15 @@ class TestBccClient(unittest.TestCase):
         ephemeral_disks = [ephemeral_disk.__dict__, ephemeral_disk.__dict__]
         self.client.create_instance_from_dedicated_host(1, 2, 'm-32s5YYqD', 'd-MPgs6jPr', ephemeral_disks)
 
+    def test_create_instance_from_dedicated_host_with_encrypted_password(self):
+        """
+        test case for create instance from dedicated host
+        """
+        ephemeral_disk = EphemeralDisk(40, 'ssd')
+        ephemeral_disks = [ephemeral_disk.__dict__]
+        self.client.create_instance_from_dedicated_host_with_encrypted_password(1, 2, 'm-8rU0UtxY', 'd-dgAcUk0U',
+                                                                                ephemeral_disks, 1, None, admin_pass)
+
     def test_list_instances(self):
         """
         test case for list_instances
