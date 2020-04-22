@@ -51,7 +51,7 @@ class BceClientConfiguration(object):
             self.retry_policy = retry_policy
         self.security_token = security_token
         self.cname_enabled = cname_enabled
-        self.backup_endpoint = backup_endpoint
+        self.backup_endpoint = compat.convert_to_bytes(backup_endpoint) if backup_endpoint is not None else backup_endpoint
 
     def merge_non_none_values(self, other):
         """

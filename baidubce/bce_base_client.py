@@ -61,3 +61,4 @@ class BceBaseClient(object):
                 self.config.protocol,
                 self.service_id,
                 baidubce.DEFAULT_SERVICE_DOMAIN)
+

@@ -37,20 +37,15 @@ def _get_canonical_headers(headers, headers_to_sign=None):
                                b"content-length",
                                b"content-type"])
     result = []
-    headers_to_sign_result = []
     for k in headers:
         k_lower = k.strip().lower()
         value = utils.convert_to_standard_string(headers[k]).strip()
-        if k_lower == 'content-length' and value == '0':
-            continue
         if k_lower.startswith(http_headers.BCE_PREFIX) \
                 or k_lower in headers_to_sign:
             str_tmp = b"%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
             result.append(str_tmp)
-            headers_to_sign_result.append(k_lower)
     result.sort()
-    headers_to_sign_result.sort()
-    return (b'\n').join(result), headers_to_sign_result
+    return (b'\n').join(result)
 
 
 def sign(credentials, http_method, path, headers, params,
@@ -77,8 +72,7 @@ def sign(credentials, http_method, path, headers, params,
     canonical_uri = path
     canonical_querystring = utils.get_canonical_querystring(params, True)
 
-    canonical_headers, headers_to_sign = _get_canonical_headers(headers, headers_to_sign)
-    # _logger.debug('canonical_headers=%s' % canonical_headers)
+    canonical_headers = _get_canonical_headers(headers, headers_to_sign)
     string_to_sign = (b'\n').join([
         http_method, canonical_uri, 
         canonical_querystring, canonical_headers
