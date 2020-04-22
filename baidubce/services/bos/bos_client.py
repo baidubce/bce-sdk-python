@@ -1960,8 +1960,11 @@ class BosClient(BceBaseClient):
 
 
     @staticmethod
-    def _get_path(config, bucket_name=None, key=None):
-        if config.cname_enabled:
+    def _get_path(config, bucket_name=None, key=None, use_backup_endpoint=False):
+        host = config.endpoint
+        if use_backup_endpoint:
+            host = config.backup_endpoint
+        if config.cname_enabled or utils.is_cname_like_host(host):
             return utils.append_uri(bos.URL_PREFIX, key)
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
 
@@ -1972,6 +1975,22 @@ class BosClient(BceBaseClient):
             new_config = copy.copy(self.config)
             new_config.merge_non_none_values(config)
             return new_config
+
+    @staticmethod
+    def _need_retry_backup_endpoint(error):
+        # always retry on IOError
+        if isinstance(error, IOError):
+            return True
+
+        # Only retry on a subset of service exceptions
+        if isinstance(error, BceServerError):
+            if error.status_code == http.client.INTERNAL_SERVER_ERROR:
+                return True
+            if error.status_code == http.client.SERVICE_UNAVAILABLE:
+                return True
+            if error.code == BceServerError.REQUEST_EXPIRED:
+                return True
+        return False
 
     def _send_request(
             self, http_method, bucket_name=None, key=None,
@@ -1987,6 +2006,22 @@ class BosClient(BceBaseClient):
             headers = headers or {}
             headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
 
-        return bce_http_client.send_request(
-            config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, path, body, headers, params)
+        try:
+            return bce_http_client.send_request(
+                config, bce_v1_signer.sign, [handler.parse_error, body_parser],
+                http_method, path, body, headers, params)
+        except BceHttpClientError as e:
+            # retry backup endpoint
+            if config.backup_endpoint is None:
+                raise e
+            if BosClient._need_retry_backup_endpoint(e.last_error):
+                _logger.debug(b'Retry for backup endpoint.')
+                path = BosClient._get_path(config, bucket_name, key, True)
+                return bce_http_client.send_request(
+                    config, bce_v1_signer.sign, [handler.parse_error, body_parser],
+                    http_method, path, body, headers, params, True)
+            else:
+                raise e
+
+
+
