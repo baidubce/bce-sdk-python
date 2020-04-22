@@ -35,6 +35,7 @@ from baidubce.http import http_headers
 
 import codecs
 
+DEFAULT_CNAME_LIKE_LIST = [".cdn.bcebos.com"]
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
@@ -533,3 +534,15 @@ def aes128_encrypt_16char_key(adminpass, secretkey):
     #print(cipheradminpass)
 
     return cipheradminpass
+
+def is_cname_like_host(host):
+    """
+    :param host: custom domain
+    :return: domain end with cdn endpoint or not
+    """
+    if host is None:
+        return False
+    for suffix in DEFAULT_CNAME_LIKE_LIST:
+        if host.lower().endswith(suffix):
+            return True
+    return False
