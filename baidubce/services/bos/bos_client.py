@@ -1032,6 +1032,9 @@ class BosClient(BceBaseClient):
                    user_metadata=None,
                    storage_class=None,
                    user_headers=None,
+                   encryption=None,
+                   customer_key=None,
+                   customer_key_md5=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -1084,6 +1087,9 @@ class BosClient(BceBaseClient):
                                user_metadata=None,
                                storage_class=None,
                                user_headers=None,
+                               encryption=None,
+                               customer_key=None,
+                               customer_key_md5=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -1120,6 +1126,9 @@ class BosClient(BceBaseClient):
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
                                    user_headers=user_headers,
+                                   encryption=encryption,
+                                   customer_key=customer_key,
+                                   customer_key_md5=customer_key_md5,
                                    config=config)
         finally:
             if fp is not None:
@@ -1134,6 +1143,9 @@ class BosClient(BceBaseClient):
                              user_metadata=None,
                              storage_class=None,
                              user_headers=None,
+                             encryption=None,
+                             customer_key=None,
+                             customer_key_md5=None,
                              config=None):
 
         """
@@ -1174,6 +1186,9 @@ class BosClient(BceBaseClient):
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
                                    user_headers=user_headers,
+                                   encryption=encryption,
+                                   customer_key=customer_key,
+                                   customer_key_md5=customer_key_md5,
                                    config=config)
         finally:
             fp.close()
@@ -1870,6 +1885,67 @@ class BosClient(BceBaseClient):
                 params={b'fetch': b''},
                 config=config)
 
+
+    @required(bucket_name=(bytes, str), key=(bytes, str), symlink=(bytes, str), forbid_overwrite=(bool))
+    def put_object_symlink(self, bucket_name, key, symlink, forbid_overwrite=None, 
+            user_metadata=None,
+            storage_class=None,
+            config=None):
+        """
+        put object symlink
+
+        :type bucket: string
+        :param bucket: None
+
+        :type key: string
+        :type key: object name
+
+        :type symlink: string
+        :type symlink_key: symlink name
+
+        :return:
+            **HttpResponse Class**
+        """
+        key = compat.convert_to_bytes(key)
+        symlink = compat.convert_to_bytes(symlink)
+        headers = self._prepare_object_headers(user_metadata=user_metadata,
+                storage_class=storage_class)
+        headers[http_headers.BOS_SYMLINK_TARGET] = key
+        if forbid_overwrite is not None:
+            if forbid_overwrite:
+                headers[http_headers.BOS_FORBID_OVERWRITE] = b'true'
+            else:
+                headers[http_headers.BOS_FORBID_OVERWRITE] = b'false'
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           symlink,
+                           headers=headers,
+                           params={b'symlink': b''},
+                           config=config)
+
+
+    @required(bucket_name=(bytes, str), symlink=(bytes, str))
+    def get_object_symlink(self, bucket_name, symlink, config=None):
+        """
+        Get symlink info
+
+        :type bucket: string
+        :param bucket: None
+
+        :type symlink: string
+        :param symlink: symlink
+
+        :return:
+            **HttpResponse Class**
+        """
+        key = compat.convert_to_bytes(symlink)
+        return self._send_request(
+                http_methods.GET,
+                bucket_name,
+                key,
+                params={b'symlink': b''},
+                config=config)
+
     @staticmethod
     def _prepare_object_headers(
             content_length=None,
@@ -1879,7 +1955,10 @@ class BosClient(BceBaseClient):
             etag=None,
             user_metadata=None,
             storage_class=None,
-            user_headers=None):
+            user_headers=None,
+            encryption=None,
+            customer_key=None,
+            customer_key_md5=None):
         headers = {}
 
         if content_length is not None:
@@ -1918,6 +1997,15 @@ class BosClient(BceBaseClient):
 
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
+
+        if encryption is not None:
+            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION] = utils.convert_to_standard_string(encryption)
+
+        if customer_key is not None:
+            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY] = utils.convert_to_standard_string(customer_key)
+
+        if customer_key_md5 is not None:
+            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY_MD5] = utils.convert_to_standard_string(customer_key_md5)
 
         if user_headers is not None:
             try:
