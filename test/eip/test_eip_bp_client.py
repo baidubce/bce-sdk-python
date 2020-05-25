@@ -21,7 +21,6 @@ Unit tests for eip_bp_client.
 
 import unittest
 import uuid
-import time
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
@@ -33,8 +32,8 @@ Resize_BandwidthInMbps = 2
 ID = ''
 Name = 'test'
 New_Name = 'test1'
-Auto_Release_Time = '2020-05-20T00:00:00Z'
-New_Auto_Release_Time = '2020-05-20T12:00:00Z'
+Auto_Release_Time = '2020-05-30T00:00:00Z'
+New_Auto_Release_Time = '2020-05-30T12:00:00Z'
 MARKER = ''
 MAX_KEYS = 500
 
@@ -48,9 +47,9 @@ class TestEipBpClient(unittest.TestCase):
         """
         set up
         """
-        HOST = b'eip.bj.qasandbox.baidu-int.com'
-        AK = b'258df943c0d845b4a96460423d331a43'
-        SK = b'488e81a57a534b5b915c55bff6e07e2b'
+        HOST = b''
+        AK = b''
+        SK = b''
 
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK), endpoint=HOST)
@@ -84,13 +83,13 @@ class TestEipBpClient(unittest.TestCase):
         """
         test case for getting eip_bp detail
         """
-        return self.client.get_eip_bp_detail(id=ID, config=None)
+        print(self.client.get_eip_bp_detail(id=ID, config=None))
 
     def test_list_eip_bps(self):
         """
         test case for listing eip_bps
         """
-        return self.client.list_eip_bps(config=None)
+        print(self.client.list_eip_bps(config=None))
 
     def test_update_eip_bp_autoReleaseTime(self):
         """
@@ -115,39 +114,6 @@ class TestEipBpClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         self.client.release_eip_bp(client_token=client_token, id=ID)
-
-    def test_auto_eip_bp(self):
-        """
-        test all methods in one method
-        create ——> detail ——> list ——> resize ——> update_autoReleaseTime ——> rename——> release
-        """
-        global ID
-        ID = self.test_create_eip_bp().__dict__['id'].encode('utf-8')
-
-        while True:
-            try:
-                self.test_get_eip_bp_detail()
-                break
-            except BaseException:
-                time.sleep(5)
-
-        assert self.test_list_eip_bps().__dict__['bp_list'][0].__dict__['id'] == ID
-
-        self.test_resize_eip_bp()
-
-        while True:
-            if self.test_get_eip_bp_detail().__dict__['bandwidth_in_mbps'] == Resize_BandwidthInMbps:
-                break
-            else:
-                time.sleep(5)
-
-        self.test_update_eip_bp_autoReleaseTime()
-        assert self.test_get_eip_bp_detail().__dict__['auto_release_time'] == New_Auto_Release_Time
-
-        self.test_rename_eip_bp()
-        assert self.test_get_eip_bp_detail().__dict__['name'] == New_Name
-
-        self.test_release_eip_bp()
 
 
 def generate_client_token_by_uuid():
