@@ -21,6 +21,7 @@ import os
 import json
 import logging
 import shutil
+import struct
 from builtins import str
 from builtins import bytes
 from future.utils import iteritems, iterkeys, itervalues
@@ -43,7 +44,6 @@ from baidubce.services.bos import bos_handler
 from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
-
 
 _logger = logging.getLogger(__name__)
 
@@ -852,6 +852,11 @@ class BosClient(BceBaseClient):
             http_response.close()
         finally:
             f.close()
+        return True
+
+    @staticmethod
+    def _parse_select_message(http_response, response, select_response):
+        select_response.init_from_http_response(http_response, response)
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
@@ -1870,6 +1875,43 @@ class BosClient(BceBaseClient):
                 params={b'fetch': b''},
                 config=config)
 
+
+    @required(bucket_name=(bytes, str), key=(bytes, str), select_object_args=(dict, ))
+    def select_object(self, bucket_name, key, select_object_args, headers=None, config=None):
+        """
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :type select_object_args: dict
+        :param select_object_args: requesta parameters for select object api
+
+        :param config:
+        :return:
+        """
+        key = compat.convert_to_bytes(key)
+        headers = headers or {}
+        if "inputSerialization" in select_object_args and "json" in select_object_args["inputSerialization"]:
+            select_type = b"json"
+        else:
+            select_type = b"csv"
+        select_response = SelectResponse()
+        self._send_request(
+            http_methods.POST,
+            bucket_name,
+            key,
+            body=json.dumps({'selectRequest': select_object_args}, default=BosClient._dump_acl_object),
+            headers=headers,
+            params={b'select': b'', b'type': select_type},
+            config=config,
+            body_parser=lambda http_response, response: BosClient._parse_select_message(
+                http_response, response, select_response)
+            )
+        return select_response
+
     @staticmethod
     def _prepare_object_headers(
             content_length=None,
@@ -2024,4 +2066,124 @@ class BosClient(BceBaseClient):
                 raise e
 
 
+class SelectMessage(object):
+    """
+    returned message from select object api
+    """
+    def set_record_message(self, headers, payload, crc):
+        """
+        Initialize for record message
+        """
+        self.type = "Records"
+        self.headers = headers
+        self.payload = payload
+        self.crc = crc
 
+    def set_cont_message(self, headers, bytes_scanned, bytes_returned, crc):
+        """
+        Initialize for continue message
+        """
+        self.type = "Cont"
+        self.headers = headers
+        self.bytes_scanned = bytes_scanned
+        self.bytes_returned = bytes_returned
+        self.crc = crc
+
+    def set_end_message(self, headers, crc):
+        """
+        Initialize for end message
+        """
+        self.type = "End"
+        self.headers = headers
+        self.crc = crc
+
+    def __str__(self):
+        if self.type == "Records":
+            return '{}\n{}'.format(self.headers, self.payload)
+        elif self.type == "Cont":
+            return '{}\nbytes_scanned/bytes_returned={}/{}'.format(self.headers, self.bytes_scanned,
+                                                               self.bytes_returned)
+        else:
+            return '{}'.format(self.headers)
+
+class SelectResponse(object):
+    """
+    deal with message of select object api
+    """
+    def __init__(self):
+        self.finish = False
+
+    def init_from_http_response(self, http_response, response):
+        """
+        get HttpResponse and BceResponse
+        """
+        self.http_response = http_response
+        self.response = response
+
+    def result(self):
+        """
+        generator for SelectMessage
+        """
+        f  = self.http_response
+        try:
+            while not self.finish:
+                prelude = f.read(8)
+                if not prelude:
+                    raise StopIteration
+                    return
+                total_len = struct.unpack('>I', prelude[0:4])[0]
+                headers_len = struct.unpack('>I', prelude[4:8])[0]
+                headers = f.read(headers_len)
+                headers_map = self._parse_select_headers(headers)
+                msg = SelectMessage()
+                if headers_map['message-type'] == 'Records':
+                    payload_len = total_len - headers_len - 12
+                    payload = f.read(payload_len)
+                    crc = struct.unpack('>I', f.read(4))[0]
+                    msg.set_record_message(headers_map, compat.convert_to_string(payload), crc)
+                    yield msg
+                elif headers_map['message-type'] == 'Cont':
+                    bytes_scanned = f.read(8)
+                    bytes_returned = f.read(8)
+                    crc = struct.unpack('>I', f.read(4))[0]
+                    bytes_scanned = struct.unpack('>Q', bytes_scanned)[0]
+                    bytes_returned = struct.unpack('>Q', bytes_returned)[0]
+                    msg.set_cont_message(headers_map, bytes_scanned, bytes_returned, crc)
+                    yield msg
+                elif headers_map['message-type'] == 'End':
+                    crc = struct.unpack('>I', f.read(4))[0]
+                    if headers_map["error-code"] != "success":
+                        raise BceServerError(headers_map['error-message'], code=headers_map['error-code'],
+                                request_id=self.response.metadata.bce_request_id)
+                        return
+                    msg.set_end_message(headers_map, crc)
+                    self.finish = True
+                    yield msg
+            raise StopIteration
+        finally:
+            self.http_response.close()
+
+    @staticmethod
+    def _parse_select_headers(headers):
+        """
+        parse SELECT headers
+        :param headers: <str>
+        :return: <dict>
+        """
+        hm = {}
+        index = 0
+        while index < len(headers):
+            # headers key length
+            key_len = struct.unpack('B', headers[index: index + 1])[0]
+            index += 1
+            # headers key
+            key = headers[index: index + key_len]
+            index += key_len
+            # headers value length
+            value_len = struct.unpack('>H', headers[index: index + 2])[0]
+            index += 2
+            # headers value
+            value = headers[index: index + value_len]
+            index += value_len
+            hm[compat.convert_to_string(key)] = compat.convert_to_string(value)
+        return hm
