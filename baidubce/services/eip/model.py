@@ -45,6 +45,11 @@ class Billing(object):
         self.reservation_time_unit = reservation_time_unit or 'Month'
 
 
+"""
+This module provide eip status query condition.
+"""
+
+
 class EipStatus(Enum):
     AVAILABLE = b'available'
     BINDED = "binded"
