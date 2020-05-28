@@ -50,5 +50,5 @@ class EipStatus(Enum):
     eip status enum query condition.
     """
     AVAILABLE = b'available'
-    BINDED = "binded"
+    BINDED = b'binded'
     PAUSED = b'paused'
