@@ -15,6 +15,7 @@
 """
 This module provide billing information.
 """
+from enum import Enum
 
 
 class Billing(object):
@@ -42,3 +43,9 @@ class Billing(object):
         self.billing_method = billing_method
         self.reservation_length = reservation_length
         self.reservation_time_unit = reservation_time_unit or 'Month'
+
+
+class EipStatus(Enum):
+    AVAILABLE = b'available'
+    BINDED = "binded"
+    PAUSED = b'paused'

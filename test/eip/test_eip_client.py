@@ -23,13 +23,14 @@ import unittest
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.eip import eip_client
-from baidubce.services.eip.model import Billing
+from baidubce.services.eip.model import Billing, EipStatus
 
 
 class TestEipClient(unittest.TestCase):
     """
     unit test
     """
+
     def setUp(self):
         """
         set up
@@ -91,6 +92,7 @@ class TestEipClient(unittest.TestCase):
         """
         print((self.the_client.list_eips()))
         # self.the_client.list_eips(eip='x.x.x.x')
+        print((self.the_client.list_eips(status=EipStatus.BINDED)))
 
 
 if __name__ == "__main__":
