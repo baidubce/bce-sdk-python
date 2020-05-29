@@ -1,0 +1,57 @@
+{
+  "_id": "5d5547c466891fc7af7fddb6",
+  "index": 0,
+  "guid": "c82fc13e-13d9-47d6-85c3-d1ea23a99bd8",
+  "isActive": false,
+  "balance": "$2,466.15",
+  "picture": "http://placehold.it/32x32",
+  "age": 26,
+  "eyeColor": "blue",
+  "name": {
+    "first": "Payne",
+    "last": "Key"
+  },
+  "company": "HELIXO",
+  "email": "payne.key@helixo.co.uk",
+  "phone": "+1 (991) 435-3369",
+  "address": "343 Bond Street, Romeville, Arizona, 1210",
+  "about": "Ea commodo proident ex velit ullamco incididunt consectetur aute fugiat ad nostrud. Sunt ipsum esse ut proident culpa pariatur reprehenderit ex anim nostrud. Sit quis quis nisi cillum enim nulla exercitation.",
+  "registered": "Saturday, October 14, 2017 3:41 PM",
+  "latitude": "-81.395406",
+  "longitude": "52.99426",
+  "tags": [
+    "sint",
+    "nulla",
+    "pariatur",
+    "quis",
+    "in"
+  ],
+  "range": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "friends": [
+    {
+      "id": 0,
+      "name": "Mia Jordan"
+    },
+    {
+      "id": 1,
+      "name": "Gina Ochoa"
+    },
+    {
+      "id": 2,
+      "name": "Carla Dillard"
+    }
+  ],
+  "greeting": "Hello, Payne! You have 9 unread messages.",
+  "favoriteFruit": "banana"
+}

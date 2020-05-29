@@ -22,6 +22,7 @@ from future.utils import iteritems
 from future.utils import iterkeys
 from future.utils import itervalues
 
+import base64
 import os
 import sys
 import random
@@ -31,6 +32,7 @@ import io
 import json
 import socket
 import time
+import pprint
 
 import coverage
 import baidubce
@@ -57,6 +59,7 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.retry.retry_policy import NoRetryPolicy
 from baidubce.retry.retry_policy import BackOffRetryPolicy
 import imp
+import ipdb
 
 imp.reload(sys)
 if compat.PY2:
@@ -2473,6 +2476,164 @@ class TestDecorator(TestClient):
         self.assertRaises(TypeError, MyClass().my_func, a=1, b=[], c=[])
 
 
+class TestSelectObject(TestClient):
+    """test select_object """
+    def test_select_object_csv(self):
+        """
+        test select_object for csv file
+        """
+        csv_file = "tools/test_cast.csv"
+        self.bos.put_object_from_file(self.BUCKET, self.KEY, csv_file)
+        valid_sql_exp = ["SELECT _1, _2, _6 FROM BosObject",
+                "SELECT _1, _2, _6 FROM BosObject WHERE CAST(_6 AS BOOLEAN) = false",
+                "SELECT _1, _4 FROM BosObject WHERE CAST(_4 AS INT) = 552299914",
+                "SELECT _3 FROM BosObject WHERE CAST(_3 AS TIMESTAMP) < CAST('2017-11-22 15:11:01' AS TIMESTAMP)",
+                "SELECT _1, _2, _6 FROM BosObject WHERE CAST(_6 AS STRING) = 'true' " \
+                        "or CAST(_3 AS STRING) = '2018-06-11 05:14:29'",
+                "SELECT _1, _2, _6 FROM BosObject LIMIT 10"]
+
+        select_object_args = {
+            "expressionType": "SQL",
+            "inputSerialization": {
+                "compressionType": "NONE",
+                "csv": {
+                    "fileHeaderInfo": "NONE",
+                    "recordDelimiter": "Cg==",
+                    "fieldDelimiter": "LA==",
+                    "quoteCharacter": "Ig==",
+                    "commentCharacter": "Iw=="
+                }
+            },
+            "outputSerialization": {
+                "outputHeader": False,
+                "csv": {
+                    "quoteFields": "ALWAYS",
+                    "recordDelimiter": "Cg==",
+                    "fieldDelimiter": "LA==",
+                    "quoteCharacter": "Ig=="
+                }
+            },
+            "requestProgress": {
+                "enabled": True
+            }
+        }
+        # test valid sql exp
+        for temp_exp in valid_sql_exp:
+            select_object_args["expression"] = base64.standard_b64encode(compat.convert_to_bytes(temp_exp)).decode("utf-8")
+            select_response = self.bos.select_object(self.BUCKET, self.KEY, select_object_args)
+            result = select_response.result()
+            for msg in result:
+                print(msg)
+                if msg.headers["message-type"] == "End":
+                    self.assertEqual(msg.headers["error-code"], "success")
+        # test invalid sql exp
+        invalid_sql_exp = [
+                "SELECT _1, _2, _6 FROM BosObject LIMIT 0",
+                "SELECT MAX(CAST(_1 AS BOOLEAN)) FROM BosObject"
+                ]
+        for temp_exp in invalid_sql_exp:
+            select_object_args["expression"] = base64.standard_b64encode(compat.convert_to_bytes(temp_exp)).decode("utf-8")
+            is_exception = False
+            try:
+                select_response = self.bos.select_object(self.BUCKET, self.KEY, select_object_args)
+                result = select_response.result()
+                for msg in result:
+                    pass
+            except (BceHttpClientError, BceServerError) as e:
+                is_exception = True
+            self.assertTrue(is_exception)
+    def _get_select_object_args_json(self):
+        """
+        get general select_object_args
+        """
+        select_object_args = {
+            "expressionType": "SQL",
+            "inputSerialization": {
+                "compressionType": "NONE",
+                "json": {
+                    "type": "DOCUMENT"
+                }
+            },
+            "outputSerialization": {
+                "json": {
+                    "recordDelimiter": "Cg=="
+                }
+            },
+            "requestProgress": {
+                "enabled": True
+            }
+        }
+        return select_object_args
+
+    def _get_fields(self):
+        """
+        return fileds
+        """
+        fields = [
+                "guid", "index", "favoriteFruit", "latitude", "company", "email", "picture",
+                "registered", "eyeColor", "phone", "address",
+                "about", "_id", "name.last", "name.first", "age", "greeting", "longitude",
+                "isActive", "balance",
+            ]
+        return fields
+
+    def test_select_object_json(self):
+        """
+        test select object api with json file
+        """
+        json_file = "tools/test_json_document.json"
+        self.bos.put_object_from_file(self.BUCKET, self.KEY, json_file)
+        paths = [
+            ".guid", ".index", ".favoriteFruit", ".latitude", ".company", ".email", ".picture",
+            ".tags[0]", ".tags[1]", ".tags[2]", ".tags[3]", ".tags[4]",
+            ".registered", ".eyeColor", ".phone", ".address",
+            ".friends[0].id", ".friends[0].name",
+            ".friends[1].id", ".friends[1].name", ".friends[2].id", ".friends[2].name",
+            ".isActive",
+            ".about", "._id", ".name.last", ".name.first", ".age", ".greeting", ".longitude",
+            ".range[0]", ".range[1]", ".range[2]", ".range[3]", ".range[4]",
+            ".range[5]", ".range[6]", ".range[7]", ".range[8]", ".range[9]",
+            ".balance",
+        ]
+        select_object_args = self._get_select_object_args_json()
+        # test valid sql exp
+        for p in paths:
+            temp_exp = 'SELECT * FROM BosObject{}'.format(p)
+            select_object_args["expression"] = base64.standard_b64encode(compat.convert_to_bytes(temp_exp)).decode("utf-8")
+            select_response = self.bos.select_object(self.BUCKET, self.KEY, select_object_args)
+            result = select_response.result()
+            for msg in result:
+                print(msg)
+                if msg.headers["message-type"] == "End":
+                    self.assertEqual(msg.headers["error-code"], "success")
+        # test specified_field
+        fields = self._get_fields()
+        temp_exp = 'SELECT {} FROM BosObject'.format(','.join(fields))
+        select_object_args["expression"] = base64.standard_b64encode(compat.convert_to_bytes(temp_exp)).decode("utf-8")
+        select_response = self.bos.select_object(self.BUCKET, self.KEY, select_object_args)
+        result = select_response.result()
+        for msg in result:
+            print(msg)
+            if msg.headers["message-type"] == "End":
+                self.assertEqual(msg.headers["error-code"], "success")
+
+    def test_select_object_json_lines(self):
+        """
+        test seelct object api with json lines
+        """
+        json_file = "tools/test_json_lines.json"
+        self.bos.put_object_from_file(self.BUCKET, self.KEY, json_file)
+        select_object_args = self._get_select_object_args_json()
+        fields = self._get_fields()
+        temp_exp = 'SELECT {} FROM BosObject'.format(','.join(fields))
+        select_object_args["expression"] = base64.standard_b64encode(compat.convert_to_bytes(temp_exp)).decode("utf-8")
+        select_response = self.bos.select_object(self.BUCKET, self.KEY, select_object_args)
+        result = select_response.result()
+        for msg in result:
+            print(msg)
+            if msg.headers["message-type"] == "End":
+                self.assertEqual(msg.headers["error-code"], "success")
+
 class TestSetObjectAcl(TestClient):
     """test set_bucket_acl"""
     def test_set_object_acl(self):
@@ -2619,47 +2780,48 @@ def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
     runner.run(unittest.makeSuite(TestClient))
-    runner.run(unittest.makeSuite(TestCopyObject))
-    runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
-    runner.run(unittest.makeSuite(TestListMultipartsUploads))
-    runner.run(unittest.makeSuite(TestSetBucketAcl))
-    runner.run(unittest.makeSuite(TestGetBucketAcl))
-    runner.run(unittest.makeSuite(TestGetObjectMetaData))
-    runner.run(unittest.makeSuite(TestGetObject))
-    runner.run(unittest.makeSuite(TestListBuckets))
-    runner.run(unittest.makeSuite(TestListObjects))
-    runner.run(unittest.makeSuite(TestListParts))
-    runner.run(unittest.makeSuite(TestPutObject))
-    runner.run(unittest.makeSuite(TestAppendObject))
-    runner.run(unittest.makeSuite(TestMultiUploadFile))
-    runner.run(unittest.makeSuite(TestAuthorization))
-    runner.run(unittest.makeSuite(TestAbortMultipartUpload))
-    runner.run(unittest.makeSuite(TestUtil))
-    runner.run(unittest.makeSuite(TestHandler))
-    runner.run(unittest.makeSuite(TestBceHttpClient))
-    runner.run(unittest.makeSuite(TestDoesBucketExist))
-    runner.run(unittest.makeSuite(TestBceClientConfiguration))
-    runner.run(unittest.makeSuite(TestGetRangeHeaderDict))
-    runner.run(unittest.makeSuite(TestDecorator))
-    runner.run(unittest.makeSuite(TestDeleteMultipleObjects))
-    runner.run(unittest.makeSuite(TestPutBucketLogging))
-    runner.run(unittest.makeSuite(TestGetBucketLogging))
-    runner.run(unittest.makeSuite(TestUploadPartCopy))
-    runner.run(unittest.makeSuite(TestPutBucketLifecycle))
-    runner.run(unittest.makeSuite(TestGetBucketLifecycle))
-    runner.run(unittest.makeSuite(TestPutBucketCors))
-    runner.run(unittest.makeSuite(TestGetBucketCors))
-    runner.run(unittest.makeSuite(TestSetObjectAcl))
-    runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
-    runner.run(unittest.makeSuite(TestBucketStaticWebsite))
-    runner.run(unittest.makeSuite(TestPutBucketEncryption))
-    runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
-    runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
-    runner.run(unittest.makeSuite(TestBucketReplication))
-    runner.run(unittest.makeSuite(TestBucketTrash))
-    runner.run(unittest.makeSuite(TestFetchObject))
-    runner.run(unittest.makeSuite(TestRestoreObject))
-    runner.run(unittest.makeSuite(TestBucketStorageclass))
+    runner.run(unittest.makeSuite(TestSelectObject))
+    #runner.run(unittest.makeSuite(TestCopyObject))
+    #runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
+    #runner.run(unittest.makeSuite(TestListMultipartsUploads))
+    #runner.run(unittest.makeSuite(TestSetBucketAcl))
+    #runner.run(unittest.makeSuite(TestGetBucketAcl))
+    #runner.run(unittest.makeSuite(TestGetObjectMetaData))
+    #runner.run(unittest.makeSuite(TestGetObject))
+    #runner.run(unittest.makeSuite(TestListBuckets))
+    #runner.run(unittest.makeSuite(TestListObjects))
+    #runner.run(unittest.makeSuite(TestListParts))
+    #runner.run(unittest.makeSuite(TestPutObject))
+    #runner.run(unittest.makeSuite(TestAppendObject))
+    #runner.run(unittest.makeSuite(TestMultiUploadFile))
+    #runner.run(unittest.makeSuite(TestAuthorization))
+    #runner.run(unittest.makeSuite(TestAbortMultipartUpload))
+    #runner.run(unittest.makeSuite(TestUtil))
+    #runner.run(unittest.makeSuite(TestHandler))
+    #runner.run(unittest.makeSuite(TestBceHttpClient))
+    #runner.run(unittest.makeSuite(TestDoesBucketExist))
+    #runner.run(unittest.makeSuite(TestBceClientConfiguration))
+    #runner.run(unittest.makeSuite(TestGetRangeHeaderDict))
+    #runner.run(unittest.makeSuite(TestDecorator))
+    #runner.run(unittest.makeSuite(TestDeleteMultipleObjects))
+    #runner.run(unittest.makeSuite(TestPutBucketLogging))
+    #runner.run(unittest.makeSuite(TestGetBucketLogging))
+    #runner.run(unittest.makeSuite(TestUploadPartCopy))
+    #runner.run(unittest.makeSuite(TestPutBucketLifecycle))
+    #runner.run(unittest.makeSuite(TestGetBucketLifecycle))
+    #runner.run(unittest.makeSuite(TestPutBucketCors))
+    #runner.run(unittest.makeSuite(TestGetBucketCors))
+    #runner.run(unittest.makeSuite(TestSetObjectAcl))
+    #runner.run(unittest.makeSuite(TestGetAndDeleteObjectAcl))
+    #runner.run(unittest.makeSuite(TestBucketStaticWebsite))
+    #runner.run(unittest.makeSuite(TestPutBucketEncryption))
+    #runner.run(unittest.makeSuite(TestGetAndDeleteBucketEncryption))
+    #runner.run(unittest.makeSuite(TestBucketCopyrightProtection))
+    #runner.run(unittest.makeSuite(TestBucketReplication))
+    #runner.run(unittest.makeSuite(TestBucketTrash))
+    #runner.run(unittest.makeSuite(TestFetchObject))
+    #runner.run(unittest.makeSuite(TestRestoreObject))
+    #runner.run(unittest.makeSuite(TestBucketStorageclass))
 
 run_test()
 cov.stop()
