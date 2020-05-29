@@ -35,7 +35,7 @@ from baidubce.http import http_headers
 
 import codecs
 
-DEFAULT_CNAME_LIKE_LIST = [".cdn.bcebos.com"]
+DEFAULT_CNAME_LIKE_LIST = [b".cdn.bcebos.com"]
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
