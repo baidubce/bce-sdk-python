@@ -13,8 +13,9 @@
 # and limitations under the License.
 
 """
-This module provide billing information.
+This module provide billing information and eip status condition.
 """
+from enum import Enum
 
 
 class Billing(object):
@@ -42,3 +43,12 @@ class Billing(object):
         self.billing_method = billing_method
         self.reservation_length = reservation_length
         self.reservation_time_unit = reservation_time_unit or 'Month'
+
+
+class EipStatus(Enum):
+    """
+    eip status enum query condition.
+    """
+    AVAILABLE = b'available'
+    BINDED = b'binded'
+    PAUSED = b'paused'
