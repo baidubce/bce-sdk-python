@@ -89,7 +89,7 @@ class KmsClient(BceBaseClient):
         params = {}
         params['action'] = b'CreateKey'
         body={}
-        if not description:
+        if description:
             body['description'] = description
         body['protectedBy'] = protectedBy
         body['keySpec'] = keySpec
@@ -270,8 +270,8 @@ class KmsClient(BceBaseClient):
                                   params=params, config=config)
 
     @required(keyId=(str, bytes))
-    def get_parameters_for_import(self, keyId, publicKeyEncoding, wrappingAlgorithm = "RSAES_PKCS1_V1_5",
-                                wrappingKeySpec = "RSA_2048", config=None):
+    def get_parameters_for_import(self, keyId, publicKeyEncoding, wrappingAlgorithm="RSAES_PKCS1_V1_5",
+                                wrappingKeySpec="RSA_2048", config=None):
         """
         get parameters for import
         :type keyId: string
@@ -355,7 +355,7 @@ class KmsClient(BceBaseClient):
         :param encryptedKeyEncryptionKey: EncryptionKey
 
         :type asymmetricKey: **args
-        :param asymmetricKey: include publicKeyDer、encryptedD、encryptedP、encryptedQ、encryptedDp、encryptedDq、encryptedQinv
+        :param asymmetricKey: include publicKeyDer encryptedD encryptedP encryptedQ encryptedDp encryptedDq encryptedQinv
         """
         path = b'/'
         params = {}
