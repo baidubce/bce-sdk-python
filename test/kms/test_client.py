@@ -25,7 +25,8 @@ import json
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Cipher import AES
-from Crypto.Util.asn1 import DerSequence
+from Crypto.Cipher import 
+from Crypto.Util.asn1 import DerSequence, DerObject
 from Crypto import Random
 
 import coverage
@@ -72,8 +73,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for create_masterKey
         """
-        self.client.create_masterKey("test", protectedby_class.HSM, 
-                                    keyspec_class.AES_256, origin_class.EXTERNAL)
+        print self.client.create_masterKey("test", protectedby_class.HSM, 
+                                    keyspec_class.AES_128, origin_class.BAIDU_KMS)
                                     
         
 
@@ -90,17 +91,19 @@ class TestBccClient(unittest.TestCase):
         """
         test case for encrypt
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
+        keyId = "511e79f6-26e9-b037-1514-98d5c2a28a63"
         #keyId = "224a8c57-9a9f-0469-796b-01d4c93f56ef"
-        plaintext = base64.b64encode("hellobaby")
-        print self.client.encrypt(keyId, plaintext)
+        plaintext = "testtest"
+        result =  self.client.encrypt(keyId, plaintext)
+        print self.client.decrypt(keyId, str(result.ciphertext))
+
 
     def test_decrypt(self):
         """
         test case for decrypt
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
-        ciphertext = "CAESJDAwMWY5ZWY0LTBhNGItMTMzMy1kYjQyLWU3OWRiZDgwZmQyNRogL1nho0D2tRyjwPUMGg41+S2ZqVyhbL2bRBahdlUvjqkgB7KY1mxI1ptluqM+2oRF908="
+        keyId = "511e79f6-26e9-b037-1514-98d5c2a28a63"
+        ciphertext = "CAESJDUxMWU3OWY2LTI2ZTktYjAzNy0xNTE0LTk4ZDVjMmEyOGE2MxogPIgjk/0r3ZIHFdikZbuoo6NBTgP8lkMp+V3eaXqQ22ggAP/2QYj73LZz/G2LKZhJM74="
         #keyId = "224a8c57-9a9f-0469-796b-01d4c93f56ef"
         #ciphertext = "CAESJDIyNGE4YzU3LTlhOWYtMDQ2OS03OTZiLTAxZDRjOTNmNTZlZhogN03xWdqNYrKWD6T8uMjWnRPqCAG9z/Cfy1ZE7JU9egkgB5GaIkhY2gKkX9qohiufp0o="
         print self.client.decrypt(keyId, ciphertext)
@@ -258,22 +261,12 @@ class TestBccClient(unittest.TestCase):
             q = u3 // v3
             v1, v2, v3, u1, u2, u3 = (u1 - q * v1), (u2 - q * v2), (u3 - q * v3), v1, v2, v3
         return u1 % m
-    
-    def longToBytes(self, value):
-        result = []
-        i = 0
-        while value >> (i * 8) > 0:
-            result.append(int(value >> (i * 8) & 0xff))
-            i += 1
-        result.reverse()
-        result_bytes=bytes(result)
-        return result_bytes
 
     def test_import_RSA_1024(self):
         """
         test case for import_RSA_1024
         """
-         # create external key
+        # create external key
         result = self.client.create_masterKey("test", protectedby_class.HSM, 
                                     keyspec_class.RSA_1024, origin_class.EXTERNAL)
         keyId = str(result.key_metadata.key_id)
@@ -288,13 +281,16 @@ class TestBccClient(unittest.TestCase):
 
         random_generator = Random.new().read
         rsa = RSA.generate(1024, random_generator)
-        pub_key = base64.b64encode(rsa.publickey().exportKey('DER'))
-        D = self.longToBytes(rsa.d)
-        P = self.longToBytes(rsa.p)
-        Q = self.longToBytes(rsa.q)
-        Dp = self.longToBytes(rsa.d % (rsa.p - 1))
-        Dq = self.longToBytes(rsa.d % (rsa.q - 1))
-        Qinv = self.longToBytes(self.findModReverse(rsa.q, rsa.p))
+        der = DerSequence()
+        der.append(rsa.n)
+        der.append(rsa.e)
+        pub_key = base64.b64encode(der.encode())
+        D = str(hex(rsa.d)[2:-1]).decode("hex")
+        P = str(hex(rsa.p)[2:-1]).decode("hex")
+        Q = str(hex(rsa.q)[2:-1]).decode("hex")
+        Dp = str(hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex")
+        Dq = str(hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex")
+        Qinv = str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex")
         encryptedKey  = '1122334455667788'
         aes_obj = AES.new(encryptedKey, AES.MODE_ECB, Random.new().read(AES.block_size))
         D_b64 = base64.b64encode(aes_obj.encrypt(D))
@@ -308,7 +304,7 @@ class TestBccClient(unittest.TestCase):
                                             publicKeyDer=pub_key, encryptedD=D_b64, encryptedP=P_b64,
                                             encryptedQ=Q_b64, encryptedDp=Dp_b64, encryptedDq=Dq_b64,
                                             encryptedQinv=Qinv_b64)
-        ##
+        
         
         #print self.client.import_asymmetricMasterKey()
 
@@ -316,25 +312,92 @@ class TestBccClient(unittest.TestCase):
         """
         test case for test_RSA_2048
         """
-        print self.client.import_asymmetricMasterKey()
+        # create external key
+        result = self.client.create_masterKey("test", protectedby_class.HSM, 
+                                    keyspec_class.RSA_2048, origin_class.EXTERNAL)
+        keyId = str(result.key_metadata.key_id)
+        
+        # get import parameter
+        publicKeyEncoding = publickeyencoding_class.PEM
+        result = self.client.get_parameters_for_import(keyId, publicKeyEncoding)
+        pubKey = str(result.public_key)
+        importToken = str(result.import_token)
+        rsa_pubKey = RSA.importKey(pubKey)
+        cipher = PKCS1_v1_5.new(rsa_pubKey)
+
+        random_generator = Random.new().read
+        rsa = RSA.generate(2048, random_generator)
+        der = DerSequence()
+        der.append(rsa.n)
+        der.append(rsa.e)
+        pub_key = base64.b64encode(der.encode())
+        D = str(hex(rsa.d)[2:-1]).decode("hex")
+        P = str(hex(rsa.p)[2:-1]).decode("hex")
+        Q = str(hex(rsa.q)[2:-1]).decode("hex")
+        Dp = str(hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex")
+        Dq = str(hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex")
+        Qinv = str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex")
+        encryptedKey  = '1122334455667788'
+        aes_obj = AES.new(encryptedKey, AES.MODE_ECB, Random.new().read(AES.block_size))
+        D_b64 = base64.b64encode(aes_obj.encrypt(D))
+        P_b64 = base64.b64encode(aes_obj.encrypt(P))
+        Q_b64 = base64.b64encode(aes_obj.encrypt(Q))
+        Dp_b64 = base64.b64encode(aes_obj.encrypt(Dp))
+        Dq_b64 = base64.b64encode(aes_obj.encrypt(Dq))
+        Qinv_b64 = base64.b64encode(aes_obj.encrypt(Qinv))
+        encryptedKeyEncryptionKey = base64.b64encode(cipher.encrypt(encryptedKey))
+        self.client.import_asymmetricMasterKey(keyId, importToken, keyspec_class.RSA_2048, encryptedKeyEncryptionKey,
+                                            publicKeyDer=pub_key, encryptedD=D_b64, encryptedP=P_b64,
+                                            encryptedQ=Q_b64, encryptedDp=Dp_b64, encryptedDq=Dq_b64,
+                                            encryptedQinv=Qinv_b64)
+        
 
     def test_import_RSA_4096(self):
         """
         test case for test_RSA_4096
         """
-        print self.client.import_asymmetricMasterKey()
+        result = self.client.create_masterKey("test", protectedby_class.HSM, 
+                                    keyspec_class.RSA_4096, origin_class.EXTERNAL)
+        keyId = str(result.key_metadata.key_id)
+        
+        # get import parameter
+        publicKeyEncoding = publickeyencoding_class.PEM
+        result = self.client.get_parameters_for_import(keyId, publicKeyEncoding)
+        pubKey = str(result.public_key)
+        importToken = str(result.import_token)
+        rsa_pubKey = RSA.importKey(pubKey)
+        cipher = PKCS1_v1_5.new(rsa_pubKey)
 
-    def test_import_SM2_256(self):
-        """
-        test case for test_RSA_4096
-        """
-        print self.client.import_asymmetricMasterKey()
-    
+        random_generator = Random.new().read
+        rsa = RSA.generate(4096, random_generator)
+        der = DerSequence()
+        der.append(rsa.n)
+        der.append(rsa.e)
+        pub_key = base64.b64encode(der.encode())
+        D = str(hex(rsa.d)[2:-1]).decode("hex")
+        P = str(hex(rsa.p)[2:-1]).decode("hex")
+        Q = str(hex(rsa.q)[2:-1]).decode("hex")
+        Dp = str(hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex")
+        Dq = str(hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex")
+        Qinv = str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex")
+        encryptedKey  = '1122334455667788'
+        aes_obj = AES.new(encryptedKey, AES.MODE_ECB, Random.new().read(AES.block_size))
+        D_b64 = base64.b64encode(aes_obj.encrypt(D))
+        P_b64 = base64.b64encode(aes_obj.encrypt(P))
+        Q_b64 = base64.b64encode(aes_obj.encrypt(Q))
+        Dp_b64 = base64.b64encode(aes_obj.encrypt(Dp))
+        Dq_b64 = base64.b64encode(aes_obj.encrypt(Dq))
+        Qinv_b64 = base64.b64encode(aes_obj.encrypt(Qinv))
+        encryptedKeyEncryptionKey = base64.b64encode(cipher.encrypt(encryptedKey))
+        self.client.import_asymmetricMasterKey(keyId, importToken, keyspec_class.RSA_4096, encryptedKeyEncryptionKey,
+                                            publicKeyDer=pub_key, encryptedD=D_b64, encryptedP=P_b64,
+                                            encryptedQ=Q_b64, encryptedDp=Dp_b64, encryptedDq=Dq_b64,
+                                            encryptedQinv=Qinv_b64)
 
 def run_test():
     """start run test"""
     suite = unittest.TestSuite()
-    suite.addTest(TestBccClient("test_import_RSA_1024"))
+    suite.addTest(TestBccClient("test_import_RSA_4096"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
  
