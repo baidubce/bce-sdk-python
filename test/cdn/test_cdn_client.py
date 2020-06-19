@@ -111,6 +111,31 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
+    def test_create_domain_with_port(self):
+        """
+        create_domain with origin port config
+        """
+        self.cdn_client.delete_domain('test-sdk.sys-qa.com')
+
+        error = None
+        try:
+            origin = [
+                {'peer': 'http://1.2.3.2'}, # no port
+                {'peer': 'http://1.2.3.5:80'}, # set origin with http port
+                {'peer': 'https://1.2.3.7:443'}, # set origin with https port
+                {'peer': '1.2.3.1:8080'} # set origin with http port
+             ]
+
+            other_config = {
+                "defaultHost":"1.2.3.4"
+            }
+            response = self.cdn_client.create_domain('test-sdk.sys-qa.com', origin, other_config)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
     def test_create_domain_other(self):
         """
         create_domain with other config
@@ -141,6 +166,38 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.list_domains()
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_multi_configs(self):
+        """
+        test_set_domain_multi_configs
+        """
+        error = None
+        multi_configs = {
+            "origin": [
+                {'peer': '1.2.3.4:80', 'host': 'www.originhost.com'},
+                {'peer': '1.2.3.5', 'host': 'www.originhost.com'},
+            ],
+            "cacheFullUrl": {
+                "cacheFullUrl": False,
+                "cacheUrlArgs": [
+                    "a",
+                    "b"
+                ]
+            },
+            "ipACL": {
+                "blackList": [
+                    "1.1.1.2",
+                    "1.1.1.3"
+                ]
+            }
+        }
+        try:
+            response = self.cdn_client.set_domain_multi_configs('test-sdk.sys-qa.com', multi_configs)
             print(response)
         except BceServerError as e:
             error = e
@@ -193,10 +250,30 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             origin = [
-                        {'peer': '1.2.3.4', 'host': 'www.origin_host.com'},
-                        {'peer': '1.2.3.5', 'host': 'www.origin_host.com'}
+                        {'peer': '1.2.3.4', 'host': 'www.originhost.com'},
+                        {'peer': '1.2.3.5', 'host': 'www.originhost.com'}
                      ]
             response = self.cdn_client.set_domain_origin('www.example.com', origin)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_origin_with_port(self):
+        """
+        test_set_domain_origin_with_port
+        """
+        error = None
+        try:
+            origin = [
+                {'peer': '1.2.3.4', 'host': 'www.originhost.com'},
+                {'peer': '1.2.3.5', 'host': 'www.originhost.com'},
+                {'peer': 'http://1.2.3.8:80', 'host': 'www.originhost.com'}, # set origin with http port
+                {'peer': 'https://1.2.3.7:443', 'host': 'www.originhost.com'}, # set origin with https port
+                {'peer': '1.2.3.9:8080', 'host': 'www.originhost.com'} # set origin with http port
+             ]
+            response = self.cdn_client.set_domain_origin('test-sdk.sys-qa.com', origin)
             print(response)
         except BceServerError as e:
             error = e
