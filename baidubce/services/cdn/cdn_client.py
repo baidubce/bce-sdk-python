@@ -725,6 +725,26 @@ class CdnClient(bce_base_client.BceBaseClient):
             '/domain/' + domain + '/config',
             config=config)
 
+    def set_domain_multi_configs(self, domain, multi_configs, config=None):
+        """
+        update multiConfigs of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param multi_configs: the domain config list
+        :type multi_configs: list<config>
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'multiConfigs': ''},
+            body=json.dumps({'multiConfigs': multi_configs}),
+            config=config)
+
     def set_domain_origin(self, domain, origin, config=None):
         """
         update origin address of the domain
