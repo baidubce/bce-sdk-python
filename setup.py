@@ -59,7 +59,8 @@ setup(
               'baidubce.services.bcc',
               'baidubce.services.bbc',
               'baidubce.services.tsdb',
-              'baidubce.services.kms'
+              'baidubce.services.kms',
+              'baidubce.services.cert'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',

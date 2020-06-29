@@ -11,7 +11,7 @@
 # and limitations under the License.
 
 """
-Unit tests for bcc client.
+Unit tests for kms client.
 """
 import os
 import random
@@ -25,7 +25,6 @@ import json
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Cipher import AES
-from Crypto.Cipher import 
 from Crypto.Util.asn1 import DerSequence, DerObject
 from Crypto import Random
 
@@ -51,17 +50,17 @@ cov.start()
 
 if compat.PY2:
     sys.setdefaultencoding('utf8')
-# sys.setdefaultencoding('utf-8')
+
 '''
-HOST = b'http://10.133.65.15:8101'
+HOST = b''
 AK = b''
 SK = b''
 '''
-HOST = b'http://kms.gz.qasandbox.baidu-int.com'
-AK = b'b0c32bcfa987440eab823563c110dd8f'
-SK = b'4c69d593d39e4ba5b8b3ddf11480821d'
+HOST = b'<KMS HOST>'
+AK = b'<your AK>'
+SK = b'<your SK>'
 
-class TestBccClient(unittest.TestCase):
+class TestKmsClient(unittest.TestCase):
     """
     Test class for bcc sdk client
     """
@@ -73,9 +72,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for create_masterKey
         """
-        print self.client.create_masterKey("test", protectedby_class.HSM, 
-                                    keyspec_class.AES_128, origin_class.BAIDU_KMS)
-                                    
+        result = self.client.create_masterKey("test", protectedby_class.HSM, 
+                                    keyspec_class.RSA_4096, origin_class.BAIDU_KMS)
         
 
     def test_list_masterKey(self):
@@ -91,8 +89,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for encrypt
         """
-        keyId = "511e79f6-26e9-b037-1514-98d5c2a28a63"
-        #keyId = "224a8c57-9a9f-0469-796b-01d4c93f56ef"
+        keyId = "<your Key Id>"
         plaintext = "testtest"
         result =  self.client.encrypt(keyId, plaintext)
         print self.client.decrypt(keyId, str(result.ciphertext))
@@ -102,52 +99,50 @@ class TestBccClient(unittest.TestCase):
         """
         test case for decrypt
         """
-        keyId = "511e79f6-26e9-b037-1514-98d5c2a28a63"
+        keyId = "<your Key Id>"
         ciphertext = "CAESJDUxMWU3OWY2LTI2ZTktYjAzNy0xNTE0LTk4ZDVjMmEyOGE2MxogPIgjk/0r3ZIHFdikZbuoo6NBTgP8lkMp+V3eaXqQ22ggAP/2QYj73LZz/G2LKZhJM74="
-        #keyId = "224a8c57-9a9f-0469-796b-01d4c93f56ef"
-        #ciphertext = "CAESJDIyNGE4YzU3LTlhOWYtMDQ2OS03OTZiLTAxZDRjOTNmNTZlZhogN03xWdqNYrKWD6T8uMjWnRPqCAG9z/Cfy1ZE7JU9egkgB5GaIkhY2gKkX9qohiufp0o="
         print self.client.decrypt(keyId, ciphertext)
 
     def test_generate_dataKey(self):
         """
         test case for generate_datakey
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
+        keyId = "<your Key Id>"
         print self.client.generate_dataKey(keyId, keyspec_class.AES_128, 128)
 
     def test_enable_masterKey(self):
         """
         test case for enable_masterKey
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
-        print elf.client.enable_masterKey(keyId)
+        keyId = "<your Key Id>"
+        print self.client.enable_masterKey(keyId)
     
     def test_disable_masterKey(self):
         """
         test case for disable_masterKey
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
+        keyId = "<your Key Id>"
         print self.client.disable_masterKey(keyId)
     
     def test_scheduleDelete_masterKey(self):
         """
         test case for scheduleDelete_masterKey
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
+        keyId = "<your Key Id>"
         print self.client.scheduleDelete_masterKey(keyId, 7)
 
     def test_cancelDelete_maaterKey(self):
         """
         test case for cancelDelete_maaterKey
         """
-        keyId = "001f9ef4-0a4b-1333-db42-e79dbd80fd25"
+        keyId = "<your Key Id>"
         print self.client.cancelDelete_maaterKey(keyId)
 
     def test_describe_masterKey(self):
         """
         test case for describe_masterKey
         """
-        keyId = '001f9ef4-0a4b-1333-db42-e79dbd80fd25'
+        keyId = '<your Key Id>'
         result = self.client.describe_masterKey(keyId)
         print result.key_metadata.protected_by
 
@@ -155,7 +150,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for get_parameters_for_import
         """
-        keyId = "16f97e43-3bdc-c97d-903f-4d7f2bc5828e"
+        keyId = "<your Key Id>"
         publicKeyEncoding = publickeyencoding_class.PEM
         print self.client.get_parameters_for_import(keyId, publicKeyEncoding)
 
@@ -374,14 +369,14 @@ class TestBccClient(unittest.TestCase):
         der.append(rsa.n)
         der.append(rsa.e)
         pub_key = base64.b64encode(der.encode())
-        D = str(hex(rsa.d)[2:-1]).decode("hex")
-        P = str(hex(rsa.p)[2:-1]).decode("hex")
-        Q = str(hex(rsa.q)[2:-1]).decode("hex")
-        Dp = str(hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex")
-        Dq = str(hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex")
-        Qinv = str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex")
+        D = str(hex(rsa.d)[2:-1]).decode("hex") if len(str(hex(rsa.d)[2:-1]))%2==0 else str("0"+hex(rsa.d)[2:-1]).decode("hex")
+        P = str(hex(rsa.p)[2:-1]).decode("hex") if len(str(hex(rsa.p)[2:-1]))%2==0 else str("0"+hex(rsa.p)[2:-1]).decode("hex")
+        Q = str(hex(rsa.q)[2:-1]).decode("hex") if len(str(hex(rsa.q)[2:-1]))%2==0 else str("0"+hex(rsa.q)[2:-1]).decode("hex")
+        Dp = str(hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex") if len(str(hex(rsa.d % (rsa.p - 1))[2:-1]))%2==0 else str("0"+hex(rsa.d % (rsa.p - 1))[2:-1]).decode("hex")
+        Dq = str(hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex") if len(str(hex(rsa.d % (rsa.q - 1))[2:-1]))%2==0 else str("0"+hex(rsa.d % (rsa.q - 1))[2:-1]).decode("hex")
+        Qinv = str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex") if len(str(hex(self.findModReverse(rsa.q, rsa.p))[2:-1]))%2==0 else str("0"+hex(self.findModReverse(rsa.q, rsa.p))[2:-1]).decode("hex")
         encryptedKey  = '1122334455667788'
-        aes_obj = AES.new(encryptedKey, AES.MODE_ECB, Random.new().read(AES.block_size))
+        aes_obj = AES.new(encryptedKey, AES.MODE_ECB)
         D_b64 = base64.b64encode(aes_obj.encrypt(D))
         P_b64 = base64.b64encode(aes_obj.encrypt(P))
         Q_b64 = base64.b64encode(aes_obj.encrypt(Q))
@@ -397,7 +392,7 @@ class TestBccClient(unittest.TestCase):
 def run_test():
     """start run test"""
     suite = unittest.TestSuite()
-    suite.addTest(TestBccClient("test_import_RSA_4096"))
+    suite.addTest(TestKmsClient("test_import_AES_256"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
  
