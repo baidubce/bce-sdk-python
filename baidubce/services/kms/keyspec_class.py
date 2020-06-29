@@ -14,7 +14,7 @@
 The type of KeySpec
 """
 
-BAIDU_ASE_256 = b'BAIDU_AES_256'
+BAIDU_AES_256 = b'BAIDU_AES_256'
 AES_128 = b'AES_128'
 AES_256 = b'AES_256'
 RSA_1024 = b'RSA_1024'

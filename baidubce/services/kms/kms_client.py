@@ -27,10 +27,6 @@ from baidubce.auth import bce_v1_signer
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
-import keyspec_class
-import origin_class
-import protectedby_class
-import publickeyencoding_class
 import base64
 
 _logger = logging.getLogger(__name__)
@@ -289,10 +285,10 @@ class KmsClient(BceBaseClient):
         body={}
         body['keyId'] = keyId
         if wrappingAlgorithm != "RSAES_PKCS1_V1_5":
-            raise ValueType("only support RSAES_PKCS1_V1_5")
+            raise TypeError("only support RSAES_PKCS1_V1_5")
         body['wrappingAlgorithm'] = wrappingAlgorithm
         if wrappingKeySpec != "RSA_2048":
-            raise ValueType("only support RSA_2048")
+            raise TypeError("only support RSA_2048")
         body['wrappingKeySpec'] = wrappingKeySpec
         if publicKeyEncoding != "RAW_HEX" and publicKeyEncoding != "BASE64" and publicKeyEncoding != "PEM":
             raise ValueError("only support RAW_HEX or BASE64 or PEM")
