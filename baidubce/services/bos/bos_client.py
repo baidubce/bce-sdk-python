@@ -547,7 +547,8 @@ class BosClient(BceBaseClient):
                                 params=None,
                                 headers_to_sign=None,
                                 protocol=None,
-                                config=None):
+                                config=None,
+                                httpmethod=http_methods.GET):
         """
         Get an authorization url with expire time
 
@@ -578,10 +579,11 @@ class BosClient(BceBaseClient):
         headers[http_headers.HOST] = full_host
 
         path = self._get_path(config, bucket_name, key)
-
+        if httpmethod != http_methods.GET and httpmethod != http_methods.HEAD:
+            headers_to_sign = set([b'host'])
         params[http_headers.AUTHORIZATION.lower()] = bce_v1_signer.sign(
             config.credentials,
-            http_methods.GET,
+            httpmethod,
             path,
             headers,
             params,
