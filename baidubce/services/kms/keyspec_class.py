@@ -1,6 +1,6 @@
-# Copyright 2020 Baidu, Inc.
+# Copyright 2014 Baidu, Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+# Licensed under the Apache License, Version 2.0 (the "License") you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
 #
 # http://www.apache.org/licenses/LICENSE-2.0
@@ -11,6 +11,12 @@
 # and limitations under the License.
 
 """
-This module provide init for MVS
+The type of KeySpec
 """
 
+BAIDU_AES_256 = b'BAIDU_AES_256'
+AES_128 = b'AES_128'
+AES_256 = b'AES_256'
+RSA_1024 = b'RSA_1024'
+RSA_2048 = b'RSA_2048'
+RSA_4096 = b'RSA_4096'

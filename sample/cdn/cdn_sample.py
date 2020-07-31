@@ -47,7 +47,10 @@ def test_create_domain(c):
     test_create_domain
     """
     origin = [
-                {'peer': '1.2.3.5'}
+                {'peer': 'http://1.2.3.2'}, # no port
+                {'peer': 'http://1.2.3.5:80'}, # set origin with http port
+                {'peer': 'https://1.2.3.7:443'}, # set origin with https port
+                {'peer': '1.2.3.1:8080'} # set origin with http port
              ]
 
     other_config = {
@@ -91,13 +94,46 @@ def test_get_domain_config(c):
     print(response)
 
 
+def test_set_domain_multi_configs(c):
+    """
+    test_set_domain_multi_configs
+    support this cnfigs: cacheTTL cacheFullUrl ipACL refererACL https requestAuth 
+        followProtocol rangeSwitch cors dsa seoSwitch mediaDragConf origin httpHeader 
+        clientIp errorPage fileTrim mobileAccess accessLimit compress trafficLimit
+    """
+    multi_configs = {
+            "origin": [
+                {'peer': '1.2.3.4:80', 'host': 'www.originhost.com'},
+                {'peer': '1.2.3.5', 'host': 'www.originhost.com'},
+            ],
+            "cacheFullUrl": {
+                "cacheFullUrl": False,
+                "cacheUrlArgs": [
+                    "a",
+                    "b"
+                ]
+            },
+            "ipACL": {
+                "blackList": [
+                    "1.1.1.2",
+                    "1.1.1.3"
+                ]
+            }
+        }
+    response = c.set_domain_multi_configs('test-sdk.sys-qa.com', multi_configs)
+    print(response)
+
+
 def test_set_domain_origin(c):
     """
     test_set_domain_origin
     """
     origin = [
-                {'peer': '1.2.3.4', 'host': 'www.origin_host.com'},
-                {'peer': '1.2.3.5', 'host': 'www.origin_host.com'}
+                {'peer': '1.2.3.4', 'host': 'www.originhost.com'},
+                {'peer': '1.2.3.5', 'host': 'www.originhost.com'},
+                {'peer': 'http://1.2.3.8:80', 'host': 'www.originhost.com'}, # set origin with http port
+                {'peer': 'https://1.2.3.7:443', 'host': 'www.originhost.com'}, # set origin with https port
+                {'peer': '1.2.3.9:8080', 'host': 'www.originhost.com'} # set origin with http port
              ]
     response = c.set_domain_origin('www.example.com', origin)
     print(response)
@@ -986,6 +1022,7 @@ if __name__ == "__main__":
     # test_set_domain_dsa(c)
     # test_get_dsa_domains(c)
     # test_get_log_list(c)
+    # test_set_domain_multi_configs(c)
 
     # test_delete_domain(c)
     # test_enable_domain(c)

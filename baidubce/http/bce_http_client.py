@@ -103,7 +103,7 @@ def send_request(
         config,
         sign_function,
         response_handler_functions,
-        http_method, path, body, headers, params):
+        http_method, path, body, headers, params, use_backup_endpoint=False):
     """
     Send request to BCE services.
 
@@ -134,7 +134,12 @@ def send_request(
     should_get_new_date = False
     if http_headers.BCE_DATE not in headers:
         should_get_new_date = True
-    headers[http_headers.HOST] = config.endpoint
+
+    request_endpoint = config.endpoint
+    if use_backup_endpoint:
+        request_endpoint = config.backup_endpoint
+
+    headers[http_headers.HOST] = request_endpoint
 
     if isinstance(body, str):
         body = body.encode(baidubce.DEFAULT_ENCODING)
@@ -144,17 +149,17 @@ def send_request(
         headers[http_headers.CONTENT_LENGTH] = len(body)
     elif http_headers.CONTENT_LENGTH not in headers:
         raise ValueError(b'No %s is specified.' % http_headers.CONTENT_LENGTH)
-
     # store the offset of fp body
     offset = None
     if hasattr(body, "tell") and hasattr(body, "seek"):
         offset = body.tell()
 
-    protocol, host, port = utils.parse_host_port(config.endpoint, config.protocol)
+    protocol, host, port = utils.parse_host_port(request_endpoint, config.protocol)
 
     headers[http_headers.HOST] = host
     if port != config.protocol.default_port:
         headers[http_headers.HOST] += b':' + compat.convert_to_bytes(port)
+
     headers[http_headers.AUTHORIZATION] = sign_function(
         config.credentials, http_method, path, headers, params)
 

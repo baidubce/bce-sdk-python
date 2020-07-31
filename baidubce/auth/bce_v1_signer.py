@@ -45,7 +45,6 @@ def _get_canonical_headers(headers, headers_to_sign=None):
             str_tmp = b"%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
             result.append(str_tmp)
     result.sort()
-
     return (b'\n').join(result)
 
 
@@ -74,7 +73,6 @@ def sign(credentials, http_method, path, headers, params,
     canonical_querystring = utils.get_canonical_querystring(params, True)
 
     canonical_headers = _get_canonical_headers(headers, headers_to_sign)
-
     string_to_sign = (b'\n').join([
         http_method, canonical_uri, 
         canonical_querystring, canonical_headers

@@ -9,6 +9,9 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
+"""
+This module provides models for CFC-SDK.
+"""
 
 import json
 
@@ -29,6 +32,12 @@ class AbstractTriggerDataModel(object):
     """Base class for all trigger data."""
 
     def serialize(self):
+        """
+        serialize
+
+        :return
+        :rtype dict
+        """
         d = vars(self)
         ret = {}
         for k in d:
@@ -37,6 +46,12 @@ class AbstractTriggerDataModel(object):
         return ret
 
     def get_trigger_source(self):
+        """
+        trigger source
+
+        :return
+        :rtype string
+        """
         return ''
 
     def __repr__(self):
@@ -72,6 +87,14 @@ class CrontabTriggerData(AbstractTriggerDataModel):
             self.Enabled = 'Disabled'
 
     def set_status(self, enabled=False):
+        """
+        set crontab status
+
+        :param enabled.
+        :type enabled bool. Enables the trigger.
+        :return
+        :rtype string
+        """
         if enabled:
             self.Enabled = 'Enabled'
         else:
@@ -125,6 +148,14 @@ class CdnTriggerData(AbstractTriggerDataModel):
             self.Status = 'disabled'
 
     def set_status(self, enabled=False):
+        """
+        set cdn trigger status
+
+        :param enabled.
+        :type enabled bool. Enables the trigger.
+        :return
+        :rtype string
+        """
         if enabled:
             self.Status = 'enabled'
         else:
@@ -159,6 +190,14 @@ class BOSTriggerData(AbstractTriggerDataModel):
             self.Status = 'disabled'
 
     def set_status(self, enabled=False):
+        """
+        set bos trigger status
+
+        :param enabled.
+        :type enabled bool. Enables the trigger.
+        :return
+        :rtype string
+        """
         if enabled:
             self.Status = 'enabled'
         else:
