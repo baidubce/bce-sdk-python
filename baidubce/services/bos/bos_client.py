@@ -479,6 +479,76 @@ class BosClient(BceBaseClient):
                            params={b'replicationProgress': b''},
                            config=config)
 
+    @required(bucket_name=(bytes, str), inventory=(dict))
+    def put_bucket_inventory(self, bucket_name, inventory, config=None):
+        """
+        set bucket inventoru
+
+        :type bucket: string
+        :param bucket: None
+
+        :type inventory: dict
+        :param inventory: configuration for bucket inventory
+
+        :return:
+            **HttpResponse Class**
+        """
+        conf_id = compat.convert_to_bytes(inventory["id"])
+        return self._send_request(http_methods.PUT,
+                           bucket_name,
+                           body=json.dumps(inventory,
+                                           default=BosClient._dump_acl_object),
+                           headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+                           params={b'inventory': b'', b'id': conf_id},
+                           config=config)
+
+    @required(bucket_name=(bytes, str), inventory_conf_id=(bytes, str))
+    def get_bucket_inventory(self, bucket_name, inventory_conf_id, config=None):
+        """
+        Get configuration of bucket inventory
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'inventory': b'', b'id': compat.convert_to_bytes(inventory_conf_id)},
+                           config=config)
+
+    @required(bucket_name=(bytes, str), inventory_conf_id=(bytes, str))
+    def delete_bucket_inventory(self, bucket_name, inventory_conf_id, config=None):
+        """
+        Delete configuration of bucket inventory
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.DELETE,
+                           bucket_name,
+                           params={b'inventory': b'', b'id': compat.convert_to_bytes(inventory_conf_id)},
+                           config=config)
+
+    @required(bucket_name=(bytes, str))
+    def list_bucket_inventory(self, bucket_name, config=None):
+        """
+        list configuration of bucket inventory
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:
+            **HttpResponse Class**
+        """
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params={b'inventory': b''},
+                           config=config)
 
     @required(bucket_name=(bytes, str))
     def put_bucket_trash(self, bucket_name, trash_dir=None, config=None):
