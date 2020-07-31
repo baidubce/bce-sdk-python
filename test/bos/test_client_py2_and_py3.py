@@ -864,7 +864,7 @@ class TestBucketReplication(TestClient):
                 "storageClass":"COLD"
             },
         "replicateDeletes":"enabled",
-        "id":"sample-bucket-replication-config"
+        "id":"sample-rep-config"
         }
         # test put bucket replication
         err = None
@@ -2775,6 +2775,84 @@ class TestBucketStorageclass(TestClient):
         self.assertEqual(response.storage_class, "COLD")
         self.bos.set_bucket_storage_class(self.BUCKET, storage_class=storage_class.STANDARD)
 
+# test restore object
+class TestSymlink(TestClient):
+    """test put/get symlink function"""
+    def test_put_symlink(self):
+        """test symlink api normally"""
+        self.get_file(5)
+        self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
+        # put object and put symlink
+        symlink_key = b"mysymlink01"
+        symlink_key2 = b"mysymlink02"
+        err = None
+        user_metadata = {"name":"my-data"}
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key,
+                storage_class=storage_class.COLD, user_metadata=user_metadata)
+            response = self.bos.get_object_symlink(self.BUCKET, symlink_key)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertIsNotNone(response.metadata.bce_symlink_target)
+        self.assertEqual(compat.convert_to_string(self.KEY), response.metadata.bce_symlink_target)
+        self.assertEqual(compat.convert_to_string(user_metadata['name']), response.metadata.bce_meta_name)
+
+        self.bos.delete_object(self.BUCKET, symlink_key)
+        #self.assertTrue(response.metadata.bce_restore.find("expiry-date") > 0)
+        # put symlink as ARCHIVE storage class, fail
+        err = None
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key,
+                storage_class=storage_class.ARCHIVE)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+        # put symlink while forbid_overwrite=true
+        err = None
+        self.bos.put_object_from_file(self.BUCKET, symlink_key, self.FILENAME)
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key, forbid_overwrite=True)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+        # clear
+        res = self.bos.delete_object(self.BUCKET, self.KEY)
+    
+    def test_get_symlink(self):
+        """ test get symlink """
+        # put object and put symlink
+        symlink_key = b"mysymlink01"
+        symlink_key2 = b"mysymlink02"
+        err = None
+        try:
+            response = self.bos.put_object_from_string(self.BUCKET,
+                                                       self.KEY,
+                                                       "This is a string.")
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key)
+
+        # get meta of symlink
+        response = self.bos.get_object_meta_data(self.BUCKET, symlink_key)
+        self.assertEqual(compat.convert_to_string('Symlink'), response.metadata.bce_object_type)
+        # get object
+        err = None
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, symlink_key)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response, b"This is a string.")
+        
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2820,6 +2898,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketTrash))
     runner.run(unittest.makeSuite(TestFetchObject))
     runner.run(unittest.makeSuite(TestRestoreObject))
+    runner.run(unittest.makeSuite(TestSymlink))
     runner.run(unittest.makeSuite(TestBucketStorageclass))
 
 run_test()
