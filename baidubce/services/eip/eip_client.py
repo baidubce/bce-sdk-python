@@ -29,6 +29,7 @@ from baidubce.bce_base_client import BceBaseClient
 from baidubce.http import bce_http_client
 from baidubce.http import handler
 from baidubce.http import http_methods
+from baidubce.services.eip.model import EipStatus
 
 _logger = logging.getLogger(__name__)
 
@@ -77,8 +78,8 @@ class EipClient(BceBaseClient):
         }
         if billing is None:
             body['billing'] = {
-               'paymentTiming': 'Postpaid',
-               'billingMethod': 'ByBandwidth'
+                'paymentTiming': 'Postpaid',
+                'billingMethod': 'ByBandwidth'
             }
         else:
             body['billing'] = {
@@ -272,8 +273,8 @@ class EipClient(BceBaseClient):
         return self._send_request(http_methods.DELETE, path, params=params,
                                   config=config)
 
-    def list_eips(self, eip=None, instance_type=None, instance_id=None,
-                  marker=None, max_keys=1000, config=None):
+    def list_eips(self, eip=None, instance_type=None, instance_id=None, status=None, marker=None, max_keys=1000,
+                  config=None):
         """
         get a list of eip owned by the authenticated user and specified
         conditions. we can Also get a single eip function  through this
@@ -289,6 +290,10 @@ class EipClient(BceBaseClient):
         :param instance_id: bound instance id condition
         if query by the instanceId or instanceType condition, must provides
          both of them at the same time
+
+        :type status: string
+        :param status of eip condition
+        if query by the status condition, must provides
 
         :type marker: string
         :param marker: The optional parameter marker specified in the original
@@ -343,6 +348,8 @@ class EipClient(BceBaseClient):
             params[b'instanceType'] = instance_type
         if instance_id is not None:
             params[b'instanceId'] = instance_id
+        if status is not None and isinstance(status, EipStatus):
+            params[b'status'] = status.value
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:

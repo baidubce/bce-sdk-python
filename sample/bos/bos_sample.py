@@ -15,9 +15,11 @@ Samples for bos client.
 import os
 import random
 import string
+import base64
 
 import bos_sample_conf
 from baidubce import exception
+from baidubce import compat
 from baidubce.services.bos import canned_acl
 from baidubce.services.bos import storage_class
 from baidubce.services.bos.bos_client import BosClient
@@ -327,3 +329,100 @@ if __name__ == "__main__":
         if isinstance(e, exception.BceHttpClientError):
              # get last error of retry
             error = e.last_error
+    ######################################################################################################
+    #            select object samples with csv
+    ######################################################################################################
+    csv_content = """
+        1,Maurits,2017-09-1216:32:57,685856330,-540265154.48,true
+        2,Iago,2018-02-01 12:25:01,-642946677,3781354659.89,false
+        3,Dionisio,2018-02-16 09:52:24,-3823711977,79336720.77,false
+        4,Aleen,2018-05-17 11:48:45,-3289131518,1499686289.41,false
+        5,Herschel,2019-06-04 02:28:37,3456163349,-3810272511.88,true
+        """
+    bos_client.put_object_from_string(bucket_name, key, csv_content)
+    select_object_args = {
+        "expressionType": "SQL",
+        "inputSerialization": {
+            "compressionType": "NONE",
+            "csv": {
+                "fileHeaderInfo": "NONE",
+                "recordDelimiter": "Cg==",
+                "fieldDelimiter": "LA==",
+                "quoteCharacter": "Ig==",
+                "commentCharacter": "Iw=="
+            }
+        },
+        "outputSerialization": {
+            "outputHeader": False,
+            "csv": {
+                "quoteFields": "ALWAYS",
+                "recordDelimiter": "Cg==",
+                "fieldDelimiter": "LA==",
+                "quoteCharacter": "Ig=="
+            }
+        },
+        "requestProgress": {
+            "enabled": True
+        }
+    }
+    sql_exp = "SELECT _1, _2, _6 FROM BosObject"
+    select_object_args["expression"] = \
+        compat.convert_to_string(base64.standard_b64encode(compat.convert_to_bytes(sql_exp)))
+    select_response = bos_client.select_object(bucket_name, key, select_object_args)
+    result = select_response.result()
+    for msg in result:
+        if msg.headers["message-type"] == "Records":
+            print("type: {}, heades: {}, payload: {}, crc: {}".format(msg.type, msg.headers, msg.payload, msg.crc))
+        elif msg.headers["message-type"] == "Cont":
+            print("type: {}, heades: {}, bytes_scanned: {}, bytes_returned: {},  crc: {}".format(msg.type, msg.headers,
+                msg.bytes_scanned, msg.bytes_returned, msg.crc))
+        else:
+            print("type: {}, heades: {}, crc: {}".format(msg.type, msg.headers, msg.crc))
+
+    ######################################################################################################
+    #            select object samples with json
+    ######################################################################################################
+    json_content = """
+    {
+    "name": "Smith",
+    "age": 16,
+    "weight": 65.5,
+    "org": null,
+    "projects":
+        [
+         {"project_name":"project1", "completed":false},
+         {"project_name":"project2", "completed":true}
+        ]
+    }
+    """
+    bos_client.put_object_from_string(bucket_name, key, json_content)
+    select_object_args = {
+        "expressionType": "SQL",
+        "inputSerialization": {
+            "compressionType": "NONE",
+            "json": {
+                "type": "DOCUMENT"
+            }
+        },
+        "outputSerialization": {
+            "json": {
+                "recordDelimiter": "Cg=="
+            }
+        },
+        "requestProgress": {
+            "enabled": True
+        }
+    }
+    sql_exp = "select projects from BosObject where name='Smith'"
+    select_object_args["expression"] = \
+        compat.convert_to_string(base64.standard_b64encode(compat.convert_to_bytes(sql_exp)))
+    select_response = bos_client.select_object(bucket_name, key, select_object_args)
+    result = select_response.result()
+    for msg in result:
+        if msg.headers["message-type"] == "Records":
+            print("type: {}, heades: {}, payload: {}, crc: {}".format(msg.type, msg.headers, msg.payload, msg.crc))
+        elif msg.headers["message-type"] == "Cont":
+            print("type: {}, heades: {}, bytes_scanned: {}, bytes_returned: {},  crc: {}".format(msg.type, msg.headers,
+                msg.bytes_scanned, msg.bytes_returned, msg.crc))
+        else:
+            print("type: {}, heades: {}, crc: {}".format(msg.type, msg.headers, msg.crc))
