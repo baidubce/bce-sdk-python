@@ -131,6 +131,21 @@ if __name__ == "__main__":
     bos_client.restore_object(bucket_name, key, days=2)
 
     ######################################################################################################
+    #            symlink operation samples
+    ######################################################################################################
+    symlink_key = "mysymlink"
+    # put symlink
+    bos_client.put_object_symlink(bucket_name, key, symlink_key, storage_class=storage_class.STANDARD)
+    # get symlink
+    respones = bos_client.get_object_symlink(bucket_name, symlink_key)
+    print(response.metadata.bce_symlink_target)
+    # get object meta with symlink
+    respones = bos_client.get_object_meta_data(bucket_name, symlink_key)
+    print(response.metadata.bce_object_type)
+    # get object with symlnk
+    bos_client.get_object_to_file(bucket_name, symlink_key, download)
+
+    ######################################################################################################
     #            acl operation samples
     ######################################################################################################
 

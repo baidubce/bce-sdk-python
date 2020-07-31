@@ -2002,10 +2002,12 @@ class BosClient(BceBaseClient):
             headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION] = utils.convert_to_standard_string(encryption)
 
         if customer_key is not None:
-            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY] = utils.convert_to_standard_string(customer_key)
+            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY] = \
+                utils.convert_to_standard_string(customer_key)
 
         if customer_key_md5 is not None:
-            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY_MD5] = utils.convert_to_standard_string(customer_key_md5)
+            headers[http_headers.BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY_MD5] = \
+                utils.convert_to_standard_string(customer_key_md5)
 
         if user_headers is not None:
             try:
