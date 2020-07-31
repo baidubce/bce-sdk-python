@@ -92,9 +92,17 @@ BOS_FETCH_MODE = b"x-bce-fetch-mode"
 
 BOS_SERVER_SIDE_ENCRYPTION = b"x-bce-server-side-encryption"
 
+BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY = b"x-bce-server-side-encryption-customer-key"
+
+BOS_SERVER_SIDE_ENCRYPTION_CUSTOMER_KEY_MD5 = b"x-bce-server-side-encryption-customer-key-md5"
+
 BOS_RESTORE_TIER = b"x-bce-restore-tier"
 
 BOS_RESTORE_DAYS = b"x-bce-restore-days"
+
+BOS_SYMLINK_TARGET = b"x-bce-symlink-target"
+
+BOS_FORBID_OVERWRITE = b"x-bce-forbid-overwrite"
 
 # STS HTTP Headers
 
