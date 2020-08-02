@@ -23,6 +23,7 @@ from future.utils import iterkeys
 from future.utils import itervalues
 
 import base64
+import multiprocessing
 import os
 import sys
 import random
@@ -31,6 +32,7 @@ import http.client
 import io
 import json
 import socket
+import threading
 import time
 import pprint
 
@@ -43,6 +45,7 @@ from baidubce import utils
 from baidubce import compat
 from baidubce.services.bos import bos_client
 from baidubce.services.bos import storage_class
+from baidubce.services.bos.bos_client import UploadTaskHandle
 from baidubce.exception import BceHttpClientError
 from baidubce.exception import BceServerError
 from baidubce.exception import BceClientError
@@ -907,6 +910,67 @@ class TestBucketReplication(TestClient):
         self.bos.delete_bucket(dst_bucket_name,
             config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
 
+class TestBucketInventory(TestClient):
+    """test bucket inventory"""
+    def test_bucket_inventory(self):
+        """test put,get,delete,list bucket inventory"""
+        # create destination bucket
+        dst_bucket_name = self.BUCKET + "-inventory-target"
+        if not self.bos.does_bucket_exist(dst_bucket_name):
+            self.bos.create_bucket(dst_bucket_name)
+
+        inventory_id = "testInventory001"
+        my_inventory = {
+            "id": inventory_id,
+            "status": "enabled",
+            "resource": [compat.convert_to_string(self.BUCKET) + "/*"],
+            "schedule": "Weekly",
+            "destination":{
+                "targetBucket": compat.convert_to_string(dst_bucket_name),
+                "targetPrefix": "destination-prefix/",
+                "format": "CSV"
+                }
+        }
+        # test put bucket inventory
+        err = None
+        try:
+            self.bos.put_bucket_inventory(self.BUCKET, my_inventory)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # test get bucket inventory
+        err = None
+        try:
+            response = self.bos.get_bucket_inventory(self.BUCKET, inventory_id)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.resource[0], my_inventory['resource'][0])
+        self.assertEqual(response.destination.target_bucket, my_inventory['destination']['targetBucket'])
+
+        # test list inventory
+        err = None
+        try:
+            response = self.bos.list_bucket_inventory(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.inventory_rule_list[0].resource[0], my_inventory['resource'][0])
+        # test delete bucket replication
+        err = None
+        try:
+            response = self.bos.delete_bucket_inventory(self.BUCKET, inventory_id)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+        self.bos.delete_bucket(dst_bucket_name)
 
 # test bucket trash
 
@@ -1765,6 +1829,48 @@ class TestMultiUploadFile(TestClient):
         for obj in response.contents:
             if obj.key == self.KEY:
                 self.assertEqual(obj.storage_class, "COLD")
+
+class TestPutSuperObejctFromFile(TestClient):
+    """test put_super_obejct_from_file"""
+    def test_put_super_obejct_from_file(self):
+        """test put_super_obejct_from_file()"""
+        self.get_file(30)
+        result = self.bos.put_super_obejct_from_file(self.BUCKET, self.KEY, self.FILENAME,
+            chunk_size=5, thread_num=multiprocessing.cpu_count())
+        self.assertTrue(result)
+
+        err = None
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+    def test_cancel_put_super_obejct(self):
+        """ test cancel after calling put_super_obejct_from_file() """
+        self.get_file(50)
+        uploadTaskHandle = UploadTaskHandle()
+        t = threading.Thread(target=self.bos.put_super_obejct_from_file, args=(self.BUCKET, self.KEY, self.FILENAME),
+                kwargs={
+                    "chunk_size": 5,
+                    "thread_num": multiprocessing.cpu_count(),
+                    "uploadTaskHandle": uploadTaskHandle
+                    })
+        t.start()
+        time.sleep(2)
+        uploadTaskHandle.cancel()
+        t.join()
+
+        err = None
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+    
 
 
 class TestUploadPartCopy(TestClient):
@@ -2871,6 +2977,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestPutObject))
     runner.run(unittest.makeSuite(TestAppendObject))
     runner.run(unittest.makeSuite(TestMultiUploadFile))
+    runner.run(unittest.makeSuite(TestPutSuperObejctFromFile))
     runner.run(unittest.makeSuite(TestAuthorization))
     runner.run(unittest.makeSuite(TestAbortMultipartUpload))
     runner.run(unittest.makeSuite(TestUtil))
@@ -2900,6 +3007,8 @@ def run_test():
     runner.run(unittest.makeSuite(TestRestoreObject))
     runner.run(unittest.makeSuite(TestSymlink))
     runner.run(unittest.makeSuite(TestBucketStorageclass))
+    runner.run(unittest.makeSuite(TestBucketInventory))
+
 
 run_test()
 cov.stop()
