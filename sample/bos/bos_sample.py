@@ -15,7 +15,10 @@ Samples for bos client.
 import os
 import random
 import string
+import time
 import base64
+import multiprocessing
+import threading
 
 import bos_sample_conf
 from baidubce import exception
@@ -23,6 +26,7 @@ from baidubce import compat
 from baidubce.services.bos import canned_acl
 from baidubce.services.bos import storage_class
 from baidubce.services.bos.bos_client import BosClient
+from baidubce.services.bos.bos_client import UploadTaskHandle
 
 
 def _create_file(file_name, size):
@@ -133,6 +137,21 @@ if __name__ == "__main__":
     bos_client.restore_object(bucket_name, key, days=2)
 
     ######################################################################################################
+    #            symlink operation samples
+    ######################################################################################################
+    symlink_key = "mysymlink"
+    # put symlink
+    bos_client.put_object_symlink(bucket_name, key, symlink_key, storage_class=storage_class.STANDARD)
+    # get symlink
+    respones = bos_client.get_object_symlink(bucket_name, symlink_key)
+    print(response.metadata.bce_symlink_target)
+    # get object meta with symlink
+    respones = bos_client.get_object_meta_data(bucket_name, symlink_key)
+    print(response.metadata.bce_object_type)
+    # get object with symlnk
+    bos_client.get_object_to_file(bucket_name, symlink_key, download)
+
+    ######################################################################################################
     #            acl operation samples
     ######################################################################################################
 
@@ -155,6 +174,65 @@ if __name__ == "__main__":
     response = bos_client.get_bucket_acl(bucket_name)
     __logger.debug("[Sample] get bucket acl owner id:%s", response.owner_id)
     __logger.debug("[Sample] get bucket acl:%s", response.access_control_list)
+
+    ######################################################################################################
+    #            bucket inventory operation samples
+    ######################################################################################################
+
+    dst_bucket_name = "samplebucket-inventory-target"
+    if not bos_client.does_bucket_exist(dst_bucket_name):
+        bos_client.create_bucket(dst_bucket_name)
+
+    inventory_id = "testInventory001"
+    my_inventory = {
+        "id": inventory_id,
+        "status": "enabled",
+        "resource": [bucket_name + "/*"],
+        "schedule": "Weekly",
+        "destination":{
+            "targetBucket": "samplebucket-inventory-target",
+            "targetPrefix": "destination-prefix/",
+            "format": "CSV"
+            }
+    }
+    # put bucket inventory
+    bos_client.put_bucket_inventory(bucket_name, my_inventory)
+
+    # get bucket inventory
+    response = bos_client.get_bucket_inventory(bucket_name, inventory_id)
+    __logger.debug("[Sample] get bucket inventory resource:%s", response.resource)
+    __logger.debug("[Sample] get bucket inventory destination:%s", response.destination.target_bucket)
+
+    # list inventory
+    response = bos_client.list_bucket_inventory(bucket_name)
+    __logger.debug("[Sample] list bucket inventory :%s", response.inventory_rule_list)
+
+    # delete bucket inventory
+    response = bos_client.response = bos_client.delete_bucket_inventory(bucket_name, inventory_id)
+
+    ######################################################################################################
+    #            put_super_obejct_from_file operation samples
+    ######################################################################################################
+
+    # put a super file to object
+    _create_file(file_name, 10 * 1024 * 1024)
+    result = bos_client.put_super_obejct_from_file(bucket_name, key, file_name,
+            chunk_size=5, thread_num=multiprocessing.cpu_count())
+    if result:
+        print("Upload success!")
+
+    # cancel after calling put_super_obejct_from_file
+    uploadTaskHandle = UploadTaskHandle()
+    t = threading.Thread(target=bos_client.put_super_obejct_from_file, args=(bucket_name, key, file_name),
+            kwargs={
+                "chunk_size": 5,
+                "thread_num": multiprocessing.cpu_count(),
+                "uploadTaskHandle": uploadTaskHandle
+                })
+    t.start()
+    time.sleep(2)
+    uploadTaskHandle.cancel()
+    t.join()
 
     ######################################################################################################
     #            multi-upload operation samples
