@@ -165,6 +165,12 @@ class TestBbcClient(unittest.TestCase):
         time.sleep(20)
         self.assertEqual(instance_status, "Starting")
 
+    def test_batch_add_ip(self):
+        """
+        test case for batch_add_ip
+        """
+        private_ips = ['192.168.1.53']
+        print(self.client.batch_add_ip(instance_id, private_ips=private_ips))
 
     def test_modify_instance_name(self):
         """

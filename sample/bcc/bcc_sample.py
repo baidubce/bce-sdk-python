@@ -251,6 +251,16 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # batch add ip
+    try:
+        bcc_client.batch_add_ip(instance_id=instance_id, secondary_private_ip_address_count=1)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # modify password
     try:
         bcc_client.modify_instance_password(instance_id=instance_id, admin_pass=admin_pass)

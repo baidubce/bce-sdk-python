@@ -320,6 +320,31 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    @required(instance_id=str)
+    def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None, config=None):
+        """
+        batch_add_ip
+        :param instance_id:
+        :param private_ips:
+        :param secondary_private_ip_address_count:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchAddIp'
+        body = {
+            'instanceId': instance_id,
+        }
+        if private_ips is not None:
+            body['privateIps'] = private_ips
+        if secondary_private_ip_address_count is not None:
+            body['secondaryPrivateIpAddressCount'] = secondary_private_ip_address_count
+        params = {
+
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
     @required(instance_id=(bytes, str),
               name=(bytes, str))
     def modify_instance_name(self, instance_id, name, config=None):
