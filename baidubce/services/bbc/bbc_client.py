@@ -345,6 +345,25 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    @required(instance_id=str, private_ips=list)
+    def batch_delete_ip(self, instance_id, private_ips, config=None):
+        """
+        :param instance_id:
+        :param private_ips:
+        :param config:
+        :return:
+        """
+        path = b'/instance/batchDelIp'
+        body = {
+            'instanceId': instance_id,
+            'privateIps': private_ips,
+        }
+        params = {
+
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
     @required(instance_id=(bytes, str),
               name=(bytes, str))
     def modify_instance_name(self, instance_id, name, config=None):
