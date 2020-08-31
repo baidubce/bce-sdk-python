@@ -78,9 +78,11 @@ class BccClient(bce_base_client.BceBaseClient):
               image_id=(bytes, str))  # ***Unicode***
     def create_instance(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
                         billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
-                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None,
-                        admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None,
-                        gpuCard=None, fpgaCard=None,
+                        ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None, auto_renew_time=0,
+                        deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
+                        internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
+                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
+                        zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
                         client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -189,6 +191,69 @@ class BccClient(bce_base_client.BceBaseClient):
             Default use of HP1 cloud disk.
         :type root_disk_storage_type: string
 
+        :param ephemeral_disks:
+            The optional list of ephemeral volume detail info to create.
+        :type ephemeral_disks: list<bcc_model.EphemeralDisk>
+
+        :param dedicate_host_id
+            The parameter to specify the dedicate host id.
+        :type dedicate_host_id: string
+
+        :param auto_renew_time_unit
+            The parameter to specify the unit of the auto renew time.
+            The auto renew time unit can be "month" or "year".
+            The default value is "month".
+        :type auto_renew_time_unit: string
+
+        :param auto_renew_time
+            The parameter to specify the auto renew time, the default value is 0.
+        :type auto_renew_time: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :param deploy_id
+            The parameter to specify the id of the deploymentSet.
+        :type deploy_id: string
+
+        :param bid_model
+            The parameter to specify the bidding model.
+            The bidding model can be "market" or "custom".
+        :type bid_model: string
+
+        :param bid_price
+            The parameter to specify the bidding price.
+            When the bid_model is "custom", it works.
+        :type bid_price: string
+
+        :param key_pair_id
+            The parameter to specify id of the keypair.
+        :type key_pair_id: string
+
+        :param asp_id
+            The parameter to specify id of the asp.
+        :type asp_id: string
+
+        :param request_token
+            The parameter to specify the request token which will make the request idempotent.
+        :type request_token: string
+
+        :param internet_charge_type
+            The parameter to specify the internet charge type.
+            See more detail on
+            https://cloud.baidu.com/doc/BCC/API.html#InternetChargeType
+        :type internet_charge_type: string
+
+        :param internal_ips
+            The parameter to specify the internal ips.
+        :type internal_ips: list<string>
+
+        :param cds_auto_renew
+            The parameter to specify whether the cds is auto renew or not.
+            The default value is false.
+        :type cds_auto_renew: boolean
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -236,6 +301,37 @@ class BccClient(bce_base_client.BceBaseClient):
         if fpgaCard is not None:
             body['fpgaCard'] = fpgaCard
             body['cardCount'] = cardCount if cardCount > 1 else 1
+        if auto_renew_time != 0:
+            body['autoRenewTime'] = auto_renew_time
+        if auto_renew_time_unit is None:
+            body['autoRenewTimeUnit'] = "month"
+        else:
+            body['autoRenewTimeUnit'] = auto_renew_time_unit
+        if ephemeral_disks is not None:
+            body['ephemeralDisks'] = ephemeral_disks
+        if dedicate_host_id is not None:
+            body['dedicatedHostId'] = dedicate_host_id
+        if deploy_id is not None:
+            body['deployId'] = deploy_id
+        if bid_model is not None:
+            body['bidModel'] = bid_model
+        if bid_price is not None:
+            body['bidPrice'] = bid_price
+        if key_pair_id is not None:
+            body['keypairId'] = key_pair_id
+        if internet_charge_type is not None:
+            body['internetChargeType'] = internet_charge_type
+        if asp_id is not None:
+            body['aspId'] = asp_id
+        if request_token is not None:
+            body['requestToken'] = request_token
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+        if internal_ips is not None:
+            body['internalIps'] = internal_ips
+        body['cdsAutoRenew'] = cds_auto_renew
+
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -2547,23 +2643,22 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-
 def generate_client_token_by_uuid():
     """
-    The default method to generate the random string for client_token 
+    The default method to generate the random string for client_token
     if the optional parameter client_token is not specified by the user.
     :return:
-    :rtype string    
+    :rtype string
     """
     return str(uuid.uuid4())
 
 
 def generate_client_token_by_random():
     """
-    The alternative method to generate the random string for client_token 
+    The alternative method to generate the random string for client_token
     if the optional parameter client_token is not specified by the user.
     :return:
-    :rtype string    
+    :rtype string
     """
     client_token = ''.join(random.sample(string.ascii_letters + string.digits, 36))
     return client_token
