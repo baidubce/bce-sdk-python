@@ -157,6 +157,23 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # create bccs with internal_ips
+    try:
+        internal_ips = ['192.168.131.110', '192.168.131.112']
+        response = bcc_client.create_instance_from_dedicated_host(
+            cpu_count=new_cpu_count,
+            memory_capacity_in_gb=new_memory_in_gb,
+            image_id=image_id,
+            purchase_count=2,
+            internal_ips=internal_ips)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # create a dedicated_host bcc with encrypted password
     try:
         response = bcc_client.create_instance_from_dedicated_host_with_encrypted_password(

@@ -113,6 +113,25 @@ class TestBccClient(unittest.TestCase):
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_instance_with_interanl_ips(self):
+        """
+        test case for create_instance
+        """
+        instance_type = 'N3'
+        client_token = generate_client_token()
+        internal_ips = ['', '']
+        instance_name = 'Caesar_test_instance_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance(1, 1,
+                                             image_id,
+                                             instance_type=instance_type,
+                                             name=instance_name,
+                                             admin_pass=admin_pass,
+                                             zone_name='cn-bd-a',
+                                             purchase_count=2,
+                                             internal_ips=internal_ips,
+                                             client_token=client_token)),
+            baidubce.bce_response.BceResponse)
 
     def test_create_instance_by_cpu_memory(self):
         client_token = generate_client_token()
