@@ -5,9 +5,12 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-SMS_HOST = b'HOST:PORT'
-SMS_AK = b'ak'
-SMS_SK = b'sk'
+SMS_HOST1 = b''
+SMS_AK1 = b''
+SMS_SK1 = b''
+SMS_HOST2 = b''
+SMS_AK2 = b''
+SMS_SK2 = b''
 
 logger = logging.getLogger('baidubce.services.sms.smsclient')
 fh = logging.FileHandler('sms_sample.log')
@@ -18,4 +21,5 @@ fh.setFormatter(formatter)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
-config = BceClientConfiguration(credentials=BceCredentials(SMS_AK, SMS_SK), endpoint=SMS_HOST)
+config1 = BceClientConfiguration(credentials=BceCredentials(SMS_AK1, SMS_SK1), endpoint=SMS_HOST1)
+config2 = BceClientConfiguration(credentials=BceCredentials(SMS_AK2, SMS_SK2), endpoint=SMS_HOST2)
