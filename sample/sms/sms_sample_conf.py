@@ -16,12 +16,13 @@ Configuration for sms samples.
 """
 
 import logging
-from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = b'sms.bj.baidubce.com'
-AK = b'Your AK'
-SK = b'Your SK'
+from baidubce.auth.bce_credentials import BceCredentials
+from baidubce.bce_client_configuration import BceClientConfiguration
+
+HOST = b'smsv3.bj.baidubce.com'
+AK = b''
+SK = b''
 
 logger = logging.getLogger('baidubce.services.sms.smsclient')
 fh = logging.FileHandler('sms_sample.log')
