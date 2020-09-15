@@ -23,7 +23,7 @@ import uuid
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.services.bbc import bbc_client
+from baidubce.services.bbc import bbc_client, bbc_model
 
 PY2 = sys.version_info[0]==2
 if PY2:
@@ -34,14 +34,15 @@ HOST = b'http://bbc.bj.baidubce.com'
 AK = b''
 SK = b''
 
-instance_id = 'i-fJ50WcB5'
-image_id = 'm-BPwwiJYh'
-flavor_id = 'BBC-I2-01'
-raid_id = 'raid-malo48xg'
+instance_id = 'i-N1hiBeYI'
+image_id = 'm-gpsiCYAx'
+flavor_id = 'BBC-I3-01S'
+raid_id = 'raid-KOh4qTRC'
 snapshot_id = 's-Ro9vAnQE'
 system_snapshot_id = 's-hnsVUGIw'
-security_group_id = 'g-hweloYd8'
-subnet_id = "604cebcd-740d-49d1-a1ac-72a91f5e34aa"
+security_group_id = 'g-1utufn3mtg1y'
+subnet_id = "f42b9393-e721-4693-a1ab-2d67fe2f4d65"
+zone = 'cn-bj-a'
 
 
 force_stop = False
@@ -88,10 +89,13 @@ class TestBbcClient(unittest.TestCase):
         client_token = generate_client_token()
         zone_name = 'cn-bj-a'
         name = 'test_bbc_instance'
+        billing = bbc_model.Billing('Prepaid')
         response = self.client.create_instance(flavor_id=flavor_id, image_id=image_id,
                                                raid_id=raid_id, zone_name=zone_name,
                                                client_token=client_token, name=name,
-                                               admin_pass=admin_pass, subnet_id=subnet_id)
+                                               admin_pass=admin_pass, security_group_id=security_group_id,
+                                               auto_renew_time_unit='month', auto_renew_time=1,
+                                               billing=billing)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -178,6 +182,20 @@ class TestBbcClient(unittest.TestCase):
         """
         private_ips = ['192.168.1.53']
         print(self.client.batch_delete_ip(instance_id, private_ips=private_ips))
+
+    def test_create_auto_renew_rules(self):
+        """
+        test case for create auto renew rules
+        """
+        renew_time_unit = "month"
+        renew_time = 1
+        print(self.client.create_auto_renew_rules(instance_id, renew_time_unit, renew_time))
+
+    def test_delete_auto_renew_rules(self):
+        """
+        test case for delete auto renew rules
+        """
+        print(self.client.delete_auto_renew_rules(instance_id))
 
     def test_modify_instance_name(self):
         """

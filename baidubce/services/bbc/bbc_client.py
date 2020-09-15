@@ -68,7 +68,8 @@ class BbcClient(bce_base_client.BceBaseClient):
     @required(flavor_id = (bytes, str), image_id = (bytes, str), raid_id = (bytes, str))
     def create_instance(self, flavor_id, image_id, raid_id, root_disk_size_in_gb=20, purchase_count=1,
                         zone_name=None, subnet_id=None, billing=None, name=None, admin_pass=None,
-                        deploy_set_id=None, client_token=None, config=None):
+                        auto_renew_time_unit=None, auto_renew_time=0, deploy_set_id=None,
+                        security_group_id=None, client_token=None, config=None):
 
         """
         Create a bbc instance with the specified options.
@@ -125,9 +126,24 @@ class BbcClient(bce_base_client.BceBaseClient):
             https://cloud.baidu.com/doc/BBC/s/3jwvxu9iz#%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86%E4%BC%A0%E8%BE%93%E8%A7%84%E8%8C%83
         :type admin_pass: string
 
+        :param auto_renew_time_unit
+            The parameter to specify the unit of the auto renew time.
+            The auto renew time unit can be "month" or "year".
+            The default value is "month".
+        :type auto_renew_time_unit: string
+
+        :param auto_renew_time
+            The parameter to specify the auto renew time, the default value is 0.
+        :type auto_renew_time: string
+
         :deploy_set_id:
             The id of the deploy set
         :type deploy_set_id: string
+
+        :param security_group_id:
+            The optional parameter to specify the securityGroupId of the instance
+            vpcId of the securityGroupId must be the same as the vpcId of subnetId
+        :type security_group_id: string
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -169,6 +185,8 @@ class BbcClient(bce_base_client.BceBaseClient):
             body['zoneName'] = zone_name
         if subnet_id is not None:
             body['subnetId'] = subnet_id
+        if security_group_id is not None:
+            body['securityGroupId'] = security_group_id
         if name is not None:
             body['name'] = name
         if deploy_set_id is not None:
@@ -177,6 +195,12 @@ class BbcClient(bce_base_client.BceBaseClient):
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
             body['adminPass'] = cipher_admin_pass
+        if auto_renew_time_unit is None:
+            body['autoRenewTimeUnit'] = "month"
+        else:
+            body['autoRenewTimeUnit'] = auto_renew_time_unit
+        if auto_renew_time != 0:
+            body['autoRenewTime'] = auto_renew_time
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -362,6 +386,61 @@ class BbcClient(bce_base_client.BceBaseClient):
 
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(instance_id=(bytes, str),
+              renew_time_unit=(bytes, str),
+              renew_time=int)
+    def create_auto_renew_rules(self, instance_id, renew_time_unit, renew_time, config=None):
+        """
+        Creating auto renew rules for the bbc.
+        It only works for the prepaid bbc.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param renew_time_unit
+            The parameter to specify the unit of the renew time.
+            The renew time unit can be "month" or "year".
+        :type renew_time_unit: string
+
+        :param renew_time
+            The parameter to specify the renew time.
+        :type renew_time: int
+        """
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/batchCreateAutoRenewRules'
+        body = {
+            'instanceId': instance_id,
+            'renewTimeUnit': renew_time_unit,
+            'renewTime': renew_time
+        }
+        params = {
+
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(instance_id=(bytes, str))
+    def delete_auto_renew_rules(self, instance_id, config=None):
+        """
+        Deleting auto renew rules for the bbc.
+        It only works for the prepaid bbc.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+        """
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/batchDeleteAutoRenewRules'
+        body = {
+            'instanceId': instance_id
+        }
+        params = {
+
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     @required(instance_id=(bytes, str),
