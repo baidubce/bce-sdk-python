@@ -27,10 +27,10 @@ if PY2:
     sys.setdefaultencoding('utf8')
 
 HOST = b'http://bcm.su.baidubce.com'
-AK = b'******'
-SK = b'******'
+AK = b''
+SK = b''
 
-user_id = '3ee0963f14df46be830f5a287ce90ab2'
+user_id = ''
 scope = 'BCE_BCC'
 metric_name = 'CpuIdlePercent'
 statistics = 'average,maximum,minimum'
