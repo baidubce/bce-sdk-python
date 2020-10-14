@@ -219,6 +219,16 @@ class TestBccClient(unittest.TestCase):
             baidubce.bce_response.BceResponse)
         print(self.client.get_instance(instance_id))
 
+    def test_get_instance_contains_failed(self):
+        """
+        test case for get_instance
+        """
+
+        self.assertEqual(
+            type(self.client.get_instance(instance_id, contains_failed=True)),
+            baidubce.bce_response.BceResponse)
+        print(self.client.get_instance(instance_id))
+
     def test_start_instance(self):
         """
         test case for start_instance

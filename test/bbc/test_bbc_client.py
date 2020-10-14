@@ -133,6 +133,16 @@ class TestBbcClient(unittest.TestCase):
         print(response)
         self.assertEqual(instance_id, response.id)
 
+    def test_get_instance_contains_failed(self):
+        """
+        test get bbc instance
+        """
+
+        response = self.client.get_instance(instance_id, contains_failed=True)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+        self.assertEqual(instance_id, response.id)
+
     def test_start_instance(self):
         """
         test start bbc instance.
