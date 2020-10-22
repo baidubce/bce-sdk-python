@@ -218,6 +218,16 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # get instance detail which contains the failed message
+    try:
+        bcc_client.get_instance(instance_id, contains_failed=True)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # start instance
     try:
         bcc_client.start_instance(instance_id)

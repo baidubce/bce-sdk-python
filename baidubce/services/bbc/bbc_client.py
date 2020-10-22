@@ -244,7 +244,7 @@ class BbcClient(bce_base_client.BceBaseClient):
 
 
     @required(instance_id=(bytes, str))
-    def get_instance(self, instance_id, config=None):
+    def get_instance(self, instance_id, contains_failed=False, config=None):
         """
         Get the detailed information of specified instance.
 
@@ -252,12 +252,19 @@ class BbcClient(bce_base_client.BceBaseClient):
             The id of instance.
         :type instance_id: string
 
+        :param contains_failed:
+            The optional parameters to get the failed message.If true, it means get the failed message.
+        :type contains_failed: boolean
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
-        return self._send_request(http_methods.GET, path, config=config)
+        params = {}
+        if contains_failed:
+            params['containsFailed'] = contains_failed
+        return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(instance_id=(bytes, str))
     def start_instance(self, instance_id, config=None):
