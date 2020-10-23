@@ -191,14 +191,14 @@ class TestBesClient(unittest.TestCase):
         response = self.client.get_cluster_list(page_no=1, page_size=100)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
-        page = response.pagedelete
+        page = response.page
         if page is None:
             return
         for cluster in (page.result or []):
             if cluster.cluster_id != '439305389729779712':
                 continue
             print(cluster.cluster_id)
-            response = self.client._cluster(cluster_id=cluster.cluster_id)
+            response = self.client.delete_cluster(cluster_id=cluster.cluster_id)
             self.assertEqual(type(response), baidubce.bce_response.BceResponse)
             print(response)
 
