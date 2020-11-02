@@ -650,7 +650,8 @@ class BosClient(BceBaseClient):
                                 config=None,
                                 httpmethod=http_methods.GET):
         """
-        Get an authorization url with expire time
+        Get an authorization url with expire time.
+        specified  protocol in endpoint > protocal > default protocol in config.
 
         :type timestamp: int
         :param timestamp: None
@@ -668,13 +669,15 @@ class BosClient(BceBaseClient):
         config = self._merge_config(config)
         headers = headers or {}
         params = params or {}
-        # specified protocol > protocol in endpoint > default protocol
+
+        # specified  protocol in endpoint > protocal > default protocol in config
+        if protocol is not None:
+            config.protocol = protocol
         endpoint_protocol, endpoint_host, endpoint_port = \
             utils.parse_host_port(config.endpoint, config.protocol)
-        protocol = protocol or endpoint_protocol
 
         full_host = endpoint_host
-        if endpoint_port != config.protocol.default_port:
+        if endpoint_port != endpoint_protocol.default_port:
             full_host += b':' + compat.convert_to_bytes(endpoint_port)
         headers[http_headers.HOST] = full_host
 
@@ -690,7 +693,7 @@ class BosClient(BceBaseClient):
             timestamp,
             expiration_in_seconds,
             headers_to_sign)
-        return b"%s://%s%s?%s" % (compat.convert_to_bytes(protocol.name),
+        return b"%s://%s%s?%s" % (compat.convert_to_bytes(endpoint_protocol.name),
                                  full_host,
                                  path,
                                  utils.get_canonical_querystring(params, False))
