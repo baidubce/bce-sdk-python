@@ -34,28 +34,24 @@ if PY2:
 HOST = b'host'
 AK = b'ak'
 SK = b'sk'
-REGION = b'region'
+region = 'region'
+available_zone = 'available_zone'
+security_group_id = 'security_group_id'
+subnet_uuid = 'subnet_uuid'
+vpcId = 'vpcId'
 
 # operation params
 pre_name = 'test'
-name = 'test'
+name = 'reusetest'
 password = '123456aA'
 modules = [Module(type='es_node', instance_num=1), Module(type='kibana', instance_num=1)]
 version = '7.4.2'
 modules_resize = [
     Module(type='es_node', slot_type='calculate_v1', version=version, desire_instance_num=2),
     Module(type='kibana', slot_type='calculate_v1', version=version, desire_instance_num=1)]
-
 slot_type = 'calculate_v1'
-is_open_service = False
-available_zone = 'zoneA'
-security_group_id = '3742b538-039b-41fc-999b-b15d3bfb381b'
-subnet_uuid = '20d48ab8-22d4-4e13-a762-e806fb9a0e19'
-vpcId = '0e4e00bc-4bf1-49bd-bdf6-854676922a1d'
-# billing = Billing(payment='prepay', time=3)
-billing = Billing(payment='postpay', time=0)
-region = 'bj'
-product_type = 'postpay'
+billing = Billing(payment_type='prepay', time=1)
+payment_type = 'postpay'
 
 
 class TestBesClient(unittest.TestCase):
@@ -87,17 +83,8 @@ class TestBesClient(unittest.TestCase):
         print("---test_create_cluster")
         # self.clean_data()
         # time.sleep(5)
-        response = self.client.create_cluster(name,
-                                              password,
-                                              modules,
-                                              version,
-                                              slot_type,
-                                              is_open_service,
-                                              available_zone,
-                                              security_group_id,
-                                              subnet_uuid,
-                                              vpcId,
-                                              billing)
+        response = self.client.create_cluster(name, password, modules, version, slot_type, available_zone,
+                                              security_group_id, subnet_uuid, vpcId, billing)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -116,11 +103,7 @@ class TestBesClient(unittest.TestCase):
                 continue
             print('cluster_id:' + cluster.cluster_id)
             self.assertEqual(type(response), baidubce.bce_response.BceResponse)
-            response = self.client.resize_cluster(name,
-                                                  product_type,
-                                                  cluster.cluster_id,
-                                                  region,
-                                                  modules_resize)
+            response = self.client.resize_cluster(name, payment_type, cluster.cluster_id, region, modules_resize)
             self.assertEqual(type(response), baidubce.bce_response.BceResponse)
             print(response)
 
@@ -250,21 +233,53 @@ class TestBesClient(unittest.TestCase):
                 self.assertEqual(type(response), baidubce.bce_response.BceResponse)
                 print(response)
 
+    def test_get_renew_list(self):
+        """
+        get renew list
+        """
+        print("---test_get_renew_list")
+        response = self.client.get_renew_list(page_no=1,
+                                              page_size=2,
+                                              order='desc',
+                                              order_by='expireTime',
+                                              days_to_expiration=70)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+        page = response.page
+        if page is None:
+            return
+        for cluster in (page.result or []):
+            print('cluster.cluster_id:' + cluster.cluster_id)
+
+    def test_renew_cluster(self):
+        """
+        renew cluster
+        """
+        print("---test_get_renew_list")
+        response = self.client.get_renew_list(page_no=1,
+                                              page_size=2,
+                                              order='desc',
+                                              order_by='expireTime',
+                                              days_to_expiration=100)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        # print(response)
+        page = response.page
+        if page is None:
+            return
+        for cluster in (page.result or []):
+            # if cluster.cluster_name != 'feTest':
+            #     continue
+            print(cluster)
+            print('cluster.cluster_id:' + cluster.cluster_id)
+            response = self.client.renew_cluster(cluster_id=cluster.cluster_id, time=1)
+            print(response)
+
     def init_data(self):
         """
         init_data
         """
-        response = self.client.create_cluster(name,
-                                              password,
-                                              modules,
-                                              version,
-                                              slot_type,
-                                              is_open_service,
-                                              available_zone,
-                                              security_group_id,
-                                              subnet_uuid,
-                                              vpcId,
-                                              billing)
+        response = self.client.create_cluster(name, password, modules, version, slot_type, available_zone,
+                                              security_group_id, subnet_uuid, vpcId, billing)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 

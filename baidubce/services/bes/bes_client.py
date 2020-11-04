@@ -50,7 +50,6 @@ class BesClient(bce_base_client.BceBaseClient):
               modules=list,
               version=value_type,
               slot_type=value_type,
-              is_open_service=bool,
               available_zone=value_type,
               security_group_id=value_type,
               subnet_uuid=value_type,
@@ -62,7 +61,6 @@ class BesClient(bce_base_client.BceBaseClient):
                        modules,
                        version,
                        slot_type,
-                       is_open_service,
                        available_zone,
                        security_group_id,
                        subnet_uuid,
@@ -86,9 +84,6 @@ class BesClient(bce_base_client.BceBaseClient):
 
         :param slot_type: The parameter to specify the type of es cluster node resource.
         :type slot_type: string
-
-        :param is_open_service: The parameter to specify es cluster enabled
-        :type is_open_service: bool
 
         :param available_zone: he parameter to specify security zone.
         :type available_zone: string
@@ -128,7 +123,6 @@ class BesClient(bce_base_client.BceBaseClient):
             'modules': module_json_array,
             'version': version,
             'slotType': slot_type,
-            'isOpenService': is_open_service,
             'availableZone': available_zone,
             'securityGroupId': security_group_id,
             'subnetUuid': subnet_uuid,
@@ -141,13 +135,13 @@ class BesClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
 
     @required(name=value_type,
-              product_type=value_type,
+              payment_type=value_type,
               cluster_id=value_type,
               region=value_type,
               modules=list)
     def resize_cluster(self,
                        name,
-                       product_type,
+                       payment_type,
                        cluster_id,
                        region,
                        modules,
@@ -158,8 +152,8 @@ class BesClient(bce_base_client.BceBaseClient):
         :param name: The parameter to specify es cluster name.
         :type name: string
 
-        :param product_type: The parameter to specify mode of payment.
-        :type product_type: string
+        :param payment_type: The parameter to specify mode of payment.
+        :type payment_type: string
 
         :param cluster_id: The parameter to specify cluster id.
         :type cluster_id: array
@@ -191,7 +185,7 @@ class BesClient(bce_base_client.BceBaseClient):
             module_json_array.append(module.__dict__)
         body = {
             'name': name,
-            'productType': product_type,
+            'paymentType': payment_type,
             'modules': module_json_array,
             'clusterId': cluster_id,
             'region': region
@@ -436,6 +430,94 @@ class BesClient(bce_base_client.BceBaseClient):
         body = {
             'clusterId': cluster_id,
             'instanceId': instance_id,
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
+    @required(order=value_type,
+              order_by=value_type,
+              page_no=int,
+              page_size=int,
+              days_to_expiration=int)
+    def get_renew_list(self,
+                       order,
+                       order_by,
+                       page_no,
+                       page_size,
+                       days_to_expiration,
+                       client_token=None):
+        """
+        get es cluster renew list
+
+        :param order: The parameter to specify order rule.
+        :type order: string
+
+        :param order_by: The parameter to specify order field.
+        :type order_by: string
+
+        :param page_no: The parameter to specify renew cluster list pageNo.
+        :type page_no: int
+
+        :param page_size: The parameter to specify renew cluster list pageSize.
+        :type page_size: int
+
+        :param days_to_expiration: The parameter to specify how many days expire.
+        :type days_to_expiration: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/renew/list'
+        params = None
+
+        if client_token is not None:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'pageNo': page_no,
+            'pageSize': page_size,
+            'daysToExpiration': days_to_expiration,
+            'order': order,
+            'orderBy': order_by
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
+    @required(order=value_type,
+              cluster_id=value_type,
+              time=int)
+    def renew_cluster(self,
+                      cluster_id,
+                      time,
+                      client_token=None):
+        """
+        renew es cluster
+
+        :param cluster_id: The parameter to specify order cluster id.
+        :type cluster_id: string
+
+        :param time: The parameter to specify renew time, unit month.
+        :type time: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/renew'
+        params = None
+        params = {
+            'orderType': "RENEW"
+        }
+        if client_token is not None:
+            params['clientToken'] = client_token
+        body = {
+            'serviceType': 'BES',
+            'time': time,
+            'clusterId': cluster_id
         }
         region = self.config.region
         headers = {b'x-Region': region,
