@@ -19,8 +19,8 @@ class Billing(object):
     Billing Class
     """
 
-    def __init__(self, payment, time):
-        self.payment = payment
+    def __init__(self, payment_type, time):
+        self.paymentType = payment_type
         self.time = time
 
 

@@ -41,14 +41,13 @@ if __name__ == "__main__":
     modules = [Module(type='es_node', instance_num=1), Module(type='es_node', instance_num=1)]
     version = '6.5.3'
     slotType = 'calculate_v1'
-    is_open_service = False
     available_zone = 'zoneA'
     security_group_id = '3742b538-039b-41fc-999b-b15d3bfb381b'
     subnet_uuid = '20d48ab8-22d4-4e13-a762-e806fb9a0e19'
     vpc_id = '0e4e00bc-4bf1-49bd-bdf6-854676922a1d'
     # prepay payment will not create cluster immediately
     # billing = Billing(payment='prepay', time=3)
-    billing = Billing(payment='postpay', time=0)
+    billing = Billing(payment_type='postpay', time=0)
     ######################################################################################################
     #            bes  operation samples
     ######################################################################################################
@@ -58,17 +57,8 @@ if __name__ == "__main__":
 
     # create a cluster
     try:
-        response = bes_client.create_cluster(name,
-                                             password,
-                                             modules,
-                                             version,
-                                             slotType,
-                                             is_open_service,
-                                             available_zone,
-                                             security_group_id,
-                                             subnet_uuid,
-                                             vpc_id,
-                                             billing)
+        response = bes_client.create_cluster(name, password, modules, version, slotType, available_zone,
+                                             security_group_id, subnet_uuid, vpc_id, billing)
         print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
