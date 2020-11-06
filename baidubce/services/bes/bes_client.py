@@ -524,6 +524,150 @@ class BesClient(bce_base_client.BceBaseClient):
                    b'content-type': b'application/json;charset=UTF-8'}
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
 
+    @required(cluster_ids=list,
+              user_id=value_type,
+              region=value_type,
+              service_type=value_type,
+              service_ids=list,
+              renew_time_unit=value_type,
+              renew_time=int)
+    def create_auto_renew_rule(self,
+                               cluster_ids,
+                               user_id,
+                               region,
+                               renew_time_unit,
+                               renew_time,
+                               client_token=None):
+        """
+        create cluster auto renew rule
+
+        :param cluster_ids: The parameter to cluster id list.
+        :type cluster_ids: list
+
+        :param user_id: The parameter to specify account id.
+        :type user_id: string
+
+        :param region: The parameter to specify region.
+        :type region: string
+
+        :param renew_time_unit: The parameter to specify renew time unit.
+        :type renew_time_unit: string
+
+        :param renew_time: The parameter to specify renew time.
+        :type renew_time: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/auto_renew_rule/create'
+
+        params = None
+        if client_token is not None:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'clusterIds': cluster_ids,
+            'userId': user_id,
+            'region': region,
+            'serviceType': 'BES',
+            'renewTimeUnit': renew_time_unit,
+            "renewTime": renew_time
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
+    def get_auto_renew_rule_list(self,
+                                 client_token=None):
+        """
+        get cluster auto renew rule list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/auto_renew_rule/list'
+        params = None
+        if client_token is not None:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'serviceType': 'BES',
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
+    @required(cluster_id=value_type,
+              account_id=value_type,
+              renew_time_unit=value_type,
+              renew_time=int)
+    def update_auto_renew_rule(self,
+                               cluster_id,
+                               renew_time_unit,
+                               renew_time,
+                               client_token=None):
+        """
+        update cluster auto renew rule
+
+        :param cluster_id: The parameter to cluster id list.
+        :type cluster_id: string
+
+        :param renew_time_unit: The parameter to specify renew time unit.
+        :type renew_time_unit: string
+
+        :param renew_time: The parameter to specify renew time.
+        :type renew_time: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/auto_renew_rule/update'
+        params = None
+        if client_token is not None:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'clusterId': cluster_id,
+            'renewTimeUnit': renew_time_unit,
+            "renewTime": renew_time
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
+    @required(cluster_id=value_type)
+    def delete_auto_renew_rule(self,
+                               cluster_id,
+                               client_token=None):
+        """
+        delete cluster auto renew rule
+
+        :param cluster_id: The parameter to cluster id list.
+        :type cluster_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/auto_renew_rule/delete'
+        params = None
+        if client_token is not None:
+            params = {
+                'clientToken': client_token
+            }
+        body = {
+            'clusterId': cluster_id
+        }
+        region = self.config.region
+        headers = {b'x-Region': region,
+                   b'content-type': b'application/json;charset=UTF-8'}
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), headers=headers)
+
     def _merge_config(self, config=None):
         if config is None:
             return self.config
