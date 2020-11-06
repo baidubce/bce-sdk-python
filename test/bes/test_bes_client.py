@@ -34,7 +34,9 @@ if PY2:
 HOST = b'host'
 AK = b'ak'
 SK = b'sk'
-region = 'region'
+region_param = 'bj'
+REGION = b'bj'
+
 available_zone = 'available_zone'
 security_group_id = 'security_group_id'
 subnet_uuid = 'subnet_uuid'
@@ -52,6 +54,8 @@ modules_resize = [
 slot_type = 'calculate_v1'
 billing = Billing(payment_type='prepay', time=1)
 payment_type = 'postpay'
+
+cluster_id = 'cluster_id'
 
 
 class TestBesClient(unittest.TestCase):
@@ -103,7 +107,7 @@ class TestBesClient(unittest.TestCase):
                 continue
             print('cluster_id:' + cluster.cluster_id)
             self.assertEqual(type(response), baidubce.bce_response.BceResponse)
-            response = self.client.resize_cluster(name, payment_type, cluster.cluster_id, region, modules_resize)
+            response = self.client.resize_cluster(name, payment_type, cluster.cluster_id, region_param, modules_resize)
             self.assertEqual(type(response), baidubce.bce_response.BceResponse)
             print(response)
 
@@ -273,6 +277,47 @@ class TestBesClient(unittest.TestCase):
             print('cluster.cluster_id:' + cluster.cluster_id)
             response = self.client.renew_cluster(cluster_id=cluster.cluster_id, time=1)
             print(response)
+
+    def test_get_auto_renew_rule_list(self):
+        """
+        get cluster auto renew rule list
+        """
+        response = self.client.get_auto_renew_rule_list()
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_auto_renew_rule(self):
+        """
+        test create cluster auto renew rule
+        """
+        cluster_ids = [cluster_id]
+        user_id = 'user_id'
+        renew_time_unit = 'month'
+        renew_time = 2
+        response = self.client.create_auto_renew_rule(cluster_ids=cluster_ids, user_id=user_id, region=region_param,
+                                                      renew_time_unit=renew_time_unit, renew_time=renew_time)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_auto_renew_rule(self):
+        """
+        test update cluster auto renew rule
+        """
+        renew_time_unit = 'month'
+        renew_time = 3
+        response = self.client.update_auto_renew_rule(cluster_id=cluster_id,
+                                                      renew_time_unit=renew_time_unit,
+                                                      renew_time=renew_time)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_auto_renew_rule(self):
+        """
+        test delete cluster auto renew rule
+        """
+        response = self.client.delete_auto_renew_rule(cluster_id=cluster_id)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
 
     def init_data(self):
         """
