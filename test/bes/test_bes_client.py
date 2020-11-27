@@ -87,7 +87,8 @@ class TestBesClient(unittest.TestCase):
         print("---test_create_cluster")
         # self.clean_data()
         # time.sleep(5)
-        response = self.client.create_cluster(name, password, modules, version, slot_type, available_zone,
+        is_old_package = False
+        response = self.client.create_cluster(name, password, modules, version, is_old_package, available_zone,
                                               security_group_id, subnet_uuid, vpcId, billing)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
@@ -323,7 +324,8 @@ class TestBesClient(unittest.TestCase):
         """
         init_data
         """
-        response = self.client.create_cluster(name, password, modules, version, slot_type, available_zone,
+        is_old_package = False
+        response = self.client.create_cluster(name, password, modules, version, is_old_package, available_zone,
                                               security_group_id, subnet_uuid, vpcId, billing)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
