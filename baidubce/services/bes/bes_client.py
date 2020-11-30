@@ -49,7 +49,7 @@ class BesClient(bce_base_client.BceBaseClient):
               password=value_type,
               modules=list,
               version=value_type,
-              slot_type=value_type,
+              is_old_package=bool,
               available_zone=value_type,
               security_group_id=value_type,
               subnet_uuid=value_type,
@@ -60,7 +60,7 @@ class BesClient(bce_base_client.BceBaseClient):
                        password,
                        modules,
                        version,
-                       slot_type,
+                       is_old_package,
                        available_zone,
                        security_group_id,
                        subnet_uuid,
@@ -82,8 +82,8 @@ class BesClient(bce_base_client.BceBaseClient):
         :param version: The parameter to specify es cluster version.
         :type version: string
 
-        :param slot_type: The parameter to specify the type of es cluster node resource.
-        :type slot_type: string
+        :param is_old_package: The parameter to specify is old package
+        :type is_old_package: bool
 
         :param available_zone: he parameter to specify security zone.
         :type available_zone: string
@@ -122,7 +122,7 @@ class BesClient(bce_base_client.BceBaseClient):
             'password': password,
             'modules': module_json_array,
             'version': version,
-            'slotType': slot_type,
+            'isOldPackage': is_old_package,
             'availableZone': available_zone,
             'securityGroupId': security_group_id,
             'subnetUuid': subnet_uuid,
