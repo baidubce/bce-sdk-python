@@ -29,8 +29,12 @@ class Module(object):
     Module Class
     """
 
-    def __init__(self, type=None, instance_num=None,
-                 version=None, slot_type=None, desire_instance_num=None):
+    def __init__(self, type=None,
+                 instance_num=None,
+                 version=None,
+                 slot_type=None,
+                 desire_instance_num=None,
+                 disk_slot_info=None):
         if type is not None:
             self.type = type
         if instance_num is not None:
@@ -41,3 +45,17 @@ class Module(object):
             self.slotType = slot_type
         if desire_instance_num is not None:
             self.desireInstanceNum = desire_instance_num
+        if disk_slot_info is not None:
+            self.diskSlotInfo = disk_slot_info.__dict__
+
+
+class DiskSlotInfo(object):
+    """
+    DiskSlotInfo class
+    """
+
+    def __init__(self, type=None, size=None, instance_num=None):
+        if type is not None:
+            self.type = type
+        if size is not None:
+            self.size = size
