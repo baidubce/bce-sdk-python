@@ -40,7 +40,7 @@ if __name__ == "__main__":
     password = '123456aA'
     modules = [Module(type='es_node', instance_num=1), Module(type='es_node', instance_num=1)]
     version = '6.5.3'
-    slotType = 'calculate_v1'
+    is_old_package = 'false'
     available_zone = 'zoneA'
     security_group_id = '3742b538-039b-41fc-999b-b15d3bfb381b'
     subnet_uuid = '20d48ab8-22d4-4e13-a762-e806fb9a0e19'
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # create a cluster
     try:
-        response = bes_client.create_cluster(name, password, modules, version, slotType, available_zone,
+        response = bes_client.create_cluster(name, password, modules, version, is_old_package, available_zone,
                                              security_group_id, subnet_uuid, vpc_id, billing)
         print(response)
     except BceHttpClientError as e:
