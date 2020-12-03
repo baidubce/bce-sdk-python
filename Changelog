@@ -1,5 +1,10 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.8.55】
+涉及产品：CDN, 新增cacheShare, trafficLimit, uaAcl, originProtocol, retryOrigin, ipv6Dispatch, quic, 
+offlineMode, ocsp等配置设置/查询；新增ip列表查询接口，获取回源节点ip列表接口；创建域名接口增加follow302配置支持，
+源站配置更新接口增加follow302, defaultHost配置支持
+
 【版本：v0.8.54】
 涉及产品：BES, 创建BES集群支持新旧套餐
 涉及产品：VPN, 新增VPN，包括VPN隧道相关接口，与官网api对齐

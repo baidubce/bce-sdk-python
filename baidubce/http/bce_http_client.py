@@ -192,7 +192,8 @@ def send_request(
 
             http_response = _send_http_request(
                 conn, http_method, uri, headers, body, config.send_buf_size)
-            
+            conn.close()
+
             headers_list = http_response.getheaders()
 
             # on py3 ,values of headers_list is decoded with ios-8859-1 from
