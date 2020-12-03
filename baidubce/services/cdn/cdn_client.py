@@ -117,6 +117,348 @@ class CdnClient(bce_base_client.BceBaseClient):
             params={'cacheFullUrl': ''},
             config=config)
 
+    
+    def set_domain_cache_share(self, domain, cache_share, config=None):
+        """
+        update cacheShare of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param cache_share: Detailed configuration of cacheShare
+        :type cache_share: dictionary
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'cacheShare': ''},
+            body=json.dumps({'cacheShare': cache_share}),
+            config=config)
+
+
+    def get_domain_cache_share(self, domain, config=None):
+        """
+        get cacheShare configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'cacheShare': ''},
+            config=config)
+
+    
+    def set_domain_traffic_limit(self, domain, traffic_limit, config=None):
+        """
+        update trafficLimit of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param traffic_limit: Detailed configuration of trafficLimit
+        :type traffic_limit: dictionary
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'trafficLimit': ''},
+            body=json.dumps({'trafficLimit': traffic_limit}),
+            config=config)
+
+
+    def get_domain_traffic_limit(self, domain, config=None):
+        """
+        get trafficLimit configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'trafficLimit': ''},
+            config=config)
+
+    
+    def set_domain_ua_acl(self, domain, ua_acl, config=None):
+        """
+        update uaAcl of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param ua_acl: Detailed configuration of uaAcl
+        :type ua_acl: dictionary
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'uaAcl': ''},
+            body=json.dumps({'uaAcl': ua_acl}),
+            config=config)
+
+
+    def get_domain_ua_acl(self, domain, config=None):
+        """
+        get uaAcl configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'uaAcl': ''},
+            config=config)
+
+
+    def set_domain_origin_protocol(self, domain, origin_protocol, config=None):
+        """
+        update originProtocol of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param origin_protocol: Detailed configuration of originProtocol
+        :type origin_protocol: dictionary
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'originProtocol': ''},
+            body=json.dumps({'originProtocol': origin_protocol}),
+            config=config)
+
+
+    def get_domain_origin_protocol(self, domain, config=None):
+        """
+        get originProtocol configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'originProtocol': ''},
+            config=config)
+
+
+    def set_domain_retry_origin(self, domain, retry_origin, config=None):
+        """
+        update retryOrigin of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param retry_origin: Detailed configuration of retryOrigin
+        :type retry_origin: dictionary
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'retryOrigin': ''},
+            body=json.dumps({'retryOrigin': retry_origin}),
+            config=config)
+
+
+    def get_domain_retry_origin(self, domain, config=None):
+        """
+        get retryOrigin configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'retryOrigin': ''},
+            config=config)
+
+
+    def set_domain_ipv6_dispatch(self, domain, ipv6_dispatch, config=None):
+        """
+        update ipv6Dispatch of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param ipv6_dispatch: Detailed configuration of IPv6 access and IPv6 back to source
+        :type ipv6_dispatch: IPv6Config
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'ipv6Dispatch': ''},
+            body=json.dumps({'ipv6Dispatch': ipv6_dispatch}),
+            config=config)
+
+
+    def get_domain_ipv6_dispatch(self, domain, config=None):
+        """
+        get ipv6Dispatch configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'ipv6Dispatch': ''},
+            config=config)
+
+    
+    def set_domain_quic(self, domain, quic, config=None):
+        """
+        update QUIC of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param quic: Detailed configuration of Quick UDP Internet Connection
+        :type quic: bool
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'quic': ''},
+            body=json.dumps({'quic': quic}),
+            config=config)
+
+
+    def get_domain_quic(self, domain, config=None):
+        """
+        get quic configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'quic': ''},
+            config=config)
+
+    
+    def set_domain_offline_mode(self, domain, offline_mode, config=None):
+        """
+        update offlineMode of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param offline_mode: Detailed configuration of offlineMode
+        :type offline_mode: bool
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'offlineMode': ''},
+            body=json.dumps({'offlineMode': offline_mode}),
+            config=config)
+
+
+    def get_domain_offline_mode(self, domain, config=None):
+        """
+        get offlineMode configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'offlineMode': ''},
+            config=config)
+
+
+    def set_domain_ocsp(self, domain, ocsp, config=None):
+        """
+        update OCSP configuration of the domain
+        :param domain: the domain name
+        :type domain: string
+        :param ocsp: Detailed configuration of Online Certificate Status Protocol
+        :type ocsp: bool
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.PUT,
+            '/domain/' + domain + '/config',
+            params={'ocsp': ''},
+            body=json.dumps({'ocsp': ocsp}),
+            config=config)
+
+
+    def get_domain_ocsp(self, domain, config=None):
+        """
+        get ocsp configuration of a domain
+        :param domain: the domain name
+        :type domain: string
+        :param config: None
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/domain/' + domain + '/config',
+            params={'ocsp': ''},
+            config=config)
+
 
     def set_domain_error_page(self, domain, error_page, config=None):
         """
@@ -640,15 +982,9 @@ class CdnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
-        body = {}
-        body['origin'] = origin
-
+        body = {'origin': origin}
         if other is not None:
-            if other.get('defaultHost') is not None:
-                body['defaultHost'] = other['defaultHost']
-
-            if other.get('form') is not None:
-                body['form'] = other['form']
+            body.update(other)
 
         return self._send_request(
             http_methods.PUT,
@@ -745,24 +1081,30 @@ class CdnClient(bce_base_client.BceBaseClient):
             body=json.dumps({'multiConfigs': multi_configs}),
             config=config)
 
-    def set_domain_origin(self, domain, origin, config=None):
+    def set_domain_origin(self, domain, origin, other=None, config=None):
         """
         update origin address of the domain
         :param domain: the domain name
         :type domain: string
         :param origin: the origin address list
         :type origin: list<OriginPeer>
+        :param other: origin extension configuration
+        :type other: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
 
         :return:
         :rtype: baidubce.bce_response.BceResponse
         """
+        body = {'origin': origin}
+        if other is not None:
+            body.update(other)
+
         return self._send_request(
             http_methods.PUT,
             '/domain/' + domain + '/config',
             params={'origin': ''},
-            body=json.dumps({'origin': origin}),
+            body=json.dumps(body),
             config=config)
 
     def get_domain_cache_ttl(self, domain, config=None):
@@ -1444,6 +1786,38 @@ class CdnClient(bce_base_client.BceBaseClient):
         return self._send_request(
             http_methods.GET, '/utils',
             params=params,
+            config=config)
+
+    def ips_query(self, action, ips, config=None):
+        """
+        check specified ip list if belongs to Baidu CDN
+        :param action: 'describeIp'
+        :type action: string
+        :param ip: specified ip
+        :type ip: list<string>
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.POST, '/utils/ips',
+            params={},
+            body=json.dumps({
+                'action':action,
+                'ips': ips
+            }),
+            config=config)
+
+    def list_nodes(self, config=None):
+        """
+        Baidu back source IP address segment query
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        return self._send_request(
+            http_methods.GET, '/nodes/list',
+            params={},
             config=config)
 
     @required(domain=str)

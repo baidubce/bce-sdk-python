@@ -42,11 +42,11 @@ class TestCdnClient(unittest.TestCase):
         """
         create_domain
         """
+        origin = [
+            {'peer': '1.2.3.4'}
+        ]
         error = None
         try:
-            origin = [
-                        {'peer': '1.2.3.4'}
-                     ]
             response = self.cdn_client.create_domain('www.example.com', origin)
             print(response)
         except BceServerError as e:
@@ -73,15 +73,15 @@ class TestCdnClient(unittest.TestCase):
         """
         self.cdn_client.delete_domain('www.example.com')
 
+        origin = [
+            {'peer': '1.2.3.5'}
+        ]
+        other_config = {
+            "form": "image"
+        }
+
         error = None
         try:
-            origin = [
-                {'peer': '1.2.3.5'}
-             ]
-
-            other_config = {
-                "form":"image"
-            }
             response = self.cdn_client.create_domain('www.example.com', origin, other_config)
             print(response)
         except BceServerError as e:
@@ -95,15 +95,37 @@ class TestCdnClient(unittest.TestCase):
         """
         self.cdn_client.delete_domain('www.example.com')
 
+        origin = [
+            {'peer': '1.2.3.5'}
+        ]
+        other_config = {
+            "defaultHost":"1.2.3.4"
+        }
+
         error = None
         try:
-            origin = [
-                {'peer': '1.2.3.5'}
-             ]
+            response = self.cdn_client.create_domain('www.example.com', origin, other_config)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
 
-            other_config = {
-                "defaultHost":"1.2.3.4"
-            }
+    def test_create_domain_with_follow302(self):
+        """
+        create_domain with origin follow302 config
+        """
+        self.cdn_client.delete_domain('www.example.com')
+
+        origin = [
+            {'peer': '1.2.3.5'}
+        ]
+        other_config = {
+            "follow302": True
+        }
+
+        error = None
+        try:
             response = self.cdn_client.create_domain('www.example.com', origin, other_config)
             print(response)
         except BceServerError as e:
@@ -117,18 +139,18 @@ class TestCdnClient(unittest.TestCase):
         """
         self.cdn_client.delete_domain('test-sdk.sys-qa.com')
 
+        origin = [
+            {'peer': 'http://1.2.3.2'}, # no port
+            {'peer': 'http://1.2.3.5:80'}, # set origin with http port
+            {'peer': 'https://1.2.3.7:443'}, # set origin with https port
+            {'peer': '1.2.3.1:8080'} # set origin with http port
+        ]
+        other_config = {
+            "defaultHost":"1.2.3.4"
+        }
+
         error = None
         try:
-            origin = [
-                {'peer': 'http://1.2.3.2'}, # no port
-                {'peer': 'http://1.2.3.5:80'}, # set origin with http port
-                {'peer': 'https://1.2.3.7:443'}, # set origin with https port
-                {'peer': '1.2.3.1:8080'} # set origin with http port
-             ]
-
-            other_config = {
-                "defaultHost":"1.2.3.4"
-            }
             response = self.cdn_client.create_domain('test-sdk.sys-qa.com', origin, other_config)
             print(response)
         except BceServerError as e:
@@ -142,16 +164,17 @@ class TestCdnClient(unittest.TestCase):
         """
         self.cdn_client.delete_domain('www.example.com')
 
+        origin = [
+            {'peer': '1.2.3.5'}
+        ]
+        other_config = {
+            "form":"image",
+            "defaultHost":"1.2.3.4",
+            "follow302": True
+        }
+
         error = None
         try:
-            origin = [
-                {'peer': '1.2.3.5'}
-             ]
-
-            other_config = {
-                "form":"image",
-                "defaultHost":"1.2.3.4"
-            }
             response = self.cdn_client.create_domain('www.example.com', origin, other_config)
             print(response)
         except BceServerError as e:
@@ -247,13 +270,71 @@ class TestCdnClient(unittest.TestCase):
         """
         test_set_domain_origin
         """
+        origin = [
+            {'peer': '1.2.3.4', 'host': 'www.originhost.com'},
+            {'peer': '1.2.3.5', 'host': 'www.originhost.com'}
+        ]
         error = None
         try:
-            origin = [
-                        {'peer': '1.2.3.4', 'host': 'www.originhost.com'},
-                        {'peer': '1.2.3.5', 'host': 'www.originhost.com'}
-                     ]
             response = self.cdn_client.set_domain_origin('www.example.com', origin)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_origin_with_follow302(self):
+        """
+        test_set_domain_origin_with_follow302
+        """
+        origin = [
+            {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+        ]
+        other = {
+            'follow302': True
+        }
+        error = None
+        try:
+            response = self.cdn_client.set_domain_origin('www.example.com', origin, other)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_origin_with_defaulthost(self):
+        """
+        test_set_domain_origin_with_defaulthost
+        """
+        origin = [
+            {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+        ]
+        other = {
+            'defaultHost': 'myhost.com'
+        }
+        error = None
+        try:
+            response = self.cdn_client.set_domain_origin('www.example.com', origin, other)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_domain_origin_with_other(self):
+        """
+        test_set_domain_origin_with_default_host
+        """
+        origin = [
+            {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+        ]
+        other = {
+            'defaultHost': 'myhost.com',
+            'follow302': True
+        }
+        error = None
+        try:
+            response = self.cdn_client.set_domain_origin('www.example.com', origin, other)
             print(response)
         except BceServerError as e:
             error = e
@@ -727,6 +808,295 @@ class TestCdnClient(unittest.TestCase):
         error = None
         try:
             response = self.cdn_client.set_follow_protocol(domain='www.example.com', follow=True)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_cache_share(self):
+        """
+        test_set_cache_share
+        """
+        cache_share = {
+            "enabled": False,
+        }
+        error = None
+        try:
+            self.cdn_client.set_domain_cache_share('www.example.com', cache_share)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_cache_share(self):
+        """
+        test_get_cache_share
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_cache_share('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_traffic_limit(self):
+        """
+        test_set_traffic_limit
+        """
+        traffic_limit = {
+            "enable": True,
+            "limitRate": 1024,
+            "limitStartHour": 1,
+            "limitEndHour": 10,
+            "limitRateAfter": 2048,
+            "trafficLimitArg": "a",
+            "trafficLimitUnit": "k"
+        }
+        error = None
+        try:
+            self.cdn_client.set_domain_traffic_limit('www.example.com', traffic_limit)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_traffic_limit(self):
+        """
+        test_get_traffic_limit
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_traffic_limit('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_ua_acl(self):
+        """
+        test_set_ua_acl
+        """
+        ua_acl = {
+            "whiteList": [
+                "MQQBrowser/5.3/Mozilla/5.0",
+                "Mozilla/5.0 (Linux; Android 7.0"
+            ],
+        }
+        error = None
+        try:
+            self.cdn_client.set_domain_ua_acl('www.example.com', ua_acl)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_ua_acl(self):
+        """
+        test_get_ua_acl
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_ua_acl('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_origin_protocol(self):
+        """
+        test_set_origin_protocol
+        """
+        origin_protocol = {
+            "value": "http"
+        }
+        error = None
+        try:
+            self.cdn_client.set_domain_origin_protocol('www.example.com', origin_protocol)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_origin_protocol(self):
+        """
+        test_get_origin_protocol
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_origin_protocol('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_retry_origin(self):
+        """
+        test_set_retry_origin
+        """
+        retry_origin = {
+            "codes": [
+                500,
+                502
+            ]
+        }
+        error = None
+        try:
+            self.cdn_client.set_domain_retry_origin('www.example.com', retry_origin)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_retry_origin(self):
+        """
+        test_get_retry_origin
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_retry_origin('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_ipv6_dispatch(self):
+        """
+        test_set_ipv6_dispatch
+        """
+        ipv6_dispatch = {"enable": False}
+        error = None
+        try:
+            self.cdn_client.set_domain_ipv6_dispatch('www.example.com', ipv6_dispatch)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_ipv6_dispatch(self):
+        """
+        test_get_ipv6_dispatch
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_ipv6_dispatch('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_quic(self):
+        """
+        test_set_quic
+        """
+        quic = False
+        error = None
+        try:
+            self.cdn_client.set_domain_quic('www.example.com', quic)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_quic(self):
+        """
+        test_get_quic
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_quic('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_offline_mode(self):
+        """
+        test_set_offline_mode
+        """
+        offline_mode = True
+        error = None
+        try:
+            self.cdn_client.set_domain_offline_mode('www.example.com', offline_mode)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_offline_mode(self):
+        """
+        test_get_offline_mode
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_offline_mode('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_set_ocsp(self):
+        """
+        test_set_ocsp
+        """
+        ocsp = False
+        error = None
+        try:
+            self.cdn_client.set_domain_ocsp('www.example.com', ocsp)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_get_ocsp(self):
+        """
+        test_get_ocsp
+        """
+        error = None
+        try:
+            response = self.cdn_client.get_domain_ocsp('www.example.com')
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_ips_query(self):
+        """
+        test_ips_query
+        """
+        error = None
+        action = 'describeIp'
+        ips = [
+            "1.3.5.6",
+            "2.36.4.1",
+            "1.56.97.180",
+            "111.63.51.2"
+        ]
+        try:
+            response = self.cdn_client.ips_query(action, ips)
+            print(response)
+        except BceServerError as e:
+            error = e
+        finally:
+            self.assertIsNone(error)
+
+    def test_list_nodes(self):
+        """
+        test_list_nodes
+        """
+        error = None
+        try:
+            response = self.cdn_client.list_nodes()
             print(response)
         except BceServerError as e:
             error = e

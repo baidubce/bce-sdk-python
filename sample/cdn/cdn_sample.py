@@ -58,7 +58,77 @@ def test_create_domain(c):
                 "defaultHost":"1.2.3.4"
             }
 
-    response = c.create_domain('test-sdk.sys-qa.com', origin, other_config)
+    response = c.create_domain('yxl12.duanhuiyan.top', origin, other_config)
+    print(response)
+
+
+def test_create_domain_with_form(c):
+    """
+    create_domain with form config
+    """
+    c.delete_domain('yxl12.duanhuiyan.top')
+
+    origin = [
+        {'peer': '1.2.3.5'}
+    ]
+    other_config = {
+        "form": "image"
+    }
+
+    response = c.create_domain('yxl12.duanhuiyan.top', origin, other_config)
+    print(response)
+
+
+def test_create_domain_with_defaulthost(c):
+    """
+    create_domain with defaultHost config
+    """
+    c.delete_domain('yxl12.duanhuiyan.top')
+
+    origin = [
+        {'peer': '1.2.3.5'}
+    ]
+    other_config = {
+        "defaultHost":"1.2.3.4"
+    }
+
+    response = c.create_domain('yxl12.duanhuiyan.top', origin, other_config)
+    print(response)
+
+
+def test_create_domain_with_follow302(c):
+    """
+    create_domain with origin follow302 config
+    """
+    c.delete_domain('yxl12.duanhuiyan.top')
+
+    origin = [
+        {'peer': '1.2.3.5'}
+    ]
+    other_config = {
+        "follow302": True
+    }
+
+    response = c.create_domain('yxl12.duanhuiyan.top', origin, other_config)
+    print(response)
+
+
+def test_create_domain_other(c):
+    """
+    create_domain with other config
+    """
+    c.delete_domain('yxl12.duanhuiyan.top')
+
+    origin = [
+        {'peer': '1.2.3.5'}
+    ]
+    other_config = {
+        "form": "image",
+        "defaultHost": "1.2.3.4",
+        "follow302": True
+    }
+
+    response = c.create_domain('yxl12.duanhuiyan.top', origin, other_config)
     print(response)
 
 
@@ -66,7 +136,7 @@ def test_delete_domain(c):
     """
     test_delete_domain
     """
-    response = c.delete_domain('test-sdk.sys-qa.com')
+    response = c.delete_domain('yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -74,7 +144,7 @@ def test_enable_domain(c):
     """
     test_enable_domain
     """
-    response = c.enable_domain('www.example.com')
+    response = c.enable_domain('yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -82,7 +152,7 @@ def test_disable_domain(c):
     """
     test_disable_domain
     """
-    response = c.disable_domain('www.example.com')
+    response = c.disable_domain('yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -90,7 +160,7 @@ def test_get_domain_config(c):
     """
     test_get_domain_config
     """
-    response = c.get_domain_config('www.example.com')
+    response = c.get_domain_config('yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -135,7 +205,53 @@ def test_set_domain_origin(c):
                 {'peer': 'https://1.2.3.7:443', 'host': 'www.originhost.com'}, # set origin with https port
                 {'peer': '1.2.3.9:8080', 'host': 'www.originhost.com'} # set origin with http port
              ]
-    response = c.set_domain_origin('www.example.com', origin)
+    response = c.set_domain_origin('yxl12.duanhuiyan.top', origin)
+    print(response)
+
+
+def test_set_domain_origin_with_follow302(c):
+    """
+    test_set_domain_origin_with_follow302
+    """
+    origin = [
+        {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+    ]
+    other = {
+        'follow302': True
+    }
+    
+    response = c.set_domain_origin('yxl12.duanhuiyan.top', origin, other)
+    print(response)
+
+
+def test_set_domain_origin_with_defaulthost(c):
+    """
+    test_set_domain_origin_with_defaulthost
+    """
+    origin = [
+        {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+    ]
+    other = {
+        'defaultHost': 'myhost.com'
+    }
+    
+    response = c.set_domain_origin('yxl12.duanhuiyan.top', origin, other)
+    print(response)
+
+
+def test_set_domain_origin_with_other(c):
+    """
+    test_set_domain_origin_with_default_host
+    """
+    origin = [
+        {'peer': '1.2.3.4', 'host': 'www.originhost.com'}
+    ]
+    other = {
+        'defaultHost': 'myhost.com',
+        'follow302': True
+    }
+    
+    response = c.set_domain_origin('yxl12.duanhuiyan.top', origin, other)
     print(response)
 
 
@@ -143,7 +259,7 @@ def test_get_domain_cache_ttl(c):
     """
     test_get_domain_cache_ttl
     """
-    response = c.get_domain_cache_ttl('www.example.com')
+    response = c.get_domain_cache_ttl('yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -154,7 +270,7 @@ def test_set_domain_cache_ttl(c):
     rules = []
     rules.append({'type':'suffix', 'value': '.jpg', 'ttl': 3600, 'weight': 30})
     rules.append({'type':'path', 'value': '/a/b/c', 'ttl': 1800, 'weight': 15})
-    response = c.set_domain_cache_ttl('www.example.com', rules)
+    response = c.set_domain_cache_ttl('yxl12.duanhuiyan.top', rules)
     print(response)
 
 
@@ -162,7 +278,7 @@ def test_set_domain_cache_full_url(c):
     """
     test_set_domain_cache_full_url
     """
-    response = c.set_domain_cache_full_url('www.example.com', False)
+    response = c.set_domain_cache_full_url('yxl12.duanhuiyan.top', False)
     print(response)
 
 
@@ -172,7 +288,7 @@ def test_set_domain_referer_acl(c):
     """
     blackList = ["http://a/b/c/", "http://c/d/e/"]
     response = c.set_domain_referer_acl(
-                        domain = 'www.example.com',
+                        domain = 'yxl12.duanhuiyan.top',
                         blackList = blackList,
                         allowEmpty = True)
     print(response)
@@ -184,7 +300,7 @@ def test_set_domain_ip_acl(c):
     """
     blackList = ['1.1.1.2', '1.1.1.3']
     response = c.set_domain_ip_acl(
-                        domain = 'www.example.com',
+                        domain = 'yxl12.duanhuiyan.top',
                         blackList = blackList)
     print(response)
 
@@ -194,7 +310,264 @@ def test_set_domain_limit_rate(c):
     test_set_domain_limit_rate
     """
     limitRate = 1024
-    response = c.set_domain_limit_rate('www.example.com', limitRate)
+    response = c.set_domain_limit_rate('yxl12.duanhuiyan.top', limitRate)
+    print(response)
+
+
+def test_set_cache_share_disable(c):
+    """
+    test_set_cache_share_disable
+    """
+    cache_share = {
+        "enabled": False,
+    }
+    response = c.set_domain_cache_share('yxl12.duanhuiyan.top', cache_share)
+    print(response)
+
+
+def test_set_cache_share_enable(c):
+    """
+    test_set_cache_share_enable
+    """
+    cache_share = {
+        "enabled": True,
+        "domain": "duanhuiyan.top" 
+    }
+    response = c.set_domain_cache_share('yxl12.duanhuiyan.top', cache_share)
+    print(response)
+
+
+def test_get_cache_share(c):
+    """
+    test_get_cache_share
+    """
+    response = c.get_domain_cache_share('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_traffic_limit(c):
+    """
+    test_set_traffic_limit
+    """
+    traffic_limit = {
+        "enable": True,
+        "limitRate": 1024,
+        "limitStartHour": 1,
+        "limitEndHour": 10,
+        "limitRateAfter": 2048,
+        "trafficLimitArg": "a",
+        "trafficLimitUnit": "k"
+    }
+    response = c.set_domain_traffic_limit('yxl12.duanhuiyan.top', traffic_limit)
+    print(response)
+
+
+def test_get_traffic_limit(c):
+    """
+    test_get_traffic_limit
+    """
+    response = c.get_domain_traffic_limit('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_ua_acl_white_list(c):
+    """
+    test_set_ua_acl_white_list
+    """
+    ua_acl = {
+        "whiteList": [
+            "MQQBrowser/5.3/Mozilla/5.0",
+            "Mozilla/5.0 (Linux; Android 7.0"
+        ],
+    }
+    response = c.set_domain_ua_acl('yxl12.duanhuiyan.top', ua_acl)
+    print(response)
+
+
+def test_set_ua_acl_black_list(c):
+    """
+    test_set_ua_acl_black_list
+    """
+    ua_acl = {
+        "blackList": [
+            "MQQBrowser/5.3/Mozilla/5.0",
+            "Mozilla/5.0 (Linux; Android 7.0"
+        ],
+    }
+    response = c.set_domain_ua_acl('yxl12.duanhuiyan.top', ua_acl)
+    print(response)
+
+
+def test_delete_ua_acl_white_list(c):
+    """
+    test_delete_ua_acl_white_list
+    """
+    ua_acl = {
+        "whiteList": [],
+    }
+    response = c.set_domain_ua_acl('yxl12.duanhuiyan.top', ua_acl)
+    print(response)
+
+
+def test_delete_ua_acl_black_list(c):
+    """
+    test_delete_ua_acl_black_list
+    """
+    ua_acl = {
+        "blackList": [],
+    }
+    response = c.set_domain_ua_acl('yxl12.duanhuiyan.top', ua_acl)
+    print(response)
+
+
+def test_get_ua_acl(c):
+    """
+    test_get_ua_acl
+    """
+    response = c.get_domain_ua_acl('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_origin_protocol(c):
+    """
+    test_set_origin_protocol
+    """
+    origin_protocol = {
+        "value": "http"
+    }
+    response = c.set_domain_origin_protocol('yxl12.duanhuiyan.top', origin_protocol)
+    print(response)
+
+
+def test_get_origin_protocol(c):
+    """
+    test_get_origin_protocol
+    """
+    response = c.get_domain_origin_protocol('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_retry_origin(c):
+    """
+    test_set_retry_origin
+    """
+    retry_origin = {
+        "codes": [
+            500,
+            502
+        ]
+    }
+    response = c.set_domain_retry_origin('yxl12.duanhuiyan.top', retry_origin)
+    print(response)
+
+
+def test_set_retry_origin_off(c):
+    """
+    test_set_retry_origin_off
+    """
+    retry_origin = {
+        "codes": []
+    }
+    response = c.set_domain_retry_origin('yxl12.duanhuiyan.top', retry_origin)
+    print(response)
+
+
+def test_get_retry_origin(c):
+    """
+    test_get_retry_origin
+    """
+    response = c.get_domain_retry_origin('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_ipv6_dispatch(c):
+    """
+    test_set_ipv6_dispatch
+    """
+    ipv6_dispatch = {"enable": False}
+    response = c.set_domain_ipv6_dispatch('yxl12.duanhuiyan.top', ipv6_dispatch)
+    print(response)
+
+
+def test_get_ipv6_dispatch(c):
+    """
+    test_get_ipv6_dispatch
+    """
+    response = c.get_domain_ipv6_dispatch('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_quic(c):
+    """
+    test_set_quic
+    """
+    quic = False
+    response = c.set_domain_quic('yxl12.duanhuiyan.top', quic)
+    print(response)
+
+
+def test_get_quic(c):
+    """
+    test_get_quic
+    """
+    response = c.get_domain_quic('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_offline_mode(c):
+    """
+    test_set_offline_mode
+    """
+    offline_mode = True
+    response = c.set_domain_offline_mode('yxl12.duanhuiyan.top', offline_mode)
+    print(response)
+
+
+def test_get_offline_mode(c):
+    """
+    test_get_offline_mode
+    """
+    response =  c.get_domain_offline_mode('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_set_ocsp(c):
+    """
+    test_set_ocsp
+    """
+    ocsp = False
+    response = c.set_domain_ocsp('yxl12.duanhuiyan.top', ocsp)
+    print(response)
+
+
+def test_get_ocsp(c):
+    """
+    test_get_ocsp
+    """
+    response =  c.get_domain_ocsp('yxl12.duanhuiyan.top')
+    print(response)
+
+
+def test_ips_query(c):
+    """
+    test_ips_query
+    """
+    action = 'describeIp'
+    ips = [
+        "1.3.5.6",
+        "2.36.4.1",
+        "1.56.97.180",
+        "111.63.51.2"
+    ]
+    response = c.ips_query(action, ips)
+    print(response)
+
+
+def test_list_nodes(c):
+    """
+    test_list_nodes
+    """
+    response =  c.list_nodes()
     print(response)
 
 
@@ -209,7 +582,7 @@ def test_get_domain_pv_stat(c):
     no withRegion->false
     """
     response = c.get_domain_pv_stat(
-            domain = 'www.example.com',
+            domain = 'yxl12.duanhuiyan.top',
             startTime = '2018-01-11T12:00:00Z',
             endTime = '2018-01-11T13:00:00Z',
             period = 3600, withRegion = '')
@@ -227,7 +600,7 @@ def test_get_domain_flow_stat(c):
     no withRegion->false
     """
     response = c.get_domain_flow_stat(
-            domain = 'www.example.com',
+            domain = 'yxl12.duanhuiyan.top',
             startTime = '2018-01-11T12:00:00Z',
             endTime = '2018-01-11T13:00:00Z',
             period = 3600, withRegion = '')
@@ -244,7 +617,7 @@ def test_get_domain_src_flow_stat(c):
     no period->3600
     """
     response = c.get_domain_src_flow_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
@@ -257,7 +630,7 @@ def test_get_domain_hitrate_stat(c):
     params is optional
     """
     response = c.get_domain_hitrate_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
@@ -270,7 +643,7 @@ def test_get_domain_httpcode_stat(c):
     params is optional
     """
     response = c.get_domain_httpcode_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
@@ -283,7 +656,7 @@ def test_get_domain_tpon_url_stat(c):
     params is optional
     """
     response = c.get_domain_topn_url_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T14:00:00Z',
                 period = 3600)
@@ -296,7 +669,7 @@ def test_get_domain_topn_referer_stat(c):
     params is optional
     """
     response = c.get_domain_topn_referer_stat(
-                    domain = 'www.example.com',
+                    domain = 'yxl12.duanhuiyan.top',
                     startTime = '2018-01-11T12:00:00Z',
                     endTime = '2018-01-11T14:00:00Z',
                     period = 3600)
@@ -309,7 +682,7 @@ def test_get_domain_uv_stat(c):
     params is optional
     """
     response = c.get_domain_uv_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T14:00:00Z',
                 period = 3600)
@@ -327,7 +700,7 @@ def test_get_domain_avg_speed_stat(c):
     no withDistribution->false
     """
     response = c.get_domain_avg_speed_stat(
-                domain = 'www.example.com',
+                domain = 'yxl12.duanhuiyan.top',
                 startTime = '2018-01-11T12:00:00Z',
                 endTime = '2018-01-11T13:00:00Z',
                 period = 3600)
@@ -339,8 +712,8 @@ def test_purge(c):
     test_purge
     """
     tasks = []
-    tasks.append({'url': 'http://www.example.com/1.jpg'})
-    tasks.append({'url': 'http://www.example.com/', "type":"directory"})
+    tasks.append({'url': 'http://yxl12.duanhuiyan.top/1.jpg'})
+    tasks.append({'url': 'http://yxl12.duanhuiyan.top/', "type":"directory"})
     response = c.purge(tasks)
     print(response)
 
@@ -351,7 +724,7 @@ def test_list_purge_tasks(c):
     """
     response = c.list_purge_tasks(
                 id = 'cb8eb1cf-b257-4426-8ac8-59c47b19a351',
-                url = 'http://www.example.com/1.jpg',
+                url = 'http://yxl12.duanhuiyan.top/1.jpg',
                 startTime = '2018-01-11T11:00:00Z',
                 endTime = '2018-01-11T12:50:00Z'
                 )
@@ -363,8 +736,8 @@ def test_prefetch(c):
     test_prefetch
     """
     tasks = []
-    tasks.append({'url': 'http://www.example.com/1.jpg'})
-    tasks.append({'url': 'http://www.example.com/2.jpg'})
+    tasks.append({'url': 'http://yxl12.duanhuiyan.top/1.jpg'})
+    tasks.append({'url': 'http://yxl12.duanhuiyan.top/2.jpg'})
     response = c.prefetch(tasks)
     print(response)
 
@@ -394,7 +767,7 @@ def test_get_domain_log(c):
     test_get_domain_log
     """
     response = c.get_domain_log(
-            domain = 'www.example.com',
+            domain = 'yxl12.duanhuiyan.top',
             startTime = '2018-01-11T10:00:00Z',
             endTime = '2018-01-11T12:50:00Z')
     print(response)
@@ -404,7 +777,7 @@ def test_set_seo(c):
     """
     test_set_seo
     """
-    response = c.set_seo(domain='www.example.com', push_record=True, directory_origin=True)
+    response = c.set_seo(domain='yxl12.duanhuiyan.top', push_record=True, directory_origin=True)
     print(response)
 
 
@@ -412,7 +785,7 @@ def test_get_seo(c):
     """
     test_set_seo
     """
-    response = c.get_seo(domain='www.example.com')
+    response = c.get_seo(domain='yxl12.duanhuiyan.top')
     print(response)
 
 
@@ -420,7 +793,7 @@ def test_set_follow_protocol(c):
     """
     test_set_http_header
     """
-    response = c.set_follow_protocol(domain='www.example.com', follow=True)
+    response = c.set_follow_protocol(domain='yxl12.duanhuiyan.top', follow=True)
     print(response)
 
 
@@ -437,7 +810,7 @@ def test_get_domain_stats_avg_speed(c):
     test_get_domain_stats_avg_speed
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'avg_speed'
     response = c.get_domain_stats(param)
     print(response)
@@ -448,7 +821,7 @@ def test_get_domain_stats_avg_speed_region(c):
     test_get_domain_stats_avg_speed_region
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=None,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'avg_speed_region'
     param.prov = 'beijing'
     param.isp = 'ct'
@@ -461,7 +834,7 @@ def test_get_domain_stats_pv(c):
     test_get_domain_stats_pv
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'pv'
     param.level = 'edge'
     response = c.get_domain_stats(param)
@@ -473,7 +846,7 @@ def test_get_domain_stats_pv_src(c):
     test_get_domain_stats_pv_src
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'pv_src'
     response = c.get_domain_stats(param)
     print(response)
@@ -484,7 +857,7 @@ def test_get_domain_stats_pv_region(c):
     test_get_domain_stats_pv_region
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'pv_region'
     param.prov = 'beijing'
     param.isp = 'ct'
@@ -497,7 +870,7 @@ def test_get_domain_stats_uv(c):
     test_get_domain_stats_uv
     """
     param = CdnStatsParam(start_time='2019-05-25T00:00:00Z', end_time='2019-05-26T00:00:00Z', key_type=0,
-                          key=['www.example.com'], period=3600, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=3600, groupBy='')
     param.metric = 'uv'
     response = c.get_domain_stats(param)
     print(response)
@@ -508,7 +881,7 @@ def test_get_domain_stats_flow(c):
     test_get_domain_stats_flow
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'flow'
     param.level = 'edge'
     response = c.get_domain_stats(param)
@@ -520,7 +893,7 @@ def test_get_domain_stats_flow_protocol(c):
     test_get_domain_stats_flow_protocol
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'flow_protocol'
     param.protocol = 'http'
     response = c.get_domain_stats(param)
@@ -532,7 +905,7 @@ def test_get_domain_stats_flow_region(c):
     test_get_domain_stats_flow_region
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'flow_region'
     param.prov = 'beijing'
     param.isp = 'ct'
@@ -545,7 +918,7 @@ def test_get_domain_stats_src_flow(c):
     test_get_domain_stats_src_flow
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'src_flow'
     response = c.get_domain_stats(param)
     print(response)
@@ -556,7 +929,7 @@ def test_get_domain_stats_real_hit(c):
     test_get_domain_stats_real_hit
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'real_hit'
     response = c.get_domain_stats(param)
     print(response)
@@ -567,7 +940,7 @@ def test_get_domain_stats_pv_hit(c):
     test_get_domain_stats_pv_hit
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'pv_hit'
     response = c.get_domain_stats(param)
     print(response)
@@ -578,7 +951,7 @@ def test_get_domain_stats_httpcode(c):
     test_get_domain_stats_httpcode
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'httpcode'
     response = c.get_domain_stats(param)
     print(response)
@@ -589,7 +962,7 @@ def test_get_domain_stats_src_httpcode(c):
     test_get_domain_stats_src_httpcode
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'src_httpcode'
     response = c.get_domain_stats(param)
     print(response)
@@ -600,7 +973,7 @@ def test_get_domain_stats_httpcode_region(c):
     test_get_domain_stats_src_httpcode
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'httpcode_region'
     param.prov = 'beijing'
     param.isp = 'ct'
@@ -613,7 +986,7 @@ def test_get_domain_stats_top_urls(c):
     test_get_domain_stats_top_urls
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'top_urls'
     param.extra = 200
     response = c.get_domain_stats(param)
@@ -625,7 +998,7 @@ def test_get_domain_stats_top_referers(c):
     test_get_domain_stats_top_referers
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'top_referers'
     param.extra = 200
     response = c.get_domain_stats(param)
@@ -648,7 +1021,7 @@ def test_get_domain_stats_error(c):
     test_get_domain_stats_error
     """
     param = CdnStatsParam(start_time='2019-05-26T00:00:00Z', end_time='2019-05-26T01:00:00Z', key_type=0,
-                          key=['www.example.com'], period=300, groupBy='')
+                          key=['yxl12.duanhuiyan.top'], period=300, groupBy='')
     param.metric = 'error'
     response = c.get_domain_stats(param)
     print(response)
@@ -690,7 +1063,7 @@ def test_set_domain_error_page(c):
                     {'code': 403, 'url': '/customer_403.html'}
                  ]
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_error_page(domain, error_page);
+    response = c.set_domain_error_page(domain, error_page)
     print(response)
 
 
@@ -727,7 +1100,7 @@ def test_set_domain_cors(c):
                 "originList": ["http://www.baidu.com", "http://*.bce.com"]
             }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_cors(domain, cors);
+    response = c.set_domain_cors(domain, cors)
     print(response)
 
 
@@ -748,7 +1121,7 @@ def test_set_domain_access_limit(c):
                 "limit": 2000
             }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_access_limit(domain, access_limit);
+    response = c.set_domain_access_limit(domain, access_limit)
     print(response)
 
 
@@ -769,7 +1142,7 @@ def test_set_domain_client_ip(c):
                 "name": "True-Client-Ip"
             }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_client_ip(domain, client_ip);
+    response = c.set_domain_client_ip(domain, client_ip)
     print(response)
 
 
@@ -787,7 +1160,7 @@ def test_set_domain_range_switch(c):
     """
     range_switch = True
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_range_switch(domain, range_switch);
+    response = c.set_domain_range_switch(domain, range_switch)
     print(response)
 
 
@@ -807,7 +1180,7 @@ def test_set_domain_mobile_access(c):
         "distinguishClient": True
     }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_mobile_access(domain, mobile_access);
+    response = c.set_domain_mobile_access(domain, mobile_access)
     print(response)
 
 
@@ -828,7 +1201,7 @@ def test_set_domain_http_header(c):
         {"type": "response", "header": "content-type", "value":"application/octet-stream", "action": "add"}
     ]
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_http_header(domain, http_header);
+    response = c.set_domain_http_header(domain, http_header)
     print(response)
 
 
@@ -846,7 +1219,7 @@ def test_set_domain_file_trim(c):
     """
     file_trim = True
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_file_trim(domain, file_trim);
+    response = c.set_domain_file_trim(domain, file_trim)
     print(response)
 
 
@@ -876,7 +1249,7 @@ def test_set_domain_media_drag(c):
         }
     }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_media_drag(domain, media_drag);
+    response = c.set_domain_media_drag(domain, media_drag)
     print(response)
 
 
@@ -894,7 +1267,7 @@ def test_set_domain_compress(c):
     """
     compress = {"allow": True, "type": "gzip"}
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_compress(domain, compress);
+    response = c.set_domain_compress(domain, compress)
     print(response)
 
 
@@ -953,7 +1326,7 @@ def test_set_domain_dsa(c):
         "comment":"test"
     }
     domain = 'test-sdk.sys-qa.com'
-    response = c.set_domain_dsa(domain, dsa);
+    response = c.set_domain_dsa(domain, dsa)
     print(response)
 
 
@@ -993,6 +1366,10 @@ if __name__ == "__main__":
     # test_valid_domain(c)
 
     # test_create_domain(c)
+    # test_create_domain_with_form(c)
+    # test_create_domain_with_defaulthost(c)
+    # test_create_domain_with_follow302(c)
+    # test_create_domain_other(c)
 
     # test_get_domain_cache_full_url(c)
     # test_set_domain_error_page(c)
@@ -1023,12 +1400,40 @@ if __name__ == "__main__":
     # test_get_dsa_domains(c)
     # test_get_log_list(c)
     # test_set_domain_multi_configs(c)
+    # test_set_cache_share_disable(c)
+    # test_set_cache_share_enable(c)
+    # test_get_cache_share(c)
+    # test_set_traffic_limit(c)
+    # test_get_traffic_limit(c)
+    # test_set_ua_acl_white_list(c)
+    # test_set_ua_acl_black_list(c)
+    # test_delete_ua_acl_white_list(c)
+    # test_delete_ua_acl_black_list(c)
+    # test_get_ua_acl(c)
+    # test_set_origin_protocol(c)
+    # test_get_origin_protocol(c)
+    # test_set_retry_origin(c)
+    # test_set_retry_origin_off(c)
+    # test_get_retry_origin(c)
+    # test_set_ipv6_dispatch(c)
+    # test_get_ipv6_dispatch(c)
+    # test_set_quic(c)
+    # test_get_quic(c)
+    # test_set_offline_mode(c)
+    # test_get_offline_mode(c)
+    # test_set_ocsp(c)
+    # test_get_ocsp(c)
+    # test_ips_query(c)
+    # test_list_nodes(c)
+    # test_set_domain_origin(c)
+    # test_set_domain_origin_with_follow302(c)
+    # test_set_domain_origin_with_defaulthost(c)
+    # test_set_domain_origin_with_other(c)
 
     # test_delete_domain(c)
     # test_enable_domain(c)
     # test_disable_domain(c)
     # test_get_domain_config(c)
-    # test_set_domain_origin(c)
     # test_get_domain_cache_ttl(c)
     # test_set_domain_cache_ttl(c)
     # test_set_domain_cache_full_url(c)
