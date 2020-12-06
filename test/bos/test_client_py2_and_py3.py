@@ -848,6 +848,7 @@ class TestBucketReplication(TestClient):
         """test put,get,delete bucket replication"""
         # create destination bucket
         dst_bucket_name = self.BUCKET + "-gz"
+        rule_id = "sample-rep-config"
         if not self.bos.does_bucket_exist(dst_bucket_name):
             self.bos.create_bucket(dst_bucket_name,
                 config = BceClientConfiguration(endpoint = b'gz.bcebos.com'))
@@ -867,12 +868,12 @@ class TestBucketReplication(TestClient):
                 "storageClass":"COLD"
             },
         "replicateDeletes":"enabled",
-        "id":"sample-rep-config"
+        "id": rule_id
         }
         # test put bucket replication
         err = None
         try:
-            self.bos.put_bucket_replication(self.BUCKET, replication)
+            response = self.bos.put_bucket_replication(self.BUCKET, replication)
         except BceServerError as e:
             err = e
         finally:
@@ -880,7 +881,7 @@ class TestBucketReplication(TestClient):
         # test get bucket replication
         err = None
         try:
-            response = self.bos.get_bucket_replication(self.BUCKET)
+            response = self.bos.get_bucket_replication(self.BUCKET, id=rule_id)
         except BceServerError as e:
             err = e
         finally:
@@ -891,17 +892,28 @@ class TestBucketReplication(TestClient):
         # test get_bucket_replication_progress()
         err = None
         try:
-            response = self.bos.get_bucket_replication_progress(self.BUCKET)
+            response = self.bos.get_bucket_replication_progress(self.BUCKET, id=rule_id)
         except BceServerError as e:
             err = e
         finally:
             self.assertIsNone(err)
         self.check_headers(response)
         self.assertEqual(response.status, replication['status'])
+        # test list_bucket_replication()
+        err = None
+        try:
+            response = self.bos.list_bucket_replication(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        self.assertEqual(response.rules[0].resource[0], replication['resource'][0])
+        self.assertEqual(response.rules[0].destination.bucket, replication['destination']['bucket'])
         # test delete bucket replication
         err = None
         try:
-            response = self.bos.delete_bucket_replication(self.BUCKET)
+            response = self.bos.delete_bucket_replication(self.BUCKET ,id=rule_id)
         except BceServerError as e:
             err = e
         finally:
