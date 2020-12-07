@@ -450,50 +450,65 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        params={b'replication': b''}
+        if "id" in replication:
+            params[b"id"] = compat.convert_to_bytes(replication["id"])
         return self._send_request(http_methods.PUT,
                            bucket_name,
                            body=json.dumps(replication,
                                            default=BosClient._dump_acl_object),
                            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
-                           params={b'replication': b''},
+                           params=params,
                            config=config)
 
     @required(bucket_name=(bytes, str))
-    def get_bucket_replication(self, bucket_name, config=None):
+    def get_bucket_replication(self, bucket_name, id=None, config=None):
         """
         Get configuration of cross-region replication 
 
         :type bucket: string
         :param bucket: None
 
+        :type id: string
+        :param id: replication rule id
+
         :return:
             **HttpResponse Class**
         """
+        params={b'replication': b''}
+        if id is not None:
+            params[b"id"] = compat.convert_to_bytes(id)
         return self._send_request(http_methods.GET,
                            bucket_name,
-                           params={b'replication': b''},
+                           params=params,
                            config=config)
 
 
     @required(bucket_name=(bytes, str))
-    def delete_bucket_replication(self, bucket_name, config=None):
+    def delete_bucket_replication(self, bucket_name, id=None, config=None):
         """
         Delete configuration of cross-region replication and close it 
 
         :type bucket: string
         :param bucket: None
 
+        :type id: string
+        :param id: replication rule id
+
         :return:
             **HttpResponse Class**
         """
+        params={b'replication': b''}
+        if id is not None:
+            params[b"id"] = compat.convert_to_bytes(id)
         return self._send_request(http_methods.DELETE,
                            bucket_name,
-                           params={b'replication': b''},
+                           params=params,
                            config=config)
 
 
     @required(bucket_name=(bytes, str))
-    def get_bucket_replication_progress(self, bucket_name, config=None):
+    def get_bucket_replication_progress(self, bucket_name, id=None, config=None):
         """
         Get status of cross-region replication,for exapmle 'historyReplicationPercent',
         'latestReplicationTime'
@@ -501,12 +516,34 @@ class BosClient(BceBaseClient):
         :type bucket: string
         :param bucket: None
 
+        :type id: string
+        :param id: replication rule id
+
+        :return:
+            **HttpResponse Class**
+        """
+        params={b'replicationProgress': b''}
+        if id is not None:
+            params[b"id"] = compat.convert_to_bytes(id)
+        return self._send_request(http_methods.GET,
+                           bucket_name,
+                           params=params,
+                           config=config)
+    
+    @required(bucket_name=(bytes, str))
+    def list_bucket_replication(self, bucket_name, config=None):
+        """
+        list configuration of cross-region replication rule
+
+        :type bucket: string
+        :param bucket: None
+
         :return:
             **HttpResponse Class**
         """
         return self._send_request(http_methods.GET,
                            bucket_name,
-                           params={b'replicationProgress': b''},
+                           params={b'replication': b'', b'list': b''},
                            config=config)
 
     @required(bucket_name=(bytes, str), inventory=(dict))
