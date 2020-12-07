@@ -882,7 +882,7 @@ class TestCdnClient(unittest.TestCase):
         """
         ua_acl = {
             "whiteList": [
-                "MQQBrowser/5.3/Mozilla/5.0",
+                "Mozilla/5.0 (Windows NT 6.1",
                 "Mozilla/5.0 (Linux; Android 7.0"
             ],
         }

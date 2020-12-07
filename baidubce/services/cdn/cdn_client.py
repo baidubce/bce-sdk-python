@@ -123,7 +123,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update cacheShare of the domain
         :param domain: the domain name
         :type domain: string
-        :param cache_share: Detailed configuration of cacheShare
+        :param cache_share: detailed configuration of cacheShare
         :type cache_share: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -161,7 +161,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update trafficLimit of the domain
         :param domain: the domain name
         :type domain: string
-        :param traffic_limit: Detailed configuration of trafficLimit
+        :param traffic_limit: detailed configuration of trafficLimit
         :type traffic_limit: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -199,7 +199,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update uaAcl of the domain
         :param domain: the domain name
         :type domain: string
-        :param ua_acl: Detailed configuration of uaAcl
+        :param ua_acl: detailed configuration of uaAcl
         :type ua_acl: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -237,7 +237,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update originProtocol of the domain
         :param domain: the domain name
         :type domain: string
-        :param origin_protocol: Detailed configuration of originProtocol
+        :param origin_protocol: detailed configuration of originProtocol
         :type origin_protocol: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -275,7 +275,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update retryOrigin of the domain
         :param domain: the domain name
         :type domain: string
-        :param retry_origin: Detailed configuration of retryOrigin
+        :param retry_origin: detailed configuration of retryOrigin
         :type retry_origin: dictionary
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -313,7 +313,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update ipv6Dispatch of the domain
         :param domain: the domain name
         :type domain: string
-        :param ipv6_dispatch: Detailed configuration of IPv6 access and IPv6 back to source
+        :param ipv6_dispatch: detailed configuration of IPv6 access and IPv6 back to source
         :type ipv6_dispatch: IPv6Config
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -351,7 +351,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update QUIC of the domain
         :param domain: the domain name
         :type domain: string
-        :param quic: Detailed configuration of Quick UDP Internet Connection
+        :param quic: detailed configuration of Quick UDP Internet Connection
         :type quic: bool
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -389,7 +389,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update offlineMode of the domain
         :param domain: the domain name
         :type domain: string
-        :param offline_mode: Detailed configuration of offlineMode
+        :param offline_mode: detailed configuration of offlineMode
         :type offline_mode: bool
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -427,7 +427,7 @@ class CdnClient(bce_base_client.BceBaseClient):
         update OCSP configuration of the domain
         :param domain: the domain name
         :type domain: string
-        :param ocsp: Detailed configuration of Online Certificate Status Protocol
+        :param ocsp: detailed configuration of Online Certificate Status Protocol
         :type ocsp: bool
         :param config: None
         :type config: baidubce.BceClientConfiguration
@@ -1772,7 +1772,7 @@ class CdnClient(bce_base_client.BceBaseClient):
 
     def ip_query(self, action, ip, config=None):
         """
-        check specified ip if belongs to Baidu CDN
+        check specified ip whether belongs to Baidu CDN
         :param action: 'describeIp'
         :type action: string
         :param ip: specified ip
@@ -1790,7 +1790,7 @@ class CdnClient(bce_base_client.BceBaseClient):
 
     def ips_query(self, action, ips, config=None):
         """
-        check specified ip list if belongs to Baidu CDN
+        check specified ip list whether belongs to Baidu CDN
         :param action: 'describeIp'
         :type action: string
         :param ip: specified ip
