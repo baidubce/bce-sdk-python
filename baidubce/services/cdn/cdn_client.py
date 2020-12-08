@@ -1788,26 +1788,6 @@ class CdnClient(bce_base_client.BceBaseClient):
             params=params,
             config=config)
 
-    def ips_query(self, action, ips, config=None):
-        """
-        check specified ip list whether belongs to Baidu CDN
-        :param action: 'describeIp'
-        :type action: string
-        :param ip: specified ip
-        :type ip: list<string>
-
-        :return:
-        :rtype: baidubce.bce_response.BceResponse
-        """
-        return self._send_request(
-            http_methods.POST, '/utils/ips',
-            params={},
-            body=json.dumps({
-                'action':action,
-                'ips': ips
-            }),
-            config=config)
-
     def list_nodes(self, config=None):
         """
         Baidu back source IP address segment query
