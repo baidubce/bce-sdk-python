@@ -548,21 +548,6 @@ def test_get_ocsp(c):
     print(response)
 
 
-def test_ips_query(c):
-    """
-    test_ips_query
-    """
-    action = 'describeIp'
-    ips = [
-        "1.3.5.6",
-        "2.36.4.1",
-        "1.56.97.180",
-        "111.63.51.2"
-    ]
-    response = c.ips_query(action, ips)
-    print(response)
-
-
 def test_list_nodes(c):
     """
     test_list_nodes
@@ -1423,7 +1408,6 @@ if __name__ == "__main__":
     # test_get_offline_mode(c)
     # test_set_ocsp(c)
     # test_get_ocsp(c)
-    # test_ips_query(c)
     # test_list_nodes(c)
     # test_set_domain_origin(c)
     # test_set_domain_origin_with_follow302(c)

@@ -1070,26 +1070,6 @@ class TestCdnClient(unittest.TestCase):
         finally:
             self.assertIsNone(error)
 
-    def test_ips_query(self):
-        """
-        test_ips_query
-        """
-        error = None
-        action = 'describeIp'
-        ips = [
-            "1.3.5.6",
-            "2.36.4.1",
-            "1.56.97.180",
-            "111.63.51.2"
-        ]
-        try:
-            response = self.cdn_client.ips_query(action, ips)
-            print(response)
-        except BceServerError as e:
-            error = e
-        finally:
-            self.assertIsNone(error)
-
     def test_list_nodes(self):
         """
         test_list_nodes
