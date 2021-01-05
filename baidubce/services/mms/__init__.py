@@ -1,4 +1,5 @@
-# Copyright 2014 Baidu, Inc.
+
+# Copyright 2020 Baidu, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -11,13 +12,5 @@
 # and limitations under the License.
 
 """
-This module defines some common string constants.
+This module provide init for MMS
 """
-from builtins import str
-from builtins import bytes
-from . import protocol
-
-SDK_VERSION = b'0.8.57'
-DEFAULT_SERVICE_DOMAIN = b'bcebos.com'
-URL_PREFIX = b'/v1'
-DEFAULT_ENCODING = 'UTF-8'
