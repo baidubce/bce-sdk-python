@@ -47,6 +47,7 @@ setup(
               'baidubce.services.vcr',
               'baidubce.services.vca',
               'baidubce.services.mvs',
+              'baidubce.services.mms',
               'baidubce.services.sms',
               'baidubce.services.cdn',
               'baidubce.services.blb',
