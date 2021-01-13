@@ -20,13 +20,17 @@ import baidubce.protocol
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
+# when use https as the protocol, you may occur certificate expire problem,this can be resovled by adding the following lines
+# import ssl
+# ssl._create_default_https_context = ssl._create_unverified_context
+
 HOST = '<database_name>.tsdb.iot.<region>.baidubce.com'
 AK = '<your ak>'
 SK = '<your sk>'
 
 ###########optional config#############
 protocol = baidubce.protocol.HTTP
-# protcol= baidubce.protocol.HTTPS
+# protocol= baidubce.protocol.HTTPS
 connection_timeout_in_mills = None
 send_buf_size = None
 recv_buf_size = None
