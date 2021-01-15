@@ -20,7 +20,7 @@ import baidubce.protocol
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-# when use https as the protocol, you may occur certificate expire problem,this can be resovled by adding the following lines
+# when use https as the protocol, you may confront certificate expire problem,this can be resovled by adding the following lines
 # import ssl
 # ssl._create_default_https_context = ssl._create_unverified_context
 
