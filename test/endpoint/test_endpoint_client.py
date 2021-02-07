@@ -44,7 +44,7 @@ class TestEndpointClient(unittest.TestCase):
         """
         vpc_id = 'vpc-q1hcnhf7nmve'
         subnet_id = 'sbn-crqu2vxzj049'
-        name = 'python-skd-1'
+        name = 'python-sdk-1'
         service = '77.uservice-a7f5795b.beijing.baidubce.com'
         billing = Billing(payment_timing='Postpaid')
         print(self.the_client.create_endpoint(vpc_id=vpc_id, subnet_id=subnet_id, name=name, service=service,
