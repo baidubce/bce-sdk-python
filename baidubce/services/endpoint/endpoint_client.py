@@ -125,7 +125,7 @@ class EndpointClient(BceBaseClient):
         :type ip_address: str
 
         :param description:
-            The description of the vpn.
+            description .
         :type description: string
 
         :param client_token:
