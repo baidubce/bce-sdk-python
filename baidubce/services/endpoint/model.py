@@ -15,7 +15,6 @@
 """
 This module provide billing information and eip status condition.
 """
-from enum import Enum
 
 
 class Billing(object):
