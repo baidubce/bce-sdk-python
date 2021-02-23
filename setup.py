@@ -56,6 +56,7 @@ setup(
               'baidubce.services.subnet',
               'baidubce.services.vpc',
               'baidubce.services.vpn',
+              'baidubce.services.endpoint',
               'baidubce.services.cfc',
               'baidubce.services.infinite',
               'baidubce.services.bcc',
