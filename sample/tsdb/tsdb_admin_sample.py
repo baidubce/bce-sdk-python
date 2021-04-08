@@ -49,6 +49,8 @@ if __name__ == "__main__":
     
     client_token = b'testxx' # when you retry, please use the same client_token
     try:
+        # use str.encode("UTF-8") in python 3.0+, since str.decode is not supported in unicode,
+        # you need to make changes in description, database_name and coupon_name.
         result = tsdb_admin_client.create_database(
                 client_token=client_token,
                 description=description,
