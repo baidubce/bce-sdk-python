@@ -301,34 +301,34 @@ def guess_content_type_by_file_name(file_name):
         **Type Value**
     """
     mime_map = dict()
-    mime_map[b"js"] = b"application/javascript"
-    mime_map[b"xlsx"] = b"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    mime_map[b"xltx"] = b"application/vnd.openxmlformats-officedocument.spreadsheetml.template"
-    mime_map[b"potx"] = b"application/vnd.openxmlformats-officedocument.presentationml.template"
-    mime_map[b"ppsx"] = b"application/vnd.openxmlformats-officedocument.presentationml.slideshow"
-    mime_map[b"pptx"] = b"application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    mime_map[b"sldx"] = b"application/vnd.openxmlformats-officedocument.presentationml.slide"
-    mime_map[b"docx"] = b"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    mime_map[b"dotx"] = b"application/vnd.openxmlformats-officedocument.wordprocessingml.template"
-    mime_map[b"xlam"] = b"application/vnd.ms-excel.addin.macroEnabled.12"
-    mime_map[b"xlsb"] = b"application/vnd.ms-excel.sheet.binary.macroEnabled.12"
+    mime_map["js"] = "application/javascript"
+    mime_map["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    mime_map["xltx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
+    mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"
+    mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+    mime_map["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    mime_map["sldx"] = "application/vnd.openxmlformats-officedocument.presentationml.slide"
+    mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+    mime_map["xlam"] = "application/vnd.ms-excel.addin.macroEnabled.12"
+    mime_map["xlsb"] = "application/vnd.ms-excel.sheet.binary.macroEnabled.12"
     try:
+        file_name = compat.convert_to_string(file_name)
         name = os.path.basename(file_name.lower())
-        suffix = name.split(b'.')[-1]
+        suffix = name.split('.')[-1]
         if suffix in iterkeys(mime_map):
             mime_type = mime_map[suffix]
         else:
             import mimetypes
 
             mimetypes.init()
-            suffix = compat.convert_to_string(b"." + suffix)
-            mime_type = mimetypes.types_map[suffix]
-            mime_type = compat.convert_to_bytes(mime_type)
+            mime_type = mimetypes.types_map.get("." + suffix, 'application/octet-stream')
     except:
-        mime_type = b'application/octet-stream'
+        mime_type = 'application/octet-stream'
     if not mime_type:
-        mime_type = b'application/octet-stream'
-    return mime_type
+        mime_type = 'application/octet-stream'
+
+    return compat.convert_to_bytes(mime_type)
 
 
 _first_cap_regex = re.compile('(.)([A-Z][a-z]+)')
