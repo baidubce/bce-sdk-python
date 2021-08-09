@@ -1115,6 +1115,23 @@ class TestGetObject(TestClient):
 
     def test_get_object_as_string(self):
         """test get_object_as_string function normally"""
+        # objet is empty or start with '/'
+        err = None
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, b"")
+        except BceClientError as e:
+            err = e
+        finally:
+            self.assertIsInstance(err, BceClientError)
+        
+        err = None
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, b"/abc")
+        except BceClientError as e:
+            err = e
+        finally:
+            self.assertIsInstance(err, BceClientError)
+        
         err = None
         try:
             response = self.bos.put_object_from_string(self.BUCKET,
@@ -1136,8 +1153,28 @@ class TestGetObject(TestClient):
 
         self.assertEqual(response, b"This is a string.")
 
+        
+
     def test_get_object_to_file(self):
         """test get_object_to_file function normally"""
+        # objet is empty or start with '/'
+        err = None
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, b"", b"Filename")
+        except BceClientError as e:
+            err = e
+        finally:
+            self.assertIsInstance(err, BceClientError)
+        
+        err = None
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, b"/abc", b"Filename")
+        except BceClientError as e:
+            err = e
+        finally:
+            self.assertIsInstance(err, BceClientError)
+
+        # create object , then get object to file
         err = None
         try:
             response = self.bos.put_object_from_string(self.BUCKET, self.KEY, "This is a string.")

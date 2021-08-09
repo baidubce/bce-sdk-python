@@ -953,6 +953,8 @@ class BosClient(BceBaseClient):
         :return:
         """
         key = compat.convert_to_bytes(key)
+        if len(key) == 0 or key.startswith(b"/"):
+            raise BceClientError("Key can not be empty or start with '/' .")
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -1037,6 +1039,8 @@ class BosClient(BceBaseClient):
             **HTTP Response**
         """
         key = compat.convert_to_bytes(key)
+        if len(key) == 0 or key.startswith(b"/"):
+            raise BceClientError("Key can not be empty or start with '/' .")
         file_name = compat.convert_to_bytes(file_name)
         return self._send_request(
             http_methods.GET,
