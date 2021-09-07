@@ -68,7 +68,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     @required(flavor_id = (bytes, str), image_id = (bytes, str), raid_id = (bytes, str))
     def create_instance(self, flavor_id, image_id, raid_id, root_disk_size_in_gb=20, purchase_count=1,
                         zone_name=None, subnet_id=None, billing=None, name=None, admin_pass=None,
-                        auto_renew_time_unit=None, auto_renew_time=0, deploy_set_id=None,
+                        auto_renew_time_unit=None, auto_renew_time=0, deploy_set_id=None, enable_ht=False,
                         security_group_id=None, client_token=None, config=None):
 
         """
@@ -191,6 +191,8 @@ class BbcClient(bce_base_client.BceBaseClient):
             body['name'] = name
         if deploy_set_id is not None:
             body['deploySetId'] = deploy_set_id
+        if enable_ht:
+            body['enableHt'] = True
         if admin_pass is not None:
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
