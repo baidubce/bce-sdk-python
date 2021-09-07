@@ -114,6 +114,10 @@ class BbcClient(bce_base_client.BceBaseClient):
             The optional parameter to desc the instance that will be created.
         :type name: string
 
+        :param enable_ht:
+            The optional parameter to enable instance hyperthread.
+        :type name: bool
+
         :param admin_pass:
             The optional parameter to specify the password for the instance.
             If specify the adminPass,the adminPass must be a 8-16 characters String
