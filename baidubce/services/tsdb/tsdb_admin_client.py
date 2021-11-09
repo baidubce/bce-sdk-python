@@ -37,7 +37,8 @@ class TsdbAdminClient(BceBaseClient):
     """
     sdk client
     """
-    def __init__(self, config=None):
+    def __init__(self, config=None, database=None):
+        self.database = database
         BceBaseClient.__init__(self, config)
 
     def create_database(
@@ -142,6 +143,10 @@ class TsdbAdminClient(BceBaseClient):
             headers = {http_headers.CONTENT_TYPE: http_content_types.JSON}
         if body_parser is None:
             body_parser = handler.parse_json
+        if self.database is not None:
+            if params is None:
+                params = {}
+            params.update({b'database': self.database})
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, path, body, headers, params)
