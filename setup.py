@@ -40,6 +40,7 @@ setup(
               'baidubce.services',
               'baidubce.services.bos',
               'baidubce.services.bts',
+              'baidubce.services.iam',
               'baidubce.services.sts',
               'baidubce.services.bmr',
               'baidubce.services.dumap',
