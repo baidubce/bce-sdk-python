@@ -38,6 +38,8 @@ if __name__ == "__main__":
     
     # create a client, if you want to use https, you can setting it in tsdb_sample_conf
     tsdb_client = TsdbClient(tsdb_sample_conf.config)
+    # create tsdb_client in privatized deployment environment
+    # tsdb_client = TsdbClient(config, <database_name>)
 
     ######################################################################################################
     #            write operation samples
