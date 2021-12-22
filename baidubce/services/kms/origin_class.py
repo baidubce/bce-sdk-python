@@ -13,5 +13,5 @@
 """
 The type of origin
 """
-BAIDU_KMS = b'BAIDU_KMS'
-EXTERNAL = b'EXTERNAL'
+BAIDU_KMS = 'BAIDU_KMS'
+EXTERNAL = 'EXTERNAL'

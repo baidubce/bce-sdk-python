@@ -96,9 +96,13 @@ class Python2SDKSample(object):
         if "AES" in cipher_type:
             self.import_symmetric_key(tmp_master_key, cipher_type, action_type)
  
-        # 密钥管理-导入非对称密钥
+        # 密钥管理-导入RSA非对称密钥
         if "RSA" in cipher_type:
-            self.import_asymmetric_key(tmp_master_key, cipher_type, action_type)
+            self.import_asymmetric_rsakey(tmp_master_key, cipher_type, action_type)
+        
+        # 密钥管理-导入SM2非对称密钥
+        if "SM2_256" == cipher_type:
+            self.import_asymmetric_sm2key(tmp_master_key, cipher_type, action_type)
  
         # #生成完整密钥后进行如下操作
         # 密钥管理-列举MasterKey
@@ -385,7 +389,7 @@ class Python2SDKSample(object):
     def cancle_master_key(self, masterKey, key_type, action_type):
         case = {"case_name": "cancle_master_key:" + key_type}
         print("%s: %s : start cancle_master_key test ... " % (action_type, key_type))
-        result = kmsClient.cancelDelete_maaterKey(masterKey)
+        result = kmsClient.cancelDelete_masterKey(masterKey)
  
         # 记录测试结果
         case["case_type"] = action_type
@@ -466,10 +470,10 @@ class Python2SDKSample(object):
             key = str_key.decode("hex")
         return key
  
-    # 密钥管理-导入非对称密钥
-    def import_asymmetric_key(self, masterKey, asymmetricKeySpec, action_type):
-        case = {"case_name": "import_asymmetric_key"}
-        print("%s: %s: start import_asymmetric_key test ... " % (action_type, asymmetricKeySpec))
+    # 密钥管理-导入RSA非对称密钥
+    def import_asymmetric_rsakey(self, masterKey, asymmetricKeySpec, action_type):
+        case = {"case_name": "import_asymmetric_rsakey"}
+        print("%s: %s: start import_asymmetric_rsakey test ... " % (action_type, asymmetricKeySpec))
  
         # 获取import Token
         importToken = Python2SDKSample.tmp_result["token"]
@@ -541,6 +545,54 @@ class Python2SDKSample(object):
         global case_result_list
         case_result_list.append(case)
         return
+
+    # 密钥管理-导入SM2非对称密钥
+    def import_asymmetric_sm2key(self, masterKey, asymmetricKeySpec, action_type):
+        case = {"case_name": "import_asymmetric_sm2key"}
+        print("%s: %s: start import_asymmetric_sm2key test ... " % (action_type, asymmetricKeySpec))
+ 
+        # 获取import Token
+        importToken = Python2SDKSample.tmp_result["token"]
+ 
+        # 获取加密公钥
+        KMS_public_key = Python2SDKSample.tmp_result["encrypt_public_key"]
+        rsa_pubKey = RSA.importKey(KMS_public_key)
+        cipher = PKCS1_v1_5.new(rsa_pubKey)
+ 
+        sm2_public_key = bytes.fromhex("3059301306072a8648ce3d020106082a811ccf5501822d0342000449451af193e9b\
+            d4d7d4329504a9f3a3bd9981318b8177535b02d02b361b579cda9d5eb0feb9980ed41cd159ef7036f5cacd7e018bacb5\
+            ec854d3f575fdcc6182")
+        sm2_private_key = bytes.fromhex("c227a82bf3ae6819d9f1d8179e9bbb5f2ce7f49acb1a64b0f6d1698b5ac0a160")
+
+        base64_sm2_public_key = base64.b64encode(sm2_public_key).decode()
+ 
+        # customer's AES_128 key
+        encryptedKey = "1122334455667788"
+ 
+        # 使用用户的AES 128的密钥对SM2的私钥进行加密
+        aes_obj = AES.new(encryptedKey, AES.MODE_ECB)
+        base64_sm2_private_key = base64.b64encode(aes_obj.encrypt(sm2_private_key)).decode()
+ 
+        # 用KMS生成的RSA密钥加密用户的128位非对称密钥，生成信封密钥
+        encryptedKeyEncryptionKey = base64.b64encode(cipher.encrypt(encryptedKey))
+ 
+        # create envelope cipher with
+        result = kmsClient.import_asymmetricSM2MasterKey(masterKey, importToken, 
+                                                    asymmetricKeySpec, encryptedKeyEncryptionKey,
+                                                    publicKeyDer=base64_sm2_public_key, 
+                                                    encryptedPrivateKey=base64_sm2_private_key)
+ 
+        # 记录测试结果
+        case["case_type"] = action_type
+        if result.metadata.bce_errmsg == 'Success':
+            case["case_status"] = "pass"
+        else:
+            case["case_status"] = "false"
+            case["detail"] = result
+        global case_result_list
+        case_result_list.append(case)
+        return
+    
  
 if __name__ == "__main__":
     # 运行前请设置Client的Host，Access Key ID和Secret Access Key
@@ -557,7 +609,8 @@ if __name__ == "__main__":
     kmsClient = kms_client.KmsClient(kms_sample_conf.config)
     sample = Python2SDKSample()
     # 支持的加密方式
-    cipher_type_list = ["BAIDU_AES_256", "AES_128", "AES_256", "RSA_1024", "RSA_2048", "RSA_4096"]
+    cipher_type_list = ["BAIDU_AES_256", "AES_128", "AES_256", "RSA_1024", "RSA_2048", \
+        "RSA_4096", "SM1_128", "SM2_256", "SM4_128"]
  
     # KMS生成方式用例
     for cipher in cipher_type_list:

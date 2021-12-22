@@ -13,5 +13,5 @@
 """
 The type of ProtectedBy
 """
-HSM = b'HSM'
-SOFTWARE = b'SOFTWARE'
+HSM = 'HSM'
+SOFTWARE = 'SOFTWARE'
