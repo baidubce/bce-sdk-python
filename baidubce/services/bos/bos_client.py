@@ -982,9 +982,10 @@ class BosClient(BceBaseClient):
         headers = {}
         if days is not None:
             headers[http_headers.BOS_RESTORE_DAYS] = days
-        if tier not in ("Standard", "Expedited"):
-            raise ValueError('valid tier:%s for restore_object.The valid value is \"Standard\" and \"Expedited\"' )
-        headers[http_headers.BOS_RESTORE_TIER] = tier
+        if compat.convert_to_string(tier) not in ("Standard", "Expedited", "LowCost"):
+            raise ValueError('invalid tier:{} for restore_object.The valid value is \"Standard\" or \"Expedited\" or '\
+                    '\"LowCost\"'.format(tier) )
+        headers[http_headers.BOS_RESTORE_TIER] = compat.convert_to_bytes(tier)
         return self._send_request(
             http_methods.POST,
             bucket_name,

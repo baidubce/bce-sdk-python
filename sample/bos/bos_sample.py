@@ -153,9 +153,12 @@ if __name__ == "__main__":
     key_list = ['key1', 'key2', 'key3']
     bos_client.delete_multiple_object(bucket_name, key_list)
 
-    # put an archive object and restore object with days=2
+    # put an archive object and restore object
     bos_client.put_object_from_file(bucket_name, key, file_name, storage_class=storage_class.ARCHIVE)
-    bos_client.restore_object(bucket_name, key, days=2)
+    bos_client.restore_object(bucket_name, key)
+
+    bos_client.put_object_from_file(bucket_name, key, file_name, storage_class=storage_class.ARCHIVE)
+    bos_client.restore_object(bucket_name, key, days=2, tier="Standard")
 
     # get obj url by ak/sk
     url = bos_client.generate_pre_signed_url(bucket_name, key, timestamp=1649923427,
