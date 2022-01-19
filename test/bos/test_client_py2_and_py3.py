@@ -2911,14 +2911,27 @@ class TestRestoreObject(TestClient):
         err = None
         try:
             self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, storage_class=storage_class.ARCHIVE)
-            self.bos.restore_object(self.BUCKET, self.KEY, 1)
+            self.bos.restore_object(self.BUCKET, self.KEY, days=2, tier="Expedited")
             response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
         except BceServerError as e:
             err = e
         finally:
             self.assertIsNone(err)
         self.assertIsNotNone(response.metadata.bce_restore)
-        self.assertTrue(response.metadata.bce_restore.find("expiry-date") > 0)
+        self.assertTrue(response.metadata.bce_restore.find("expiry-date") < 0)
+        res = self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_restore_obejct_exception(self):
+        """test restore_obejct function exception"""
+        self.get_file(5)
+        err = None
+        try:
+            self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, storage_class=storage_class.ARCHIVE)
+            self.bos.restore_object(self.BUCKET, self.KEY, tier="invalid_value")
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
         res = self.bos.delete_object(self.BUCKET, self.KEY)
 
 class TestBucketStorageclass(TestClient):
