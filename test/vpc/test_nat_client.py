@@ -132,6 +132,7 @@ class TestNatClient(unittest.TestCase):
         #     baidubce.bce_response.BceResponse)
 
         print(self.client.list_nats(vpc_id=VPC_ID))
+        print(self.client.list_nats())
 
     def test_list_nats_with_detailed_options(self):
         """
