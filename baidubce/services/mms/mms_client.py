@@ -83,6 +83,25 @@ class MmsClient(BceBaseClient):
                                   params={b'source': source},
                                   config=config)
 
+    @required(video_lib_id=(bytes, str), media_id=(bytes, str))
+    def get_insert_video_task_result_by_id(self, video_lib_id, media_id, config=None):
+        """
+        get insert video task result by id.
+        :param video_lib_id: video lib id
+        :type video_lib_id: string
+        :param media_id: video id
+        :type media_id: string
+        :return: **BceResponse**
+        """
+        return self._send_request(http_methods.GET,
+                                  b'/v2/videolib/%s' % compat.convert_to_bytes(
+                                      video_lib_id),
+                                  params={b'getInsertResponseById': b'',
+                                          b'mediaId': media_id},
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  config=config)
+
     @required(video_lib=(bytes, str), source=(bytes, str))
     def delete_video(self, video_lib, source, config=None):
         """
@@ -100,6 +119,25 @@ class MmsClient(BceBaseClient):
                                       b'Content-Type': b'application/json'},
                                   params={b'deleteVideo': b'',
                                           b'source': source},
+                                  config=config)
+
+    @required(video_lib_id=(bytes, str), media_id=(bytes, str))
+    def delete_video_by_id(self, video_lib_id, media_id, config=None):
+        """
+        delete a video by id.
+        :param video_lib_id: video lib id
+        :type video_lib_id: string
+        :param media_id: video id
+        :type media_id: string
+        :return: **BceResponse**
+        """
+        return self._send_request(http_methods.POST,
+                                  b'/v2/videolib/%s' % compat.convert_to_bytes(
+                                      video_lib_id),
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  params={b'deleteVideoById': b'',
+                                          b'mediaId': media_id},
                                   config=config)
 
     @required(video_lib=(bytes, str), source=(bytes, str))
@@ -146,6 +184,26 @@ class MmsClient(BceBaseClient):
                                       b'Content-Type': b'application/json'},
                                   params={b'searchByVideo': b'',
                                           b'source': source},
+                                  config=config)
+
+    @required(video_lib=(bytes, str), task_id=(bytes, str))
+    def get_search_video_by_video_task_result_by_id(self, video_lib, task_id, config=None):
+        """
+        get search video by video task result by id.
+        :param video_lib: video lib
+        :type video_lib: string
+        :param task_id: video search task id
+        :type task_id: string
+        :return: **BceResponse**
+        """
+
+        return self._send_request(http_methods.GET,
+                                  b'/v2/videolib/%s' % compat.convert_to_bytes(
+                                      video_lib),
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  params={b'getSearchResponseByTaskId': b'',
+                                          b'taskId': task_id},
                                   config=config)
 
     @required(video_lib=(bytes, str), source=(bytes, str))
@@ -216,6 +274,25 @@ class MmsClient(BceBaseClient):
                                       b'Content-Type': b'application/json'},
                                   params={b'deleteImage': b'',
                                           b'source': source},
+                                  config=config)
+
+    @required(image_lib_id=(bytes, str), media_id=(bytes, str))
+    def delete_image_by_id(self, image_lib_id, media_id, config=None):
+        """
+        delete a video.
+        :param image_lib_id: image lib id
+        :type image_lib_id: string
+        :param media_id: image id
+        :type media_id: string
+        :return: **BceResponse**
+        """
+        return self._send_request(http_methods.POST,
+                                  b'/v2/imagelib/%s' % compat.convert_to_bytes(
+                                      image_lib_id),
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  params={b'deleteImageById': b'',
+                                          b'mediaId': media_id},
                                   config=config)
 
     @required(image_lib=(bytes, str), source=(bytes, str))
