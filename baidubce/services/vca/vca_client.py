@@ -40,6 +40,23 @@ class VcaClient(BceBaseClient):
         BceBaseClient.__init__(self, config)
 
     @required(source=(bytes, str))
+    def put_image(self, source, preset=None):
+        """
+        Analyze a image sync.
+        :param source: image source
+        :type source: string or unicode
+        :param preset: analyze preset name
+        :type preset: string or unicode
+        :return: **Http Response**
+        """
+        body = {
+            'source': source
+        }
+        if preset is not None:
+            body['preset'] = preset
+        return self._send_request(http_methods.PUT, b'/v2/image', body=json.dumps(body), params={b'sync': ''})
+
+    @required(source=(bytes, str))
     def put_media(self, source, preset=None, notification=None, priority=None,
                   title=None, sub_title=None, category=None,
                   description=None, config=None):
