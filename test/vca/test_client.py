@@ -39,13 +39,25 @@ class TestMedia(TestVcaClient):
     TestAnalyzeMediaJob
     """
 
+    def test_put_image(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            print(self.the_client.put_image("bos://vca-test-bucket/image.jpg"))
+        except Exception as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
     def test_put_media(self):
         """
         A test case
         """
         err = None
         try:
-            print(self.the_client.put_media("bos://bucket-public-bj/艾宝俊新闻.mp4"))
+            print(self.the_client.put_media("bos://vca-test-bucket/video.mp4"))
         except Exception as e:
             err = e
         finally:
@@ -57,7 +69,7 @@ class TestMedia(TestVcaClient):
         """
         err = None
         try:
-            print(self.the_client.get_media("bos://bucket-public-bj/艾宝俊新闻.mp4"))
+            print(self.the_client.get_media("bos://vca-test-bucket/video.mp4"))
         except Exception as e:
             err = e
         finally:
