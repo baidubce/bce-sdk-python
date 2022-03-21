@@ -110,6 +110,13 @@ class TestKmsClient(unittest.TestCase):
         """
         keyId = "<your Key Id>"
         print self.client.generate_dataKey(keyId, keyspec_class.AES_128, 128)
+    
+    def test_updaterotation_masterKey(self):
+        """
+        test case for updaterotation_masterKey
+        """
+        keyId = "<your Key Id>"
+        print self.client.updaterotation_masterKey(keyId, 10)
 
     def test_enable_masterKey(self):
         """

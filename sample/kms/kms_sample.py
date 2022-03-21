@@ -81,6 +81,9 @@ class Python2SDKSample(object):
         self.cancle_master_key(tmp_master_key, cipher_type, action_type)
         # 取消删除后是禁用状态，再次使MasterKey处于可用状态
         self.enable_master_key(tmp_master_key, cipher_type, action_type)
+
+        # 密钥管理-配置MasterKey轮转
+        self.updaterotate_master_key(tmp_master_key, 10, action_type)
         return
  
     def external_create_suit(self, cipher_type):
@@ -321,6 +324,24 @@ class Python2SDKSample(object):
             result = kmsClient.generate_dataKey(masterKey, keyspec_class.AES_256, dataKey_len)
         if key_type == "AES_128":
             result = kmsClient.generate_dataKey(masterKey, keyspec_class.AES_128, dataKey_len)
+ 
+        # 记录测试结果
+        case["case_type"] = action_type
+        if result.metadata.bce_errmsg == 'Success':
+            case["case_status"] = "pass"
+        else:
+            case["case_status"] = "false"
+            case["detail"] = result
+        global case_result_list
+        case_result_list.append(case)
+        return
+
+    # 密钥轮转配置-使MasterKey开启密钥轮转
+    def updaterotate_master_key(self, masterKey, rotateCycle, action_type):
+        case = {"case_name": "updaterotation_masterKey:" + masterKey}
+        print("%s: %s : start updaterotation_masterKey test ... " % (action_type, masterKey))
+        result = kmsClient.updaterotation_masterKey(masterKey, rotateCycle)
+        # print result
  
         # 记录测试结果
         case["case_type"] = action_type
