@@ -2652,6 +2652,165 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    @required(cluster_size_in_gb=int)
+    def create_volume_cluster(self, cluster_size_in_gb, purchase_count=1, storage_type='hp1', cluster_name=None,
+                              paymentTiming='Prepaid', reservation_length=6, reservation_time_unit='month',
+                              renew_time_unit=None, renew_time=None, zone_name=None, client_token=None, config=None):
+        """
+        create_volume_cluster.
+        """
+        path = b'/volume/cluster'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        billing = bcc_model.Billing(paymentTiming=paymentTiming, reservationLength=reservation_length,
+                                    reservationTimeUnit=reservation_time_unit)
+        body = {
+            'clusterSizeInGB': cluster_size_in_gb,
+            'storageType': storage_type,
+            'purchaseCount': purchase_count,
+            'billing': billing.__dict__
+        }
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if cluster_name is not None:
+            body['clusterName'] = cluster_name
+        if renew_time_unit is not None:
+            body['renewTimeUnit'] = renew_time_unit
+        if renew_time is not None:
+            body['renewTime'] = renew_time
+
+        return self._send_request(http_methods.POST, path, json.dumps(body), params=params, config=config)
+
+    def list_volume_cluster(self, cluster_name=None, zone_name=None, marker=None, max_keys=None,
+                     config=None):
+        """
+        list_volume_cluster.
+        """
+        path = b'/volume/cluster'
+        params = {}
+        if cluster_name is not None:
+            params['clusterName'] = cluster_name
+        if zone_name is not None:
+            params['zoneName'] = zone_name
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(cluster_id=(bytes, str))  # ***Unicode***
+    def get_volume_cluster(self, cluster_id, config=None):
+        """
+        Get cluster detail
+        """
+        cluster_id = compat.convert_to_bytes(cluster_id)
+        path = b'/volume/cluster/%s' % cluster_id
+        return self._send_request(http_methods.GET, path, config=config)
+
+    @required(cluster_id=(bytes, str),  # ***Unicode***
+              new_cluster_size=int)
+    def resize_volume_cluster(self, cluster_id, new_cluster_size, client_token=None, config=None):
+        """
+        resize_volume_cluster
+        """
+        cluster_id = compat.convert_to_bytes(cluster_id)
+        path = b'/volume/cluster/%s' % cluster_id
+        body = {
+            'newClusterSizeInGB': new_cluster_size
+        }
+        params = None
+        if client_token is None:
+            params = {
+                'resize': None,
+                'clientToken': generate_client_token()
+            }
+        else:
+            params = {
+                'resize': None,
+                'clientToken': client_token
+            }
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(cluster_id=(bytes, str))  # ***Unicode***
+    def renew_volume_cluster(self, cluster_id, reservation_length=6, reservation_time_unit='month',
+                                         client_token=None, config=None):
+        """
+        renew_volume_cluster
+        """
+        cluster_id = compat.convert_to_bytes(cluster_id)
+        path = b'/volume/cluster/%s' % cluster_id
+
+        billing = bcc_model.Billing(reservationLength=reservation_length,
+                                    reservationTimeUnit=reservation_time_unit)
+        body = {
+            'billing': billing.__dict__
+        }
+        params = None
+        if client_token is None:
+            params = {
+                'purchaseReserved': None,
+                'clientToken': generate_client_token()
+            }
+        else:
+            params = {
+                'purchaseReserved': None,
+                'clientToken': client_token
+            }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(cluster_id=(bytes, str))  # ***Unicode***
+    def autoRenew_volume_cluster(self, cluster_id, renew_time=6, renew_time_unit='month',
+                             client_token=None, config=None):
+        """
+        autoRenew_volume_cluster
+        """
+        cluster_id = compat.convert_to_bytes(cluster_id)
+        path = b'/volume/cluster/autoRenew'
+        body = {
+            'clusterId': cluster_id,
+            'renewTimeUnit': renew_time_unit,
+            'renewTime': renew_time,
+        }
+        params = None
+        if client_token is None:
+            params = {
+                'clientToken': generate_client_token()
+            }
+        else:
+            params = {
+                'clientToken': client_token
+            }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(cluster_id=(bytes, str))  # ***Unicode***
+    def cancel_autoRenew_volume_cluster(self, cluster_id, client_token=None, config=None):
+        """
+        cancel_autoRenew_volume_cluster
+        """
+        cluster_id = compat.convert_to_bytes(cluster_id)
+        path = b'/volume/cluster/cancelAutoRenew'
+        body = {
+            'clusterId': cluster_id
+        }
+        params = None
+        if client_token is None:
+            params = {
+                'clientToken': generate_client_token()
+            }
+        else:
+            params = {
+                'clientToken': client_token
+            }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
 def generate_client_token_by_uuid():
     """
     The default method to generate the random string for client_token
