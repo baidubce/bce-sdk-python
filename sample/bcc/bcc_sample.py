@@ -735,3 +735,69 @@ if __name__ == "__main__":
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create volume cluster
+    try:
+        response = bcc_client.create_volume_cluster(cluster_size_in_gb=97280)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list volume cluster
+    try:
+        response = bcc_client.list_volume_cluster()
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get volume cluster detail
+    try:
+        response = bcc_client.get_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # resize volume cluster
+    try:
+        response = bcc_client.resize_volume_cluster(cluster_id='DC-yWfhpUbN', new_cluster_size=107520)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # renew volume cluster
+    try:
+        response = bcc_client.renew_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # autoRenew volume cluster
+    try:
+        response = bcc_client.autoRenew_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
