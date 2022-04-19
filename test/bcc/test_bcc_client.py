@@ -840,6 +840,78 @@ class TestBccClient(unittest.TestCase):
                                                  keypair_desc=keypair_desc)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_volume_cluster(self):
+        """
+        test case for create_volume_cluster
+        """
+        client_token = generate_client_token()
+        cluster_size_in_gb = 97280
+        create_response = self.client.create_volume_cluster(cluster_size_in_gb=cluster_size_in_gb, zone_name='cn-bj-a')
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_list_volume_cluster(self):
+        """
+        test case for list_volume_cluster
+        """
+        create_response = self.client.list_volume_cluster()
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_get_volume_cluster(self):
+        """
+        test case for get_volume_cluster
+        """
+        create_response = self.client.get_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_resize_volume_cluster(self):
+        """
+        test case for resize_volume_cluster
+        """
+        create_response = self.client.resize_volume_cluster(cluster_id='DC-yWfhpUbN', new_cluster_size=107520)
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_renew_volume_cluster(self):
+        """
+        test case for renew_volume_cluster
+        """
+        create_response = self.client.renew_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_autoRenew_volume_cluster(self):
+        """
+        test case for autoRenew_volume_cluster
+        """
+        create_response = self.client.autoRenew_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
+    def test_cancel_autoRenew_volume_cluster(self):
+        """
+        test case for cancel_autoRenew_volume_cluster
+        """
+        create_response = self.client.cancel_autoRenew_volume_cluster(cluster_id='DC-yWfhpUbN')
+        print(create_response)
+        self.assertEqual(
+            type(create_response),
+            baidubce.bce_response.BceResponse)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
