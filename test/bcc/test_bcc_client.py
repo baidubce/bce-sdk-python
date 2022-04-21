@@ -198,6 +198,24 @@ class TestBccClient(unittest.TestCase):
         self.client.create_instance_from_dedicated_host_with_encrypted_password(1, 2, 'm-8rU0UtxY', 'd-dgAcUk0U',
                                                                                 ephemeral_disks, 1, None, admin_pass)
 
+    def test_create_instance_of_bid(self):
+        """
+        test case for create_instance_of_bid
+        """
+        instance_type = 'N3'
+        client_token = generate_client_token()
+        instance_name = 'Caesar_test_instance_of_bid_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance_of_bid(1, 1,
+                                                    image_id,
+                                                    instance_type=instance_type,
+                                                    name=instance_name,
+                                                    admin_pass=admin_pass,
+                                                    client_token=client_token,
+                                                    bid_model='market',
+                                                    spec='bcc.ic1.c1m1')),
+            baidubce.bce_response.BceResponse)
+
     def test_list_instances(self):
         """
         test case for list_instances
