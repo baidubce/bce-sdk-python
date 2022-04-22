@@ -721,6 +721,11 @@ class BosClient(BceBaseClient):
         path = self._get_path(config, bucket_name, key)
         if httpmethod != http_methods.GET and httpmethod != http_methods.HEAD:
             headers_to_sign = set([b'host'])
+
+        # Compatible with STS request acquisition
+        if config.security_token is not None:
+            params[http_headers.STS_SECURITY_TOKEN.lower()] = config.security_token
+
         params[http_headers.AUTHORIZATION.lower()] = bce_v1_signer.sign(
             config.credentials,
             httpmethod,
@@ -730,6 +735,7 @@ class BosClient(BceBaseClient):
             timestamp,
             expiration_in_seconds,
             headers_to_sign)
+        
         return b"%s://%s%s?%s" % (compat.convert_to_bytes(endpoint_protocol.name),
                                  full_host,
                                  path,
@@ -989,10 +995,17 @@ class BosClient(BceBaseClient):
             body_parser=BosClient._parse_bos_object)
 
     @staticmethod
-    def _save_body_to_file(http_response, response, file_name, buf_size):
+    def _save_body_to_file(http_response, response, file_name, buf_size=16 * 1024, progress_callback=None):
         f = open(file_name, 'wb')
         try:
-            shutil.copyfileobj(http_response, f, buf_size)
+            # Added progress bar monitoring
+            if progress_callback:
+                file_size = int(response.metadata.content_length)
+                stream = utils.make_progress_adapter(http_response, progress_callback, file_size)
+            else:
+                stream = http_response
+
+            shutil.copyfileobj(stream, f, buf_size)
             http_response.close()
         finally:
             f.close()
@@ -1020,7 +1033,7 @@ class BosClient(BceBaseClient):
         return s
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
-    def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None):
+    def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None, progress_callback=None):
         """
         Get Content of Object and Put Content to File
 
@@ -1042,6 +1055,7 @@ class BosClient(BceBaseClient):
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
         file_name = compat.convert_to_bytes(file_name)
+        
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -1052,7 +1066,9 @@ class BosClient(BceBaseClient):
                 http_response,
                 response,
                 file_name,
-                self._get_config_parameter(config, 'recv_buf_size')))
+                self._get_config_parameter(config, 'recv_buf_size'),
+                progress_callback=progress_callback))
+
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
     def get_object_meta_data(self, bucket_name, key, config=None):
@@ -1084,6 +1100,7 @@ class BosClient(BceBaseClient):
                      content_sha256=None,
                      storage_class=None,
                      user_headers=None,
+                     progress_callback=None,
                      config=None):
         """
         Put an appendable object to BOS or add content to an appendable object
@@ -1117,6 +1134,9 @@ class BosClient(BceBaseClient):
         params = {b'append': b''}
         if offset is not None:
             params[b'offset'] = offset
+        
+        if progress_callback:
+            data = utils.make_progress_adapter(data, progress_callback)
 
         return self._send_request(
             http_methods.POST,
@@ -1138,6 +1158,7 @@ class BosClient(BceBaseClient):
                                   content_sha256=None,
                                   storage_class=None,
                                   user_headers=None,
+                                  progress_callback=None,
                                   config=None):
         """
         Create an appendable object and put content of string to the object
@@ -1165,6 +1186,7 @@ class BosClient(BceBaseClient):
                                       content_sha256=content_sha256,
                                       storage_class=storage_class,
                                       user_headers=user_headers,
+                                      progress_callback=progress_callback,
                                       config=config)
         finally:
             if fp is not None:
@@ -1186,6 +1208,7 @@ class BosClient(BceBaseClient):
                    encryption=None,
                    customer_key=None,
                    customer_key_md5=None,
+                   progress_callback=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -1221,6 +1244,9 @@ class BosClient(BceBaseClient):
         if content_length > bos.MAX_PUT_OBJECT_LENGTH:
             raise ValueError('Object length should be less than %d. '
                              'Use multi-part upload instead.' % bos.MAX_PUT_OBJECT_LENGTH)
+        
+        if progress_callback:
+                data = utils.make_progress_adapter(data, progress_callback)
 
         return self._send_request(
             http_methods.PUT,
@@ -1241,6 +1267,7 @@ class BosClient(BceBaseClient):
                                encryption=None,
                                customer_key=None,
                                customer_key_md5=None,
+                               progress_callback=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -1280,6 +1307,7 @@ class BosClient(BceBaseClient):
                                    encryption=encryption,
                                    customer_key=customer_key,
                                    customer_key_md5=customer_key_md5,
+                                   progress_callback = progress_callback,
                                    config=config)
         finally:
             if fp is not None:
@@ -1297,7 +1325,9 @@ class BosClient(BceBaseClient):
                              encryption=None,
                              customer_key=None,
                              customer_key_md5=None,
-                             config=None):
+                             progress_callback=None,
+                             config=None,
+                             ):
 
         """
         Put object and put content of file to the object
@@ -1340,6 +1370,7 @@ class BosClient(BceBaseClient):
                                    encryption=encryption,
                                    customer_key=customer_key,
                                    customer_key_md5=customer_key_md5,
+                                   progress_callback=progress_callback,
                                    config=config)
         finally:
             fp.close()
@@ -1550,7 +1581,7 @@ class BosClient(BceBaseClient):
               part_fp=object)
     def upload_part(self, bucket_name, key, upload_id,
                     part_number, part_size, part_fp, part_md5=None,
-                    config=None):
+                    progress_callback=None, config=None):
         """
         Upload a part.
 
@@ -1595,6 +1626,8 @@ class BosClient(BceBaseClient):
         if part_md5 is not None:
             headers[http_headers.CONTENT_MD5] = part_md5
 
+        if progress_callback:
+            part_fp = utils.make_progress_adapter(part_fp, progress_callback, part_size)
         return self._send_request(
             http_methods.PUT,
             bucket_name,
@@ -1671,7 +1704,7 @@ class BosClient(BceBaseClient):
               offset=compat.integer_types)
     def upload_part_from_file(self, bucket_name, key, upload_id,
                               part_number, part_size, file_name, offset, part_md5=None,
-                              config=None):
+                              progress_callback=None, config=None):
         """
 
         :param bucket_name:
@@ -1690,7 +1723,7 @@ class BosClient(BceBaseClient):
         try:
             f.seek(offset)
             return self.upload_part(bucket_name, key, upload_id, part_number, part_size, f,
-                                    part_md5=part_md5, config=config)
+                                    part_md5=part_md5, progress_callback=progress_callback, config=config)
         finally:
             f.close()
 
@@ -1876,13 +1909,13 @@ class BosClient(BceBaseClient):
                 break
 
     def _upload_task(self, bucket_name, object_key, upload_id,
-        part_number, part_size, file_name, offset, part_list, uploadTaskHandle):
+        part_number, part_size, file_name, offset, part_list, uploadTaskHandle, progress_callback=None):
         if uploadTaskHandle.is_cancel():
             _logger.debug("upload task canceled with partNumber={}!".format(part_number))
             return
         try:
             response = self.upload_part_from_file(bucket_name, object_key, upload_id,
-                part_number, part_size, file_name, offset)
+                part_number, part_size, file_name, offset, progress_callback=progress_callback)
             part_list.append({
                 "partNumber": part_number,
                 "eTag": response.metadata.etag
@@ -1899,6 +1932,7 @@ class BosClient(BceBaseClient):
             content_type=None,
             storage_class=None,
             user_headers=None,
+            progress_callback=None,
             config=None):
         """
         Multipart Upload file to bos
@@ -1909,9 +1943,9 @@ class BosClient(BceBaseClient):
         if chunk_size > 5 * 1024 or chunk_size <= 0:
            raise BceClientError("chunk size is valid, it should be more than 0 and not nore than 5120!")
         left_size = os.path.getsize(file_name)
-        # if file size more than 5TB, reject
-        if left_size > 5 * 1024 * 1024 * 1024 * 1024:
-           raise BceClientError("File size must not be more than 5TB!")
+        # if file size more than 48.8TB, reject
+        if left_size > 50000 * 1024 * 1024 * 1024:
+           raise BceClientError("File size must not be more than 48.8TB!")
         if thread_num is None or thread_num <= 1:
            thread_num = multiprocessing.cpu_count()
         part_size = chunk_size * 1024 * 1024
@@ -1936,7 +1970,7 @@ class BosClient(BceBaseClient):
             if left_size < part_size:
                 part_size = left_size
             temp_task= executor.submit(self._upload_task, bucket_name, key, upload_id, part_number, part_size,
-                file_name, offset, part_list, uploadTaskHandle)
+                file_name, offset, part_list, uploadTaskHandle, progress_callback)
             all_tasks.append(temp_task)
             left_size -= part_size
             offset += part_size
@@ -2213,6 +2247,90 @@ class BosClient(BceBaseClient):
                 http_response, response, select_response)
             )
         return select_response
+
+    def get_user_quota(self, config=None):
+        """
+        get user quota
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET, params={b'userQuota': b''})
+    
+    def put_user_quota(self, max_bucket_count, max_capacity_mega_bytes, config=None):
+        """
+        put user quota
+
+        :type max_bucket_count: int
+        :param max_bucket_count: max bucket count
+
+        :type max_capacity_mega_bytes: long
+        :param max_capacity_mega_bytes: max capacity mega bytes
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT,
+            body=json.dumps({'maxBucketCount': max_bucket_count, 
+                            'maxCapacityMegaBytes': max_capacity_mega_bytes}),
+            params={b'userQuota': b''})
+
+    def delete_user_quota(self, config=None):
+        """
+        delete user quota
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.DELETE, params={b'userQuota': b''})        
+        
+    def get_notification(self, bucket_name, config=None):
+        """
+        get notification
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET, bucket_name=bucket_name, params={b'notification': b''})
+    
+    def put_notification(self, bucket_name, notifications, config=None):
+        """
+        put user quota
+
+        :type bucket_name: string
+        :param bucket_name: bucket
+
+        :type notifications: list of dict
+        :param notifications: notifacation param
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT, bucket_name=bucket_name,
+            body=json.dumps({'notifications': notifications}),
+            params={b'notification': b''})
+
+    def delete_notification(self, bucket_name, config=None):
+        """
+        delete notification
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :param config:
+        :return:
+        """
+        return self._send_request(
+            http_methods.DELETE, bucket_name=bucket_name, params={b'notification': b''})        
+        
 
     @staticmethod
     def _prepare_object_headers(
