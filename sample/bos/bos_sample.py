@@ -11,7 +11,7 @@
 """
 Samples for bos client.
 """
-
+from __future__ import print_function
 import os
 import random
 import string
@@ -19,14 +19,17 @@ import time
 import base64
 import multiprocessing
 import threading
+import sys
 
 import bos_sample_conf
+import bos_sts_sample_conf
 from baidubce import exception
 from baidubce import compat
 from baidubce.services.bos import canned_acl
 from baidubce.services.bos import storage_class
 from baidubce.services.bos.bos_client import BosClient
 from baidubce.services.bos.bos_client import UploadTaskHandle
+from baidubce import utils
 
 
 def _create_file(file_name, size):
@@ -39,6 +42,24 @@ def _create_file(file_name, size):
 
 def _random_string(length):
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
+
+def percentage(consumed_bytes, total_bytes):
+    """Progress bar callback function that calculates the percentage of current completion
+    
+    :param consumed_bytes: Amount of data that has been uploaded/downloaded
+    :param total_bytes: total file bytes
+    """
+
+    if total_bytes:
+        rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
+        start_progress = '*' * rate
+        end_progress = '.' * (100 - rate)
+        if rate == 100:
+            print("\r{}%[{}->{}]\n".format(rate, start_progress, end_progress), end="")
+        else:
+            print("\r{}%[{}->{}]".format(rate, start_progress, end_progress), end="")
+        
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":
@@ -57,12 +78,12 @@ if __name__ == "__main__":
     file_name = 'samplefile'
     download = 'download'
 
+    # create a bos client
+    bos_client = BosClient(bos_sample_conf.config)
+
     ######################################################################################################
     #            bucket operation samples
     ######################################################################################################
-
-    # create a bos client
-    bos_client = BosClient(bos_sample_conf.config)
 
     # check if bucket exists
     if not bos_client.does_bucket_exist(bucket_name):
@@ -135,6 +156,18 @@ if __name__ == "__main__":
     # put an archive object and restore object with days=2
     bos_client.put_object_from_file(bucket_name, key, file_name, storage_class=storage_class.ARCHIVE)
     bos_client.restore_object(bucket_name, key, days=2)
+
+    # get obj url by ak/sk
+    url = bos_client.generate_pre_signed_url(bucket_name, key, timestamp=1649923427,
+                                               expiration_in_seconds=100000000)
+    __logger.debug("[Sample] get object url is  %s", url)
+
+    # get obj url by sts
+    # create a sts bos client
+    sts_bos_client = BosClient(bos_sts_sample_conf.config)
+    url = sts_bos_client.generate_pre_signed_url(bucket_name, key, timestamp=1649923427,
+                                               expiration_in_seconds=100000000)
+    __logger.debug("[Sample] sts get object url is  %s", url)
 
     ######################################################################################################
     #            symlink operation samples
@@ -331,7 +364,7 @@ if __name__ == "__main__":
     response = bos_client.get_bucket_logging(bucket_name)
     
     # delete bucket loggint
-    bos_client.delet_bucket_loggint(bucket_name)
+    bos_client.delete_bucket_logging(bucket_name)
 
     ######################################################################################################
     #            lifecycle operation samples
@@ -489,3 +522,156 @@ if __name__ == "__main__":
                 msg.bytes_scanned, msg.bytes_returned, msg.crc))
         else:
             print("type: {}, heades: {}, crc: {}".format(msg.type, msg.headers, msg.crc))
+
+    ######################################################################################################
+    #            quata operation samples
+    ######################################################################################################
+    
+    # get user quota
+    try:
+        response = bos_client.get_user_quota()
+    except Exception as e: 
+        __logger.debug("[Sample] get user quota error :%s", e)
+
+    __logger.debug("[Sample] get user quota maxBucketCount:%s", response.max_bucket_count)
+    __logger.debug("[Sample] get user quota maxCapacityMegaBytes:%s", response.max_capacity_mega_bytes)
+    
+    # delete user quota
+    response = bos_client.delete_user_quota()
+    __logger.debug("[Sample] delete user quota The response is %s", response)
+    
+    # put user quota
+    response = bos_client.put_user_quota(50,12334424)
+    __logger.debug("[Sample] put user quota The response is %s", response)
+
+    ######################################################################################################
+    #            notification operation samples
+    ######################################################################################################
+    # put notification
+    notifications = list()
+    notifications.append(
+        {
+            "resources": [
+                "/"
+            ],
+            "encryption": {
+                "key": "06a62b70f47dc4a0a7da349609f1a1ac"
+            },
+            "status": "enabled",
+            "name": "name3",
+            "id": "r3",
+            "appId": "p3",
+            "events": [
+                "AppendObject",
+                "CompleteMultipartUpload",
+                "CopyObject",
+                "PutObject",
+                "PostObject",
+                "FetchObject",
+                "DeleteObject"
+            ],
+            "apps": [
+                {
+                    "eventUrl": "http://www.liujiang.com",
+                    "id": "ImageCensor",
+                    "xVars": "{\"saveUrl\": \"http://xxx.com/ocr\"}"
+                }
+            ]
+        })
+    response = bos_client.put_notification(bucket_name, notifications)
+    __logger.debug("[Sample] put notification response :%s", response)
+
+    # get notification
+    try:
+        response = bos_client.get_notification(bucket_name)
+        __logger.debug("[Sample] get notification response :%s", response)
+    except Exception as e:
+        __logger.debug("[Sample] get notification error :%s", e)
+
+    # delete notification
+    try:
+        response = bos_client.delete_notification(bucket_name)
+        __logger.debug("[Sample] delete notification response :%s", response)
+    except Exception as e:
+        __logger.debug("[Sample] delete notification error :%s", e)
+
+    #####################################################################################################
+    #            test progress_callback samples
+    ######################################################################################################
+
+    # put a file as object
+    _create_file(file_name, 4096)
+    bos_client.put_object_from_file(bucket_name, key, file_name, progress_callback=utils.default_progress_callback)
+
+    # get object into file
+    bos_client.get_object_to_file(bucket_name, key, download, progress_callback=utils.default_progress_callback)
+    __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
+
+    # put an appendable object
+    append_key = 'test_append_key'
+    result = bos_client.append_object_from_string(bucket_name=bucket_name,
+                                                  key=append_key,
+                                                  data='This is string content.', progress_callback=utils.default_progress_callback)
+    next_offset = result.metadata.bce_next_append_offset
+    
+    bos_client.append_object_from_string(bucket_name=bucket_name,
+                                         key=append_key,
+                                         data='append content.',
+                                         offset=int(next_offset), progress_callback=utils.default_progress_callback)
+    response = bos_client.get_object_as_string(bucket_name=bucket_name, key=append_key)
+    __logger.debug("[Sample] append object value:%s", response)
+
+    bos_client.delete_object(bucket_name, append_key)
+
+
+    # put_super_obejct_from_file operation samples
+    # put a super file to object
+    _create_file(file_name, 10 * 1024 * 1024)
+    result = bos_client.put_super_obejct_from_file(bucket_name, key, file_name,
+            chunk_size=5, thread_num=multiprocessing.cpu_count(), progress_callback=utils.default_progress_callback)
+    if result:
+        print("Upload success!")
+
+    # cancel after calling put_super_obejct_from_file
+    uploadTaskHandle = UploadTaskHandle()
+    t = threading.Thread(target=bos_client.put_super_obejct_from_file, args=(bucket_name, key, file_name),
+            kwargs={
+                "chunk_size": 5,
+                "thread_num": multiprocessing.cpu_count(),
+                "uploadTaskHandle": uploadTaskHandle,
+                "progress_callback": utils.default_progress_callback
+                })
+    t.start()
+    time.sleep(2)
+    uploadTaskHandle.cancel()
+    t.join()
+
+
+    # multi-upload operation samples
+    # put a super file to object
+    _create_file(file_name, 10 * 1024 * 1024)
+
+    # SuperFile step 1: init multi-upload
+    upload_id = bos_client.initiate_multipart_upload(bucket_name, key).upload_id
+    upload_id_about = bos_client.initiate_multipart_upload(bucket_name, key + "_about").upload_id
+
+    # SuperFile step 2: upload file part by part
+    left_size = os.path.getsize(file_name)
+    offset = 0
+    part_number = 1
+    part_list = []
+    while left_size > 0:
+        part_size = 5 * 1024 * 1024
+        if left_size < part_size:
+            part_size = left_size
+
+        response = bos_client.upload_part_from_file(
+            bucket_name, key, upload_id, part_number, part_size, file_name, offset, progress_callback=utils.default_progress_callback)
+        left_size -= part_size
+        offset += part_size
+        # your should store every part number and etag to invoke complete multi-upload
+        part_list.append({
+            "partNumber": part_number,
+            "eTag": response.metadata.etag
+        })
+        part_number += 1

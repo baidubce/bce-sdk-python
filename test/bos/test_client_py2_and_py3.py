@@ -1899,7 +1899,7 @@ class TestPutSuperObejctFromFile(TestClient):
 
     def test_cancel_put_super_obejct(self):
         """ test cancel after calling put_super_obejct_from_file() """
-        self.get_file(50)
+        self.get_file(300)
         uploadTaskHandle = UploadTaskHandle()
         t = threading.Thread(target=self.bos.put_super_obejct_from_file, args=(self.BUCKET, self.KEY, self.FILENAME),
                 kwargs={
@@ -1908,7 +1908,7 @@ class TestPutSuperObejctFromFile(TestClient):
                     "uploadTaskHandle": uploadTaskHandle
                     })
         t.start()
-        time.sleep(2)
+        time.sleep(1)
         uploadTaskHandle.cancel()
         t.join()
 
@@ -3006,7 +3006,144 @@ class TestSymlink(TestClient):
         finally:
             self.assertIsNone(err)
         self.assertEqual(response, b"This is a string.")
-        
+
+class TestQuota(TestClient):
+    """test put/get quota function"""
+    def test_get_quota(self):
+        """test get quota"""
+        err = None
+        self.bos.put_user_quota(100,12334424)
+        try:
+            response = self.bos.get_user_quota()
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.max_bucket_count, 100)
+        self.assertEqual(response.max_capacity_mega_bytes, 12334424)
+    
+    def test_set_quota(self):
+        """test set quota"""
+        err = None
+        self.bos.delete_user_quota()
+        self.bos.put_user_quota(100,12334424)
+        try:
+            response = self.bos.get_user_quota()
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.max_bucket_count, 100)
+        self.assertEqual(response.max_capacity_mega_bytes, 12334424)
+
+    def test_delete_quota(self):
+        """test delete quota"""
+        err = None
+        is_exception = False
+        self.bos.delete_user_quota()
+        try:
+            response = self.bos.get_user_quota()
+        except Exception as e:
+            is_exception = True
+        self.assertTrue(is_exception)
+
+class TestNotification(TestClient):
+    def test_get_notification(self):
+        """test get notification"""
+        err = None
+        notifications = list()
+        notifications.append(
+        {
+            "resources": [
+                "/"
+            ],
+            "encryption": {
+                "key": "06a62b70f47dc4a0a7da349609f1a1ac"
+            },
+            "status": "enabled",
+            "name": "name3",
+            "id": "r3",
+            "appId": "p3",
+            "events": [
+                "AppendObject",
+                "CompleteMultipartUpload",
+                "CopyObject",
+                "PutObject",
+                "PostObject",
+                "FetchObject",
+                "DeleteObject"
+            ],
+            "apps": [
+                {
+                    "eventUrl": "http://www.liujiang.com",
+                    "id": "ImageCensor",
+                    "xVars": "{\"saveUrl\": \"http://xxx.com/ocr\"}"
+                }
+            ]
+        })
+        self.bos.put_notification(self.BUCKET, notifications)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.notifications[0].id, "r3")
+    
+    def test_delete_notification(self):
+        err = None
+        is_exception = False
+        self.bos.delete_notification(self.BUCKET)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except Exception as e:
+            is_exception = True
+        self.assertTrue(is_exception)
+
+    def test_put_notification(self):
+        err = None
+        is_exception = False
+        self.bos.delete_notification(self.BUCKET)
+        notifications = list()
+        notifications.append(
+        {
+            "resources": [
+                "/"
+            ],
+            "encryption": {
+                "key": "06a62b70f47dc4a0a7da349609f1a1ac"
+            },
+            "status": "enabled",
+            "name": "name3",
+            "id": "r3",
+            "appId": "p3",
+            "events": [
+                "AppendObject",
+                "CompleteMultipartUpload",
+                "CopyObject",
+                "PutObject",
+                "PostObject",
+                "FetchObject",
+                "DeleteObject"
+            ],
+            "apps": [
+                {
+                    "eventUrl": "http://www.liujiang.com",
+                    "id": "ImageCensor",
+                    "xVars": "{\"saveUrl\": \"http://xxx.com/ocr\"}"
+                }
+            ]
+        })
+        self.bos.put_notification(self.BUCKET, notifications)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.notifications[0].id, "r3")
+
+
 
 def run_test():
     """start run test"""
@@ -3057,6 +3194,8 @@ def run_test():
     runner.run(unittest.makeSuite(TestSymlink))
     runner.run(unittest.makeSuite(TestBucketStorageclass))
     runner.run(unittest.makeSuite(TestBucketInventory))
+    runner.run(unittest.makeSuite(TestQuota))
+    runner.run(unittest.makeSuite(TestNotification))
 
 
 run_test()
