@@ -26,17 +26,19 @@ if PY2:
     reload(sys)
     sys.setdefaultencoding('utf8')
 
-HOST = b'http://bcm.su.baidubce.com'
-AK = b''
-SK = b''
+HOST = b'bcm.bj.baidubce.com'
+AK = b'your ak'
+SK = b'your sk'
 
-user_id = ''
+user_id = '11111'
 scope = 'BCE_BCC'
 metric_name = 'CpuIdlePercent'
+metric_name_batch = 'CPUUsagePercent,MemUsagePercent'
 statistics = 'average,maximum,minimum'
 dimensions = 'InstanceId:i-xhWSkyNb'
-start_time = '2020-09-22T10:02:00Z'
-end_time = '2020-09-22T11:01:21Z'
+dimensions_batch = 'InstanceId:4c3069002046,InstanceId:b9a044ee30f2'
+start_time = '2022-05-10T06:11:48Z'
+end_time = '2022-05-10T07:11:48Z'
 period_in_second = 60
 
 
@@ -52,7 +54,7 @@ class TestBcmClient(unittest.TestCase):
 
     def test_get_metric_data(self):
         """
-        test create bbc instance
+        test get metric data
         """
         response = self.client.get_metric_data(user_id=user_id, scope=scope, metric_name=metric_name,
                                                dimensions=dimensions, statistics=statistics, start_time=start_time,
@@ -60,11 +62,22 @@ class TestBcmClient(unittest.TestCase):
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
+    def test_get_batch_metric_data(self):
+        """
+        test get batch metric data
+        """
+        response = self.client.get_batch_metric_data(user_id=user_id, scope=scope, metric_name=metric_name_batch,
+                                                     dimensions=dimensions_batch, statistics=statistics,
+                                                     start_time=start_time,
+                                                     end_time=end_time, period_in_second=period_in_second)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
-    #suite.addTest(TestBcmClient("test_get_metric_data"))
+    # suite.addTest(TestBcmClient("test_get_metric_data"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
