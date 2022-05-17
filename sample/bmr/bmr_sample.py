@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
         # list steps
         LOG.debug('\n\n\nSample 5: LIST STEPS\n\n\n')
-        response = bmr_client.list_steps(new_cluster_id, max_keys=50)
+        response = bmr_client.list_steps(new_cluster_id, pageNo=1, pageSize=50)
         LOG.debug('list steps response: %s' % response)
 
         # get step
@@ -205,7 +205,13 @@ if __name__ == '__main__':
             response = bmr_client.get_step(new_cluster_id, step_id)
             LOG.debug('get step response: %s' % response)
 
-        # terminate cluster
+        response = bmr_client.list_cluster_hosts(new_cluster_id)
+        LOG.debug('list cluster hosts response: %s' % response)
+
+        response = bmr_client.get_cluster_ambariPassword(new_cluster_id)
+        LOG.debug('list cluster ambariPassword response: %s' % response)
+
+    # terminate cluster
         LOG.debug('\n\n\nSample 7: TERMINATE CLUSTER\n\n\n')
         response = bmr_client.terminate_cluster(new_cluster_id)
         LOG.debug('terminate cluster %s: status %s' % (new_cluster_id, response.status))
