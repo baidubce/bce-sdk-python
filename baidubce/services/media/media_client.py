@@ -131,6 +131,26 @@ class MediaClient(BceBaseClient):
             '/job/transcoding/' + job_id,
             config=config)
 
+    @required(job_id=(bytes, str))
+    def get_transcoding_encryption_key(self, job_id, config=None):
+        """
+        Get transcoding job encryption key
+
+        :param job_id: The job Id want to query transcoding encryption key.
+        :type job_id: string
+        :param config: None
+        :type config: BceClientConfiguration
+        :returns: Response Object contains transcoding encryption Aes key.
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        if job_id == '':
+            raise BceClientError('job_id can\'t be empty string')
+        return self._send_request(
+            http_methods.GET, 
+            '/transcoding/key/' + job_id,
+            body_parser=media_handler.parse_secret_key_response,
+            config=config)
+
     @required(bucket=(bytes, str), key=(bytes, str))
     def get_mediainfo_of_file(self, bucket, key, config=None):
         """
