@@ -40,6 +40,92 @@ class MmsClient(BceBaseClient):
         """init"""
         BceBaseClient.__init__(self, config)
 
+    @required(lib_name=(bytes, str), params=dict)
+    def create_video_lib(self, lib_name, params=None, config=None):
+        """
+        create video lib.
+        :param lib_name: video lib name
+        :param params: description for this request
+        :type params: dict
+        :return: **dict**
+        """
+        body = {
+            'name': lib_name
+        }
+        if params is not None:
+            if 'description' in params:
+                body['description'] = params['description']
+            if 'scoreThreshold' in params:
+                body['scoreThreshold'] = params['scoreThreshold']
+            if 'videoScoreThreshold' in params:
+                body['videoScoreThreshold'] = params['videoScoreThreshold']
+            if 'frameType' in params:
+                body['frameType'] = params['frameType']
+            if 'interval' in params:
+                body['interval'] = params['interval']
+        return self._send_request(http_methods.POST,
+                                  b'/v2/videolib',
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  body=json.dumps(body),
+                                  config=config)
+
+    @required(lib_id=(bytes, str))
+    def delete_video_lib(self, lib_id, config=None):
+        """
+        delete video lib by lib_id.
+        :param lib_id: video lib id
+        :return: **BceResponse**
+        """
+        return self._send_request(http_methods.POST,
+                                  b'/v2/videolib/%s' % compat.convert_to_bytes(
+                                      lib_id),
+                                  headers={b'Content-Type': b'application/json'},
+                                  params={b'deleteLibById': b''},
+                                  config=config)
+
+    @required(lib_name=(bytes, str), params=dict)
+    def create_image_lib(self, lib_name, params=None, config=None):
+        """
+        create image lib.
+        :param lib_name: image lib name
+        :param params: params for this request
+        :type params: dict
+        :return: **BceResponse**
+        """
+        body = {
+            'name': lib_name
+        }
+        if params is not None:
+            if 'description' in params:
+                body['description'] = params['description']
+            if 'scoreThreshold' in params:
+                body['scoreThreshold'] = params['scoreThreshold']
+            if 'frameType' in params:
+                body['frameType'] = params['frameType']
+            if 'interval' in params:
+                body['interval'] = params['interval']
+        return self._send_request(http_methods.POST,
+                                  b'/v2/imagelib',
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  body=json.dumps(body),
+                                  config=config)
+
+    @required(lib_id=(bytes, str))
+    def delete_image_lib(self, lib_id, config=None):
+        """
+        delete image lib by lib_id.
+        :param lib_id: image lib id
+        :return: **BceResponse**
+        """
+        return self._send_request(http_methods.POST,
+                                  b'/v2/imagelib/%s' % compat.convert_to_bytes(
+                                      lib_id),
+                                  headers={b'Content-Type': b'application/json'},
+                                  params={b'deleteLibById': b''},
+                                  config=config)
+
     @required(video_lib=(bytes, str), source=(bytes, str))
     def insert_video(self, video_lib, source, description=None, config=None):
         """

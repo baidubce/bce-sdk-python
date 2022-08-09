@@ -38,6 +38,18 @@ if __name__ == "__main__":
     image_lib_id = "test_image_lib_id"
 
     try:
+        # create video lib
+        params = {"scoreThreshold": 90, "description": "test lib"}
+        create_video_lib_response = mms_client.create_video_lib(video_lib, params)
+        LOG.debug('\n%s', create_video_lib_response)
+        video_lib_id = create_video_lib_response.lib_id
+        LOG.debug('\n%s', video_lib_id)
+
+        # create image lib
+        create_image_lib_response = mms_client.create_image_lib(image_lib, params)
+        LOG.debug('\n%s', create_image_lib_response)
+        image_lib_id = create_image_lib_response.lib_id
+
         # insert video to video lib
         response = mms_client.insert_video(video_lib, video_url)
         video_id = response.media_id
@@ -92,5 +104,11 @@ if __name__ == "__main__":
         # delete image from lib by id
         response = mms_client.delete_image_by_id(image_lib_id, image_id)
         LOG.debug('\n%s', response)
+
+        # delete video lib
+        mms_client.delete_video_lib(video_lib_id)
+
+        # delete image lib
+        mms_client.delete_image_lib(image_lib_id)
     except Exception as e:
         LOG.error('send request failed. Unknown exception: %s' % e)
