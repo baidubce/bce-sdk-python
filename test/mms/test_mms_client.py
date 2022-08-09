@@ -28,6 +28,84 @@ class TestMmsClient(unittest.TestCase):
         self.image_lib = "zhx_v_test"
         self.vedio_lib = "zhx_v_test"
 
+    def test_create_video_lib(self):
+        """
+        A test case for create_video_lib.
+        """
+        # Set request param.
+        video_lib = 'baiduyun_test'
+        params = {'description': 'for test'}
+
+        # Set mock.
+        BceResponse.lib_id = 'test_video_lib_id'
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.create_video_lib(video_lib, params=params)
+            self.assertEqual(response.lib_id, BceResponse.lib_id)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
+    def test_delete_video_lib(self):
+        """
+        A test case for delete_video_lib.
+        """
+        # Set request param.
+        video_lib_id = 'lib_id'
+
+        # Set mock.
+        BceResponse.status = 'success'
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.delete_video_lib(video_lib_id)
+            self.assertEqual(response.status, BceResponse.status)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
+    def test_create_image_lib(self):
+        """
+        A test case for create_image_lib.
+        """
+        # Set request param.
+        image_lib = 'baiduyun_test'
+        params = {'description': 'for test'}
+
+        # Set mock.
+        BceResponse.lib_id = 'test_image_lib_id'
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.create_image_lib(image_lib, params=params)
+            self.assertEqual(response.lib_id, BceResponse.lib_id)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
+    def test_delete_image_lib(self):
+        """
+        A test case for delete_image_lib.
+        """
+        # Set request param.
+        image_lib_id = 'lib_id'
+
+        # Set mock.
+        BceResponse.status = 'success'
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.delete_image_lib(image_lib_id)
+            self.assertEqual(response.status, BceResponse.status)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
     def test_insert_video(self):
         """
         A test case for insert_video.
