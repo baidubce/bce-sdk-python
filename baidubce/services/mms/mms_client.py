@@ -126,6 +126,48 @@ class MmsClient(BceBaseClient):
                                   params={b'deleteLibById': b''},
                                   config=config)
 
+    @required(params=dict)
+    def list_lib(self, params=None, config=None):
+        """
+        list lib.
+        :param params: params for this request
+        :type params: dict
+        :return: **dict**
+        """
+        body = {
+            'type': params['type']
+        }
+        return self._send_request(http_methods.POST,
+                                  b'/v2/lib/list',
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  body=json.dumps(body),
+                                  config=config)
+
+    @required(params=dict)
+    def list_media(self, params=None, config=None):
+        """
+        list media.
+        :param params: params for this request
+        :type params: dict
+        :return: **dict**
+        """
+        body = {
+            'type': params['type'],
+            'id': params['id']
+        }
+        if params is not None:
+            if 'pageNo' in params:
+                body['pageNo'] = params['pageNo']
+            if 'pageSize' in params:
+                body['pageSize'] = params['pageSize']
+        return self._send_request(http_methods.POST,
+                                  b'/v2/lib/item/list',
+                                  headers={
+                                      b'Content-Type': b'application/json'},
+                                  body=json.dumps(body),
+                                  config=config)
+
     @required(video_lib=(bytes, str), source=(bytes, str))
     def insert_video(self, video_lib, source, description=None, config=None):
         """
