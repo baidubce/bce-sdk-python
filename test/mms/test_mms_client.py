@@ -106,6 +106,40 @@ class TestMmsClient(unittest.TestCase):
             # Validate result.
             raise e
 
+    def test_list_lib(self):
+        """
+        A test case for list_lib.
+        """
+
+        # Set mock.
+        BceResponse.totalCount = 0
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.list_lib({"type": "IMAGE"})
+            self.assertEqual(response.totalCount, BceResponse.totalCount)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
+    def test_list_media(self):
+        """
+        A test case for list_media.
+        """
+
+        # Set mock.
+        BceResponse.totalCount = 0
+        self.the_client._send_request = mock.Mock(return_value=BceResponse)
+
+        try:
+            # Run.
+            response = self.the_client.list_media({"type": "IMAGE", "id": "lib_id"})
+            self.assertEqual(response.totalCount, BceResponse.totalCount)
+        except BceServerError as e:
+            # Validate result.
+            raise e
+
     def test_insert_video(self):
         """
         A test case for insert_video.

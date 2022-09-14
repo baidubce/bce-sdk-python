@@ -50,6 +50,18 @@ if __name__ == "__main__":
         LOG.debug('\n%s', create_image_lib_response)
         image_lib_id = create_image_lib_response.lib_id
 
+        video_lib_list = mms_client.list_lib({"type": "VIDEO"})
+        LOG.debug('{\n%s', video_lib_list)
+
+        image_lib_list = mms_client.list_lib({"type": "IMAGE"})
+        LOG.debug('{\n%s', image_lib_list)
+
+        video_media_list = mms_client.list_media({"type": "VIDEO", "id": video_lib_id})
+        LOG.debug('{\n%s', video_media_list)
+
+        image_media_list = mms_client.list_media({"type": "IMAGE", "id": image_lib_id})
+        LOG.debug('{\n%s', image_media_list)
+
         # insert video to video lib
         response = mms_client.insert_video(video_lib, video_url)
         video_id = response.media_id
