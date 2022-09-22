@@ -56,6 +56,8 @@ FETCH_MODE_ASYNC = b"async"
 
 ENCRYPTION_ALGORITHM= "AES256"
 
+DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
+
 
 class UploadTaskHandle:
     """
@@ -699,11 +701,13 @@ class BosClient(BceBaseClient):
         :type options: dict
         :param options: None
 
+        :param is_official_domain: default use not official domain,example: bucket.bj.bcebos.com
+
         :return:
             **URL string**
         """
         key = compat.convert_to_bytes(key)
-        config = self._merge_config(config)
+        config = self._merge_config(config, bucket_name)
         headers = headers or {}
         params = params or {}
 
@@ -949,7 +953,7 @@ class BosClient(BceBaseClient):
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object(self, bucket_name, key, range=None, config=None):
+    def get_object(self, bucket_name, key, range=None, traffic_limit=None, config=None):
         """
 
         :param bucket_name:
@@ -961,11 +965,16 @@ class BosClient(BceBaseClient):
         key = compat.convert_to_bytes(key)
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
+        range_header = BosClient._get_range_header_dict(range)
+        if traffic_limit is not None:
+            if range_header is None:
+                range_header = {}
+            range_header[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
         return self._send_request(
             http_methods.GET,
             bucket_name,
             key,
-            headers=BosClient._get_range_header_dict(range),
+            headers=range_header,
             config=config,
             body_parser=BosClient._parse_bos_object)
 # restore object
@@ -1034,7 +1043,8 @@ class BosClient(BceBaseClient):
         return s
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
-    def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None, progress_callback=None):
+    def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None, 
+                            progress_callback=None, traffic_limit=None):
         """
         Get Content of Object and Put Content to File
 
@@ -1056,12 +1066,17 @@ class BosClient(BceBaseClient):
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
         file_name = compat.convert_to_bytes(file_name)
+        range_header = BosClient._get_range_header_dict(range)
+        if traffic_limit is not None:
+            if range_header is None:
+                range_header = {}
+            range_header[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
         
         return self._send_request(
             http_methods.GET,
             bucket_name,
             key,
-            headers=BosClient._get_range_header_dict(range),
+            headers=range_header,
             config=config,
             body_parser=lambda http_response, response: BosClient._save_body_to_file(
                 http_response,
@@ -1102,6 +1117,7 @@ class BosClient(BceBaseClient):
                      storage_class=None,
                      user_headers=None,
                      progress_callback=None,
+                     traffic_limit=None,
                      config=None):
         """
         Put an appendable object to BOS or add content to an appendable object
@@ -1126,7 +1142,8 @@ class BosClient(BceBaseClient):
             content_sha256=content_sha256,
             user_metadata=user_metadata,
             storage_class=storage_class,
-            user_headers=user_headers)
+            user_headers=user_headers,
+            traffic_limit=traffic_limit)
 
         if content_length > bos.MAX_APPEND_OBJECT_LENGTH:
             raise ValueError('Object length should be less than %d. '
@@ -1160,6 +1177,7 @@ class BosClient(BceBaseClient):
                                   storage_class=None,
                                   user_headers=None,
                                   progress_callback=None,
+                                  traffic_limit=None,
                                   config=None):
         """
         Create an appendable object and put content of string to the object
@@ -1188,6 +1206,7 @@ class BosClient(BceBaseClient):
                                       storage_class=storage_class,
                                       user_headers=user_headers,
                                       progress_callback=progress_callback,
+                                      traffic_limit=traffic_limit,
                                       config=config)
         finally:
             if fp is not None:
@@ -1210,6 +1229,7 @@ class BosClient(BceBaseClient):
                    customer_key=None,
                    customer_key_md5=None,
                    progress_callback=None,
+                   traffic_limit=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -1238,7 +1258,8 @@ class BosClient(BceBaseClient):
             content_sha256=content_sha256,
             user_metadata=user_metadata,
             storage_class=storage_class,
-            user_headers=user_headers)
+            user_headers=user_headers,
+            traffic_limit=traffic_limit)
 
         buf_size = self._get_config_parameter(config, 'recv_buf_size')
 
@@ -1269,6 +1290,7 @@ class BosClient(BceBaseClient):
                                customer_key=None,
                                customer_key_md5=None,
                                progress_callback=None,
+                               traffic_limit=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -1309,6 +1331,7 @@ class BosClient(BceBaseClient):
                                    customer_key=customer_key,
                                    customer_key_md5=customer_key_md5,
                                    progress_callback = progress_callback,
+                                   traffic_limit=traffic_limit,
                                    config=config)
         finally:
             if fp is not None:
@@ -1327,6 +1350,7 @@ class BosClient(BceBaseClient):
                              customer_key=None,
                              customer_key_md5=None,
                              progress_callback=None,
+                             traffic_limit=None,
                              config=None,
                              ):
 
@@ -1372,6 +1396,7 @@ class BosClient(BceBaseClient):
                                    customer_key=customer_key,
                                    customer_key_md5=customer_key_md5,
                                    progress_callback=progress_callback,
+                                   traffic_limit=traffic_limit,
                                    config=config)
         finally:
             fp.close()
@@ -1389,6 +1414,7 @@ class BosClient(BceBaseClient):
                     storage_class=None,
                     user_headers=None,
                     copy_object_user_headers=None,
+                    traffic_limit=None,
                     config=None):
         """
         Copy one object to another object
@@ -1413,7 +1439,8 @@ class BosClient(BceBaseClient):
             content_type=content_type,
             user_metadata=user_metadata,
             storage_class=storage_class,
-            user_headers=user_headers)
+            user_headers=user_headers,
+            traffic_limit=traffic_limit)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
             b'/%s/%s' % (
                 compat.convert_to_bytes(source_bucket_name), 
@@ -1582,7 +1609,7 @@ class BosClient(BceBaseClient):
               part_fp=object)
     def upload_part(self, bucket_name, key, upload_id,
                     part_number, part_size, part_fp, part_md5=None,
-                    progress_callback=None, config=None):
+                    progress_callback=None, traffic_limit=None, config=None):
         """
         Upload a part.
 
@@ -1629,6 +1656,9 @@ class BosClient(BceBaseClient):
 
         if progress_callback:
             part_fp = utils.make_progress_adapter(part_fp, progress_callback, part_size)
+        
+        if traffic_limit is not None:
+            headers[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
         return self._send_request(
             http_methods.PUT,
             bucket_name,
@@ -1653,6 +1683,7 @@ class BosClient(BceBaseClient):
                          etag=None,
                          content_type=None,
                          user_metadata=None,
+                         traffic_limit=None,
                          config=None):
         """
         Copy part.
@@ -1679,7 +1710,8 @@ class BosClient(BceBaseClient):
         target_key = compat.convert_to_bytes(target_key)
         headers = self._prepare_object_headers(
                          content_type=content_type,
-                         user_metadata=user_metadata)
+                         user_metadata=user_metadata,
+                         traffic_limit=traffic_limit)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
                          b"/%s/%s" % (compat.convert_to_bytes(source_bucket_name),
                          source_key), False)
@@ -1705,7 +1737,7 @@ class BosClient(BceBaseClient):
               offset=compat.integer_types)
     def upload_part_from_file(self, bucket_name, key, upload_id,
                               part_number, part_size, file_name, offset, part_md5=None,
-                              progress_callback=None, config=None):
+                              progress_callback=None, traffic_limit=None, config=None):
         """
 
         :param bucket_name:
@@ -1724,7 +1756,8 @@ class BosClient(BceBaseClient):
         try:
             f.seek(offset)
             return self.upload_part(bucket_name, key, upload_id, part_number, part_size, f,
-                                    part_md5=part_md5, progress_callback=progress_callback, config=config)
+                                    part_md5=part_md5, progress_callback=progress_callback,
+                                    traffic_limit=traffic_limit, config=config)
         finally:
             f.close()
 
@@ -1910,13 +1943,15 @@ class BosClient(BceBaseClient):
                 break
 
     def _upload_task(self, bucket_name, object_key, upload_id,
-        part_number, part_size, file_name, offset, part_list, uploadTaskHandle, progress_callback=None):
+        part_number, part_size, file_name, offset, part_list, uploadTaskHandle,
+        progress_callback=None, traffic_limit=None):
         if uploadTaskHandle.is_cancel():
             _logger.debug("upload task canceled with partNumber={}!".format(part_number))
             return
         try:
             response = self.upload_part_from_file(bucket_name, object_key, upload_id,
-                part_number, part_size, file_name, offset, progress_callback=progress_callback)
+                part_number, part_size, file_name, offset, progress_callback=progress_callback
+                , traffic_limit=traffic_limit)
             part_list.append({
                 "partNumber": part_number,
                 "eTag": response.metadata.etag
@@ -1934,6 +1969,7 @@ class BosClient(BceBaseClient):
             storage_class=None,
             user_headers=None,
             progress_callback=None,
+            traffic_limit=None,
             config=None):
         """
         Multipart Upload file to bos
@@ -1971,7 +2007,7 @@ class BosClient(BceBaseClient):
             if left_size < part_size:
                 part_size = left_size
             temp_task= executor.submit(self._upload_task, bucket_name, key, upload_id, part_number, part_size,
-                file_name, offset, part_list, uploadTaskHandle, progress_callback)
+                file_name, offset, part_list, uploadTaskHandle, progress_callback, traffic_limit)
             all_tasks.append(temp_task)
             left_size -= part_size
             offset += part_size
@@ -2345,7 +2381,8 @@ class BosClient(BceBaseClient):
             user_headers=None,
             encryption=None,
             customer_key=None,
-            customer_key_md5=None):
+            customer_key_md5=None,
+            traffic_limit=None):
         headers = {}
 
         if content_length is not None:
@@ -2401,6 +2438,9 @@ class BosClient(BceBaseClient):
                 headers = BosClient._get_user_header(headers, user_headers, False)
             except Exception as e:
                 raise e
+        
+        if traffic_limit is not None:
+            headers[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
 
         return headers
 
@@ -2441,17 +2481,29 @@ class BosClient(BceBaseClient):
         host = config.endpoint
         if use_backup_endpoint:
             host = config.backup_endpoint
-        if config.cname_enabled or utils.is_cname_like_host(host):
+        if config.cname_enabled or utils.is_cname_like_host(host) or utils.is_custom_host(host, bucket_name):
             return utils.append_uri(bos.URL_PREFIX, key)
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
 
-    def _merge_config(self, config):
-        if config is None:
-            return self.config
-        else:
-            new_config = copy.copy(self.config)
+    def _merge_config(self, config, bucket_name):
+        # if config is None:
+        #     return self.config
+        # else:
+        #     new_config = copy.copy(self.config)
+        #     new_config.merge_non_none_values(config)
+        #     return new_config
+        
+        new_config = copy.copy(self.config)
+        if config is not None:
             new_config.merge_non_none_values(config)
-            return new_config
+        if bucket_name is not None and not utils.is_cname_like_host(self.config.endpoint):
+            user_endpoint = self.config.endpoint
+            user_endpoint_split_size = len(compat.convert_to_bytes(user_endpoint).split(b'.'))
+            if user_endpoint.endswith(DEFAULT_BOS_DOMAIN_SUFFIX) and user_endpoint_split_size == 3:
+                new_config.endpoint = compat.convert_to_bytes(bucket_name)+b'.'+\
+                compat.convert_to_bytes(user_endpoint)
+
+        return new_config
 
     @staticmethod
     def _need_retry_backup_endpoint(error):
@@ -2474,7 +2526,8 @@ class BosClient(BceBaseClient):
             body=None, headers=None, params=None,
             config=None,
             body_parser=None):
-        config = self._merge_config(config)
+        config = self._merge_config(config, bucket_name)
+
         path = BosClient._get_path(config, bucket_name, key)
         if body_parser is None:
             body_parser = handler.parse_json
