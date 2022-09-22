@@ -1,5 +1,11 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+
+【版本：v0.8.77】
+涉及产品：BOS
+1. PutObject、AppendObject、PostObject、UploadPart、UploadPartCopy、 
+    CopyObject、 GetObject等支持单链接限速。
+
 【版本：v0.8.76】
 涉及产品：MMS, 增加查询库列表、查询媒资列表接口
 

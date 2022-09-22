@@ -678,3 +678,58 @@ if __name__ == "__main__":
             "eTag": response.metadata.etag
         })
         part_number += 1
+
+    #####################################################################################################
+    #            test traffic limit samples
+    ######################################################################################################
+    traffic_limit_speed = 819200 * 5
+
+    # get obj url by traffic limit
+    param = {}
+    param[b'x-bce-traffic-limit'] = traffic_limit_speed
+    url = bos_client.generate_pre_signed_url(bucket_name, key, timestamp=1649923427,
+                                               expiration_in_seconds=100000000,
+                                               params=param)
+    
+    __logger.debug("[Sample] get object url is  %s", url)
+
+    bos_client.put_object_from_file()
+    # put a file as object
+    _create_file(file_name, 5 * 1024 * 1024)
+    bos_client.put_object_from_file(bucket_name, key, file_name, traffic_limit=traffic_limit_speed)
+
+    # get object into file
+    bos_client.get_object_to_file(bucket_name, key, download, traffic_limit=traffic_limit_speed)
+    __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
+
+    # multi-upload operation samples
+    # put a super file to object
+    _create_file(file_name, 10 * 1024 * 1024)
+
+    # SuperFile step 1: init multi-upload
+    upload_id = bos_client.initiate_multipart_upload(bucket_name, key).upload_id
+    upload_id_about = bos_client.initiate_multipart_upload(bucket_name, key + "_about").upload_id
+
+    # SuperFile step 2: upload file part by part
+    left_size = os.path.getsize(file_name)
+    offset = 0
+    part_number = 1
+    part_list = []
+    while left_size > 0:
+        part_size = 5 * 1024 * 1024
+        if left_size < part_size:
+            part_size = left_size
+
+        response = bos_client.upload_part_from_file(
+            bucket_name, key, upload_id, part_number, part_size, file_name, offset, traffic_limit=traffic_limit_speed)
+        left_size -= part_size
+        offset += part_size
+        # your should store every part number and etag to invoke complete multi-upload
+        part_list.append({
+            "partNumber": part_number,
+            "eTag": response.metadata.etag
+        })
+        part_number += 1
+
+    # copy a object
+    bos_client.copy_object(bucket_name, key, bucket_name, key + ".copy", traffic_limit=traffic_limit_speed)

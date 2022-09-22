@@ -549,6 +549,16 @@ def is_cname_like_host(host):
             return True
     return False
 
+
+def is_custom_host(host, bucket_name):
+    """
+    custom host : xxx.region.bcebos.com
+    : return: custom, domain or not
+    """
+    if host is None or bucket_name is None:
+        return False
+    return host.lower().startswith(compat.convert_to_bytes(bucket_name.lower()))
+
 def _get_data_size(data):
     if hasattr(data, '__len__'):
         return len(data)

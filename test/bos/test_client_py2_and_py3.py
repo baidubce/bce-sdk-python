@@ -35,6 +35,7 @@ import socket
 import threading
 import time
 import pprint
+import datetime
 
 import coverage
 import baidubce
@@ -3156,7 +3157,106 @@ class TestNotification(TestClient):
             self.assertIsNone(err)
         self.assertEqual(response.notifications[0].id, "r3")
 
+class TestTrafficLimit(TestClient):
+    """test put object"""
+    def test_put_object(self):
+        self.get_file(20)
+        traffic_limit_speed = 819200 * 5
+        start_time = datetime.datetime.now()
+        self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME, traffic_limit=traffic_limit_speed)
+        end_time = datetime.datetime.now()
+        time_interval = (end_time - start_time).seconds
+        speed = 20 * 1024 * 1024 * 8 / time_interval
+        self.assertTrue(speed <= traffic_limit_speed)
+    
+    def test_copy_object(self):
+        """test copy_object function normally"""
+        traffic_limit_speed = 81920
+        err = None
+        self.get_file(20)
+        try:
+            self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        try:
+            response = self.bos.copy_object(self.BUCKET,
+                                        self.KEY,
+                                        self.BUCKET,
+                                        compat.convert_to_bytes("test_target_key"),
+                                        traffic_limit=traffic_limit_speed)
+        except Exception as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+    
+    def test_get_object_to_file(self):
+        traffic_limit_speed = 819200 * 5
+        err = None
+        self.get_file(20)
+        try:
+            self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        start_time = datetime.datetime.now()
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME,
+                                        traffic_limit=traffic_limit_speed)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        end_time = datetime.datetime.now()
+        time_interval = (end_time - start_time).seconds
+        speed = 20 * 1024 * 1024 * 8 / time_interval
+        self.assertTrue(speed <= traffic_limit_speed)
+    
+    def test_upload_part(self):
+        traffic_limit_speed = 819200 * 5
+        response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "upload_id"))
+        self.assertTrue(hasattr(response, "bucket"))
+        self.assertTrue(hasattr(response, "key"))
 
+        upload_id = response.upload_id
+
+        self.get_file(20)
+        left_size = os.path.getsize(self.FILENAME)
+        done = 0
+        part_number = 1
+        part_list = []
+        while left_size > 0:
+            part_size = 5 * 1024 * 1024
+            if left_size < part_size:
+                part_size = left_size
+
+            response = self.bos.upload_part_from_file(self.BUCKET,
+                                                      self.KEY,
+                                                      upload_id,
+                                                      part_number=part_number,
+                                                      part_size=part_size,
+                                                      file_name = self.FILENAME,
+                                                      traffic_limit = traffic_limit_speed,
+                                                      offset=done)
+            left_size = left_size - part_size
+            done = done + part_size
+            part_list.append({
+                "partNumber": part_number,
+                "eTag": response.metadata.etag
+            })
+            part_number += 1
+
+        response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "etag"))
+        self.assertTrue(hasattr(response, "bucket"))
+        self.assertTrue(hasattr(response, "key"))
+        self.assertTrue(hasattr(response, "location"))
 
 def run_test():
     """start run test"""
@@ -3209,6 +3309,8 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketInventory))
     runner.run(unittest.makeSuite(TestQuota))
     runner.run(unittest.makeSuite(TestNotification))
+    """test speed limit, the case is skipped by default"""
+    # runner.run(unittest.makeSuite(TestTrafficLimit))
 
 
 run_test()
