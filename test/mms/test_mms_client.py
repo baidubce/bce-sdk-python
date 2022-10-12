@@ -148,6 +148,7 @@ class TestMmsClient(unittest.TestCase):
         video_lib = 'baiduyun_test'
         source = 'http://baidu.com/test.mp4'
         description = 'for test'
+        notification = 'notification'
 
         # Set mock.
         error_mock = BceServerError(
@@ -160,7 +161,7 @@ class TestMmsClient(unittest.TestCase):
         try:
             # Run.
             self.the_client.insert_video(
-                video_lib, source, description=description)
+                video_lib, source, description=description, notification=notification)
         except BceServerError as e:
             # Validate result.
             self.assertEqual(e.status_code, error_mock.status_code)

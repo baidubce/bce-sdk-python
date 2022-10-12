@@ -37,6 +37,10 @@ if __name__ == "__main__":
     # image lib id
     image_lib_id = "test_image_lib_id"
 
+    description = "description"
+
+    notification = "notification"
+
     try:
         # create video lib
         params = {"scoreThreshold": 90, "description": "test lib"}
@@ -63,7 +67,7 @@ if __name__ == "__main__":
         LOG.debug('{\n%s', image_media_list)
 
         # insert video to video lib
-        response = mms_client.insert_video(video_lib, video_url)
+        response = mms_client.insert_video(video_lib, video_url, description, notification)
         video_id = response.media_id
         LOG.debug('\n%s', response)
 
@@ -76,7 +80,7 @@ if __name__ == "__main__":
         LOG.debug('\n%s', response)
 
         # create search video by video task
-        response = mms_client.create_search_video_by_video_task(video_lib, video_url)
+        response = mms_client.create_search_video_by_video_task(video_lib, video_url, description, notification)
         task_id = response.task_id
         LOG.debug('\n%s', response)
 
