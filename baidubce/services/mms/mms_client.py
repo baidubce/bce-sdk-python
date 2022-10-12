@@ -169,7 +169,7 @@ class MmsClient(BceBaseClient):
                                   config=config)
 
     @required(video_lib=(bytes, str), source=(bytes, str))
-    def insert_video(self, video_lib, source, description=None, config=None):
+    def insert_video(self, video_lib, source, description=None, notification=None, config=None):
         """
         insert a video.
         :param video_lib: video lib
@@ -178,6 +178,8 @@ class MmsClient(BceBaseClient):
         :type source: string
         :param description: description for this request
         :type description: string
+        :param notification: notification for this request
+        :type notification: string
         :return: **BceResponse**
         """
         body = {
@@ -185,6 +187,8 @@ class MmsClient(BceBaseClient):
         }
         if description is not None:
             body['description'] = description
+        if notification is not None:
+            body['notification'] = notification
         return self._send_request(http_methods.PUT,
                                   b'/v2/videolib/%s' % compat.convert_to_bytes(
                                       video_lib),
@@ -269,7 +273,7 @@ class MmsClient(BceBaseClient):
                                   config=config)
 
     @required(video_lib=(bytes, str), source=(bytes, str))
-    def create_search_video_by_video_task(self, video_lib, source, description=None, config=None):
+    def create_search_video_by_video_task(self, video_lib, source, description=None, notification=None, config=None):
         """
         create search video by video task.
         :param video_lib: video lib
@@ -278,6 +282,8 @@ class MmsClient(BceBaseClient):
         :type source: string
         :param description: description for this request
         :type description: string
+        :param notification: notification for this request
+        :type notification: string
         :return: **BceResponse**
         """
         body = {
@@ -285,6 +291,8 @@ class MmsClient(BceBaseClient):
         }
         if description is not None:
             body['description'] = description
+        if notification is not None:
+            body['notification'] = notification
         return self._send_request(http_methods.POST,
                                   b'/v2/videolib/%s' % compat.convert_to_bytes(
                                       video_lib),
