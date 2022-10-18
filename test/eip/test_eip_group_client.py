@@ -121,6 +121,15 @@ class TestEipGroupClient(unittest.TestCase):
                                            client_token=client_token,
                                            eip_add_count=1)
 
+    def test_resize_eip_group_count_v2(self):
+        """
+        test case for scaling EIP group count
+        """
+        client_token = generate_client_token()
+        print(self.client.resize_eip_group_count_v2(id=EIP_GRP_ID,
+                                              client_token=client_token,
+                                              eip_add_count=2))
+
     def test_purchase_reserved_eip_group(self):
         """
         test case for renewing EIP group with prepaid billing
