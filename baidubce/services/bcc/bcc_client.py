@@ -2655,12 +2655,15 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(cluster_size_in_gb=int)
     def create_volume_cluster(self, cluster_size_in_gb, purchase_count=1, storage_type='hp1', cluster_name=None,
                               paymentTiming='Prepaid', reservation_length=6, reservation_time_unit='month',
-                              renew_time_unit=None, renew_time=None, zone_name=None, client_token=None, config=None):
+                              renew_time_unit=None, renew_time=None, zone_name=None, uuid_flag=None,
+                              client_token=None, config=None):
         """
         create_volume_cluster.
         """
         path = b'/volume/cluster'
         params = {}
+        if uuid_flag is not None:
+            params['uuidFlag'] = uuid_flag
         if client_token is None:
             params['clientToken'] = generate_client_token()
         else:
