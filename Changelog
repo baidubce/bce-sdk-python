@@ -1,5 +1,7 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.8.80】
+涉及产品：CDS, 新增CDS专属集群相关接口
 【版本：v0.8.79】
 涉及产品：DNS, 支持公网DNS openApi所有接口
 
@@ -8,7 +10,7 @@
 
 【版本：v0.8.77】
 涉及产品：BOS
-1. PutObject、AppendObject、PostObject、UploadPart、UploadPartCopy、 
+1. PutObject、AppendObject、PostObject、UploadPart、UploadPartCopy、
     CopyObject、 GetObject等支持单链接限速。
 
 【版本：v0.8.76】
