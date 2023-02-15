@@ -58,6 +58,8 @@ ENCRYPTION_ALGORITHM= "AES256"
 
 DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
 
+HTTP_PROTOCOL_HEAD = b'http'
+
 
 class UploadTaskHandle:
     """
@@ -2498,11 +2500,20 @@ class BosClient(BceBaseClient):
             new_config.merge_non_none_values(config)
         if bucket_name is not None and not utils.is_cname_like_host(self.config.endpoint):
             user_endpoint = self.config.endpoint
-            user_endpoint_split_size = len(compat.convert_to_bytes(user_endpoint).split(b'.'))
-            if user_endpoint.endswith(DEFAULT_BOS_DOMAIN_SUFFIX) and user_endpoint_split_size == 3:
+            user_endpoint_split = compat.convert_to_bytes(user_endpoint).split(b'.') 
+            if user_endpoint.endswith(DEFAULT_BOS_DOMAIN_SUFFIX) and len(user_endpoint_split) == 3:
+                # split http head
+                if user_endpoint.startswith(HTTP_PROTOCOL_HEAD):
+                    http_head_split = user_endpoint.split(b'//') 
+                    if len(http_head_split) < 2:
+                        return new_config 
+                    bucket_endpoint = http_head_split[0] + b'//' + compat.convert_to_bytes(bucket_name) +\
+                        b'.' + http_head_split[1]
+                    new_config.endpoint = compat.convert_to_bytes(bucket_endpoint)
+                    return new_config
+                
                 new_config.endpoint = compat.convert_to_bytes(bucket_name)+b'.'+\
                 compat.convert_to_bytes(user_endpoint)
-
         return new_config
 
     @staticmethod

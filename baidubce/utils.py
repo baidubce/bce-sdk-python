@@ -38,6 +38,7 @@ from baidubce.http import http_headers
 import codecs
 
 DEFAULT_CNAME_LIKE_LIST = [b".cdn.bcebos.com"]
+HTTP_PROTOCOL_HEAD = b'http'
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
@@ -556,6 +557,13 @@ def is_custom_host(host, bucket_name):
     : return: custom, domain or not
     """
     if host is None or bucket_name is None:
+        return False
+    
+    # split http head
+    if host.lower().startswith(HTTP_PROTOCOL_HEAD):
+        host_split = host.split(b'//')
+        if len(host_split) == 2 :
+            return host_split[1].lower().startswith(compat.convert_to_bytes(bucket_name.lower()))
         return False
     return host.lower().startswith(compat.convert_to_bytes(bucket_name.lower()))
 
