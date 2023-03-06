@@ -392,6 +392,13 @@ class TestAppBlbClient(unittest.TestCase):
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+        self.assertEqual(
+            type(self.the_client.create_app_server_group_port(
+                blbId, appServerGroupId, 53, 'UDP', health_check='UDP',
+                health_check_timeout_insecond=3, health_check_interval_insecond=3, health_check_down_retry=3,
+                health_check_up_retry=3, udp_health_check_string='test', client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
     def test_update_app_server_group_port(self):
         """
         test case for update backend servers port
@@ -402,6 +409,7 @@ class TestAppBlbClient(unittest.TestCase):
             type(self.the_client.update_app_server_group_port(
                 blbId, appServerGroupId, portId,
                 health_check_timeout_insecond=10,
+                udp_health_check_string='test',
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
