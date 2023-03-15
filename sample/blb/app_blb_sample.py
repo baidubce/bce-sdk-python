@@ -24,3 +24,19 @@ if __name__ == "__main__":
     app_blb_client.update_app_server_group_port(app_blb_sample_conf.blbId, app_blb_sample_conf.appServerGroupId,
                                                 app_blb_sample_conf.portId, 10)
 
+    # create an app blb http listener
+    app_blb_client.create_app_http_listener(
+        app_blb_sample_conf.blbId, app_blb_sample_conf.portId, 'LeastConnection', x_forwarded_for=True)
+
+    # create an app blb https listener
+    app_blb_client.create_app_https_listener(
+        app_blb_sample_conf.blbId, app_blb_sample_conf.portId,
+        'LeastConnection', app_blb_sample_conf.certIds, x_forwarded_for=True)
+
+    # update an app blb http listener
+    app_blb_client.update_app_http_listener(
+        app_blb_sample_conf.blbId, app_blb_sample_conf.portId, x_forwarded_for=False)
+
+    # update an app blb https listener
+    app_blb_client.update_app_https_listener(
+        app_blb_sample_conf.blbId, app_blb_sample_conf.portId, x_forwarded_for=False)
