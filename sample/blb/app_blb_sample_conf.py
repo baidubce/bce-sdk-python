@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # coding=utf-8
 """
-Configuration for vpn samples.
+Configuration for app blb samples.
 """
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
@@ -13,6 +13,7 @@ SK = b'sk'
 blbId = b''
 appServerGroupId = ''
 portId = ''
+certIds = []
 
 logger = logging.getLogger('baidubce.services.blb.app_blb_client')
 fh = logging.FileHandler('sample.log')
