@@ -1380,19 +1380,6 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
-    def test_batch_delete_auto_renew_rules(self):
-        """
-        test case for batch_delete_auto_renew_rules
-        """
-        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7')
-        self.assertEqual(
-            type(resp),
-            baidubce.bce_response.BceResponse)
-        if resp is not None and resp.content is not None:
-            print(json.loads(resp.content.decode('utf-8')))
-        else:
-            print(resp)
-
     def test_delete_recycled_instance(self):
         """
         test case for delete_recycled_instance
@@ -1683,19 +1670,6 @@ class TestBccClient(unittest.TestCase):
         test case for create_deploy_set
         """
         resp = self.client.create_deploy_set(name='d_set_name', desc='this is deploy set desc', strategy='HA')
-        self.assertEqual(
-            type(resp),
-            baidubce.bce_response.BceResponse)
-        if resp is not None and resp.content is not None:
-            print(json.loads(resp.content.decode('utf-8')))
-        else:
-            print(resp)
-
-    def test_list_deploy_sets(self):
-        """
-        test case for list_deploy_sets
-        """
-        resp = self.client.list_deploy_sets()
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)

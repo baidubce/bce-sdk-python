@@ -4310,49 +4310,6 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def instance_change_vpc(self, instance_id, subnet_id=None,
-                            internal_ip=None, reboot=None, client_token=None, config=None):
-        """
-        Change instance vpc by id.
-
-        :param instance_id:
-            Identify of the instance.
-        :type instance_id: string
-
-        :param subnet_id:
-            New subnet id.
-        :type subnet_id: string
-
-        :param internal_ip:
-            Ip address of internal network.
-        :type internal_ip: string
-
-        :param reboot:
-        Reboot instance or not. Default value is False.
-        :type reboot: bool
-
-        :return:
-        :rtype baidubce.bce_response.BceResponse
-        """
-        path = b'/vpc/changeVpc'
-        params = {}
-        if client_token is None:
-            params['clientToken'] = generate_client_token()
-        else:
-            params['clientToken'] = client_token
-
-        body = {}
-        if instance_id is not None:
-            body['instanceId'] = instance_id
-        if subnet_id is not None:
-            body['subnetId'] = subnet_id
-        if internal_ip is not None:
-            body['internalIp'] = internal_ip
-        if reboot is not None:
-            body['reboot'] = reboot
-
-        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
-
     @required(chain_id=str)  # ***Unicode***
     def list_instance_enis(self, instance_id, client_token=None, config=None):
         """
@@ -4427,7 +4384,8 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None, client_token=None, config=None):
+    def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None,
+                                client_token=None, config=None):
         """
         Batch rebuild instances.
 
@@ -4572,7 +4530,8 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
-    def batch_create_auto_renew_rules(self, instance_id, renew_time_unit="month", renew_time=1, client_token=None, config=None):
+    def batch_create_auto_renew_rules(self, instance_id, renew_time_unit="month", renew_time=1,
+                                      client_token=None, config=None):
         """
         create auto renew rules for instance
 
