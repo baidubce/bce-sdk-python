@@ -64,14 +64,16 @@ class BccClient(bce_base_client.BceBaseClient):
 
     def _send_request(self, http_method, path,
                       body=None, headers=None, params=None,
-                      config=None, body_parser=None):
+                      config=None, body_parser=None, prefix=None):
         config = self._merge_config(config)
         if body_parser is None:
             body_parser = handler.parse_json
+        if prefix is None:
+            prefix = BccClient.prefix
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-            http_method, BccClient.prefix + path, body, headers, params)
+            http_method, prefix + path, body, headers, params)
 
     @required(cpu_count=int,
               memory_capacity_in_gb=int,
@@ -551,13 +553,14 @@ class BccClient(bce_base_client.BceBaseClient):
               memory_capacity_in_gb=int,
               image_id=(bytes, str))  # ***Unicode***
     def create_instance_of_bid(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
-                        billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
-                        ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None, auto_renew_time=0,
-                        deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
-                        internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
-                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
-                        zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
-                        client_token=None, config=None, spec=None, user_data=None):
+                               billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
+                               ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None,
+                               auto_renew_time=0,
+                               deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
+                               internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
+                               network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
+                               zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
+                               client_token=None, config=None, spec=None, user_data=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -1093,11 +1096,6 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-
-
-
-
-
     @required(instance_id=(bytes, str),
               desc=(bytes, str))
     def modify_instance_desc(self, instance_id, desc, config=None):
@@ -1127,11 +1125,6 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
-
-
-
-
-
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               image_id=(bytes, str),  # ***Unicode***
@@ -1313,12 +1306,6 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-
-
-
-
-
-
     @required(instance_id=(bytes, str),
               tags=list)
     def bind_instance_to_tags(self, instance_id, tags, config=None):
@@ -1360,12 +1347,6 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
-
-
-
-
-
-
 
     @required(instance_id=(bytes, str))  # ***Unicode***
     def get_instance_vnc(self, instance_id, config=None):
@@ -1868,11 +1849,6 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-
-
-
-
-
     @required(volume_id=(bytes, str),
               name=(bytes, str),
               desc=(bytes, str))
@@ -1900,9 +1876,9 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(volume_id=(bytes, str))
     def modify_volume_charge_type(self,
-                                volume_id,
-                                billing=None,
-                                config=None):
+                                  volume_id,
+                                  billing=None,
+                                  config=None):
         """
         :param volume_id:
         :param billing:
@@ -1923,11 +1899,6 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
-
-
-
-
-
 
     @required(image_name=(bytes, str),  # ***Unicode***
               instance_id=(bytes, str))  # ***Unicode***
@@ -2022,7 +1993,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path =  b'/image'
+        path = b'/image'
         params = {}
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -2106,11 +2077,6 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/image/%s' % image_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
-
-
-
-
-
     @required(image_id=(bytes, str),
               name=(bytes, str),
               destRegions=list)
@@ -2186,10 +2152,10 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(image_id=(bytes, str))
     def unshare_image(self,
-                    image_id,
-                    account=None,
-                    account_id=None,
-                    config=None):
+                      image_id,
+                      account=None,
+                      account_id=None,
+                      config=None):
         """
         :param image_id:
         :param account:
@@ -2240,11 +2206,6 @@ class BccClient(bce_base_client.BceBaseClient):
             'instanceIds': instance_id_list
         }
         return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
-
-
-
-
-
 
     @required(volume_id=(bytes, str),  # ***Unicode***
               snapshot_name=(bytes, str))  # ***Unicode***
@@ -2591,11 +2552,6 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/zone'
         return self._send_request(http_methods.GET, path, config=config)
 
-
-
-
-
-
     @required(asp_name=(bytes, str),
               time_points=list,
               repeat_week_days=list,
@@ -2729,11 +2685,6 @@ class BccClient(bce_base_client.BceBaseClient):
         asp_id = compat.convert_to_bytes(asp_id)
         path = b'/asp/%s' % asp_id
         return self._send_request(http_methods.GET, path, config=config)
-
-
-
-
-
 
     @required(keypair_name=(bytes, str))
     def create_keypair(self,
@@ -2963,7 +2914,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body), params=params, config=config)
 
     def list_volume_cluster(self, cluster_name=None, zone_name=None, marker=None, max_keys=None,
-                     config=None):
+                            config=None):
         """
         list_volume_cluster.
         """
@@ -3015,7 +2966,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(cluster_id=(bytes, str))  # ***Unicode***
     def renew_volume_cluster(self, cluster_id, reservation_length=6, reservation_time_unit='month',
-                                         client_token=None, config=None):
+                             client_token=None, config=None):
         """
         renew_volume_cluster
         """
@@ -3043,7 +2994,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(cluster_id=(bytes, str))  # ***Unicode***
     def autoRenew_volume_cluster(self, cluster_id, renew_time=6, renew_time_unit='month',
-                             client_token=None, config=None):
+                                 client_token=None, config=None):
         """
         autoRenew_volume_cluster
         """
@@ -3088,6 +3039,2302 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def list_recycled_instances(self, marker=None, max_keys=None, instance_id=None, name=None, payment_timing=None,
+                                recycle_begin=None, recycle_end=None, config=None):
+        """
+        Lists recycled instances.
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 1000.
+        :type max_keys: int
+
+        :param instance_id:
+            The identified of instance to specifies one instance.
+        :type instance_id: string
+
+        :param name:
+            The name of instance to specifies one instance.
+        :type name: string
+
+        :param payment_timing:
+            The payment timing of instance order values: [prepay/postpay].
+        :type payment_timing: string
+
+        :param recycle_begin:
+            The begintime of the recycled instances date range. FORMAT: yyyy-MM-dd'T'HH:mm:ss'Z'
+        :type recycle_begin: string
+
+        :param recycle_end:
+            The endtime of the recycled instances date range. FORMAT: yyyy-MM-dd'T'HH:mm:ss'Z'
+        :type recycle_end: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/recycle/instance'
+
+        body = {}
+        if marker is not None:
+            body['marker'] = marker
+        if max_keys is not None:
+            body['maxKeys'] = max_keys
+        if instance_id is not None:
+            body['instanceId'] = instance_id
+        if name is not None:
+            body['name'] = name
+        if payment_timing is not None:
+            body['paymentTiming'] = payment_timing
+        if recycle_begin is not None:
+            body['recycleBegin'] = recycle_begin
+        if recycle_end is not None:
+            body['recycleEnd'] = recycle_end
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    @required(spec=str, image_id=(bytes, str))  # ***Unicode***
+    def create_instance_by_spec(self, spec, image_id, root_disk_size_in_gb=0, root_disk_storage_type=None,
+                                ephemeral_disks=None, create_cds_list=None, network_capacity_in_mbps=0, eip_name=None,
+                                internet_charge_type=None, purchase_count=1, name=None, hostname=None,
+                                auto_seq_suffix=None, is_open_hostname_domain=None, admin_pass=None, billing=None,
+                                zone_name=None, subnet_id=None, security_group_id=None, relation_tag=None,
+                                is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
+                                auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
+                                dedicate_host_id=None, deploy_id=None, deploy_id_list=None,
+                                client_token=None, config=None):
+        """
+        Create a bcc Instance with the specified options.
+        You must fill the field of clientToken,which is especially for keeping idempotent.
+        This is an asynchronous interface,
+        you can get the latest status by BccClient.get_instance.
+
+        :param spec:
+            The specification of the BBC package.
+        :type spec: string
+
+        :param image_id:
+            The id of image, list all available image in BccClient.list_images.
+        :type image_id: string
+
+        :param billing:
+            Billing information.
+        :type billing: bcc_model.Billing
+
+        :param create_cds_list:
+            The optional list of volume detail info to create.
+        :type create_cds_list: list<bcc_model.CreateCdsModel>
+
+        :param network_capacity_in_mbps:
+            The optional parameter to specify the bandwidth in Mbps for the new instance.
+            It must among 0 and 200, default value is 0.
+            If it's specified to 0, it will get the internal ip address only.
+        :type network_capacity_in_mbps: int
+
+        :param purchase_count:
+            The number of instance to buy, the default value is 1.
+        :type purchase_count: int
+
+        :param name:
+            The optional parameter to desc the instance that will be created.
+        :type name: string
+
+        :param admin_pass:
+            The optional parameter to specify the password for the instance.
+            If specify the adminPass,the adminPass must be a 8-16 characters String
+            which must contains letters, numbers and symbols.
+            The symbols only contains "!@#$%^*()".
+            The adminPass will be encrypted in AES-128 algorithm
+            with the substring of the former 16 characters of user SecretKey.
+            If not specify the adminPass, it will be specified by an random string.
+            See more detail on
+            https://bce.baidu.com/doc/BCC/API.html#.7A.E6.31.D8.94.C1.A1.C2.1A.8D.92.ED.7F.60.7D.AF
+        :type admin_pass: string
+
+        :param zone_name:
+            The optional parameter to specify the available zone for the instance.
+            See more detail through list_zones method
+        :type zone_name: string
+
+        :param subnet_id:
+            The optional parameter to specify the id of subnet from vpc, optional param
+             default value is default subnet from default vpc
+        :type subnet_id: string
+
+        :param security_group_id:
+            The optional parameter to specify the securityGroupId of the instance
+            vpcId of the securityGroupId must be the same as the vpcId of subnetId
+            See more detail through listSecurityGroups method
+        :type security_group_id: string
+
+        :param client_token:
+            An ASCII string whose length is less than 64.
+            The request will be idempotent if client token is provided.
+            If the clientToken is not specified by the user,
+            a random String generated by default algorithm will be used.
+            See more detail at
+            https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
+        :type client_token: string
+
+        :param root_disk_size_in_gb:
+            The parameter to specify the root disk size in GB.
+            The root disk excludes the system disk, available is 40-500GB.
+        :type root_disk_size_in_gb: int
+
+        :param root_disk_storage_type:
+            The parameter to specify the root disk storage type.
+            Default use of HP1 cloud disk.
+        :type root_disk_storage_type: string
+
+        :param ephemeral_disks:
+            The optional list of ephemeral volume detail info to create.
+        :type ephemeral_disks: list<bcc_model.EphemeralDisk>
+
+        :param dedicate_host_id
+            The parameter to specify the dedicate host id.
+        :type dedicate_host_id: string
+
+        :param auto_renew_time_unit
+            The parameter to specify the unit of the auto renew time.
+            The auto renew time unit can be "month" or "year".
+            The default value is "month".
+        :type auto_renew_time_unit: string
+
+        :param auto_renew_time
+            The parameter to specify the auto renew time, the default value is 0.
+        :type auto_renew_time: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :param deploy_id
+            The parameter to specify the id of the deploymentSet.
+        :type deploy_id: string
+
+        :param bid_model
+            The parameter to specify the bidding model.
+            The bidding model can be "market" or "custom".
+        :type bid_model: string
+
+        :param bid_price
+            The parameter to specify the bidding price.
+            When the bid_model is "custom", it works.
+        :type bid_price: string
+
+        :param key_pair_id
+            The parameter to specify id of the keypair.
+        :type key_pair_id: string
+
+        :param asp_id
+            The parameter to specify id of the asp.
+        :type asp_id: string
+
+        :param internet_charge_type
+            The parameter to specify the internet charge type.
+            See more detail on
+            https://cloud.baidu.com/doc/BCC/API.html#InternetChargeType
+        :type internet_charge_type: string
+
+        :param cds_auto_renew
+            The parameter to specify whether the cds is auto renew or not.
+            The default value is false.
+        :type cds_auto_renew: boolean
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instanceBySpec'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if billing is None:
+            billing = default_billing_to_purchase_created
+        body = {
+            'spec': spec,
+            'imageId': image_id,
+            'billing': billing.__dict__
+        }
+        if root_disk_size_in_gb != 0:
+            body['rootDiskSizeInGb'] = root_disk_size_in_gb
+        if root_disk_storage_type is not None:
+            body['rootDiskStorageType'] = root_disk_storage_type
+        if create_cds_list is not None:
+            body['createCdsList'] = create_cds_list
+        if network_capacity_in_mbps != 0:
+            body['networkCapacityInMbps'] = network_capacity_in_mbps
+        if eip_name is not None:
+            body['eipName'] = eip_name
+        if purchase_count > 0:
+            body['purchaseCount'] = purchase_count
+        if name is not None:
+            body['name'] = name
+        if hostname is not None:
+            body['hostname'] = hostname
+        if auto_seq_suffix is not None:
+            body['autoSeqSuffix'] = auto_seq_suffix
+        if is_open_hostname_domain is not None:
+            body['isOpenHostnameDomain'] = is_open_hostname_domain
+        if admin_pass is not None:
+            secret_access_key = self.config.credentials.secret_access_key
+            cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
+            body['adminPass'] = cipher_admin_pass
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if security_group_id is not None:
+            body['securityGroupId'] = security_group_id
+        if auto_renew_time != 0:
+            body['autoRenewTime'] = auto_renew_time
+        if auto_renew_time_unit is None:
+            body['autoRenewTimeUnit'] = "month"
+        else:
+            body['autoRenewTimeUnit'] = auto_renew_time_unit
+        if ephemeral_disks is not None:
+            body['ephemeralDisks'] = ephemeral_disks
+        if dedicate_host_id is not None:
+            body['dedicatedHostId'] = dedicate_host_id
+        if deploy_id is not None:
+            body['deployId'] = deploy_id
+        if deploy_id_list is not None:
+            body['deployIdList'] = deploy_id_list
+        if bid_model is not None:
+            body['bidModel'] = bid_model
+        if bid_price is not None:
+            body['bidPrice'] = bid_price
+        if key_pair_id is not None:
+            body['keypairId'] = key_pair_id
+        if internet_charge_type is not None:
+            body['internetChargeType'] = internet_charge_type
+        if asp_id is not None:
+            body['aspId'] = asp_id
+        if relation_tag is not None:
+            body['relationTag'] = relation_tag
+        if is_open_ipv6 is not None:
+            body['isOpenIpv6'] = is_open_ipv6
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+        body['cdsAutoRenew'] = cds_auto_renew
+
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(instance_id=(bytes, str))
+    def auto_release_instance(self, instance_id, release_time=None, client_token=None, config=None):
+        """
+            set instance auto release.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param release_time:
+            The new value for instance's name.
+        :type release_time: string in format yyyy-MM-dd'T'HH:mm:ss'Z'.
+
+        :param client_token:
+            An ASCII string whose length is less than 64.
+            The request will be idempotent if client token is provided.
+            If the clientToken is not specified by the user,
+            a random String generated by default algorithm will be used.
+            See more detail at
+            https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
+        :type client_token: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            'autorelease': None,
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = compat.convert_to_bytes(instance_id)
+        # instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
+        body = {
+            'releaseTime': release_time
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
+    def release_instance_with_related_resources(self, instance_id, related_release_flag=None,
+                                                delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
+                                                bcc_recycle_flag=None, client_token=None, config=None):
+        """
+        Releasing the instance owned by the user.
+        Only the Postpaid instance or Prepaid which is expired can be released.
+        After releasing the instance,
+        all of the data will be deleted.
+        all of volumes attached will be auto detached, but the volume snapshots will be saved.
+        all of snapshots created from original instance system disk will be deleted,
+        all of customized images created from original instance system disk will be reserved.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param related_release_flag:
+            Release or not related resources.
+        :type related_release_flag: bool
+
+        :param delete_cds_snapshot_flag:
+            Delete or not cds snapshot.
+        :type delete_cds_snapshot_flag: bool
+
+        :param delete_related_enis_flag:
+            Delete or not related enis.
+        :type delete_related_enis_flag: bool
+
+        :param bcc_recycle_flag:
+            Recycle or not bcc instance.
+        :type bcc_recycle_flag: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/%s' % instance_id
+        body = {}
+        if related_release_flag is not None:
+            body['relatedReleaseFlag'] = related_release_flag
+        if delete_cds_snapshot_flag is not None:
+            body['deleteCdsSnapshotFlag'] = delete_cds_snapshot_flag
+        if delete_related_enis_flag is not None:
+            body['deleteRelatedEnisFlag'] = delete_related_enis_flag
+        if bcc_recycle_flag is not None:
+            body['bccRecycleFlag'] = bcc_recycle_flag
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
+    def get_instance_with_deploy_set(self, instance_id, contains_failed=None, config=None):
+        """
+        Get the detail information of specified instance.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param contains_failed:
+            The optional parameters to get the failed message.If true, it means get the failed message.
+        :type contains_failed: boolean
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
+        params = {
+            'isDeploySet': True
+        }
+
+        if contains_failed:
+            params['containsFailed'] = contains_failed
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
+    def get_instance_with_deploy_set_and_failed(self, instance_id, contains_failed=None, config=None):
+        """
+        Get the detail information of specified instance.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param contains_failed:
+            The optional parameters to get the failed message.If true, it means get the failed message.
+        :type contains_failed: boolean
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
+        params = {
+            'containsFailed': None
+        }
+
+        if contains_failed:
+            params['containsFailed'] = contains_failed
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(instance_id=(bytes, str), hostname=(str))  # ***Unicode***
+    def modify_instance_hostname(self, instance_id, hostname, auto_reboot=None, is_open_hostname_domain=None,
+                                 client_token=None, config=None):
+        """
+        modify instance hostname
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param hostname:
+            new hostname
+        :type hostname: string, FORMAT ^([a-z]+)((\.|-)?[a-z0-9]+)*$
+
+        :param auto_reboot:
+            Auto reboot the instance after hostname changed.
+        :type auto_reboot: bool
+
+        :param is_open_hostname_domain:
+            Set hostname domain opening
+        :type is_open_hostname_domain: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            "changeHostname": None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/%s' % instance_id
+        body = {
+            "hostname": hostname
+        }
+        if auto_reboot is not None:
+            body['autoReboot'] = auto_reboot
+        if is_open_hostname_domain is not None:
+            body['isOpenHostnameDomain'] = is_open_hostname_domain
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_id_list=(list))  # ***Unicode***
+    def recovery_instances(self, instance_id_list, client_token=None, config=None):
+        """
+        Recovery multi instances
+
+        :param instance_id_list:
+            The id list of instances to recovery.
+        :type instance_id_list: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        path = b'/instance/recovery'
+        list_of_item = []
+        for instance_id in instance_id_list:
+            list_of_item.append({'instanceId': instance_id})
+        body = {
+            "instanceIds": list_of_item
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_type=str, cpu_count=int, memory_cap_in_gb=int)  # ***Unicode***
+    def get_bid_instance_price(self, instance_type, cpu_count, memory_cap_in_gb,
+                               root_disk_size_in_gb=None, root_disk_storage_type=None, create_cds_list=None,
+                               purchase_count=1, name=None, admin_pass=None, key_pair_id=None, asp_id=None,
+                               image_id=None, bid_model=None, bid_price=None, network_cap_in_mbps=None,
+                               relation_tag=None, tags=None, security_group_id=None, subnet_id=None,
+                               zone_name=None, internet_charge_type=None, client_token=None, config=None):
+        """
+        Query bid instance price in market.
+
+        :param instance_type:
+            The specified Specification to create the instance,
+            See more detail on
+            https://cloud.baidu.com/doc/BCC/API.html#InstanceType
+        :type instance_type: string
+
+        :param cpu_count:
+            The parameter to specified the cpu core to create the instance.
+        :type cpu_count: int
+
+        :param memory_cap_in_gb:
+            The parameter to specified the capacity of memory in GB to create the instance.
+        :type memory_cap_in_gb: int
+
+        :param image_id:
+            The id of image, list all available image in BccClient.list_images.
+        :type image_id: string
+
+        :param create_cds_list:
+            The optional list of volume detail info to create.
+        :type create_cds_list: list<bcc_model.CreateCdsModel>
+
+        :param network_cap_in_mbps:
+            The optional parameter to specify the bandwidth in Mbps for the new instance.
+            It must among 0 and 200, default value is 0.
+            If it's specified to 0, it will get the internal ip address only.
+        :type network_cap_in_mbps: int
+
+        :param purchase_count:
+            The number of instance to buy, the default value is 1.
+        :type purchase_count: int
+
+        :param name:
+            The optional parameter to desc the instance that will be created.
+        :type name: string
+
+        :param admin_pass:
+            The optional parameter to specify the password for the instance.
+            If specify the adminPass,the adminPass must be a 8-16 characters String
+            which must contains letters, numbers and symbols.
+            The symbols only contains "!@#$%^*()".
+            The adminPass will be encrypted in AES-128 algorithm
+            with the substring of the former 16 characters of user SecretKey.
+            If not specify the adminPass, it will be specified by an random string.
+            See more detail on
+            https://bce.baidu.com/doc/BCC/API.html#.7A.E6.31.D8.94.C1.A1.C2.1A.8D.92.ED.7F.60.7D.AF
+        :type admin_pass: string
+
+        :param zone_name:
+            The optional parameter to specify the available zone for the instance.
+            See more detail through list_zones method
+        :type zone_name: string
+
+        :param subnet_id:
+            The optional parameter to specify the id of subnet from vpc, optional param
+             default value is default subnet from default vpc
+        :type subnet_id: string
+
+        :param security_group_id:
+            The optional parameter to specify the securityGroupId of the instance
+            vpcId of the securityGroupId must be the same as the vpcId of subnetId
+            See more detail through listSecurityGroups method
+        :type security_group_id: string
+
+        :param client_token:
+            An ASCII string whose length is less than 64.
+            The request will be idempotent if client token is provided.
+            If the clientToken is not specified by the user,
+            a random String generated by default algorithm will be used.
+            See more detail at
+            https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
+        :type client_token: string
+
+        :param root_disk_size_in_gb:
+            The parameter to specify the root disk size in GB.
+            The root disk excludes the system disk, available is 40-500GB.
+        :type root_disk_size_in_gb: int
+
+        :param root_disk_storage_type:
+            The parameter to specify the root disk storage type.
+            Default use of HP1 cloud disk.
+        :type root_disk_storage_type: string
+
+        :param relation_tag
+            Set whether the tags specified by the instance to ne queried needs
+            to be associated with an existing tag key.
+            The default value is false, this param is optional.
+        :type relation_tag: bool
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :param bid_model
+            The parameter to specify the bidding model.
+            The bidding model can be "market" or "custom".
+        :type bid_model: string
+
+        :param bid_price
+            The parameter to specify the bidding price.
+            When the bid_model is "custom", it works.
+        :type bid_price: string
+
+        :param key_pair_id
+            The parameter to specify id of the keypair.
+        :type key_pair_id: string
+
+        :param asp_id
+            The parameter to specify id of the asp.
+        :type asp_id: string
+
+        :param internet_charge_type
+            The parameter to specify the internet charge type.
+            See more detail on
+            https://cloud.baidu.com/doc/BCC/API.html#InternetChargeType
+        :type internet_charge_type: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/bidPrice'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'cpuCount': cpu_count,
+            'memoryCapacityInGB': memory_cap_in_gb,
+            'instanceType': instance_type
+        }
+        if image_id is not None:
+            body['imageId'] = image_id
+        if root_disk_size_in_gb != 0:
+            body['rootDiskSizeInGb'] = root_disk_size_in_gb
+        if root_disk_storage_type is not None:
+            body['rootDiskStorageType'] = root_disk_storage_type
+        if create_cds_list is not None:
+            body['createCdsList'] = create_cds_list
+        if purchase_count > 0:
+            body['purchaseCount'] = purchase_count
+        if name is not None:
+            body['name'] = name
+        if admin_pass is not None:
+            secret_access_key = self.config.credentials.secret_access_key
+            cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
+            body['adminPass'] = cipher_admin_pass
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if security_group_id is not None:
+            body['securityGroupId'] = security_group_id
+        if bid_model is not None:
+            body['bidModel'] = bid_model
+        if bid_price is not None:
+            body['bidPrice'] = bid_price
+        if key_pair_id is not None:
+            body['keypairId'] = key_pair_id
+        if internet_charge_type is not None:
+            body['internetChargeType'] = internet_charge_type
+        if asp_id is not None:
+            body['aspId'] = asp_id
+        if relation_tag is not None:
+            body['relationTag'] = relation_tag
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+        if network_cap_in_mbps is not None:
+            body['networkCapacityInMbps'] = network_cap_in_mbps
+
+        return self._send_request(http_methods.POST, path, json.dumps(body), params=params, config=config)
+
+    def list_bid_flavor(self, client_token=None, config=None):
+        """
+        Get all bid flavors.
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        path = b'/instance/bidFlavor'
+        return self._send_request(http_methods.POST, path, params=params, config=config)
+
+    @required(instance_id=(bytes, str), deletion_protection=int)
+    def modify_deletion_protection(self, instance_id, deletion_protection, client_token=None, config=None):
+        """
+        Set instance deleion protection.
+
+        :param instance_id
+            The id of instance.
+        :type instance_id: string
+
+        :param deletion_protection
+            The status of instance deletion protection. 1:enable, 0:disable.
+        :type deletion_protection: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s/deletionProtection' % instance_id
+        body = {
+            "deletionProtection": deletion_protection
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(volume_id=(bytes, str))  # ***Unicode***
+    def release_volume_new(self, volume_id, auto_snapshot=None, manual_snapshot=None, client_token=None, config=None):
+        """
+        Releasing the specified volume owned by the user.
+        You can release the specified volume only
+        when the instance is among state of  Available/Expired/Error,
+        otherwise, it's will get 409 errorCode.
+
+        :param volume_id:
+            The id of the volume which will be released.
+        :type volume_id: string
+
+        :param auto_snapshot:
+            Snapshot volume automatically. value: 'on'/'off'. Default value: 'off'.
+        :type auto_snapshot: string
+
+        :param manual_snapshot:
+            Snapshot volume manually. value: 'on'/'off'. Default value: 'off'.
+        :type manual_snapshot: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s' % volume_id
+        body = {}
+        if auto_snapshot is not None:
+            body['autoSnapshot'] = auto_snapshot
+        if manual_snapshot is not None:
+            body['manualSnapshot'] = manual_snapshot
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(volume_id=str, renew_time=int, renew_time_unit=str)  # ***Unicode***
+    def auto_renew_cds_volume(self, volume_id, renew_time, renew_time_unit, client_token=None, config=None):
+        """
+        set auto_renew_cds_volume
+
+        :param volume_id:
+            The id of the volume which will be renewed.
+        :type volume_id: string
+
+        :param renew_time:
+            Auto renew start time.
+            Value:
+                - month: 1 ~ 9
+                - year: 1 ~ 3
+        :type renew_time: string
+
+        :param renew_time_unit:
+            Choose automatic monthly or annual renewals. value: 'month'/'year'
+        :type renew_time_unit: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        path = b'/volume/autoRenew'
+        body = {
+            'volumeId': volume_id,
+            'renewTime': renew_time,
+            'renewTimeUnit': renew_time_unit
+        }
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(volume_id=str)  # ***Unicode***
+    def cancel_auto_renew_cds_volume(self, volume_id, client_token=None, config=None):
+        """
+        cancel_auto_renew_volume_cluster
+
+        :param volume_id:
+            The id of the volume which will be renewed.
+        :type volume_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/volume/cancelAutoRenew'
+        body = {
+            'volumeId': volume_id
+        }
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(zone_name=str)  # ***Unicode***
+    def get_available_disk_info(self, zone_name, client_token=None, config=None):
+        """
+        get_available_disk_info
+
+        :param zone_name:
+            The name of available zone for volume to use.
+        :type zone_name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/volume/disk'
+        params = {
+            'zoneName': zone_name
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(volume_id=str)  # ***Unicode***
+    def tag_volume(self, volume_id, relation_tag=None, tags=None, client_token=None, config=None):
+        """
+        bind tags to volume
+
+        :param volume_id:
+            The id of the volume which will be renewed.
+        :type volume_id: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            'bind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s/tag' % volume_id
+        body = {}
+        if relation_tag is not None:
+            body['relationTag'] = relation_tag
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['changeTags'] = tag_list
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(volume_id=str)  # ***Unicode***
+    def untag_volume(self, volume_id, relation_tag=None, tags=None, client_token=None, config=None):
+        """
+        unbind tags to volume
+
+        :param volume_id:
+            The id of the volume which will be renewed.
+        :type volume_id: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            'unbind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        volume_id = volume_id.encode(encoding='utf-8')
+        path = b'/volume/%s/tag' % volume_id
+        body = {}
+        if relation_tag is not None:
+            body['relationTag'] = relation_tag
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['changeTags'] = tag_list
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(volume_id=str)  # ***Unicode***
+    def list_snapshot_chain(self, volume_id, order=None, order_by=None,
+                            page_no=None, page_size=None, client_token=None, config=None):
+        """
+        list_snapshot_chain
+
+        :param volume_id:
+            The id of the volume which will be renewed.
+        :type volume_id: string
+
+        :param order
+            The response list order. Value: asc/desc
+        :type order: string
+
+        :param order_by
+            The response list order. Value: chainId(default)/chainSize/volumeSize
+        :type order_by: string
+
+        :param page_no
+            page number. default value = 1
+        :type page_no: int
+
+        :param page_size
+            page size. default value  = 1000
+        :type page_size: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/chain'
+        params = {
+            'volumeId': volume_id
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if order is not None:
+            params['order'] = order
+        if order_by is not None:
+            params['orderBy'] = order_by
+        if page_no is not None:
+            params['pageNo'] = page_no
+        if page_size is not None:
+            params['pageSize'] = page_size
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(chain_id=str)  # ***Unicode***
+    def tag_snapshot_chain(self, chain_id, tags=None, client_token=None, config=None):
+        """
+        bind tags to snapshot chain
+
+        :param chain_id:
+            The id of the volume which will be renewed.
+        :type chain_id: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            'bind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        chain_id = chain_id.encode(encoding='utf-8')
+        path = b'/snapshot/chain/%s/tag' % chain_id
+        body = {}
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['changeTags'] = tag_list
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(chain_id=str)  # ***Unicode***
+    def untag_snapshot_chain(self, chain_id, tags=None, client_token=None, config=None):
+        """
+        unbind tags to snapshot chain
+
+        :param chain_id:
+            The id of the volume which will be renewed.
+        :type chain_id: string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            'unbind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        chain_id = chain_id.encode(encoding='utf-8')
+        path = b'/snapshot/chain/%s/tag' % chain_id
+        body = {}
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['changeTags'] = tag_list
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    def update_asp(self, name=None, asp_id=None, time_points=None, repeat_week_days=None, retention_days=None,
+                   client_token=None, config=None):
+        """
+        update asp
+        Attention: Param name and asp_id can not both be none.
+
+        :param name:
+            The name of the asp.
+        :type name: string
+
+        :param asp_id:
+            Identify of asp.
+        :type asp_id: string
+
+        :param time_points:
+            Daily triggering time(hour of day, 0 ~ 23) of snapshot policy. e.g. [0, 6, 12, 18].
+        :type time_points: list
+
+        :param repeat_week_days:
+            Weekly triggering time(day of week, 0 ~ 6, 0 means Sunday) of snapshot policy. e.g. [1, 3]
+        :type repeat_week_days: list
+
+        :param retention_days:
+            Retention days of snapshot.
+        :type retention_days: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/asp/update'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if asp_id is not None:
+            body['aspId'] = asp_id
+        if time_points is not None:
+            body['timePoints'] = time_points
+        if repeat_week_days is not None:
+            body['repeatWeekdays'] = repeat_week_days
+        if retention_days is not None:
+            body['retentionDays'] = retention_days
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def get_price_by_spec(self, spec_id=None, spec=None, payment_timing=None, zone_name=None, purchase_num=None,
+                          purchase_length=None, client_token=None, config=None):
+        """
+        Get price of instance flover by spec.
+        Attention: Param spec_id and spec can not both be none.
+
+        :param spec_id:
+            Identify of the spec.
+        :type spec_id: string
+
+        :param spec:
+            The name of spec.
+        :type spec: string
+
+        :param payment_timing:
+            Payment timing of instance, prepay or postpay.
+        :type payment_timing: string
+
+        :param zone_name:
+            Name of available zone.
+        :type zone_name: string
+
+        :param purchase_num:
+            Number of purchase.
+        :type purchase_num: int
+
+        :param purchase_length:
+            Reservation time.
+        :type purchase_length: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/price'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {}
+        if spec_id is not None:
+            body['specId'] = spec_id
+        if spec is not None:
+            body['spec'] = spec
+        if payment_timing is not None:
+            body['paymentTiming'] = payment_timing
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if purchase_num is not None:
+            body['purchaseNum'] = purchase_num
+        if purchase_length is not None:
+            body['purchaseLength'] = purchase_length
+
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def list_type_zones(self, spec_id=None, spec=None, product_type=None, instance_type=None,
+                        client_token=None, config=None):
+        """
+        list the logicalZone from the bcc package specification.
+
+        :param spec_id:
+            Identify of the spec.
+        :type spec_id: string
+
+        :param spec:
+            The name of spec.
+        :type spec: string
+
+        :param product_type:
+            Payment timing of instance, prepay or postpay.
+        :type product_type: string
+
+        :param instance_type:
+            The specified Specification to create the instance,
+            See more detail on
+            https://cloud.baidu.com/doc/BCC/API.html#InstanceType
+        :type instance_type: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/flavorZones'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if spec_id is not None:
+            params['specId'] = spec_id
+        if spec is not None:
+            params['spec'] = spec
+        if product_type is not None:
+            params['productType'] = product_type
+        if instance_type is not None:
+            params['instanceType'] = instance_type
+
+        return self._send_request(http_methods.GET, path, prefix=b"/v1", params=params, config=config)
+
+    def instance_change_subnet(self, instance_id, subnet_id=None,
+                               internal_ip=None, reboot=None, client_token=None, config=None):
+        """
+        Change instance subnet by id.
+
+        :param instance_id:
+            Identify of the instance.
+        :type instance_id: string
+
+        :param subnet_id:
+            New subnet id.
+        :type subnet_id: string
+
+        :param internal_ip:
+            Ip address of internal network.
+        :type internal_ip: string
+
+        :param reboot:
+        Reboot instance or not. Default value is False.
+        :type reboot: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/subnet/changeSubnet'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {}
+        if instance_id is not None:
+            body['instanceId'] = instance_id
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if internal_ip is not None:
+            body['internalIp'] = internal_ip
+        if reboot is not None:
+            body['reboot'] = reboot
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def instance_change_vpc(self, instance_id, subnet_id=None,
+                            internal_ip=None, reboot=None, client_token=None, config=None):
+        """
+        Change instance vpc by id.
+
+        :param instance_id:
+            Identify of the instance.
+        :type instance_id: string
+
+        :param subnet_id:
+            New subnet id.
+        :type subnet_id: string
+
+        :param internal_ip:
+            Ip address of internal network.
+        :type internal_ip: string
+
+        :param reboot:
+        Reboot instance or not. Default value is False.
+        :type reboot: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/vpc/changeVpc'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {}
+        if instance_id is not None:
+            body['instanceId'] = instance_id
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if internal_ip is not None:
+            body['internalIp'] = internal_ip
+        if reboot is not None:
+            body['reboot'] = reboot
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def instance_change_vpc(self, instance_id, subnet_id=None,
+                            internal_ip=None, reboot=None, client_token=None, config=None):
+        """
+        Change instance vpc by id.
+
+        :param instance_id:
+            Identify of the instance.
+        :type instance_id: string
+
+        :param subnet_id:
+            New subnet id.
+        :type subnet_id: string
+
+        :param internal_ip:
+            Ip address of internal network.
+        :type internal_ip: string
+
+        :param reboot:
+        Reboot instance or not. Default value is False.
+        :type reboot: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/vpc/changeVpc'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {}
+        if instance_id is not None:
+            body['instanceId'] = instance_id
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if internal_ip is not None:
+            body['internalIp'] = internal_ip
+        if reboot is not None:
+            body['reboot'] = reboot
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    @required(chain_id=str)  # ***Unicode***
+    def list_instance_enis(self, instance_id, client_token=None, config=None):
+        """
+        Change instance vpc by id.
+
+        :param instance_id:
+            Identify of the instance.
+        :type instance_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/eni/%s' % instance_id
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def list_flavor_spec(self, zone_name=None, client_token=None, config=None):
+        """
+        Change instance vpc by id.
+
+        :param zone_name:
+            Available zone name
+        :type zone_name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/flavorSpec'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if zone_name is not None:
+            params['zoneName'] = zone_name
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def resize_instance_by_spec(self, instance_id, spec, client_token=None, config=None):
+        """
+        Resize instance by spec.
+
+        :param instance_id:
+            Identify of the instance.
+        :type instance_id: string
+
+        :param spec:
+            The name of spec.
+        :type spec: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instanceBySpec/%s' % instance_id
+        params = {
+            "resize": None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "spec": spec
+        }
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None, client_token=None, config=None):
+        """
+        Batch rebuild instances.
+
+        :param image_id:
+            Image id for rebuild.
+        :type image_id: string
+
+        :param admin_pass:
+            The password of admin.
+        :type admin_pass: string
+
+        :param instance_ids:
+            Identify list of instances need to rebuild.
+        :type instance_ids: list of string
+
+        :param keypair_id:
+            Set the id of the keypair to be bound. (optional param)
+        :type keypair_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/rebuild'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "imageId": image_id,
+            "adminPass": admin_pass,
+            "instanceIds": instance_ids
+        }
+        if keypair_id is not None:
+            body['keypairId'] = keypair_id
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def change_to_prepaid(self, instance_id, duration, relation_cds=None, client_token=None, config=None):
+        """
+        Change instance pay timing to prepaid.
+
+        :param instance_id:
+            Identify of the instance to change
+        :type instance_id: string
+
+        :param duration:
+            Set the duration time of prepayment, unit:month.
+        :type duration: int
+
+        :param relation_cds:
+            Set whether to chagne the associated data disk. True - change; False - no change. Default is False.
+        :type relation_cds: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s' % instance_id
+        params = {
+            'toPrepay':None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "duration": duration
+        }
+        if relation_cds is not None:
+            body['relationCds'] = relation_cds
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def list_instance_no_charge(self, marker=None, max_keys=None, internal_ip=None, keypair_id=None,
+                       zone_name=None, client_token=None, config=None):
+        """
+        Return a list of no charge instances owned by the authenticated user.
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 1000.
+        :type max_keys: int
+
+        :param internal_ip:
+            The identified internal ip of instance.
+        :type internal_ip: string
+
+        :param keypair_id:
+            get instance list filtered by keypair
+        :type keypair_id: string
+
+        :param zone_name:
+            get instance list filtered by name of available zone
+        :type zone_name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/noCharge'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+        if internal_ip is not None:
+            params['internalIp'] = internal_ip
+        if keypair_id is not None:
+            params['keypairId'] = keypair_id
+        if zone_name is not None:
+            params['zoneName'] = zone_name
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def cancel_bid_order(self, order_id, client_token=None, config=None):
+        """
+        Cancel a bid order
+
+        :param order_id:
+            Identify of the order to cancel
+        :type order_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/cancelBidOrder'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "orderId": order_id
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_create_auto_renew_rules(self, instance_id, renew_time_unit="month", renew_time=1, client_token=None, config=None):
+        """
+        create auto renew rules for instance
+
+        :param instance_id:
+            Identify of the instance to auto renew
+        :type instance_id: string
+
+        :param renew_time_unit:
+            Time unit for renew, values: 'month'/'year', default value: month
+        :type renew_time_unit: string
+
+        :param renew_time:
+            renew time of year, values: 1/2/3, default value: 1
+        :type renew_time: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchCreateAutoRenewRules'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceId": instance_id,
+            "renewTimeUnit": renew_time_unit,
+            "renewTime": renew_time
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_delete_auto_renew_rules(self, instance_id, client_token=None, config=None):
+        """
+        delete auto renew rules for instance
+
+        :param instance_id:
+            Identify of the instance to auto renew
+        :type instance_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchDeleteAutoRenewRules'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceId": instance_id
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def delete_recycled_instance(self, instance_id, client_token=None, config=None):
+        """
+        delete auto renew rules for instance
+
+        :param instance_id:
+            Identify of the instance to delete
+        :type instance_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/recycle/instance/%s' % instance_id
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {}
+        return self._send_request(http_methods.DELETE, path, body=json.dumps(body), params=params, config=config)
+
+    def list_instance_by_instance_ids(self, instance_ids, marker=None, max_keys=None, client_token=None, config=None):
+        """
+        list instances by id list
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 1000.
+        :type max_keys: int
+        
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/listByInstanceId'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+        body = {
+            "instanceIds": instance_ids
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def get_instance_delete_progress(self, instance_ids, client_token=None, config=None):
+        """
+        get instances delete progress
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/deleteProgress'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIds": instance_ids
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_delete_instance_with_related_resource(self, instance_ids, related_release_flag=None,
+                                                    delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
+                                                    bcc_recycle_flag=None, client_token=None, config=None):
+        """
+        batch delete instance with related resource
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :param related_release_flag:
+            Release or not related resources.
+        :type related_release_flag: bool
+
+        :param delete_cds_snapshot_flag:
+            Delete or not cds snapshot.
+        :type delete_cds_snapshot_flag: bool
+
+        :param delete_related_enis_flag:
+            Delete or not related enis.
+        :type delete_related_enis_flag: bool
+
+        :param bcc_recycle_flag:
+            Recycle or not bcc instance.
+        :type bcc_recycle_flag: bool
+
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchDelete'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIds": instance_ids
+        }
+        if related_release_flag is not None:
+            body['relatedReleaseFlag'] = related_release_flag
+        if delete_cds_snapshot_flag is not None:
+            body['deleteCdsSnapshotFlag'] = delete_cds_snapshot_flag
+        if delete_related_enis_flag is not None:
+            body['deleteRelatedEnisFlag'] = delete_related_enis_flag
+        if bcc_recycle_flag is not None:
+            body['bccRecycleFlag'] = bcc_recycle_flag
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_start_instance(self, instance_ids, client_token=None, config=None):
+        """
+        batch start instance
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchAction'
+        params = {
+            'start': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIds": instance_ids
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_stop_instance(self, instance_ids, force_stop=None, stop_with_no_charge=None,
+                            client_token=None, config=None):
+        """
+        batch start instance
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :param force_stop:
+            force stop instance
+        :type force_stop: bool
+
+        :param stop_with_no_charge:
+            stop instance and stop billing
+        :type stop_with_no_charge: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchAction'
+        params = {
+            'stop': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIds": instance_ids
+        }
+        if force_stop is not None:
+            body['forceStop'] = force_stop
+        if stop_with_no_charge is not None:
+            body['stopWithNoCharge'] = stop_with_no_charge
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def list_id_mappings(self, ids, id_type, object_type, client_token=None, config=None):
+        """
+        get short-long id mapping by short/long id list
+
+        :param ids:
+            short id list
+        :type ids: list of string
+
+        :param id_type:
+            id type
+        :type id_type: string. value: short|long
+
+        :param object_type:
+            object type
+        :type object_type: value: bcc
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/id/mapping'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIds": ids,
+            "idType": id_type,
+            "objectType": object_type
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_resize_instance(self, instance_ids, spec, subnet_id=None, logical_zone=None, internal_ip_v4=None,
+                              client_token=None, config=None):
+        """
+        batch resize instance
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :param spec:
+            spec
+        :type spec: string
+
+        :param subnet_id:
+            subnet id
+        :type subnet_id: string
+
+        :param logical_zone:
+            logical zone name
+        :type logical_zone: string
+
+        :param internal_ip_v4:
+            object type
+        :type internal_ip_v4: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instanceBatchBySpec'
+        params = {
+            'resize': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIdList": instance_ids,
+            "spec": spec
+        }
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
+        if logical_zone is not None:
+            body['logicalZone'] = logical_zone
+        if internal_ip_v4 is not None:
+            body['internalIpV4'] = internal_ip_v4
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def list_available_resize_specs(self, instance_ids, spec=None, spec_id=None, logical_zone=None,
+                              client_token=None, config=None):
+        """
+        batch resize instance
+
+        :param instance_ids:
+            Identify of the instances to return info
+        :type instance_ids: list of string
+
+        :param spec:
+            spec
+        :type spec: string
+
+        :param spec_id:
+            spec id
+        :type spec_id: string
+
+        :param logical_zone:
+            logical zone name
+        :type logical_zone: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance'
+        params = {
+            'resizeList': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceIdList": instance_ids,
+            "spec": spec
+        }
+        if spec_id is not None:
+            body['specId'] = spec_id
+        if logical_zone is not None:
+            body['logicalZone'] = logical_zone
+        if spec is not None:
+            body['internalIpV4'] = spec
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_change_instance_to_prepay(self, change_pay_timing_req_list, client_token=None, config=None):
+        """
+        batch change instance to prepay
+
+        :param change_pay_timing_req_list:
+            batch change req list
+        :type change_pay_timing_req_list: list of PayTimingChangeReqModel
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batch/charging'
+        params = {
+            'toPrepay': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "config": [change_pay_timing_req.__dict__ for change_pay_timing_req in change_pay_timing_req_list]
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def batch_change_instance_to_postpay(self, change_pay_timing_req_list, client_token=None, config=None):
+        """
+        batch change instance to postpay
+
+        :param change_pay_timing_req_list:
+            batch change req list
+        :type change_pay_timing_req_list: list of PayTimingChangeReqModel
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batch/charging'
+        params = {
+            'toPostpay': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "config": [change_pay_timing_req.__dict__ for change_pay_timing_req in change_pay_timing_req_list]
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def list_instance_roles(self, client_token=None, config=None):
+        """
+        list instance role
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/role/list'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def bind_instance_role(self, instance_ids, role_name, client_token=None, config=None):
+        """
+        unbind_instance_role
+
+        :param instance_ids:
+            instance id list
+        :type instance_ids: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/role'
+        params = {
+            'bind': None
+        }
+        instances = []
+        for instance_id in instance_ids:
+            instances.append({'instanceId': instance_id})
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instances": instances,
+            "roleName": role_name
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def unbind_instance_role(self, instance_ids, role_name, client_token=None, config=None):
+        """
+        unbind_instance_role
+
+        :param instance_ids:
+            instance id list
+        :type instance_ids: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/role'
+        params = {
+            'unbind': None
+        }
+        instances = []
+        for instance_id in instance_ids:
+            instances.append({'instanceId': instance_id})
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instances": instances,
+            "roleName": role_name
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def add_ipv6(self, instance_id, ipv6_address, reboot=False, client_token=None, config=None):
+        """
+        add_ipv6
+
+        :param instance_id:
+            instance id
+        :type instance_id: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/addIpv6'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceId": instance_id,
+            "ipv6Address": ipv6_address,
+            "reboot": reboot
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def delete_ipv6(self, instance_id, reboot=False, client_token=None, config=None):
+        """
+        delete_ipv6
+
+        :param instance_id:
+            instance id
+        :type instance_id: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/delIpv6'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceId": instance_id,
+            "reboot": reboot
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def bind_image_to_tags(self, image_id, tags, client_token=None, config=None):
+        """
+        bind_image_to_tags
+
+        :param image_id:
+            image id
+        :type image_id: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s/tag' % image_id
+        params = {
+            'bind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def unbind_image_to_tags(self, image_id, tags, client_token=None, config=None):
+        """
+        unbind_image_to_tags
+
+        :param image_id:
+            image id
+        :type image_id: list of string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        image_id = image_id.encode(encoding='utf-8')
+        path = b'/image/%s/tag' % image_id
+        params = {
+            'unbind': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def import_custom_image(self, os_name, os_arch, os_type, os_version, name, bos_url, client_token=None, config=None):
+        """
+        import_custom_image
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/image/import'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'osName': os_name,
+            'osArch': os_arch,
+            'osType': os_type,
+            'osVersion': os_version,
+            'name': name,
+            'bosUrl': bos_url
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def create_remote_copy_snapshot(self, snapshot_id, dest_region_infos, client_token=None, config=None):
+        """
+        create_remote_copy_snapshot
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        snapshot_id = snapshot_id.encode(encoding='utf-8')
+        path = b'/snapshot/remote_copy/%s' % snapshot_id
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "destRegionInfos": [dest_region_info.__dict__ for dest_region_info in dest_region_infos]
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def create_deploy_set(self, name=None, strategy=None, desc=None, client_token=None, config=None):
+        """
+        create_deploy_set
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/deployset/create'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if strategy is not None:
+            body['strategy'] = strategy
+        if desc is not None:
+            body['desc'] = desc
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def list_deploy_sets(self, client_token=None, config=None):
+        """
+        list_deploy_sets
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/deployset/list'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def delete_deploy_set(self, deploy_set_id, client_token=None, config=None):
+        """
+        delete_deploy_set
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        deploy_set_id = deploy_set_id.encode(encoding='utf-8')
+        path = b'/instance/deployset/%s' % deploy_set_id
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
+
+    def modify_deploy_set(self, deploy_set_id, name=None, desc=None, client_token=None, config=None):
+        """
+        modify_deploy_set
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        deploy_set_id = deploy_set_id.encode(encoding='utf-8')
+        path = b'/instance/deployset/%s' % deploy_set_id
+        params = {
+            'modifyAttribute': None
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if desc is not None:
+            body['desc'] = desc
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def get_deploy_set(self, deploy_set_id, client_token=None, config=None):
+        """
+        get_deploy_set
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        deploy_set_id = deploy_set_id.encode(encoding='utf-8')
+        path = b'/deployset/%s' % deploy_set_id
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def update_instance_deploy(self, instance_id, deployset_id_list, force=None,
+                               client_token=None, config=None):
+        """
+        update instance deploy relation
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/deployset/updateRelation'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'instanceId': instance_id,
+            'deploysetIdList': deployset_id_list
+        }
+        if force is not None:
+            body['force'] = force
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def del_instance_deploy(self, instance_id_list, deploy_set_id, client_token=None, config=None):
+        """
+        delete instance deploy relation
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/deployset/delRelation'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'instanceIdList': instance_id_list,
+            'deployId': deploy_set_id
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+
 def generate_client_token_by_uuid():
     """
     The default method to generate the random string for client_token
@@ -3110,5 +5357,3 @@ def generate_client_token_by_random():
 
 
 generate_client_token = generate_client_token_by_uuid
-
-
