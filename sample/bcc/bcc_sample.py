@@ -209,12 +209,12 @@ if __name__ == "__main__":
     # create a bcc of bid
     try:
         response = bcc_client.create_instance_of_bid(cpu_count=new_cpu_count,
-                                              memory_capacity_in_gb=new_memory_in_gb,
-                                              image_id=image_id,
-                                              instance_type='N1',
-                                              purchase_count=1,
-                                              bid_model='market',
-                                              spec='bcc.ic1.c1m1')
+                                                     memory_capacity_in_gb=new_memory_in_gb,
+                                                     image_id=image_id,
+                                                     instance_type='N1',
+                                                     purchase_count=1,
+                                                     bid_model='market',
+                                                     spec='bcc.ic1.c1m1')
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -1072,8 +1072,8 @@ if __name__ == "__main__":
 
     # update_asp
     try:
-        response = bcc_client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0,13],
-                                      repeat_week_days=[0,4], retention_days=2)
+        response = bcc_client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0, 13],
+                                         repeat_week_days=[0, 4], retention_days=2)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -1085,7 +1085,7 @@ if __name__ == "__main__":
     # get_price_by_spec
     try:
         response = bcc_client.get_price_by_spec(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", payment_timing="prepay",
-                                      zone_name="szth", purchase_num=2, purchase_length=2)
+                                                zone_name="szth", purchase_num=2, purchase_length=2)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -1097,7 +1097,7 @@ if __name__ == "__main__":
     # list_type_zones
     try:
         response = bcc_client.list_type_zones(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", product_type="prepay",
-                                      instance_type="N3")
+                                              instance_type="N3")
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
