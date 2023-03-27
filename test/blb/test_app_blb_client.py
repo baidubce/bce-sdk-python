@@ -162,6 +162,7 @@ class TestAppBlbClient(unittest.TestCase):
         self.assertEqual(
             type(self.the_client.create_app_http_listener(
                 blbId, 600, 'LeastConnection',
+                x_forwarded_for=False,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -175,6 +176,7 @@ class TestAppBlbClient(unittest.TestCase):
         self.assertEqual(
             type(self.the_client.create_app_https_listener(
                 blbId, 800, 'LeastConnection', cert_ids,
+                x_forwarded_for=False,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -215,7 +217,7 @@ class TestAppBlbClient(unittest.TestCase):
         """
         self.assertEqual(
             type(self.the_client.update_app_http_listener(
-                blbId, 600, server_timeout=750)),
+                blbId, 600, server_timeout=750, x_forwarded_for=True)),
             baidubce.bce_response.BceResponse)
 
     def test_update_app_https_listener(self):
@@ -224,7 +226,7 @@ class TestAppBlbClient(unittest.TestCase):
         """
         self.assertEqual(
             type(self.the_client.update_app_https_listener(
-                blbId, 800, server_timeout=800)),
+                blbId, 800, server_timeout=800, x_forwarded_for=True)),
             baidubce.bce_response.BceResponse)
 
     def test_update_app_ssl_listener(self):
