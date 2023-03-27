@@ -209,7 +209,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         :param auto_renew_time
             The parameter to specify the auto renew time, the default value is 0.
-        :type auto_renew_time: string
+        :type auto_renew_time: int
 
         :param tags
             The optional list of tag to be bonded.
@@ -3207,7 +3207,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         :param auto_renew_time
             The parameter to specify the auto renew time, the default value is 0.
-        :type auto_renew_time: string
+        :type auto_renew_time: int
 
         :param tags
             The optional list of tag to be bonded.
@@ -3267,7 +3267,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if network_capacity_in_mbps != 0:
             body['networkCapacityInMbps'] = network_capacity_in_mbps
         if eip_name is not None:
@@ -3299,7 +3299,7 @@ class BccClient(bce_base_client.BceBaseClient):
         else:
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if ephemeral_disks is not None:
-            body['ephemeralDisks'] = ephemeral_disks
+            body['ephemeralDisks'] = [ephemeral_disk.__dict__ for ephemeral_disk in ephemeral_disks]
         if dedicate_host_id is not None:
             body['dedicatedHostId'] = dedicate_host_id
         if deploy_id is not None:
@@ -3476,8 +3476,8 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    @required(instance_id=(bytes, str), hostname=(str))  # ***Unicode***
-    def modify_instance_hostname(self, instance_id, hostname, auto_reboot=None, is_open_hostname_domain=None,
+    @required(instance_id=(bytes, str), hostname=str)  # ***Unicode***
+    def modify_instance_hostname(self, instance_id, hostname, reboot=None, is_open_hostname_domain=None,
                                  client_token=None, config=None):
         """
         modify instance hostname
@@ -3490,9 +3490,9 @@ class BccClient(bce_base_client.BceBaseClient):
             new hostname
         :type hostname: string, FORMAT ^([a-z]+)((\.|-)?[a-z0-9]+)*$
 
-        :param auto_reboot:
+        :param reboot:
             Auto reboot the instance after hostname changed.
-        :type auto_reboot: bool
+        :type reboot: bool
 
         :param is_open_hostname_domain:
             Set hostname domain opening
@@ -3513,8 +3513,8 @@ class BccClient(bce_base_client.BceBaseClient):
         body = {
             "hostname": hostname
         }
-        if auto_reboot is not None:
-            body['autoReboot'] = auto_reboot
+        if reboot is not None:
+            body['reboot'] = reboot
         if is_open_hostname_domain is not None:
             body['isOpenHostnameDomain'] = is_open_hostname_domain
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
@@ -3694,7 +3694,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if purchase_count > 0:
             body['purchaseCount'] = purchase_count
         if name is not None:
@@ -4174,7 +4174,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if zone_name is not None:
             body['zoneName'] = zone_name
         if purchase_num is not None:
-            body['purchaseNum'] = purchase_num
+            body['purchaseCount'] = purchase_num
         if purchase_length is not None:
             body['purchaseLength'] = purchase_length
 
@@ -4445,7 +4445,7 @@ class BccClient(bce_base_client.BceBaseClient):
         instance_id = instance_id.encode(encoding='utf-8')
         path = b'/instance/%s' % instance_id
         params = {
-            'toPrepay':None
+            'toPrepay': None
         }
         if client_token is None:
             params['clientToken'] = generate_client_token()
@@ -4459,7 +4459,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def list_instance_no_charge(self, marker=None, max_keys=None, internal_ip=None, keypair_id=None,
-                       zone_name=None, client_token=None, config=None):
+                                zone_name=None, client_token=None, config=None):
         """
         Return a list of no charge instances owned by the authenticated user.
 
@@ -4830,7 +4830,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :type logical_zone: string
 
         :param internal_ip_v4:
-            object type
+            internal ip for ipv4
         :type internal_ip_v4: string
 
         :return:
@@ -4857,7 +4857,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def list_available_resize_specs(self, instance_ids, spec=None, spec_id=None, logical_zone=None,
-                              client_token=None, config=None):
+                                    client_token=None, config=None):
         """
         batch resize instance
 
@@ -4895,7 +4895,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if spec_id is not None:
             body['specId'] = spec_id
         if logical_zone is not None:
-            body['logicalZone'] = logical_zone
+            body['zone'] = logical_zone
         if spec is not None:
             body['internalIpV4'] = spec
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
@@ -4965,11 +4965,15 @@ class BccClient(bce_base_client.BceBaseClient):
 
     def bind_instance_role(self, instance_ids, role_name, client_token=None, config=None):
         """
-        unbind_instance_role
+        bind_instance_role
 
         :param instance_ids:
             instance id list
         :type instance_ids: list of string
+
+        :param role_name:
+            name of role
+        :type role_name: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -4999,6 +5003,10 @@ class BccClient(bce_base_client.BceBaseClient):
             instance id list
         :type instance_ids: list of string
 
+        :param role_name:
+            name of role
+        :type role_name: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5027,6 +5035,14 @@ class BccClient(bce_base_client.BceBaseClient):
             instance id
         :type instance_id: list of string
 
+        :param ipv6_address:
+            ipv6 address to bind instance
+        :type ipv6_address: list of string
+
+        :param reboot:
+            reboot the instance
+        :type reboot: list of string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5051,6 +5067,10 @@ class BccClient(bce_base_client.BceBaseClient):
             instance id
         :type instance_id: list of string
 
+        :param reboot:
+            reboot the instance
+        :type reboot: list of string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5073,6 +5093,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param image_id:
             image id
         :type image_id: list of string
+
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5100,6 +5124,10 @@ class BccClient(bce_base_client.BceBaseClient):
             image id
         :type image_id: list of string
 
+        :param tags
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5121,6 +5149,30 @@ class BccClient(bce_base_client.BceBaseClient):
     def import_custom_image(self, os_name, os_arch, os_type, os_version, name, bos_url, client_token=None, config=None):
         """
         import_custom_image
+
+        :param os_name:
+            name of os
+        :type os_name: string
+
+        :param os_arch:
+        	archicture of os
+        :type os_arch: string
+
+        :param os_type:
+            type of os
+        :type os_type: string
+
+        :param os_version:
+            version of os
+        :type os_version: string
+
+        :param name:
+            name of os
+        :type name: string
+
+        :param bos_url:
+            boot script of os
+        :type bos_url: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5145,6 +5197,14 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         create_remote_copy_snapshot
 
+        :param snapshot_id:
+            identify of snapshot
+        :type snapshot_id: string
+
+        :param dest_region_infos:
+            information of destination region
+        :type dest_region_infos: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5163,6 +5223,18 @@ class BccClient(bce_base_client.BceBaseClient):
     def create_deploy_set(self, name=None, strategy=None, desc=None, client_token=None, config=None):
         """
         create_deploy_set
+
+        :param name:
+            name of deploy set
+        :type name: string
+
+        :param strategy:
+            deploy strategy HOST_HA | RACK_HA | TOR_HA
+        :type strategy: string
+
+        :param desc:
+            description of deploy set
+        :type desc: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5201,6 +5273,10 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         delete_deploy_set
 
+        :param deploy_set_id:
+            identify of deployset
+        :type deploy_set_id: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5216,6 +5292,18 @@ class BccClient(bce_base_client.BceBaseClient):
     def modify_deploy_set(self, deploy_set_id, name=None, desc=None, client_token=None, config=None):
         """
         modify_deploy_set
+
+        :param deploy_set_id:
+            identify of deployset
+        :type deploy_set_id: string
+
+        :param name:
+            name of deploy set
+        :type name: string
+
+        :param desc:
+            description of deploy set
+        :type desc: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5240,6 +5328,10 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         get_deploy_set
 
+        :param deploy_set_id:
+            identify of deployset
+        :type deploy_set_id: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5256,6 +5348,14 @@ class BccClient(bce_base_client.BceBaseClient):
                                client_token=None, config=None):
         """
         update instance deploy relation
+
+        :param instance_id:
+            identify of instance
+        :type instance_id: string
+
+        :param deployset_id_list:
+            identify list of deployset
+        :type deployset_id_list: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5277,6 +5377,14 @@ class BccClient(bce_base_client.BceBaseClient):
     def del_instance_deploy(self, instance_id_list, deploy_set_id, client_token=None, config=None):
         """
         delete instance deploy relation
+
+        :param instance_id_list:
+            identify list of instance
+        :type instance_id_list: string
+
+        :param deploy_set_id:
+            identify of deployset
+        :type deploy_set_id: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse

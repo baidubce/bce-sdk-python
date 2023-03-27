@@ -27,8 +27,8 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bcc import bcc_client
 from baidubce.services.bcc import bcc_model
-#from baidubce.services.bcc import gpu_card_type
-#from baidubce.services.bcc import fpga_card_type
+# from baidubce.services.bcc import gpu_card_type
+# from baidubce.services.bcc import fpga_card_type
 from baidubce.services.bcc.bcc_model import EphemeralDisk, PayTimingChangeReqModel
 from baidubce import compat
 from imp import reload
@@ -40,14 +40,9 @@ reload(sys)
 if compat.PY2:
     sys.setdefaultencoding('utf8')
 # sys.setdefaultencoding('utf-8')
-'''
 HOST = b'http://bcc.bj.baidubce.com'
 AK = b''
 SK = b''
-'''
-HOST = b'http://bcc.bj.qasandbox.baidu-int.com'
-AK = b'ALTAKjBcN7uGNGaKUEefExLqlS'
-SK = b'eaf64b3f0b06448789bcef8374fc0bc2'
 
 instance_id = 'i-TC9evYT5'
 volume_id = 'v-OBhaubpM'
@@ -145,7 +140,6 @@ class TestBccClient(unittest.TestCase):
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
-
     def test_create_gpu_instance(self):
         """
         test case for test_create_gpu_instance
@@ -224,8 +218,8 @@ class TestBccClient(unittest.TestCase):
         # self.assertEqual(
         #     type(self.client.list_instances()),
         #     baidubce.bce_response.BceResponse)
-        #print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
-        #print(self.client.list_instances(zone_name='cn-bj-b'))
+        # print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
+        # print(self.client.list_instances(zone_name='cn-bj-b'))
         print(self.client.list_instances())
 
     def test_get_instance(self):
@@ -414,10 +408,10 @@ class TestBccClient(unittest.TestCase):
         test case for list_volumes
         """
         print(self.client.list_volumes())
-        #print(volume_list)
-        #self.assertEqual(
-         #   type(volume_list),
-          #  baidubce.bce_response.BceResponse)
+        # print(volume_list)
+        # self.assertEqual(
+        #   type(volume_list),
+        #  baidubce.bce_response.BceResponse)
 
     def test_get_volume(self):
         """
@@ -667,7 +661,7 @@ class TestBccClient(unittest.TestCase):
 
     def test_bind_instance_to_tags(self):
         instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                           tagValue='TestValue02')
         instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
                                            tagValue='TestValue03')
         instance_tag_list = []
@@ -711,12 +705,12 @@ class TestBccClient(unittest.TestCase):
             type(self.client.remote_copy_image(image_id=image_id,
                                                name=remote_image_name,
                                                destRegions=destRegions)),
-        baidubce.bce_response.BceResponse)
+            baidubce.bce_response.BceResponse)
 
     def test_cancle_remote_copy_image(self):
         self.assertEqual(
             type(self.client.cancle_remote_copy_image(image_id=image_id)),
-        baidubce.bce_response.BceResponse)
+            baidubce.bce_response.BceResponse)
 
     def test_share_image(self):
         account_id = 'c2d9b1dfc12949c0939ca36e3aae96d7'
@@ -817,29 +811,29 @@ class TestBccClient(unittest.TestCase):
             baidubce.bce_response.BceResponse)
 
     def test_get_keypair(self):
-        keypair_id='k-uKooR0If'
+        keypair_id = 'k-uKooR0If'
         self.assertEqual(
             type(self.client.get_keypair(keypair_id=keypair_id)),
             baidubce.bce_response.BceResponse)
 
     def test_attach_keypair(self):
-        keypair_id='k-uKooR0If'
-        instance_ids=['i-9sh6C5zx', 'i-6LoHblf4']
+        keypair_id = 'k-uKooR0If'
+        instance_ids = ['i-9sh6C5zx', 'i-6LoHblf4']
         self.assertEqual(
             type(self.client.attach_keypair(keypair_id=keypair_id,
                                             instance_ids=instance_ids)),
             baidubce.bce_response.BceResponse)
 
     def test_detach_keypair(self):
-        keypair_id='k-uKooR0If'
-        instance_ids=['i-9sh6C5zx', 'i-6LoHblf4']
+        keypair_id = 'k-uKooR0If'
+        instance_ids = ['i-9sh6C5zx', 'i-6LoHblf4']
         self.assertEqual(
             type(self.client.detach_keypair(keypair_id=keypair_id,
                                             instance_ids=instance_ids)),
             baidubce.bce_response.BceResponse)
 
     def test_delete_keypair(self):
-        keypair_id='k-uKooR0If'
+        keypair_id = 'k-uKooR0If'
         self.assertEqual(
             type(self.client.delete_keypair(keypair_id=keypair_id)),
             baidubce.bce_response.BceResponse)
@@ -948,10 +942,10 @@ class TestBccClient(unittest.TestCase):
         image_id = 'm-FBfg6s7W'
         instance_name = 'Caesar_test_instance_' + client_token
         resp = self.client.create_instance_by_spec("bcc.g4.c1m1",
-                                             image_id,
-                                             name=instance_name,
-                                             admin_pass=admin_pass,
-                                             client_token=client_token)
+                                                   image_id,
+                                                   name=instance_name,
+                                                   admin_pass=admin_pass,
+                                                   client_token=client_token)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -999,7 +993,7 @@ class TestBccClient(unittest.TestCase):
         """
         instance_id = "i-XS7Db00e"
         resp = self.client.modify_instance_hostname(instance_id=instance_id, hostname="new.hostname20230315",
-                                                                   auto_reboot=True, is_open_hostname_domain=True)
+                                                    auto_reboot=True, is_open_hostname_domain=True)
         # print(json.loads(resp.content.decode('utf-8')))
 
     def test_recovery_instances(self):
@@ -1014,7 +1008,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for get_bid_instance_price
         """
-        resp = self.client.get_bid_instance_price(instance_type='N3', cpu_count=1, memory_cap_in_gb=1, root_disk_size_in_gb=20)
+        resp = self.client.get_bid_instance_price(instance_type='N3', cpu_count=1, memory_cap_in_gb=1,
+                                                  root_disk_size_in_gb=20)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1106,9 +1101,9 @@ class TestBccClient(unittest.TestCase):
         test case for get_available_disk_info
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tags = []
         tags.append(tag1)
         tags.append(tag2)
@@ -1120,14 +1115,15 @@ class TestBccClient(unittest.TestCase):
             print(json.loads(resp.content.decode('utf-8')))
         else:
             print(resp)
+
     def test_untag_volume(self):
         """
         test case for get_available_disk_info
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tags = []
         tags.append(tag1)
         tags.append(tag2)
@@ -1158,9 +1154,9 @@ class TestBccClient(unittest.TestCase):
         test case for tag_snapshot_chain
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tags = []
         tags.append(tag1)
         tags.append(tag2)
@@ -1178,9 +1174,9 @@ class TestBccClient(unittest.TestCase):
         test case for untag_snapshot_chain
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tags = []
         tags.append(tag1)
         tags.append(tag2)
@@ -1197,8 +1193,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for update_asp
         """
-        resp = self.client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0,13],
-                                      repeat_week_days=[0,4], retention_days=2)
+        resp = self.client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0, 13],
+                                      repeat_week_days=[0, 4], retention_days=2)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1212,7 +1208,7 @@ class TestBccClient(unittest.TestCase):
         test case for get_price_by_spec
         """
         resp = self.client.get_price_by_spec(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", payment_timing="prepay",
-                                      zone_name="szth", purchase_num=2, purchase_length=2)
+                                             zone_name="szth", purchase_num=2, purchase_length=2)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1226,7 +1222,7 @@ class TestBccClient(unittest.TestCase):
         test case for get_price_by_spec
         """
         resp = self.client.list_type_zones(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", product_type="prepay",
-                                      instance_type="N3")
+                                           instance_type="N3")
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1254,7 +1250,7 @@ class TestBccClient(unittest.TestCase):
         test case for instance_change_vpc
         """
         resp = self.client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                                  internal_ip="192.168.32.2", reboot=True)
+                                               internal_ip="192.168.32.2", reboot=True)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1306,7 +1302,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for resize_instance_by_spec
         """
-        resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='Www123456', keypair_id="123", instance_ids=["i-oUXBvdIx"])
+        resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='123456', keypair_id="123",
+                                                   instance_ids=["i-oUXBvdIx"])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1397,7 +1394,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for list_instance_by_instance_ids
         """
-        resp = self.client.list_instance_by_instance_ids(instance_ids=['i-45IP2Tn7','i-FhvOuv4t','i-oUXBvdIx'],
+        resp = self.client.list_instance_by_instance_ids(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'],
                                                          marker='123', max_keys=10000)
         self.assertEqual(
             type(resp),
@@ -1411,7 +1408,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for get_instance_delete_progress
         """
-        resp = self.client.get_instance_delete_progress(instance_ids=['i-45IP2Tn7','i-FhvOuv4t','i-oUXBvdIx'])
+        resp = self.client.get_instance_delete_progress(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1424,7 +1421,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_delete_instance_with_related_resource
         """
-        resp = self.client.batch_delete_instance_with_related_resource(instance_ids=['i-FhvOuv4t'], related_release_flag=True, )
+        resp = self.client.batch_delete_instance_with_related_resource(instance_ids=['i-FhvOuv4t'],
+                                                                       related_release_flag=True, )
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1491,7 +1489,7 @@ class TestBccClient(unittest.TestCase):
         test case for list_available_resize_specs
         """
         resp = self.client.list_available_resize_specs(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
-                                                 spec_id='subnet_id', logical_zone='zone_name')
+                                                       spec_id='subnet_id', logical_zone='zone_name')
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1602,9 +1600,9 @@ class TestBccClient(unittest.TestCase):
         test case for bind_image_to_tags
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tag_list = []
         tag_list.append(tag1)
         tag_list.append(tag2)
@@ -1622,9 +1620,9 @@ class TestBccClient(unittest.TestCase):
         test case for unbind_image_to_tags
         """
         tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                  tagValue='TestValue02')
         tag2 = bcc_model.TagModel(tagKey='TestKey03',
-                                           tagValue='TestValue03')
+                                  tagValue='TestValue03')
         tag_list = []
         tag_list.append(tag1)
         tag_list.append(tag2)
@@ -1756,6 +1754,7 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
@@ -1802,66 +1801,53 @@ if __name__ == '__main__':
     Caesar Test
     """
     suite.addTest(TestBccClient("test_stop_instance"))
-    #suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
-    #suite.addTest(TestBccClient("test_start_instance"))
-    #suite.addTest(TestBccClient("test_create_instance"))
-    #suite.addTest(TestBccClient("test_resize_instance"))
-    #suite.addTest(TestBccClient("test_list_instances"))
-    #suite.addTest(TestBccClient("test_get_instance"))
-    #suite.addTest(TestBccClient("test_modify_instance_password"))
-    #suite.addTest(TestBccClient("test_modify_instance_attributes"))
-    #suite.addTest(TestBccClient("test_release_instance"))
-    #suite.addTest(TestBccClient("test_resize_instance"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
-    #suite.addTest(TestBccClient("test_get_image"))
-    #suite.addTest(TestBccClient("test_create_image_from_instance_id"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
-    #suite.addTest(TestBccClient("test_purchase_reserved_volume"))
-
+    # suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
+    # suite.addTest(TestBccClient("test_start_instance"))
+    # suite.addTest(TestBccClient("test_create_instance"))
+    # suite.addTest(TestBccClient("test_resize_instance"))
+    # suite.addTest(TestBccClient("test_list_instances"))
+    # suite.addTest(TestBccClient("test_get_instance"))
+    # suite.addTest(TestBccClient("test_modify_instance_password"))
+    # suite.addTest(TestBccClient("test_modify_instance_attributes"))
+    # suite.addTest(TestBccClient("test_release_instance"))
+    # suite.addTest(TestBccClient("test_resize_instance"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
+    # suite.addTest(TestBccClient("test_get_image"))
+    # suite.addTest(TestBccClient("test_create_image_from_instance_id"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
+    # suite.addTest(TestBccClient("test_purchase_reserved_volume"))
 
     """
     Caesar New Test
     """
-    #suite.addTest(TestBccClient("test_modify_instance_desc"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_tags"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_tags"))
-    #suite.addTest(TestBccClient("test_modify_volume_attribute"))
-    #suite.addTest(TestBccClient("test_modify_volume_charge_type"))
-    #suite.addTest(TestBccClient("test_remote_copy_image"))
-    #suite.addTest(TestBccClient("test_cancle_remote_copy_image"))
-    #suite.addTest(TestBccClient("test_share_image"))
-    #suite.addTest(TestBccClient("test_unshare_image"))
-    #suite.addTest(TestBccClient("test_list_shared_user"))
-    #suite.addTest(TestBccClient("test_list_os"))
-    #suite.addTest(TestBccClient("test_create_asp"))
-    #suite.addTest(TestBccClient("test_attach_asp"))
-    #suite.addTest(TestBccClient("test_detach_asp"))
-    #suite.addTest(TestBccClient("test_delete_asp"))
-    #suite.addTest(TestBccClient("test_list_asp"))
-    #suite.addTest(TestBccClient("test_get_asp"))
-    #suite.addTest(TestBccClient("test_create_keypair"))
-    #suite.addTest(TestBccClient("test_import_keypair"))
-    #suite.addTest(TestBccClient("test_list_keypairs"))
-    #suite.addTest(TestBccClient("test_get_keypair"))
-    #suite.addTest(TestBccClient("test_attach_keypair"))
-    #suite.addTest(TestBccClient("test_detach_keypair"))
-    #suite.addTest(TestBccClient("test_delete_keypair"))
-    #suite.addTest(TestBccClient("test_rename_keypair"))
-    #suite.addTest(TestBccClient("test_update_keypair_desc"))
-
-
-
-
-
-
-
-
-
-
-
+    # suite.addTest(TestBccClient("test_modify_instance_desc"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_tags"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_tags"))
+    # suite.addTest(TestBccClient("test_modify_volume_attribute"))
+    # suite.addTest(TestBccClient("test_modify_volume_charge_type"))
+    # suite.addTest(TestBccClient("test_remote_copy_image"))
+    # suite.addTest(TestBccClient("test_cancle_remote_copy_image"))
+    # suite.addTest(TestBccClient("test_share_image"))
+    # suite.addTest(TestBccClient("test_unshare_image"))
+    # suite.addTest(TestBccClient("test_list_shared_user"))
+    # suite.addTest(TestBccClient("test_list_os"))
+    # suite.addTest(TestBccClient("test_create_asp"))
+    # suite.addTest(TestBccClient("test_attach_asp"))
+    # suite.addTest(TestBccClient("test_detach_asp"))
+    # suite.addTest(TestBccClient("test_delete_asp"))
+    # suite.addTest(TestBccClient("test_list_asp"))
+    # suite.addTest(TestBccClient("test_get_asp"))
+    # suite.addTest(TestBccClient("test_create_keypair"))
+    # suite.addTest(TestBccClient("test_import_keypair"))
+    # suite.addTest(TestBccClient("test_list_keypairs"))
+    # suite.addTest(TestBccClient("test_get_keypair"))
+    # suite.addTest(TestBccClient("test_attach_keypair"))
+    # suite.addTest(TestBccClient("test_detach_keypair"))
+    # suite.addTest(TestBccClient("test_delete_keypair"))
+    # suite.addTest(TestBccClient("test_rename_keypair"))
+    # suite.addTest(TestBccClient("test_update_keypair_desc"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
-
