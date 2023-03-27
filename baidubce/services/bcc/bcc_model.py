@@ -140,6 +140,7 @@ class PayTimingChangeReqModel(object):
         self.duration = duration
         self.autoPay = autoPay
 
+
 class DestRegionInfoModel(object):
     """
     This class define for snapshot remote copy.

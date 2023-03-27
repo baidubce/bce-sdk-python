@@ -4097,7 +4097,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         :param retention_days:
             Retention days of snapshot.
-        :type retention_days: string
+        :type retention_days: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse
