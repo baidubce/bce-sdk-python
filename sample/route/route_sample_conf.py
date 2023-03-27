@@ -10,12 +10,8 @@ from baidubce.auth.bce_credentials import BceCredentials
 HOST = b'host'
 AK = b'ak'
 SK = b'sk'
-blbId = b''
-appServerGroupId = ''
-portId = ''
-certIds = []
 
-logger = logging.getLogger('baidubce.services.blb.app_blb_client')
+logger = logging.getLogger('baidubce.services.route.route_client')
 fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.DEBUG)
 

@@ -68,10 +68,10 @@ class RouteClient(bce_base_client.BceBaseClient):
     @required(route_table_id=(bytes, str),
               source_address=(bytes, str),
               destination_address=(bytes, str),
-              next_hoop_type=(bytes, str),
               description=(bytes, str))
     def create_route(self, route_table_id, source_address, destination_address,
-                     next_hop_type, description, next_hop_id=None, client_token=None,
+                     next_hop_type=None, description="", next_hop_id=None, ip_version=None,
+                     next_hops=None, client_token=None,
                      config=None):
         """
         Create a route with the specified options.
@@ -93,6 +93,11 @@ class RouteClient(bce_base_client.BceBaseClient):
             the Bcc type is "custom";
             the VPN type is "vpn";
             the NAT type is "nat";
+            the dedicatedGateway type is "dcGateway"; Multi-line mode does not require
+            the PeerConn type is "peerConn";
+            the ENIC type is "enic";
+            the HaVip type is "havip";
+            the ipv6Gateway type is "ipv6gateway";
             the local gateway type is "defaultGateway"
         :type next_hop_type: string
 
@@ -104,6 +109,18 @@ class RouteClient(bce_base_client.BceBaseClient):
             The next hop id
             when the nexthopType is "defaultGateway",this field can be empty
         :type next_hop_id: string
+        :param next_hop_id:
+            The next hop id
+            when the nexthopType is "defaultGateway",this field can be empty
+        :type next_hop_id: string
+
+        :param next_hop_list:
+            The optional list of dcGateway Multi-line mode route to create.
+                - NextHop.nexthopId next hop dcGateway ID
+                - NextHop.nexthopType Route type. Currently only supports dedicatedGateway type: "dcGateway"
+                - NextHop.pathType Multiline mode. The value of load balancing is ecmp; the values of active and
+                standby modes are ha:active and ha:standby, which represent the active and standby routes respectively
+        :type next_hop_list: list<route_model.NextHop>
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -128,12 +145,18 @@ class RouteClient(bce_base_client.BceBaseClient):
             'routeTableId': compat.convert_to_string(route_table_id),
             'sourceAddress': compat.convert_to_string(source_address),
             'destinationAddress': compat.convert_to_string(destination_address),
-            'nexthopType': compat.convert_to_string(next_hop_type),
             'description': compat.convert_to_string(description)
         }
 
+        if next_hop_type is not None:
+            body['nexthopType'] = compat.convert_to_string(next_hop_type)
         if next_hop_id is not None:
             body['nexthopId'] = compat.convert_to_string(next_hop_id)
+        if ip_version is not None:
+            body['ipVersion'] = compat.convert_to_string(ip_version)
+        if next_hops is not None:
+            next_hop_list = [next_hop.__dict__ for next_hop in next_hops]
+            body['nextHopList'] = next_hop_list
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)

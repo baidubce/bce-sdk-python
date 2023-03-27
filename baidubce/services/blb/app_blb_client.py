@@ -400,7 +400,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                  keep_session_type=None,
                                  keep_session_timeout=None,
                                  keep_session_cookie_name=None,
-                                 x_forward_for=None,
+                                 x_forwarded_for=None,
                                  server_timeout=None,
                                  redirect_port=None,
                                  client_token=None,
@@ -446,12 +446,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
 
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: False
-        :type x_forward_for: bool
+        :type x_forwarded_for: bool
 
         :param server_timeout:
             Backend server maximum timeout (unit: second)
@@ -492,8 +492,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if redirect_port is not None:
@@ -510,7 +510,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   keep_session_type=None,
                                   keep_session_timeout=None,
                                   keep_session_cookie_name=None,
-                                  x_forward_for=None, server_timeout=None,
+                                  x_forwarded_for=None, server_timeout=None,
                                   ie6_compatible=None, encryption_type=None,
                                   encryption_protocols=None,
                                   dual_auth=None, client_certIds=None,
@@ -552,12 +552,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             to be overridden if and only if session persistence
             is enabled and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
-        :value true or false, default: flase
-        :type x_forward_for: bool
+        :value true or false, default: false
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -615,8 +615,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if ie6_compatible is not None:
@@ -838,7 +838,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                  keep_session_type=None,
                                  keep_session_timeout=None,
                                  keep_session_cookie_name=None,
-                                 x_forward_for=None,
+                                 x_forwarded_for=None,
                                  server_timeout=None,
                                  redirect_port=None,
                                  client_token=None,
@@ -877,12 +877,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             to be overridden,if and only if session persistence is
             enabled and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the
             client through the X-Forwarded-For HTTP header.
-        :value true or false, default: flase
-        :type x_forward_for: bool
+        :value true or false, default: false
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -920,8 +920,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if redirect_port is not None:
@@ -937,7 +937,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   keep_session_type=None,
                                   keep_session_timeout=None,
                                   keep_session_cookie_name=None,
-                                  x_forward_for=None,
+                                  x_forwarded_for=None,
                                   server_timeout=None,
                                   cert_ids=None,
                                   ie6_compatible=None,
@@ -980,12 +980,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             overridden,if and only if session persistence is enabled and
             keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: False
-        :type x_forward_for: bool
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -1047,8 +1047,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if cert_ids is not None:
