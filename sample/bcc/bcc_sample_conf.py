@@ -19,9 +19,13 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'bcc host'
-AK = 'your-access-key-id'
-SK = 'your-secret-access-key'
+# HOST = 'bcc host'
+#AK = 'your-access-key-id'
+# SK = 'your-secret-access-key'
+
+HOST = b'http://bcc.bj.qasandbox.baidu-int.com'
+AK = b'ALTAKjBcN7uGNGaKUEefExLqlS'
+SK = b'eaf64b3f0b06448789bcef8374fc0bc2'
 
 logger = logging.getLogger('baidubce.http.bce_http_client')
 fh = logging.FileHandler('sample.log')

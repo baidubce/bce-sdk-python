@@ -127,3 +127,23 @@ class TagModel(object):
     def __init__(self, tagKey=None, tagValue=None):
         self.tagKey = tagKey
         self.tagValue = tagValue
+
+
+class PayTimingChangeReqModel(object):
+    """
+    This class define detail of change pay timing.
+    """
+    def __init__(self, instanceId, relationCds=False, cdsList=None, duration=None, autoPay=True):
+        self.instanceId = instanceId
+        self.relationCds = relationCds
+        self.cdsList = cdsList
+        self.duration = duration
+        self.autoPay = autoPay
+
+class DestRegionInfoModel(object):
+    """
+    This class define for snapshot remote copy.
+    """
+    def __init__(self, destRegion, name):
+        self.destRegion = destRegion
+        self.name = name
