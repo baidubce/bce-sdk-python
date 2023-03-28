@@ -13,6 +13,7 @@
 """
 Unit tests for bcc client.
 """
+import json
 import os
 import random
 import string
@@ -26,9 +27,9 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bcc import bcc_client
 from baidubce.services.bcc import bcc_model
-#from baidubce.services.bcc import gpu_card_type
-#from baidubce.services.bcc import fpga_card_type
-from baidubce.services.bcc.bcc_model import EphemeralDisk
+# from baidubce.services.bcc import gpu_card_type
+# from baidubce.services.bcc import fpga_card_type
+from baidubce.services.bcc.bcc_model import EphemeralDisk, PayTimingChangeReqModel
 from baidubce import compat
 from imp import reload
 
@@ -39,18 +40,13 @@ reload(sys)
 if compat.PY2:
     sys.setdefaultencoding('utf8')
 # sys.setdefaultencoding('utf-8')
-'''
 HOST = b'http://bcc.bj.baidubce.com'
 AK = b''
 SK = b''
-'''
-HOST = b'http://bcc.bce-api.baidu.com'
-AK = b''
-SK = b''
 
-instance_id = 'i-mrfLMLeL'
+instance_id = 'i-TC9evYT5'
 volume_id = 'v-OBhaubpM'
-image_id = 'm-gtkIuqV8'
+image_id = 'm-U4nNXY9T'
 snapshot_id = 's-7mEwKt4F'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-dcrami1yg8u2'
@@ -144,7 +140,6 @@ class TestBccClient(unittest.TestCase):
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
-
     def test_create_gpu_instance(self):
         """
         test case for test_create_gpu_instance
@@ -223,8 +218,8 @@ class TestBccClient(unittest.TestCase):
         # self.assertEqual(
         #     type(self.client.list_instances()),
         #     baidubce.bce_response.BceResponse)
-        #print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
-        #print(self.client.list_instances(zone_name='cn-bj-b'))
+        # print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
+        # print(self.client.list_instances(zone_name='cn-bj-b'))
         print(self.client.list_instances())
 
     def test_get_instance(self):
@@ -232,6 +227,7 @@ class TestBccClient(unittest.TestCase):
         test case for get_instance
         """
 
+        instance_id = "i-oUXBvdIx"
         self.assertEqual(
             type(self.client.get_instance(instance_id)),
             baidubce.bce_response.BceResponse)
@@ -412,10 +408,10 @@ class TestBccClient(unittest.TestCase):
         test case for list_volumes
         """
         print(self.client.list_volumes())
-        #print(volume_list)
-        #self.assertEqual(
-         #   type(volume_list),
-          #  baidubce.bce_response.BceResponse)
+        # print(volume_list)
+        # self.assertEqual(
+        #   type(volume_list),
+        #  baidubce.bce_response.BceResponse)
 
     def test_get_volume(self):
         """
@@ -665,7 +661,7 @@ class TestBccClient(unittest.TestCase):
 
     def test_bind_instance_to_tags(self):
         instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
-                                          tagValue='TestValue02')
+                                           tagValue='TestValue02')
         instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
                                            tagValue='TestValue03')
         instance_tag_list = []
@@ -709,12 +705,12 @@ class TestBccClient(unittest.TestCase):
             type(self.client.remote_copy_image(image_id=image_id,
                                                name=remote_image_name,
                                                destRegions=destRegions)),
-        baidubce.bce_response.BceResponse)
+            baidubce.bce_response.BceResponse)
 
     def test_cancle_remote_copy_image(self):
         self.assertEqual(
             type(self.client.cancle_remote_copy_image(image_id=image_id)),
-        baidubce.bce_response.BceResponse)
+            baidubce.bce_response.BceResponse)
 
     def test_share_image(self):
         account_id = 'c2d9b1dfc12949c0939ca36e3aae96d7'
@@ -815,29 +811,29 @@ class TestBccClient(unittest.TestCase):
             baidubce.bce_response.BceResponse)
 
     def test_get_keypair(self):
-        keypair_id='k-uKooR0If'
+        keypair_id = 'k-uKooR0If'
         self.assertEqual(
             type(self.client.get_keypair(keypair_id=keypair_id)),
             baidubce.bce_response.BceResponse)
 
     def test_attach_keypair(self):
-        keypair_id='k-uKooR0If'
-        instance_ids=['i-9sh6C5zx', 'i-6LoHblf4']
+        keypair_id = 'k-uKooR0If'
+        instance_ids = ['i-9sh6C5zx', 'i-6LoHblf4']
         self.assertEqual(
             type(self.client.attach_keypair(keypair_id=keypair_id,
                                             instance_ids=instance_ids)),
             baidubce.bce_response.BceResponse)
 
     def test_detach_keypair(self):
-        keypair_id='k-uKooR0If'
-        instance_ids=['i-9sh6C5zx', 'i-6LoHblf4']
+        keypair_id = 'k-uKooR0If'
+        instance_ids = ['i-9sh6C5zx', 'i-6LoHblf4']
         self.assertEqual(
             type(self.client.detach_keypair(keypair_id=keypair_id,
                                             instance_ids=instance_ids)),
             baidubce.bce_response.BceResponse)
 
     def test_delete_keypair(self):
-        keypair_id='k-uKooR0If'
+        keypair_id = 'k-uKooR0If'
         self.assertEqual(
             type(self.client.delete_keypair(keypair_id=keypair_id)),
             baidubce.bce_response.BceResponse)
@@ -930,6 +926,835 @@ class TestBccClient(unittest.TestCase):
             type(create_response),
             baidubce.bce_response.BceResponse)
 
+    def test_list_recycled_instances(self):
+        """
+        test case for list recycled instances
+        """
+        resp = self.client.list_recycled_instances(payment_timing="prepay", recycle_begin='2023-03-11T00:00:00Z')
+        print(resp)
+        # print(json.loads(resp.content.decode('utf-8')))
+
+    def test_create_instance_by_spec(self):
+        """
+        test case for create_instance
+        """
+        client_token = generate_client_token()
+        image_id = 'm-FBfg6s7W'
+        instance_name = 'Caesar_test_instance_' + client_token
+        resp = self.client.create_instance_by_spec("bcc.g4.c1m1",
+                                                   image_id,
+                                                   name=instance_name,
+                                                   admin_pass=admin_pass,
+                                                   client_token=client_token)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+
+    def test_auto_release_instance(self):
+        """
+        test case for auto_release_instance
+        """
+        instance_id = "i-XS7Db00e"
+        resp = self.client.auto_release_instance(instance_id=instance_id, release_time='2023-03-15T14:20:00Z')
+        # print(json.loads(resp.content.decode('utf-8')))
+
+    def test_delete_with_related_resources(self):
+        """
+        test case for auto_release_instance
+        """
+        instance_id = "i-lBNzLEoM"
+        resp = self.client.release_instance_with_related_resources(instance_id=instance_id, related_release_flag=True,
+                                                                   bcc_recycle_flag=True)
+        # print(json.loads(resp.content.decode('utf-8')))
+
+    def test_get_instance_with_deploy_set(self):
+        """
+        test case for get_instance
+        """
+        instance_id = "i-oUXBvdIx"
+        self.assertEqual(
+            type(self.client.get_instance_with_deploy_set(instance_id)),
+            baidubce.bce_response.BceResponse)
+        print(self.client.get_instance(instance_id))
+
+    def test_get_instance_with_deploy_set_and_failed(self):
+        """
+        test case for get_instance
+        """
+        instance_id = "i-oUXBvdIx"
+        self.assertEqual(
+            type(self.client.get_instance_with_deploy_set_and_failed(instance_id)),
+            baidubce.bce_response.BceResponse)
+        print(self.client.get_instance(instance_id))
+
+    def test_modify_instance_hostname(self):
+        """
+        test case for modify_instance_hostname
+        """
+        instance_id = "i-XS7Db00e"
+        resp = self.client.modify_instance_hostname(instance_id=instance_id, hostname="new.hostname20230315",
+                                                    auto_reboot=True, is_open_hostname_domain=True)
+        # print(json.loads(resp.content.decode('utf-8')))
+
+    def test_recovery_instances(self):
+        """
+        test case for recovery_instances
+        """
+        instance_ids = ["i-XS7Db00e", "i-FhvOuv4t"]
+        resp = self.client.recovery_instances(instance_ids)
+        # print(json.loads(resp.content.decode('utf-8')))
+
+    def test_get_bid_instance_price(self):
+        """
+        test case for get_bid_instance_price
+        """
+        resp = self.client.get_bid_instance_price(instance_type='N3', cpu_count=1, memory_cap_in_gb=1,
+                                                  root_disk_size_in_gb=20)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_bid_flavor(self):
+        """
+        test case for list_bid_flavor
+        """
+        resp = self.client.list_bid_flavor()
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_deletion_protection(self):
+        """
+        test case for modify_deletion_protection
+        """
+        resp = self.client.modify_deletion_protection("i-XS7Db00e", 1)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_release_volume_new(self):
+        """
+        test case for release_volume_new
+        """
+        resp = self.client.release_volume_new("v-0RMyIJRq", manual_snapshot='on')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_auto_renew_cds_volume(self):
+        """
+        test case for auto_renew_cds_volume
+        """
+        resp = self.client.auto_renew_cds_volume("v-0RMyIJRq", renew_time=1, renew_time_unit='month')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_cancel_auto_renew_cds_volume(self):
+        """
+        test case for cancel_auto_renew_cds_volume
+        """
+        resp = self.client.cancel_auto_renew_cds_volume("v-0RMyIJRq")
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_available_disk_info(self):
+        """
+        test case for get_available_disk_info
+        """
+        resp = self.client.get_available_disk_info("cn-bj-a")
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_tag_volume(self):
+        """
+        test case for get_available_disk_info
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tags = []
+        tags.append(tag1)
+        tags.append(tag2)
+        resp = self.client.tag_volume("v-0RMyIJRq", relation_tag=True, tags=tags)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_untag_volume(self):
+        """
+        test case for get_available_disk_info
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tags = []
+        tags.append(tag1)
+        tags.append(tag2)
+        resp = self.client.untag_volume("v-0RMyIJRq", relation_tag=True, tags=tags)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_snapshot_chain(self):
+        """
+        test case for get_available_disk_info
+        """
+        resp = self.client.list_snapshot_chain("v-0RMyIJRq")
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_tag_snapshot_chain(self):
+        """
+        test case for tag_snapshot_chain
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tags = []
+        tags.append(tag1)
+        tags.append(tag2)
+        resp = self.client.tag_snapshot_chain("sl-fJDs8G9i", tags=tags)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_untag_snapshot_chain(self):
+        """
+        test case for untag_snapshot_chain
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tags = []
+        tags.append(tag1)
+        tags.append(tag2)
+        resp = self.client.untag_snapshot_chain("sl-fJDs8G9i", tags=tags)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_update_asp(self):
+        """
+        test case for update_asp
+        """
+        resp = self.client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0, 13],
+                                      repeat_week_days=[0, 4], retention_days=2)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_price_by_spec(self):
+        """
+        test case for get_price_by_spec
+        """
+        resp = self.client.get_price_by_spec(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", payment_timing="prepay",
+                                             zone_name="szth", purchase_num=2, purchase_length=2)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_type_zones(self):
+        """
+        test case for get_price_by_spec
+        """
+        resp = self.client.list_type_zones(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", product_type="prepay",
+                                           instance_type="N3")
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_instance_change_subnet(self):
+        """
+        test case for instance_change_subnet
+        """
+        resp = self.client.instance_change_subnet(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
+                                                  internal_ip="192.168.32.2", reboot=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_instance_change_vpc(self):
+        """
+        test case for instance_change_vpc
+        """
+        resp = self.client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
+                                               internal_ip="192.168.32.2", reboot=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_instance_enis(self):
+        """
+        test case for list_instance_enis
+        """
+        resp = self.client.list_instance_enis(instance_id="i-oUXBvdIx")
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_flavor_spec(self):
+        """
+        test case for list_flavor_spec
+        """
+        resp = self.client.list_flavor_spec(zone_name='cn-bd-a')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_resize_instance_by_spec(self):
+        """
+        test case for resize_instance_by_spec
+        """
+        resp = self.client.resize_instance_by_spec(instance_id="i-oUXBvdIx", spec='bcc.ic1.c1m1')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_rebuild_instances(self):
+        """
+        test case for resize_instance_by_spec
+        """
+        resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='123456', keypair_id="123",
+                                                   instance_ids=["i-oUXBvdIx"])
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_change_to_prepaid(self):
+        """
+        test case for change_to_prepaid
+        """
+        resp = self.client.change_to_prepaid(instance_id="i-45IP2Tn7", duration=3, relation_cds=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_instance_no_charge(self):
+        """
+        test case for list_instance_no_charge
+        """
+        resp = self.client.list_instance_no_charge(keypair_id='k-Mk1c8QPE', zone_name='cn-bj-a')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_cancel_bid_order(self):
+        """
+        test case for cancel_bid_order
+        """
+        resp = self.client.cancel_bid_order(order_id='test_id')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_create_auto_renew_rules(self):
+        """
+        test case for batch_create_auto_renew_rules
+        """
+        resp = self.client.batch_create_auto_renew_rules(instance_id='i-45IP2Tn7', renew_time=2, renew_time_unit='year')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_delete_auto_renew_rules(self):
+        """
+        test case for batch_delete_auto_renew_rules
+        """
+        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_delete_recycled_instance(self):
+        """
+        test case for delete_recycled_instance
+        """
+        resp = self.client.delete_recycled_instance(instance_id='i-LKFVi0gI')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_instance_by_instance_ids(self):
+        """
+        test case for list_instance_by_instance_ids
+        """
+        resp = self.client.list_instance_by_instance_ids(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'],
+                                                         marker='123', max_keys=10000)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_instance_delete_progress(self):
+        """
+        test case for get_instance_delete_progress
+        """
+        resp = self.client.get_instance_delete_progress(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'])
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_delete_instance_with_related_resource(self):
+        """
+        test case for batch_delete_instance_with_related_resource
+        """
+        resp = self.client.batch_delete_instance_with_related_resource(instance_ids=['i-FhvOuv4t'],
+                                                                       related_release_flag=True, )
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_start_instance(self):
+        """
+        test case for batch_start_instance
+        """
+        resp = self.client.batch_start_instance(instance_ids=['i-FhvOuv4t'])
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_stop_instance(self):
+        """
+        test case for batch_stop_instance
+        """
+        resp = self.client.batch_stop_instance(instance_ids=['i-FhvOuv4t'], force_stop=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_id_mappings(self):
+        """
+        test case for list_id_mappings
+        """
+        resp = self.client.list_id_mappings(ids=['i-FhvOuv4t'], id_type='short', object_type='bcc')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_resize_instance(self):
+        """
+        test case for batch_resize_instance
+        """
+        resp = self.client.batch_resize_instance(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
+                                                 subnet_id='subnet_id', logical_zone='zone_name', internal_ip_v4='ipv4')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_available_resize_specs(self):
+        """
+        test case for list_available_resize_specs
+        """
+        resp = self.client.list_available_resize_specs(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
+                                                       spec_id='subnet_id', logical_zone='zone_name')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_change_instance_to_prepay(self):
+        """
+        test case for batch_change_instance_to_prepay
+        """
+        req1 = PayTimingChangeReqModel('i-FhvOuv4t', relationCds=True, cdsList=['cds1'], autoPay=False, duration=123)
+        req2 = PayTimingChangeReqModel('i-45IP2Tn7')
+        req = [req1, req2]
+        resp = self.client.batch_change_instance_to_prepay(req)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_batch_change_instance_to_postpay(self):
+        """
+        test case for batch_change_instance_to_postpay
+        """
+        req1 = PayTimingChangeReqModel('i-FhvOuv4t', relationCds=True, cdsList=['cds1'], autoPay=False, duration=123)
+        req2 = PayTimingChangeReqModel('i-45IP2Tn7')
+        req = [req1, req2]
+        resp = self.client.batch_change_instance_to_postpay(req)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_instance_roles(self):
+        """
+        test case for list_instance_roles
+        """
+        resp = self.client.list_instance_roles()
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_bind_instance_role(self):
+        """
+        test case for bind_instance_role
+        """
+        resp = self.client.bind_instance_role(['i-FhvOuv4t', 'i-45IP2Tn7'], role_name='admin')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_unbind_instance_role(self):
+        """
+        test case for unbind_instance_role
+        """
+        resp = self.client.unbind_instance_role(['i-FhvOuv4t', 'i-45IP2Tn7'], role_name='admin')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_add_ipv6(self):
+        """
+        test case for add_ipv6
+        """
+        resp = self.client.add_ipv6(instance_id='i-FhvOuv4t', ipv6_address='new_addr', reboot=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_del_ipv6(self):
+        """
+        test case for delete_ipv6
+        """
+        resp = self.client.delete_ipv6(instance_id='i-FhvOuv4t', reboot=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_bind_image_to_tags(self):
+        """
+        test case for bind_image_to_tags
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tag_list = []
+        tag_list.append(tag1)
+        tag_list.append(tag2)
+        resp = self.client.bind_image_to_tags(image_id='i-FhvOuv4t', tags=tag_list)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_unbind_image_to_tags(self):
+        """
+        test case for unbind_image_to_tags
+        """
+        tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                  tagValue='TestValue02')
+        tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                  tagValue='TestValue03')
+        tag_list = []
+        tag_list.append(tag1)
+        tag_list.append(tag2)
+        resp = self.client.unbind_image_to_tags(image_id='i-FhvOuv4t', tags=tag_list)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_import_custom_image(self):
+        """
+        test case for import_custom_image
+        """
+        resp = self.client.import_custom_image(os_name='os-name', os_arch='os-arch', os_type='os-type',
+                                               os_version='os_version', name='name', bos_url='url')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_create_remote_copy_snapshot(self):
+        """
+        test case for create_remote_copy_snapshot
+        """
+        dest_region_infos = [bcc_model.DestRegionInfoModel("bj", "bj1"), bcc_model.DestRegionInfoModel("sh", "sh1")]
+        resp = self.client.create_remote_copy_snapshot(snapshot_id='s_id', dest_region_infos=dest_region_infos)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_create_deploy_set(self):
+        """
+        test case for create_deploy_set
+        """
+        resp = self.client.create_deploy_set(name='d_set_name', desc='this is deploy set desc', strategy='HA')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_deploy_sets(self):
+        """
+        test case for list_deploy_sets
+        """
+        resp = self.client.list_deploy_sets()
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_delete_deploy_set(self):
+        """
+        test case for delete_deploy_set
+        """
+        resp = self.client.delete_deploy_set('deployset_id1')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_deploy_set(self):
+        """
+        test case for modify_deploy_set
+        """
+        resp = self.client.modify_deploy_set('deployset_id1', name='name-new', desc='new desc for ds1')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_deploy_set(self):
+        """
+        test case for get_deploy_set
+        """
+        resp = self.client.get_deploy_set('deployset_id1')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_update_instance_deploy(self):
+        """
+        test case for update_instance_deploy
+        """
+        resp = self.client.update_instance_deploy(instance_id='iid1', deployset_id_list=['did1', 'did2'], force=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_del_instance_deploy(self):
+        """
+        test case for del_instance_deploy
+        """
+        resp = self.client.del_instance_deploy(instance_id_list=['iid1', 'iid2'], deploy_set_id='dsid')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
@@ -976,66 +1801,118 @@ if __name__ == '__main__':
     Caesar Test
     """
     suite.addTest(TestBccClient("test_stop_instance"))
-    #suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
-    #suite.addTest(TestBccClient("test_start_instance"))
-    #suite.addTest(TestBccClient("test_create_instance"))
-    #suite.addTest(TestBccClient("test_resize_instance"))
-    #suite.addTest(TestBccClient("test_list_instances"))
-    #suite.addTest(TestBccClient("test_get_instance"))
-    #suite.addTest(TestBccClient("test_modify_instance_password"))
-    #suite.addTest(TestBccClient("test_modify_instance_attributes"))
-    #suite.addTest(TestBccClient("test_release_instance"))
-    #suite.addTest(TestBccClient("test_resize_instance"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
-    #suite.addTest(TestBccClient("test_get_image"))
-    #suite.addTest(TestBccClient("test_create_image_from_instance_id"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
-    #suite.addTest(TestBccClient("test_purchase_reserved_volume"))
-
+    # suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
+    # suite.addTest(TestBccClient("test_start_instance"))
+    # suite.addTest(TestBccClient("test_create_instance"))
+    # suite.addTest(TestBccClient("test_resize_instance"))
+    # suite.addTest(TestBccClient("test_list_instances"))
+    # suite.addTest(TestBccClient("test_get_instance"))
+    # suite.addTest(TestBccClient("test_modify_instance_password"))
+    # suite.addTest(TestBccClient("test_modify_instance_attributes"))
+    # suite.addTest(TestBccClient("test_release_instance"))
+    # suite.addTest(TestBccClient("test_resize_instance"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
+    # suite.addTest(TestBccClient("test_get_image"))
+    # suite.addTest(TestBccClient("test_create_image_from_instance_id"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_security_group"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_security_group"))
+    # suite.addTest(TestBccClient("test_purchase_reserved_volume"))
 
     """
     Caesar New Test
     """
-    #suite.addTest(TestBccClient("test_modify_instance_desc"))
-    #suite.addTest(TestBccClient("test_bind_instance_to_tags"))
-    #suite.addTest(TestBccClient("test_unbind_instance_from_tags"))
-    #suite.addTest(TestBccClient("test_modify_volume_attribute"))
-    #suite.addTest(TestBccClient("test_modify_volume_charge_type"))
-    #suite.addTest(TestBccClient("test_remote_copy_image"))
-    #suite.addTest(TestBccClient("test_cancle_remote_copy_image"))
-    #suite.addTest(TestBccClient("test_share_image"))
-    #suite.addTest(TestBccClient("test_unshare_image"))
-    #suite.addTest(TestBccClient("test_list_shared_user"))
-    #suite.addTest(TestBccClient("test_list_os"))
-    #suite.addTest(TestBccClient("test_create_asp"))
-    #suite.addTest(TestBccClient("test_attach_asp"))
-    #suite.addTest(TestBccClient("test_detach_asp"))
-    #suite.addTest(TestBccClient("test_delete_asp"))
-    #suite.addTest(TestBccClient("test_list_asp"))
-    #suite.addTest(TestBccClient("test_get_asp"))
-    #suite.addTest(TestBccClient("test_create_keypair"))
-    #suite.addTest(TestBccClient("test_import_keypair"))
-    #suite.addTest(TestBccClient("test_list_keypairs"))
-    #suite.addTest(TestBccClient("test_get_keypair"))
-    #suite.addTest(TestBccClient("test_attach_keypair"))
-    #suite.addTest(TestBccClient("test_detach_keypair"))
-    #suite.addTest(TestBccClient("test_delete_keypair"))
-    #suite.addTest(TestBccClient("test_rename_keypair"))
-    #suite.addTest(TestBccClient("test_update_keypair_desc"))
+    # suite.addTest(TestBccClient("test_modify_instance_desc"))
+    # suite.addTest(TestBccClient("test_bind_instance_to_tags"))
+    # suite.addTest(TestBccClient("test_unbind_instance_from_tags"))
+    # suite.addTest(TestBccClient("test_modify_volume_attribute"))
+    # suite.addTest(TestBccClient("test_modify_volume_charge_type"))
+    # suite.addTest(TestBccClient("test_remote_copy_image"))
+    # suite.addTest(TestBccClient("test_cancle_remote_copy_image"))
+    # suite.addTest(TestBccClient("test_share_image"))
+    # suite.addTest(TestBccClient("test_unshare_image"))
+    # suite.addTest(TestBccClient("test_list_shared_user"))
+    # suite.addTest(TestBccClient("test_list_os"))
+    # suite.addTest(TestBccClient("test_create_asp"))
+    # suite.addTest(TestBccClient("test_attach_asp"))
+    # suite.addTest(TestBccClient("test_detach_asp"))
+    # suite.addTest(TestBccClient("test_delete_asp"))
+    # suite.addTest(TestBccClient("test_list_asp"))
+    # suite.addTest(TestBccClient("test_get_asp"))
+    # suite.addTest(TestBccClient("test_create_keypair"))
+    # suite.addTest(TestBccClient("test_import_keypair"))
+    # suite.addTest(TestBccClient("test_list_keypairs"))
+    # suite.addTest(TestBccClient("test_get_keypair"))
+    # suite.addTest(TestBccClient("test_attach_keypair"))
+    # suite.addTest(TestBccClient("test_detach_keypair"))
+    # suite.addTest(TestBccClient("test_delete_keypair"))
+    # suite.addTest(TestBccClient("test_rename_keypair"))
+    # suite.addTest(TestBccClient("test_update_keypair_desc"))
 
-
-
-
-
-
-
-
-
-
-
+    """
+        0.8.84 New Testcases
+    """
+    # suite.addTest(TestBccClient("test_list_recycled_instances"))
+    # suite.addTest(TestBccClient("test_create_instance_by_spec"))
+    # suite.addTest(TestBccClient("test_auto_release_instance"))
+    # suite.addTest(TestBccClient("test_delete_with_related_resources"))
+    # suite.addTest(TestBccClient("test_get_instance_with_deploy_set"))
+    # suite.addTest(TestBccClient("test_get_instance_with_deploy_set_and_failed"))
+    # suite.addTest(TestBccClient("test_modify_instance_hostname"))
+    # suite.addTest(TestBccClient("test_recovery_instances"))
+    # suite.addTest(TestBccClient("test_get_bid_instance_price"))
+    # suite.addTest(TestBccClient("test_list_bid_flavor"))
+    # suite.addTest(TestBccClient("test_modify_deletion_protection"))
+    # suite.addTest(TestBccClient("test_release_volume_new"))
+    # suite.addTest(TestBccClient("test_auto_renew_cds_volume"))
+    # suite.addTest(TestBccClient("test_cancel_auto_renew_cds_volume"))
+    # suite.addTest(TestBccClient("test_get_available_disk_info"))
+    # suite.addTest(TestBccClient("test_tag_volume"))
+    # suite.addTest(TestBccClient("test_untag_volume"))
+    # suite.addTest(TestBccClient("test_list_snapshot_chain"))
+    # suite.addTest(TestBccClient("test_tag_snapshot_chain"))
+    # suite.addTest(TestBccClient("test_untag_snapshot_chain"))
+    # suite.addTest(TestBccClient("test_update_asp"))
+    # suite.addTest(TestBccClient("test_get_price_by_spec"))
+    # suite.addTest(TestBccClient("test_list_type_zones"))
+    # suite.addTest(TestBccClient("test_instance_change_subnet"))
+    # suite.addTest(TestBccClient("test_instance_change_vpc"))
+    # suite.addTest(TestBccClient("test_list_instance_enis"))
+    # suite.addTest(TestBccClient("test_list_flavor_spec"))
+    # suite.addTest(TestBccClient("test_resize_instance_by_spec"))
+    # suite.addTest(TestBccClient("test_batch_rebuild_instances"))
+    # suite.addTest(TestBccClient("test_change_to_prepaid"))
+    # suite.addTest(TestBccClient("test_list_instance_no_charge"))
+    # suite.addTest(TestBccClient("test_cancel_bid_order"))
+    # suite.addTest(TestBccClient("test_batch_create_auto_renew_rules"))
+    # suite.addTest(TestBccClient("test_batch_delete_auto_renew_rules"))
+    # suite.addTest(TestBccClient("test_delete_recycled_instance"))
+    # suite.addTest(TestBccClient("test_list_instance_by_instance_ids"))
+    # suite.addTest(TestBccClient("test_get_instance_delete_progress"))
+    # suite.addTest(TestBccClient("test_batch_delete_instance_with_related_resource"))
+    # suite.addTest(TestBccClient("test_batch_start_instance"))
+    # suite.addTest(TestBccClient("test_batch_stop_instance"))
+    # suite.addTest(TestBccClient("test_list_id_mappings"))
+    # suite.addTest(TestBccClient("test_batch_resize_instance"))
+    # suite.addTest(TestBccClient("test_list_available_resize_specs"))
+    # suite.addTest(TestBccClient("test_batch_change_instance_to_prepay"))
+    # suite.addTest(TestBccClient("test_batch_change_instance_to_postpay")))
+    # suite.addTest(TestBccClient("test_list_instance_roles")))
+    # suite.addTest(TestBccClient("test_bind_instance_role")))
+    # suite.addTest(TestBccClient("test_unbind_instance_role")))
+    # suite.addTest(TestBccClient("test_add_ipv6")))
+    # suite.addTest(TestBccClient("test_del_ipv6")))
+    # suite.addTest(TestBccClient("test_bind_image_to_tags")))
+    # suite.addTest(TestBccClient("test_unbind_image_to_tags")))
+    # suite.addTest(TestBccClient("test_import_custom_image")))
+    # suite.addTest(TestBccClient("test_create_remote_copy_snapshot")))
+    # suite.addTest(TestBccClient("test_create_deploy_set"))
+    # suite.addTest(TestBccClient("test_list_deploy_sets"))
+    # suite.addTest(TestBccClient("test_delete_deploy_set"))
+    # suite.addTest(TestBccClient("test_modify_deploy_set"))
+    # suite.addTest(TestBccClient("test_get_deploy_set"))
+    # suite.addTest(TestBccClient("test_update_instance_deploy"))
+    # suite.addTest(TestBccClient("test_del_instance_deploy"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
-
