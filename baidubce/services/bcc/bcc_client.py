@@ -4742,7 +4742,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def batch_stop_instance(self, instance_ids, force_stop=None, stop_with_no_charge=None,
                             client_token=None, config=None):
         """
-        batch start instance
+        batch stop instance
 
         :param instance_ids:
             Identify of the instances to return info
@@ -4859,7 +4859,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_available_resize_specs(self, instance_ids, spec=None, spec_id=None, logical_zone=None,
                                     client_token=None, config=None):
         """
-        batch resize instance
+        list available specs of resize instance in specified zone
 
         :param instance_ids:
             Identify of the instances to return info
