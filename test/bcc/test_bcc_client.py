@@ -56,7 +56,24 @@ pre_paid_billing = bcc_model.Billing('Prepaid', 2)
 
 force_stop = False
 admin_pass = '******'
-
+eip_name = 'test-eip-name'
+hostname = 'test-hostname'
+auto_seq_suffix = True
+is_open_hostname_domain = True
+relation_tag = True
+is_open_ipv6 = True
+enterprise_security_group_id = "esg-eqk44sgk1sq2"
+kunlunCard = 'KunlunR200'
+isomerismCard = 'KunlunR200'
+file_systems = [bcc_model.FileSystemModel("cfs-OOtXFH2RWZ",
+                                          "mountAds",
+                                          "/mnt",
+                                          "nfs")]
+user_data = "#!/bin/sh\\necho 'Hello World' | tee /root/userdata_test.txt"
+deletion_protection = 1
+is_open_hosteye = False
+tags = [bcc_model.TagModel("test", "bcc")]
+auto_snapshot_policy = bcc_model.AutoSnapshotPolicyModel('asp-name', [1,2], [1,2])
 
 def generate_client_token_by_random():
     """
@@ -97,11 +114,27 @@ class TestBccClient(unittest.TestCase):
         test case for create_instance
         """
         instance_type = 'N3'
+        spec = 'bcc.g3.c2m8'
         client_token = generate_client_token()
         instance_name = 'Caesar_test_instance_' + client_token
         self.assertEqual(
             type(self.client.create_instance(1, 1,
                                              image_id,
+                                             spec=spec,
+                                             eip_name=eip_name,
+                                             network_capacity_in_mbps=1,
+                                             hostname=hostname,
+                                             auto_seq_suffix=auto_seq_suffix,
+                                             is_open_hostname_domain=is_open_hostname_domain,
+                                             is_open_ipv6=is_open_ipv6,
+                                             relation_tag=relation_tag,
+                                             enterprise_security_group_id=enterprise_security_group_id,
+                                             kunlunCard=kunlunCard,
+                                             isomerismCard=isomerismCard,
+                                             file_systems=file_systems,
+                                             user_data=user_data,
+                                             deletion_protection=deletion_protection,
+                                             is_open_hosteye=is_open_hosteye,
                                              instance_type=instance_type,
                                              name=instance_name,
                                              admin_pass=admin_pass,
@@ -208,6 +241,17 @@ class TestBccClient(unittest.TestCase):
                                                     admin_pass=admin_pass,
                                                     client_token=client_token,
                                                     bid_model='market',
+                                                    eip_name=eip_name,
+                                                    hostname=hostname,
+                                                    auto_seq_suffix=auto_seq_suffix,
+                                                    is_open_hostname_domain=is_open_hostname_domain,
+                                                    spec_id='N1',
+                                                    relation_tag=relation_tag,
+                                                    is_open_ipv6=is_open_ipv6,
+                                                    deletion_protection=deletion_protection,
+                                                    enterprise_security_group_id=enterprise_security_group_id,
+                                                    isomerismCard=isomerismCard,
+                                                    file_systems=file_systems,
                                                     spec='bcc.ic1.c1m1')),
             baidubce.bce_response.BceResponse)
 
@@ -220,7 +264,18 @@ class TestBccClient(unittest.TestCase):
         #     baidubce.bce_response.BceResponse)
         # print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
         # print(self.client.list_instances(zone_name='cn-bj-b'))
-        print(self.client.list_instances())
+        print(self.client.list_instances(
+            instance_ids='i-zadG8d4l,i-mOEGqKHc',
+            instance_names='instance-u4l01f7s,instance-696snyc6',
+            deployset_ids='dset-wSC3vLBE,dset-3KKDKcnY',
+            security_group_ids='g-60m3jgnfdtmu,g-3g12wipcxxtc',
+            payment_timing='Postpaid',
+            status=' Running',
+            tags='test:bcc1,test',
+            vpc_id='vpc-0jna6xgejh7j',
+            private_ips='192.168.3.31,192.168.3.3',
+            auto_renew=True
+        ))
 
     def test_get_instance(self):
         """
@@ -314,6 +369,17 @@ class TestBccClient(unittest.TestCase):
                                               admin_pass)),
             baidubce.bce_response.BceResponse)
 
+    def test_rebuild_instance_with_keypair_id(self):
+        '''
+        test case for rebuild_instance with keypair id
+        '''
+        key_pair_id = 'k-JdqSutgI'
+        self.assertEqual(
+            type(self.client.rebuild_instance(instance_id,
+                                              image_id,
+                                              key_pair_id=key_pair_id)),
+            baidubce.bce_response.BceResponse)
+
     def test_release_instance(self):
         """
         test case for release_instance
@@ -329,7 +395,7 @@ class TestBccClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.client.resize_instance(instance_id,
-                                             2, 4,
+                                             2, 4, False, 1, 40,
                                              client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -365,9 +431,11 @@ class TestBccClient(unittest.TestCase):
         """
         billing = pre_paid_billing
         client_token = generate_client_token()
+        related_renew_flag = 'CDS_EIP'
         self.assertEqual(
             type(self.client.purchase_reserved_instance(instance_id,
                                                         billing,
+                                                        related_renew_flag,
                                                         client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -387,6 +455,17 @@ class TestBccClient(unittest.TestCase):
         billing = pre_paid_billing
         cds_size_in_gb = 5
         create_response = self.client.create_volume_with_cds_size(cds_size_in_gb, zone_name='cn-bj-a',
+                                                                  billing=billing,
+                                                                  instance_id=instance_id,
+                                                                  encrypt_key='k-uKooR0If',
+                                                                  name='test-name',
+                                                                  description='desc',
+                                                                  renew_time_unit='month',
+                                                                  renew_time=1,
+                                                                  cluster_id='DC-luQT2ktY',
+                                                                  relation_tag=True,
+                                                                  auto_snapshot_policy=auto_snapshot_policy,
+                                                                  tags=tags,
                                                                   client_token=client_token)
         print(create_response)
         self.assertEqual(
@@ -400,6 +479,16 @@ class TestBccClient(unittest.TestCase):
         client_token = generate_client_token()
         self.assertEqual(
             type(self.client.create_volume_with_snapshot_id(snapshot_id,
+                                                            instance_id=instance_id,
+                                                            encrypt_key='k-uKooR0If',
+                                                            name='test-name',
+                                                            description='desc',
+                                                            renew_time_unit='month',
+                                                            renew_time=1,
+                                                            cluster_id='DC-luQT2ktY',
+                                                            relation_tag=True,
+                                                            auto_snapshot_policy=auto_snapshot_policy,
+                                                            tags=tags,
                                                             client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -407,7 +496,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for list_volumes
         """
-        print(self.client.list_volumes())
+        print(self.client.list_volumes(cluster_id='DC-luQT2ktY'))
         # print(volume_list)
         # self.assertEqual(
         #   type(volume_list),
@@ -453,10 +542,12 @@ class TestBccClient(unittest.TestCase):
         test case for resize_volume
         """
         resize_cds_size_in_gb = 10
+        new_volume_type = 'ssd'
         client_token = generate_client_token()
         self.assertEqual(
             type(self.client.resize_volume(volume_id,
                                            resize_cds_size_in_gb,
+                                           new_volume_type,
                                            client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -490,6 +581,8 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.create_image_from_instance_id(image_name,
                                                            instance_id=instance_id,
+                                                           encrypt_key='encrypt_key',
+                                                           relate_cds=True,
                                                            client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -502,6 +595,7 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.create_image_from_snapshot_id(image_name,
                                                            snapshot_id=system_snapshot_id,
+                                                           encrypt_key='encrypt_key',
                                                            client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -510,7 +604,7 @@ class TestBccClient(unittest.TestCase):
         test case for list_images
         """
         self.assertEqual(
-            type(self.client.list_images()),
+            type(self.client.list_images(image_name='image-name')),
             baidubce.bce_response.BceResponse)
 
     def test_get_image(self):
@@ -539,6 +633,7 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.create_snapshot(volume_id,
                                              snapshot_name,
+                                             tags=tags,
                                              client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -583,6 +678,7 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.create_security_group(name=security_group_name,
                                                    rules=security_group_rule_list,
+                                                   tags=tags,
                                                    client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -686,7 +782,8 @@ class TestBccClient(unittest.TestCase):
         cdsName = 'Test_Volume_Name01'
         self.assertEqual(
             type(self.client.modify_volume_Attribute(volume_id=volume_id,
-                                                     cdsName=cdsName)),
+                                                     cdsName=cdsName,
+                                                     desc='desc')),
             baidubce.bce_response.BceResponse)
 
     def test_modify_volume_charge_type(self):
@@ -1913,6 +2010,6 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_get_deploy_set"))
     # suite.addTest(TestBccClient("test_update_instance_deploy"))
     # suite.addTest(TestBccClient("test_del_instance_deploy"))
-
+    # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
