@@ -52,6 +52,7 @@ if __name__ == "__main__":
     snapshot_name = 'snapshot_name'
     snapshot_id_marker = 'snapshot_id_marker'
     vpc_id = 'vpc_id'
+    key_pair_id = 'key_pair_id'
     vpc_id_marker = 'vpc_id_marker'
     security_group_name = 'security_group_name'
     security_group_description = 'security_group_description'
@@ -349,11 +350,23 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # rebuild bcc instance
+    # rebuild bcc instance with adminPass
     try:
         bcc_client.rebuild_instance(instance_id=instance_id,
                                     image_id=image_id,
                                     admin_pass=admin_pass)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # rebuild bcc instance with keyPairId
+    try:
+        bcc_client.rebuild_instance(instance_id=instance_id,
+                                    image_id=image_id,
+                                    key_pair_id=key_pair_id)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
