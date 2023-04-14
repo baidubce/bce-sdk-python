@@ -1961,6 +1961,7 @@ class BosClient(BceBaseClient):
             _logger.debug("upload task success with partNumber={}!".format(part_number))
         except Exception as e:
             _logger.debug("upload task failed with partNumber={}!".format(part_number))
+            raise e
             #_logger.debug(e)
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
@@ -2191,11 +2192,9 @@ class BosClient(BceBaseClient):
                 params={b'fetch': b''},
                 config=config)
 
-    @required(bucket_name=(bytes, str), key=(bytes, str), symlink=(bytes, str), forbid_overwrite=(bool))
-    def put_object_symlink(self, bucket_name, key, symlink, forbid_overwrite=None, 
-            user_metadata=None,
-            storage_class=None,
-            config=None):
+    @required(bucket_name=(bytes, str), target_key=(bytes, str), symlink=(bytes, str), forbid_overwrite=(bool))
+    def put_object_symlink(self, bucket_name, target_key, symlink, forbid_overwrite=None, 
+            user_metadata=None, storage_class=None, target_bucket=None, config=None):
         """
         put object symlink
 
@@ -2211,16 +2210,18 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
-        key = compat.convert_to_bytes(key)
+        target_key = compat.convert_to_bytes(target_key)
         symlink = compat.convert_to_bytes(symlink)
         headers = self._prepare_object_headers(user_metadata=user_metadata,
                 storage_class=storage_class)
-        headers[http_headers.BOS_SYMLINK_TARGET] = key
+        headers[http_headers.BOS_SYMLINK_TARGET] = target_key
         if forbid_overwrite is not None:
             if forbid_overwrite:
                 headers[http_headers.BOS_FORBID_OVERWRITE] = b'true'
             else:
                 headers[http_headers.BOS_FORBID_OVERWRITE] = b'false'
+        if target_bucket is not None:
+            headers[http_headers.BOS_SYMLINK_BUCKET] = compat.convert_to_bytes(target_bucket)
         return self._send_request(http_methods.PUT,
                            bucket_name,
                            symlink,
@@ -2271,8 +2272,10 @@ class BosClient(BceBaseClient):
         headers = headers or {}
         if "inputSerialization" in select_object_args and "json" in select_object_args["inputSerialization"]:
             select_type = b"json"
-        else:
+        elif "inputSerialization" in select_object_args and "csv" in select_object_args["inputSerialization"]:
             select_type = b"csv"
+        else:
+            select_type = b"parquet"
         select_response = SelectResponse()
         self._send_request(
             http_methods.POST,
@@ -2295,8 +2298,9 @@ class BosClient(BceBaseClient):
         :return:
         """
         return self._send_request(
-            http_methods.GET, params={b'userQuota': b''})
+            http_methods.GET, params={b'userQuota': b''}, config=config,)
     
+    @required(max_bucket_count=(int), max_capacity_mega_bytes=(int))
     def put_user_quota(self, max_bucket_count, max_capacity_mega_bytes, config=None):
         """
         put user quota
@@ -2314,7 +2318,7 @@ class BosClient(BceBaseClient):
             http_methods.PUT,
             body=json.dumps({'maxBucketCount': max_bucket_count, 
                             'maxCapacityMegaBytes': max_capacity_mega_bytes}),
-            params={b'userQuota': b''})
+            params={b'userQuota': b''}, config=config)
 
     def delete_user_quota(self, config=None):
         """
@@ -2324,8 +2328,10 @@ class BosClient(BceBaseClient):
         :return:
         """
         return self._send_request(
-            http_methods.DELETE, params={b'userQuota': b''})        
-        
+            http_methods.DELETE, params={b'userQuota': b''}, config=config)
+
+
+    @required(bucket_name=(bytes, str))
     def get_notification(self, bucket_name, config=None):
         """
         get notification
@@ -2337,8 +2343,11 @@ class BosClient(BceBaseClient):
         :return:
         """
         return self._send_request(
-            http_methods.GET, bucket_name=bucket_name, params={b'notification': b''})
+            http_methods.GET, bucket_name=bucket_name, 
+            params={b'notification': b''}, config=config,)
     
+
+    @required(bucket_name=(bytes, str), notifications=(list, ))
     def put_notification(self, bucket_name, notifications, config=None):
         """
         put user quota
@@ -2355,8 +2364,8 @@ class BosClient(BceBaseClient):
         return self._send_request(
             http_methods.PUT, bucket_name=bucket_name,
             body=json.dumps({'notifications': notifications}),
-            params={b'notification': b''})
-
+            params={b'notification': b''}, config=config,)
+    @required(bucket_name=(bytes, str))
     def delete_notification(self, bucket_name, config=None):
         """
         delete notification
@@ -2368,7 +2377,60 @@ class BosClient(BceBaseClient):
         :return:
         """
         return self._send_request(
-            http_methods.DELETE, bucket_name=bucket_name, params={b'notification': b''})        
+            http_methods.DELETE, bucket_name=bucket_name, params={b'notification': b''},
+            config=config,)
+
+    @required(bucket_name=(bytes, str), mirror_args=(list, ))
+    def put_bucket_mirroring(self, bucket_name, mirror_args, config=None):
+        """
+        put bucket mirroring
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :param mirror_args: mirror conf
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT,
+            bucket_name=bucket_name,
+            body=json.dumps({'bucketMirroringConfiguration': mirror_args}, default=BosClient._dump_acl_object),
+            params={b'mirroring': b''},
+            config=config,
+            )
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_mirroring(self, bucket_name, config=None):
+        """
+        get bucket mirroring
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET,
+            bucket_name=bucket_name,
+            params={b'mirroring': b''},
+            config=config,
+            )
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_mirroring(self, bucket_name, config=None):
+        """
+        delete bucket mirroring
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.DELETE,
+            bucket_name=bucket_name,
+            params={b'mirroring': b''},
+            config=config,
+            )
         
 
     @staticmethod
