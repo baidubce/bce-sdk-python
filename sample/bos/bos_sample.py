@@ -179,10 +179,10 @@ if __name__ == "__main__":
     # put symlink
     bos_client.put_object_symlink(bucket_name, key, symlink_key, storage_class=storage_class.STANDARD)
     # get symlink
-    respones = bos_client.get_object_symlink(bucket_name, symlink_key)
+    response = bos_client.get_object_symlink(bucket_name, symlink_key)
     print(response.metadata.bce_symlink_target)
     # get object meta with symlink
-    respones = bos_client.get_object_meta_data(bucket_name, symlink_key)
+    response = bos_client.get_object_meta_data(bucket_name, symlink_key)
     print(response.metadata.bce_object_type)
     # get object with symlnk
     bos_client.get_object_to_file(bucket_name, symlink_key, download)
@@ -597,6 +597,33 @@ if __name__ == "__main__":
         __logger.debug("[Sample] delete notification response :%s", response)
     except Exception as e:
         __logger.debug("[Sample] delete notification error :%s", e)
+
+
+    ######################################################################################################
+    #            mirroring operation samples
+    ######################################################################################################
+    mirror_args = list()
+    mirror_args.append({
+				"mode": "fetch", 						
+				"sourceUrl": "bos://bj.bcebos.com/" + bucket_name,  
+				"backSourceUrl": "bos://bj.bcebos.com/bucket_name",   
+                "resource": "*.jpeg",       
+
+				"version": "v2", 								
+
+				"passQueryString": False,					
+				"storageClass": "STANDARD",
+			})
+
+    response = bos_client.put_bucket_mirroring(bucket_name, mirror_args=mirror_args)
+    __logger.debug("[Sample] put bucket mirroing response :%s", response)
+
+    response = bos_client.get_bucket_mirroring(bucket_name)
+    __logger.debug("[Sample] get bucket mirroing response :%s", response)
+
+    response = bos_client.delete_bucket_mirroring(bucket_name)
+    __logger.debug("[Sample] delete bucket mirroing response :%s", response)
+
 
     #####################################################################################################
     #            test progress_callback samples

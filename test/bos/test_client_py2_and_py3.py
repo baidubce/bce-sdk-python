@@ -2990,6 +2990,23 @@ class TestSymlink(TestClient):
             self.assertIsNotNone(err)
         # clear
         res = self.bos.delete_object(self.BUCKET, self.KEY)
+
+        # put symlink while symlink bucket
+        target_bucket = 'symlink-test-bucket'
+        self.bos.create_bucket(target_bucket)
+        err = None
+        self.bos.put_object_from_file(target_bucket, self.KEY, self.FILENAME)
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key, target_bucket=target_bucket)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # clear
+        self.bos.delete_object(target_bucket, self.KEY)
+        self.bos.delete_object(self.BUCKET, symlink_key)
+        self.bos.delete_bucket(target_bucket)
+
     
     def test_get_symlink(self):
         """ test get symlink """
@@ -3026,7 +3043,7 @@ class TestQuota(TestClient):
     def test_get_quota(self):
         """test get quota"""
         err = None
-        self.bos.put_user_quota(100,12334424)
+        self.bos.put_user_quota(100, 12334424)
         try:
             response = self.bos.get_user_quota()
         except BceServerError as e:
@@ -3035,12 +3052,13 @@ class TestQuota(TestClient):
             self.assertIsNone(err)
         self.assertEqual(response.max_bucket_count, 100)
         self.assertEqual(response.max_capacity_mega_bytes, 12334424)
+        self.bos.delete_user_quota()
     
     def test_set_quota(self):
         """test set quota"""
         err = None
         self.bos.delete_user_quota()
-        self.bos.put_user_quota(100,12334424)
+        self.bos.put_user_quota(100, 12334424)
         try:
             response = self.bos.get_user_quota()
         except BceServerError as e:
@@ -3156,6 +3174,47 @@ class TestNotification(TestClient):
         finally:
             self.assertIsNone(err)
         self.assertEqual(response.notifications[0].id, "r3")
+
+
+class TestMirroringConf(TestClient):
+    """test put mirroring config"""
+    def test_mirroring(self):
+        err = None
+        mirror_args = list()
+        mirror_args.append({
+				    "mode": "fetch", 						
+				    "sourceUrl": "bos://bj.bcebos.com/" + self.BUCKET,  
+				    "backSourceUrl": "bos://bj.bcebos.com/bucket_name",   
+                    "resource": "*.jpeg",       
+
+				    "version": "v2", 								
+
+				    "passQueryString": False,					
+				    "storageClass": "STANDARD",
+	    })
+        try:
+            self.bos.put_bucket_mirroring(self.BUCKET, mirror_args= mirror_args)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        
+        # test  get mirroring
+        try:
+            self.bos.get_bucket_mirroring(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        
+        # test delete mirroring
+        try:
+            self.bos.delete_bucket_mirroring(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
 
 class TestTrafficLimit(TestClient):
     """test put object"""
@@ -3307,10 +3366,14 @@ def run_test():
     runner.run(unittest.makeSuite(TestSymlink))
     runner.run(unittest.makeSuite(TestBucketStorageclass))
     runner.run(unittest.makeSuite(TestBucketInventory))
-    runner.run(unittest.makeSuite(TestQuota))
     runner.run(unittest.makeSuite(TestNotification))
+    runner.run(unittest.makeSuite(TestMirroringConf))
+    
+    """test quota, the quota cache may exist causing the bucket to be created error"""
+    # runner.run(unittest.makeSuite(TestQuota))
     """test speed limit, the case is skipped by default"""
     # runner.run(unittest.makeSuite(TestTrafficLimit))
+    
 
 
 run_test()
