@@ -70,7 +70,8 @@ setup(
               'baidubce.services.scs',
               'baidubce.services.ddc',
               'baidubce.services.dns',
-              'baidubce.services.dns.api'
+              'baidubce.services.dns.api',
+              'baidubce.services.rds'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
