@@ -11,13 +11,9 @@
 # and limitations under the License.
 
 """
-This module defines some common string constants.
+This module defines some constants for SCS
 """
-from builtins import str
-from builtins import bytes
-from . import protocol
 
-SDK_VERSION = b'0.8.86'
-DEFAULT_SERVICE_DOMAIN = b'bcebos.com'
-URL_PREFIX = b'/v1'
-DEFAULT_ENCODING = 'UTF-8'
+URL_PREFIX_V1 = b'/v1'
+URL_PREFIX_V2 = b'/v2'
+URL_PREFIX_INSTANCE_V2 = b'/v2/instance'
