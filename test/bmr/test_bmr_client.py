@@ -74,8 +74,8 @@ class TestBmrClient(unittest.TestCase):
 
     def setUp(self):
         HOST = 'bmr.bce-api.baidu.com'
-        AK = 'fd9fb2c253b14f81a0ff322a2c4c5585'
-        SK = '5b90507268ec4304a166f6fbefaa87d2'
+        AK = ''
+        SK = ''
         config = BceClientConfiguration(
             credentials=BceCredentials(AK, SK),
             endpoint=HOST
