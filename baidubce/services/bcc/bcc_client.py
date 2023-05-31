@@ -87,6 +87,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
                         spec=None, eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                         relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
+                        security_group_ids=None, enterprise_security_group_ids=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
                         deletion_protection=None,
                         client_token=None, config=None):
@@ -292,6 +293,14 @@ class BccClient(bce_base_client.BceBaseClient):
             enterprise_security_group_id
         :type enterprise_security_group_id: string
 
+        :param security_group_ids:
+            security_group_ids
+        :type security_group_ids: list<string>
+
+        :param enterprise_security_group_ids:
+            enterprise_security_group_ids
+        :type enterprise_security_group_ids: list<string>
+
         :param kunlunCard:
             kunlunCard
         :type kunlunCard: string
@@ -378,6 +387,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['securityGroupId'] = security_group_id
         if enterprise_security_group_id is not None:
             body['enterpriseSecurityGroupId'] = enterprise_security_group_id
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
             body['cardCount'] = cardCount if cardCount > 1 else 1
@@ -650,7 +663,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                client_token=None, config=None, spec=None, user_data=None,
                                eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
-                               enterprise_security_group_id=None, isomerismCard=None, file_systems=None):
+                               enterprise_security_group_id=None, security_group_ids=None,
+                               enterprise_security_group_ids=None, isomerismCard=None, file_systems=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -859,6 +873,14 @@ class BccClient(bce_base_client.BceBaseClient):
         :param enterprise_security_group_id:
         :type enterprise_security_group_id: string
 
+        :param security_group_ids:
+            security_group_ids
+        :type security_group_ids: list<string>
+
+        :param enterprise_security_group_ids:
+            enterprise_security_group_ids
+        :type enterprise_security_group_ids: list<string>
+
         :param file_systems:
         :type file_systems: list<bcc_model.FileSystemModel>
 
@@ -926,6 +948,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['subnetId'] = subnet_id
         if security_group_id is not None:
             body['securityGroupId'] = security_group_id
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
             body['cardCount'] = cardCount if cardCount > 1 else 1
@@ -3518,7 +3544,9 @@ class BccClient(bce_base_client.BceBaseClient):
                                 ephemeral_disks=None, create_cds_list=None, network_capacity_in_mbps=0, eip_name=None,
                                 internet_charge_type=None, purchase_count=1, name=None, hostname=None,
                                 auto_seq_suffix=None, is_open_hostname_domain=None, admin_pass=None, billing=None,
-                                zone_name=None, subnet_id=None, security_group_id=None, relation_tag=None,
+                                zone_name=None, subnet_id=None, security_group_id=None,
+                                enterprise_security_group_id=None, security_group_ids=None,
+                                enterprise_security_group_ids=None, relation_tag=None,
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
                                 dedicate_host_id=None, deploy_id=None, deploy_id_list=None,
@@ -3586,6 +3614,18 @@ class BccClient(bce_base_client.BceBaseClient):
             vpcId of the securityGroupId must be the same as the vpcId of subnetId
             See more detail through listSecurityGroups method
         :type security_group_id: string
+
+        :param enterprise_security_group_id:
+            enterprise_security_group_id
+        :type enterprise_security_group_id: string
+
+        :param security_group_ids:
+            security_group_ids
+        :type security_group_ids: list<string>
+
+        :param enterprise_security_group_ids:
+            enterprise_security_group_ids
+        :type enterprise_security_group_ids: list<string>
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -3707,6 +3747,12 @@ class BccClient(bce_base_client.BceBaseClient):
             body['subnetId'] = subnet_id
         if security_group_id is not None:
             body['securityGroupId'] = security_group_id
+        if enterprise_security_group_id is not None:
+            body['enterpriseSecurityGroupId'] = enterprise_security_group_id
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
