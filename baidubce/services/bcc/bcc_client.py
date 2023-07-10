@@ -89,7 +89,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
                         security_group_ids=None, enterprise_security_group_ids=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
-                        deletion_protection=None,
+                        deletion_protection=None, res_group_id=None,
                         client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -321,6 +321,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param deletion_protection:
         :type deletion_protection: int
 
+        :param res_group_id:
+            The optional parameter to specify the resGroupId of the instance
+        :type res_group_id: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -432,6 +436,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['tags'] = tag_list
         if internal_ips is not None:
             body['internalIps'] = internal_ips
+        if res_group_id is not None:
+            body['resGroupId'] = res_group_id
         body['cdsAutoRenew'] = cds_auto_renew
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
@@ -663,7 +669,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                client_token=None, config=None, spec=None, user_data=None,
                                eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
-                               enterprise_security_group_id=None, security_group_ids=None,
+                               enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
                                enterprise_security_group_ids=None, isomerismCard=None, file_systems=None):
         """
         Create a bcc Instance with the specified options.
@@ -877,6 +883,10 @@ class BccClient(bce_base_client.BceBaseClient):
             security_group_ids
         :type security_group_ids: list<string>
 
+        :param res_group_id:
+            The optional parameter to specify the resGroupId of the instance
+        :type res_group_id: string
+
         :param enterprise_security_group_ids:
             enterprise_security_group_ids
         :type enterprise_security_group_ids: list<string>
@@ -992,6 +1002,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['spec'] = spec
         if user_data is not None:
             body['userData'] = user_data
+        if res_group_id is not None:
+            body['resGroupId'] = res_group_id
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)

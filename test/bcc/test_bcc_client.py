@@ -46,7 +46,7 @@ SK = b''
 
 instance_id = 'i-TC9evYT5'
 volume_id = 'v-OBhaubpM'
-image_id = 'm-U4nNXY9T'
+image_id = 'm-AfH5u6IE'
 snapshot_id = 's-7mEwKt4F'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-dcrami1yg8u2'
@@ -74,6 +74,7 @@ deletion_protection = 1
 is_open_hosteye = False
 tags = [bcc_model.TagModel("test", "bcc")]
 auto_snapshot_policy = bcc_model.AutoSnapshotPolicyModel('asp-name', [1,2], [1,2])
+res_group_id = 'RESG-UtT3P4x4KxF'
 
 def generate_client_token_by_random():
     """
@@ -209,6 +210,24 @@ class TestBccClient(unittest.TestCase):
                                              cardCount=1)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_instance_with_res_group_id(self):
+        """
+        test case for create_instance with res_group_id
+        """
+        client_token = generate_client_token()
+        instance_name = 'Caesar_test_instance_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance(2, 8,
+                                             image_id,
+                                             spec="bcc.g5.c2m8",
+                                             name=instance_name,
+                                             admin_pass=admin_pass,
+                                             zone_name='cn-bj-a',
+                                             purchase_count=1,
+                                             res_group_id=res_group_id,
+                                             client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
     def test_create_instance_from_dedicated_host(self):
         """
         test case for create instance from dedicated host
@@ -255,6 +274,22 @@ class TestBccClient(unittest.TestCase):
                                                     spec='bcc.ic1.c1m1')),
             baidubce.bce_response.BceResponse)
 
+    def test_create_instance_of_bid_with_res_group_id(self):
+        """
+        test case for create_instance_of_bid with res_group_id
+        """
+        client_token = generate_client_token()
+        instance_name = 'Caesar_test_instance_of_bid_' + client_token
+        self.assertEqual(
+            type(self.client.create_instance_of_bid(2, 8,
+                                                    image_id,
+                                                    spec="bcc.g5.c2m8",
+                                                    name=instance_name,
+                                                    client_token=client_token,
+                                                    bid_model='market',
+                                                    res_group_id=res_group_id)),
+            baidubce.bce_response.BceResponse)
+
     def test_list_instances(self):
         """
         test case for list_instances
@@ -264,18 +299,19 @@ class TestBccClient(unittest.TestCase):
         #     baidubce.bce_response.BceResponse)
         # print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
         # print(self.client.list_instances(zone_name='cn-bj-b'))
-        print(self.client.list_instances(
-            instance_ids='i-zadG8d4l,i-mOEGqKHc',
-            instance_names='instance-u4l01f7s,instance-696snyc6',
-            deployset_ids='dset-wSC3vLBE,dset-3KKDKcnY',
-            security_group_ids='g-60m3jgnfdtmu,g-3g12wipcxxtc',
-            payment_timing='Postpaid',
-            status=' Running',
-            tags='test:bcc1,test',
-            vpc_id='vpc-0jna6xgejh7j',
-            private_ips='192.168.3.31,192.168.3.3',
-            auto_renew=True
-        ))
+        print(self.client.list_instances())
+        # print(self.client.list_instances(
+        #     instance_ids='i-zadG8d4l,i-mOEGqKHc',
+        #     instance_names='instance-u4l01f7s,instance-696snyc6',
+        #     deployset_ids='dset-wSC3vLBE,dset-3KKDKcnY',
+        #     security_group_ids='g-60m3jgnfdtmu,g-3g12wipcxxtc',
+        #     payment_timing='Postpaid',
+        #     status=' Running',
+        #     tags='test:bcc1,test',
+        #     vpc_id='vpc-0jna6xgejh7j',
+        #     private_ips='192.168.3.31,192.168.3.3',
+        #     auto_renew=True
+        # ))
 
     def test_get_instance(self):
         """
