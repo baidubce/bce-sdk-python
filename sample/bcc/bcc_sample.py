@@ -72,6 +72,7 @@ if __name__ == "__main__":
     test_cds = bcc_model.CreateCdsModel(cdsSizeInGB=100, storageType='ssd', snapshotId='sid1')
     test_cds2 = bcc_model.CreateCdsModel(cdsSizeInGB=200, storageType='ssd2', snapshotId='sid2')
     test_cds_list = [test_cds, test_cds2]
+    res_group_id = 'RESG-UtT3P4x4KxF'
 
     ######################################################################################################
     #            bcc operation samples
@@ -156,6 +157,21 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+        # create bccs with res_group_id
+        try:
+            response = bcc_client.create_instance(
+                spec="bcc.g5.c2m8",
+                image_id=image_id,
+                purchase_count=2,
+                res_group_id=res_group_id)
+            print response
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
     # create a dedicated_host bcc
     try:
         response = bcc_client.create_instance_from_dedicated_host(
@@ -223,6 +239,20 @@ if __name__ == "__main__":
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+        # create a bcc of bid with res_group_id
+        try:
+            response = bcc_client.create_instance_of_bid(image_id=image_id,
+                                                         purchase_count=1,
+                                                         bid_model='market',
+                                                         spec='bcc.g4.c2m8')
+            print response
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # list and get instance detail
     try:
