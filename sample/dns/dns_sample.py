@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # coding=utf-8
 """
-Samples for vpn client.
+Samples for dns client.
 """
 
 import dns_sample_conf

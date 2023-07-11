@@ -1,17 +1,17 @@
 # !/usr/bin/env python
 # coding=utf-8
 """
-Configuration for dns samples.
+Configuration for local dns samples.
 """
 import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = b'host'
-AK = b'ak'
-SK = b'sk'
+HOST = b''
+AK = b''
+SK = b''
 
-logger = logging.getLogger('baidubce.services.dns.dns_client')
+logger = logging.getLogger('baidubce.services.localdns.ld_client')
 fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.DEBUG)
 
