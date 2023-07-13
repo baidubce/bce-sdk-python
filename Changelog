@@ -3,6 +3,9 @@
 【版本：v0.8.88】
 涉及产品：BCC
 创建BCC新增resGroupId参数
+涉及产品：DNS
+1. 内网dns支持openApi
+
 【版本：v0.8.87】
 涉及产品：BOS
 1. select object 支持parquet类型
