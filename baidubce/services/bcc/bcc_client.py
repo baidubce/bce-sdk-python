@@ -3189,7 +3189,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    def list_keypairs(self, marker=None, max_keys=None, config=None):
+    def list_keypairs(self, marker=None, max_keys=None, name=None, config=None):
         """
         :param marker:
         :param max_keys:
@@ -3198,12 +3198,14 @@ class BccClient(bce_base_client.BceBaseClient):
         """
         path = b'/keypair'
         params = None
-        if marker is not None or max_keys is not None:
+        if marker is not None or max_keys is not None or name is not None:
             params = {}
         if marker is not None:
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
+        if name is not None:            
+            params['name'] = name
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(keypair_id=(bytes, str))
