@@ -136,6 +136,21 @@ class TestSmsClientSendMessageNorQa(unittest.TestCase):
         except BceHttpClientError as e:
             pass
 
+    def test_black(self):
+        # 创建手机号黑名单
+        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000", sms_type="CommonNotice")
+        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000")
+
+        # 手机号查询
+        blacklists = self.sms_client2.get_mobile_black(phone="17600000000")
+        self.assertEqual(2, blacklists.total_count)
+
+        # 手机号删除
+        self.sms_client2.delete_mobile_black("17600000000")
+
+        blacklists = self.sms_client2.get_mobile_black(phone="17600000000")
+        self.assertEqual(0, blacklists.total_count)
+
 
 if __name__ == '__main__':
     unittest.main()
