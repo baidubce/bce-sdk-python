@@ -1320,7 +1320,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               name=(bytes, str))  # ***Unicode***
-    def modify_instance_attributes(self, instance_id, name, config=None):
+    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None, config=None):
         """
         Modifying the special attribute to new value of the instance.
         You can reboot the instance only when the instance is Running or Stopped ,
@@ -1334,13 +1334,18 @@ class BccClient(bce_base_client.BceBaseClient):
             The new value for instance's name.
         :type name: string
 
+        :param neteth_queuecount:
+            The new value for instance's neteth_queuecount.
+        :type neteth_queuecount: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
-            'name': name
+            'name': name,
+            'netEthQueueCount': neteth_queuecount
         }
         params = {
             'modifyAttribute': None

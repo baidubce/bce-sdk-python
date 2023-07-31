@@ -390,9 +390,10 @@ class TestBccClient(unittest.TestCase):
         test case for modify_instance_attributes
         """
         name = 'name_modify'
+        net_queue_cnt = 3
         self.assertEqual(
             type(self.client.modify_instance_attributes(instance_id,
-                                                        name)),
+                                                        name, net_queue_cnt)),
             baidubce.bce_response.BceResponse)
 
     def test_rebuild_instance(self):

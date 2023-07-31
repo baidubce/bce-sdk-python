@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
     # modify attribute
     try:
-        bcc_client.modify_instance_attributes(instance_id=instance_id, name=new_name)
+        bcc_client.modify_instance_attributes(instance_id=instance_id, name=new_name, neteth_queuecount=3)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
