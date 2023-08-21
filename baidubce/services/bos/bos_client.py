@@ -2194,7 +2194,7 @@ class BosClient(BceBaseClient):
 
     @required(bucket_name=(bytes, str), target_key=(bytes, str), symlink=(bytes, str), forbid_overwrite=(bool))
     def put_object_symlink(self, bucket_name, target_key, symlink, forbid_overwrite=None, 
-            user_metadata=None, storage_class=None, target_bucket=None, config=None):
+            user_metadata=None, storage_class=None, target_bucket=None, content_type=None, config=None):
         """
         put object symlink
 
@@ -2212,7 +2212,10 @@ class BosClient(BceBaseClient):
         """
         target_key = compat.convert_to_bytes(target_key)
         symlink = compat.convert_to_bytes(symlink)
+        if content_type is None:
+                content_type = utils.guess_content_type_by_file_name(symlink)
         headers = self._prepare_object_headers(user_metadata=user_metadata,
+                content_type=content_type,
                 storage_class=storage_class)
         headers[http_headers.BOS_SYMLINK_TARGET] = target_key
         if forbid_overwrite is not None:
