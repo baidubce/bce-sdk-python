@@ -1888,6 +1888,19 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_get_available_images_by_spec(self):
+        """
+        test case for get_available_images_by_spec
+        """
+        resp = self.client.get_available_images_by_spec(spec='bcc.ic4.c1m1', os_name='Centos')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
@@ -2048,5 +2061,7 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_update_instance_deploy"))
     # suite.addTest(TestBccClient("test_del_instance_deploy"))
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
+    suite.addTest(TestBccClient("test_get_available_images_by_spec"))
+
     runner = unittest.TextTestRunner()
     runner.run(suite)
