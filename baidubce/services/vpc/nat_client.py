@@ -141,7 +141,7 @@ class NatClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     @required(vpc_id=(bytes, str))
-    def list_nats(self, vpc_id, nat_id=None, name=None,
+    def list_nats(self, vpc_id=None, nat_id=None, name=None,
                   ip=None, marker=None, max_keys=None, config=None):
         """
         Return a list of nat-gateways, according to the ID,
@@ -186,7 +186,8 @@ class NatClient(bce_base_client.BceBaseClient):
         """
         path = utils.append_uri(self.version, 'nat')
         params = {}
-        params[b'vpcId'] = vpc_id
+        if vpc_id is not None:
+            params[b'vpcId'] = vpc_id
         if nat_id is not None:
             params[b'natId'] = nat_id
         if name is not None:

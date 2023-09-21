@@ -28,7 +28,9 @@ if __name__ == '__main__':
     user_id = "fakeuser1ba678asdf8as7df6a5sdf67"
     scope = "BCE_BCC"
     metric_name = "vCPUUsagePercent"
+    metric_name_batch = "CPUUsagePercent,MemUsagePercent"
     dimensions = "InstanceId:i-xxx"
+    dimensions_batch = "InstanceId:i-1xx,InstanceId:i-2xx"
     statistics = "average,maximum,minimum"
     start_time = "2020-01-20T00:00:01Z"
     end_time = "2020-01-20T00:10:01Z"
@@ -47,6 +49,25 @@ if __name__ == '__main__':
                                               start_time=start_time,
                                               end_time=end_time,
                                               period_in_second=period_in_second)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # query batch metric data from bcm interface
+
+    try:
+        response = bcm_client.get_batch_metric_data(user_id=user_id,
+                                                    scope=scope,
+                                                    metric_name=metric_name_batch,
+                                                    dimensions=dimensions_batch,
+                                                    statistics=statistics,
+                                                    start_time=start_time,
+                                                    end_time=end_time,
+                                                    period_in_second=period_in_second)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):

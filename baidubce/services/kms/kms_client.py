@@ -60,9 +60,9 @@ class KmsClient(BceBaseClient):
                                             http_method, path, body, headers,
                                             params)
 
-    @required(protectedBy=(bytes, str), keySpec=(bytes, str), origin=(bytes, str))
+    @required(protectedBy=(bytes, str), keySpec=(bytes, str), origin=(bytes, str), rotateCycle=(int))
     def create_masterKey(self, description, protectedBy, keySpec,
-                        origin, keyUsage="ENCRYPT_DECRYPT", config=None):
+                        origin, keyUsage="ENCRYPT_DECRYPT", rotateCycle=0, config=None):
         """
         create a master key with the specified options.
         :type description: string
@@ -80,6 +80,9 @@ class KmsClient(BceBaseClient):
 
         :type origin: constants.Origin
         :param origin:  origin of the master key. you can choose BAIDU_KMS or EXTERNAL
+
+        :type rotateCycle: int
+        :param rotateCycle: rotateCycle of the master key.
         """
         path = b'/'
         params = {}
@@ -91,6 +94,7 @@ class KmsClient(BceBaseClient):
         body['keySpec'] = keySpec
         body['origin'] = origin
         body['keyUsage'] = keyUsage
+        body['rotateCycle'] = rotateCycle
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -183,6 +187,24 @@ class KmsClient(BceBaseClient):
         body['numberOfBytes'] = numberOfBytes
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
+    
+    @required(keyId=(str, bytes), rotateCycle=(int))
+    def updaterotation_masterKey(self, keyId, rotateCycle, config=None):
+        """
+        update your master key rptation
+        :type keyId: string
+        :type rotateCycle: int
+        :param keyId: the keyId of masterkey will be enable
+        :param rotateCycle: the rotatecycle of masterkey
+        """
+        path = b'/'
+        params = {}
+        params['action'] = b'EnableRotation'
+        body={}
+        body['keyId'] = keyId
+        body['rotateCycle'] = rotateCycle
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
 
     @required(keyId=(str, bytes))
     def enable_masterKey(self, keyId, config=None):
@@ -236,7 +258,7 @@ class KmsClient(BceBaseClient):
                                   params=params, config=config)
 
     @required(keyId=(str, bytes))
-    def cancelDelete_maaterKey(self, keyId, config=None):
+    def cancelDelete_masterKey(self, keyId, config=None):
         """
         cancel delete master key
         :type keyId: string
@@ -384,6 +406,50 @@ class KmsClient(BceBaseClient):
         if kwargs['encryptedQinv'] is None:
             raise ValueError('arg "encryptedQinv" should not be None')
         body['encryptedRsaKey']['encryptedQinv'] = kwargs['encryptedQinv']
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keyId=(str, bytes),
+            importToken=(str, bytes),
+            asymmetricKeySpec=(str, bytes),
+            asymmetricKeyUsage=(str, bytes),
+            encryptedKeyEncryptionKey=(str, bytes),
+            asymmetricKey=object)
+    def import_asymmetricSM2MasterKey(self, keyId, importToken, asymmetricKeySpec, encryptedKeyEncryptionKey,
+                                asymmetricKeyUsage="ENCRYPT_DECRYPT", config=None, **kwargs):
+        """
+        import asymmetric key
+        :type keyId: string
+        :param keyId: the keyId of masterkey
+
+        :type importToken: string
+        :param importToken: token from import parameter
+
+        :type asymmetricKeySpec: string
+        :param asymmetricKeySpec: the import key spec
+
+        :type encryptedKeyEncryptionKey: string
+        :param encryptedKeyEncryptionKey: EncryptionKey
+
+        :type asymmetricKey: **args
+        :param asymmetricKey: include publicKeyDer encryptedPrivateKey
+        """
+        path = b'/'
+        params = {}
+        params['action'] = b'ImportAsymmetricKey'
+        body={}
+        body['keyId'] = keyId
+        body['importToken'] = importToken
+        body['asymmetricKeySpec'] = asymmetricKeySpec
+        body['asymmetricKeyUsage'] = asymmetricKeyUsage
+        body['encryptedKeyEncryptionKey'] = encryptedKeyEncryptionKey
+        body['encryptedSm2Key'] = {}
+        if kwargs['publicKeyDer'] is None:
+            raise ValueError('arg "publicKeyDer" should not be None')
+        body['encryptedSm2Key']['publicKeyDer'] = kwargs['publicKeyDer']
+        if kwargs['encryptedPrivateKey'] is None:
+            raise ValueError('arg "encryptedPrivateKey" should not be None')
+        body['encryptedSm2Key']['encryptedPrivateKey'] = kwargs['encryptedPrivateKey']
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 

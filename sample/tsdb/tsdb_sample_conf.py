@@ -25,6 +25,8 @@ from baidubce.auth.bce_credentials import BceCredentials
 # ssl._create_default_https_context = ssl._create_unverified_context
 
 HOST = '<database_name>.tsdb.iot.<region>.baidubce.com'
+# HOST defined in privatized deployment environment
+# HOST = '<ip>:<port>'
 AK = '<your ak>'
 SK = '<your sk>'
 

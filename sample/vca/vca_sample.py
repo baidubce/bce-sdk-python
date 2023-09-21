@@ -32,3 +32,10 @@ if __name__ == "__main__":
     """
     print(vca_client.get_sub_task(media_source, sub_task_type))
     """
+
+    # image analyze
+    image_source = "image url"
+    image_preset = "demo"
+    """
+    vca_client.put_image(image_source, image_preset)
+    """

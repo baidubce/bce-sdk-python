@@ -26,6 +26,7 @@ sys.path.append(file_path + '/../../')
 
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
+from baidubce.services.route import route_model
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.route import route_client
 
@@ -35,7 +36,7 @@ if sys.version < '3':
 
 # config parameters
 vpc_id = 'vpc-qnp2czzhjtq3'
-route_table_id = 'rt-dq264fi14d59'
+route_table_id = 'rt-i461p6vv7wn8'
 route_rule_id = 'rr-qky0vq2xhihy'
 
 
@@ -71,13 +72,36 @@ class TestRouteClient(unittest.TestCase):
         test case for create_route
         """
         client_token = generate_client_token()
-        self.assertEqual(
-            type(self.the_client.create_route(route_table_id,
-                                              '172.16.0.64/26',
-                                              '192.168.0.0/24',
-                                              'vpn', 'test', 'vpn-bzynq4nub6b1',
-                                              client_token=client_token)),
-            baidubce.bce_response.BceResponse)
+        res = self.the_client.create_route(route_table_id=route_table_id,
+                                           source_address='12.0.0.0/25',
+                                           destination_address='3.3.3.9/32',
+                                           next_hop_id="",
+                                           next_hop_type="dcGateway",
+                                           description='3 sdk python dcgw single',
+                                           client_token=client_token)
+        print (res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_create_et_mul_route(self):
+        """
+        test case for create_route
+        """
+        client_token = generate_client_token()
+        active_route = route_model.NextHop(next_hop_id="", next_hop_type="dcGateway",
+                                           path_type="ha:active");
+        standby_route = route_model.NextHop(next_hop_id="", next_hop_type="dcGateway",
+                                            path_type="ha:standby")
+        next_hops = []
+        next_hops.append(active_route)
+        next_hops.append(standby_route)
+        res = self.the_client.create_route(route_table_id=route_table_id,
+                                           source_address='12.0.0.0/25',
+                                           destination_address='3.3.3.6/32',
+                                           next_hops=next_hops,
+                                           description='2 sdk python dcgw mul',
+                                           client_token=client_token)
+        print (res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_get_route(self):
         """

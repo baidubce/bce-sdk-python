@@ -102,7 +102,11 @@ BOS_RESTORE_DAYS = b"x-bce-restore-days"
 
 BOS_SYMLINK_TARGET = b"x-bce-symlink-target"
 
+BOS_SYMLINK_BUCKET = b"x-bce-symlink-bucket"
+
 BOS_FORBID_OVERWRITE = b"x-bce-forbid-overwrite"
+
+BOS_TRAFFIC_LIMIT = b"x-bce-traffic-limit"
 
 # STS HTTP Headers
 

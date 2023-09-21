@@ -18,7 +18,6 @@ import copy
 import json
 import logging
 
-from baidubce import utils
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
 from baidubce.http import bce_http_client
@@ -26,7 +25,6 @@ from baidubce.http import handler
 from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
-from baidubce.utils import required
 from baidubce.services.tsdb import tsdb_handler
 
 
@@ -70,7 +68,7 @@ class TsdbAdminClient(BceBaseClient):
         :return: {database_id:,charge:,expired_time:order_id:}
         :rtype: baidubce.bce_response.BceResponse
         """
-        
+
         path = b"/v1/database"
         params = {"clientToken": client_token}
         body = json.dumps({
@@ -80,9 +78,9 @@ class TsdbAdminClient(BceBaseClient):
             "storeBytesQuota": store_bytes_quota,
             "purchaseLength": purchase_length,
             "couponName": coupon_name.decode()
-            }).encode('utf-8')
+        }).encode('utf-8')
         return self._send_request(http_methods.POST, path=path, body=body,
-                params=params, body_parser=tsdb_handler.parse_json)
+                                  params=params, body_parser=tsdb_handler.parse_json)
 
     def delete_database(self, database_id):
         """
