@@ -122,3 +122,77 @@ class BcmClient(bce_base_client.BceBaseClient):
             params[b'periodInSecond'] = period_in_second
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def get_batch_metric_data(self, user_id=None, scope=None, metric_name=None,
+                              dimensions=None, statistics=None, start_time=None,
+                              end_time=None, period_in_second=None, config=None):
+        """
+            Return batch metric data of product instances owned by the authenticated user.
+
+            :param user_id:
+                Master account ID
+            :type user_id: string
+
+            :param scope:
+                Cloud product namespace, eg: BCE_BCC.
+            :type scope: string
+
+            :param metric_name:
+                The metric name of baidu cloud monitor, eg: CpuIdlePercent.
+                Use comma when items have multiple metrics,
+                such as metric1,metric2,metric3.
+            :type metric_name: string
+
+            :param dimensions:
+                Consists of dimensionName:dimensionValue.
+                Use comma when items have multiple dimensions,
+                such as dimensionName:dimensionValue,dimensionName:dimensionValue.
+                Only one dimension value can be specified for the same dimension.
+                eg: InstanceId:itk-1010,InstanceId:itk-1011
+            :type dimensions: string
+
+            :param statistics:
+                According to the format of statistics1,statistics2,statistics3,
+                the optional values are `average`, `maximum`, `minimum`, `sum`, `sampleCount`
+            :type statistics: string
+
+            :param start_time:
+                Query start time.
+                Please refer to the date and time, UTC date indication
+            :type start_time: string
+
+            :param end_time:
+                Query end time.
+                Please refer to the date and time, UTC date indication
+            :type end_time: string
+
+            :param period_in_second:
+                Statistical period.
+                Multiples of 60 in seconds (s).
+            :type period_in_second: int
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        user_id = compat.convert_to_bytes(user_id)
+        scope = compat.convert_to_bytes(scope)
+        path = b'/metricdata/batch/%s/%s' % (user_id, scope)
+        params = {}
+
+        if metric_name is not None:
+            params[b'metricName[]'] = metric_name
+        if dimensions is not None:
+            params[b'dimensions[]'] = dimensions
+        if statistics is not None:
+            params[b'statistics[]'] = statistics
+        if start_time is not None:
+            params[b'startTime'] = start_time
+        if end_time is not None:
+            params[b'endTime'] = end_time
+        if period_in_second is not None:
+            params[b'periodInSecond'] = period_in_second
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)

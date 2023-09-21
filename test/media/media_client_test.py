@@ -292,6 +292,31 @@ class TestMediaJob(TestMediaClient):
             self.assertIsNone(err)
 
 
+class TestMediaEncryptionKey(TestMediaClient):
+    """
+        TestMediaEncryptionKey
+    """
+
+    def test_get_transcoding_encryption_key(self):
+        """
+        list first page jobs of every pipeline, query transcoding key of them
+        """
+        for pipeline in self.the_client.list_pipelines().pipelines:
+            for job in self.the_client.list_jobs(str(pipeline.pipeline_name)).jobs:
+                try:
+                    key = self.the_client.get_transcoding_encryption_key(str(job.job_id)).encryption_key
+                    print("AES key of job " + job.job_id + " is " + key)
+                except BceHttpClientError as e:
+                    if not isinstance(e.last_error, BceServerError):
+                        raise e
+                    if e.last_error.status_code == 404:
+                        print("AES key of job " + job.job_id + " dose not exist!")
+                    elif e.last_error.status_code == 400:
+                        print("This server dose not support get AES key!")
+                    else:
+                        raise e
+
+
 def run_test():
     """
     :return:
@@ -300,6 +325,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestMediaPipeline))
     runner.run(unittest.makeSuite(TestMediaPreset))
     runner.run(unittest.makeSuite(TestMediaJob))
+    runner.run(unittest.makeSuite(TestMediaEncryptionKey))
 
 run_test()
 

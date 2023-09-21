@@ -91,9 +91,26 @@ class QueryQuotaResponse(BceResponse):
         self.quota_per_month = bce_response.quota_per_month
         self.quota_remain_today = bce_response.quota_remain_today
         self.quota_remain_this_month = bce_response.quota_remain_this_month
-        self.quota_white_list = bce_response.quota_white_list
+        self.apply_quota_per_day = bce_response.apply_quota_per_day
+        self.apply_quota_per_month = bce_response.apply_quota_per_month
+        self.apply_check_status = bce_response.apply_check_status
+        self.check_reply = bce_response.check_reply
         self.rate_limit_per_mobile_per_sign_by_minute = bce_response.rate_limit_per_mobile_per_sign_by_minute
         self.rate_limit_per_mobile_per_sign_by_hour = bce_response.rate_limit_per_mobile_per_sign_by_hour
         self.rate_limit_per_mobile_per_sign_by_day = bce_response.reate_limit_per_mobile_per_sign_by_day
         self.rate_limit_white_list = bce_response.rate_limit_white_list
+        self.metadata = bce_response.metadata
+
+
+class GetMobileBlackResponse(BceResponse):
+    """
+    Get Mobile Black Response
+    """
+
+    def __init__(self, bce_response):
+        super(GetMobileBlackResponse, self).__init__()
+        self.total_count = bce_response.total_count
+        self.page_no = bce_response.page_no
+        self.page_size = bce_response.page_size
+        self.black_lists = bce_response.blacklists
         self.metadata = bce_response.metadata

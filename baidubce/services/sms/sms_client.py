@@ -433,7 +433,10 @@ class SmsClient(BceBaseClient):
               "quota_per_month": 1000,
               "quota_remain_today": 100,
               "quota_remain_this_month": 1000,
-              "quota_white_list": true,
+              "apply_check_status": "PASS",
+              "check_reply": "",
+              "apply_quota_per_day": 10,
+              "apply_quota_per_month": 10,
               "rate_limit_per_mobile_per_sign_by_minute": 5,
               "rate_limit_per_mobile_per_sign_by_hour": 10,
               "rate_limit_per_mobile_per_sign_by_day": 50,
@@ -544,3 +547,125 @@ class SmsClient(BceBaseClient):
 
         return bce_http_client.send_request(config, SmsClient._bce_sms_sign, [body_parser], http_method, path, body,
                                             headers, params)
+
+    @required(type=str, phone=str)
+    def create_mobile_black(self, type, phone, sms_type=None, signature_id_str=None, config=None):
+        """
+
+        :param type: The value of type could be MerchantBlack or SignatureBlack
+        :type type: str
+
+        :param sms_type: Mobile of black, Support multiple mobile phone numbers, up to 200 maximum, separated by comma.
+        :type sms_type: str
+
+        :param signature_id_str: When the value of "type" is "SignatureBlack", this field is required.
+        :type signature_id_str: str
+
+        :param phone: When the value of "type" is "SignatureBlack", this field is required.
+        :type phone: str
+
+        :param config: None
+        :type  config: BceClientConfiguration
+
+        """
+        data = {
+            "type": type,
+            "phone": phone
+        }
+        if sms_type:
+            data["smsType"] = sms_type
+
+        if signature_id_str:
+            data["signatureIdStr"] = signature_id_str
+
+        return self._send_request(http_methods.POST, function_name="blacklist", body=json.dumps(data),
+                                  config=config, api_version=2)
+
+    def get_mobile_black(self, phone=None, sms_type=None, signature_id_str=None, start_time=None, end_time=None,
+                         page_no=None, page_size=None, config=None):
+        """
+        Get mobile black
+        :param phone: Support multiple mobile phone numbers, up to 200 maximum, separated by comma.
+        :type phone: str
+
+        :param sms_type: smsType
+        :type  sms_type: str
+
+        :param signature_id_str: signatureIdStr
+        :type  signature_id_str: str
+
+        :param start_time: format is yyyy-MM-dd
+        :type  start_time: str
+
+        :param end_time: format is yyyy-MM-dd
+        :type  end_time: str
+
+        :param page_no: The current page number
+        :type  page_no: int
+
+        :param page_size: The current page size, range from 1 to 99999
+        :type  page_size: int
+
+        :param config: None
+        :type  config: BceClientConfiguration
+
+        :return: Object
+            {
+                "blacklists": [
+                    {
+                        "phone": "17611111111",
+                        "type": "SignatureBlack",
+                        "smsType": "CommonNotice",
+                        "signatureIdStr": "1234",
+                        "updateDate": "2023-07-14 14:23:41"
+                    }
+                ],
+                "totalCount": 1,
+                "pageNo": 1,
+                "pageSize": 100
+            }
+        """
+
+        req_params = {}
+        if phone:
+            req_params["phone"] = phone
+
+        if sms_type:
+            req_params["smsType"] = sms_type
+
+        if signature_id_str:
+            req_params["signatureIdStr"] = signature_id_str
+
+        if start_time:
+            req_params["startTime"] = start_time
+
+        if end_time:
+            req_params["endTime"] = end_time
+
+        if page_no:
+            req_params["pageNo"] = page_no
+
+        if page_size:
+            req_params["pageSize"] = page_size
+
+        return model.GetMobileBlackResponse(self._send_request(http_methods.GET, function_name="blacklist",
+                                                               params=req_params, config=config, api_version=2))
+
+    @required(phones=str)
+    def delete_mobile_black(self, phones, config=None):
+        """
+        Delete mobile_black
+        :param phones: Support multiple mobile phone numbers, up to 200 maximum, separated by comma.
+        :type  phones: string
+
+        :param config: None
+        :type  config: BceClientConfiguration
+
+        :return:
+        """
+
+        req_params = {
+            "phones": phones
+        }
+        return self._send_request(http_method=http_methods.DELETE, function_name='blacklist/delete', params=req_params,
+                                  config=config, api_version=2)

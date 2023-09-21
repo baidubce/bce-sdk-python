@@ -110,6 +110,13 @@ class TestKmsClient(unittest.TestCase):
         """
         keyId = "<your Key Id>"
         print self.client.generate_dataKey(keyId, keyspec_class.AES_128, 128)
+    
+    def test_updaterotation_masterKey(self):
+        """
+        test case for updaterotation_masterKey
+        """
+        keyId = "<your Key Id>"
+        print self.client.updaterotation_masterKey(keyId, 10)
 
     def test_enable_masterKey(self):
         """
@@ -389,6 +396,37 @@ class TestKmsClient(unittest.TestCase):
                                             publicKeyDer=pub_key, encryptedD=D_b64, encryptedP=P_b64,
                                             encryptedQ=Q_b64, encryptedDp=Dp_b64, encryptedDq=Dq_b64,
                                             encryptedQinv=Qinv_b64)
+
+    def test_import_SM2_256(self):
+        """
+        test case for test_SM2_256
+        """
+        result = self.client.create_masterKey("test", protectedby_class.HSM, 
+                                    keyspec_class.SM2_256, origin_class.EXTERNAL)
+        keyId = str(result.key_metadata.key_id)
+        
+        # get import parameter
+        publicKeyEncoding = publickeyencoding_class.PEM
+        result = self.client.get_parameters_for_import(keyId, publicKeyEncoding)
+        pubKey = str(result.public_key)
+        importToken = str(result.import_token)
+        rsa_pubKey = RSA.importKey(pubKey)
+        cipher = PKCS1_v1_5.new(rsa_pubKey)
+
+        sm2_public_key = bytes.fromhex("3059301306072a8648ce3d020106082a811ccf5501822d0342000449451af193e9b\
+            d4d7d4329504a9f3a3bd9981318b8177535b02d02b361b579cda9d5eb0feb9980ed41cd159ef7036f5cacd7e018bacb5\
+            ec854d3f575fdcc6182")
+        sm2_private_key = bytes.fromhex("c227a82bf3ae6819d9f1d8179e9bbb5f2ce7f49acb1a64b0f6d1698b5ac0a160")
+
+        base64_sm2_public_key = base64.b64encode(sm2_public_key).decode()
+        
+        encryptedKey  = '1122334455667788'
+        aes_obj = AES.new(encryptedKey, AES.MODE_ECB)
+        base64_sm2_private_key = base64.b64encode(aes_obj.encrypt(sm2_private_key)).decode()
+        encryptedKeyEncryptionKey = base64.b64encode(cipher.encrypt(encryptedKey))
+        self.client.import_asymmetricMasterKey(keyId, importToken, keyspec_class.SM2_256, encryptedKeyEncryptionKey,
+                                                    publicKeyDer=base64_sm2_public_key, 
+                                                    encryptedPrivateKey=base64_sm2_private_key)
 
 def run_test():
     """start run test"""

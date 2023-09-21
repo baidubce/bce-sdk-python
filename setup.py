@@ -40,6 +40,7 @@ setup(
               'baidubce.services',
               'baidubce.services.bos',
               'baidubce.services.bts',
+              'baidubce.services.iam',
               'baidubce.services.sts',
               'baidubce.services.bmr',
               'baidubce.services.dumap',
@@ -67,7 +68,12 @@ setup(
               'baidubce.services.cert',
               'baidubce.services.bes',
               'baidubce.services.scs',
-              'baidubce.services.ddc'
+              'baidubce.services.ddc',
+              'baidubce.services.dns',
+              'baidubce.services.dns.api',
+              'baidubce.services.rds',
+              'baidubce.services.localdns',
+              'baidubce.services.localdns.api'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',

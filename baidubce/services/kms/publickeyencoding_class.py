@@ -13,6 +13,6 @@
 """
 The type of publicKeyEncoding
 """
-RAW_HEX = b'RAW_HEX'
-BASE64 = b'BASE64'
-PEM = b'PEM'
+RAW_HEX = 'RAW_HEX'
+BASE64 = 'BASE64'
+PEM = 'PEM'

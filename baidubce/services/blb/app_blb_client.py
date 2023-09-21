@@ -400,7 +400,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                  keep_session_type=None,
                                  keep_session_timeout=None,
                                  keep_session_cookie_name=None,
-                                 x_forward_for=None,
+                                 x_forwarded_for=None,
                                  server_timeout=None,
                                  redirect_port=None,
                                  client_token=None,
@@ -446,12 +446,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
 
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: False
-        :type x_forward_for: bool
+        :type x_forwarded_for: bool
 
         :param server_timeout:
             Backend server maximum timeout (unit: second)
@@ -492,8 +492,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if redirect_port is not None:
@@ -510,7 +510,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   keep_session_type=None,
                                   keep_session_timeout=None,
                                   keep_session_cookie_name=None,
-                                  x_forward_for=None, server_timeout=None,
+                                  x_forwarded_for=None, server_timeout=None,
                                   ie6_compatible=None, encryption_type=None,
                                   encryption_protocols=None,
                                   dual_auth=None, client_certIds=None,
@@ -552,12 +552,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             to be overridden if and only if session persistence
             is enabled and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
-        :value true or false, default: flase
-        :type x_forward_for: bool
+        :value true or false, default: false
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -615,8 +615,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if ie6_compatible is not None:
@@ -838,7 +838,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                  keep_session_type=None,
                                  keep_session_timeout=None,
                                  keep_session_cookie_name=None,
-                                 x_forward_for=None,
+                                 x_forwarded_for=None,
                                  server_timeout=None,
                                  redirect_port=None,
                                  client_token=None,
@@ -877,12 +877,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             to be overridden,if and only if session persistence is
             enabled and keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the
             client through the X-Forwarded-For HTTP header.
-        :value true or false, default: flase
-        :type x_forward_for: bool
+        :value true or false, default: false
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -920,8 +920,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if redirect_port is not None:
@@ -937,7 +937,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                   keep_session_type=None,
                                   keep_session_timeout=None,
                                   keep_session_cookie_name=None,
-                                  x_forward_for=None,
+                                  x_forwarded_for=None,
                                   server_timeout=None,
                                   cert_ids=None,
                                   ie6_compatible=None,
@@ -980,12 +980,12 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             overridden,if and only if session persistence is enabled and
             keep_session_type="rewrite"
         :type keep_session_cookie_name: int
-        :param x_forward_for:
+        :param x_forwarded_for:
             Whether to enable the real IP address of the client,
             the backend server can obtain the real address of the client
             through the X-Forwarded-For HTTP header.
         :value true or false, default: False
-        :type x_forward_for: bool
+        :type x_forwarded_for: bool
         :param server_timeout:
             Backend server maximum timeout (unit: second)
         :value 1-3600, default: 30
@@ -1047,8 +1047,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['keepSessionTimeout'] = keep_session_timeout
         if keep_session_cookie_name is not None:
             body['keepSessionCookieName'] = keep_session_cookie_name
-        if x_forward_for is not None:
-            body['xForwardFor'] = x_forward_for
+        if x_forwarded_for is not None:
+            body['xForwardedFor'] = x_forwarded_for
         if server_timeout is not None:
             body['serverTimeout'] = server_timeout
         if cert_ids is not None:
@@ -1848,6 +1848,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                      health_check_down_retry=None,
                                      health_check_up_retry=None,
                                      health_check_normal_status=None,
+                                     udp_health_check_string=None,
                                      client_token=None,
                                      config=None):
         """
@@ -1901,6 +1902,10 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             protocol is "HTTP"
         :value default: http_2xx|http_3xx
         :type health_check_normal_status: string
+        :param udp_health_check_string:
+            The health check string for the udp listener,
+            it must be passed when the health check type is "UDP"
+        :type udp_health_check_string: string
         :param client_token:
             If the clientToken is not specified by the user, a random String
             generated by default algorithm will be used.
@@ -1941,6 +1946,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_normal_status is not None:
             body['healthCheckNormalStatus'] = \
                 compat.convert_to_string(health_check_normal_status)
+        if udp_health_check_string is not None:
+            body['udpHealthCheckString'] = \
+                compat.convert_to_string(udp_health_check_string)
         return self._send_request(http_methods.POST, path,
                                   body=json.dumps(body), params=params,
                                   config=config)
@@ -1957,6 +1965,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                      health_check_down_retry=None,
                                      health_check_up_retry=None,
                                      health_check_normal_status=None,
+                                     udp_health_check_string=None,
                                      client_token=None,
                                      config=None):
         """
@@ -2019,6 +2028,10 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         :value default: http_2xx|http_3xx
         :type health_check_normal_status: string
 
+        :param udp_health_check_string:
+            The health check string for the udp listener
+        :type udp_health_check_string: string
+
         :param client_token:
             If the clientToken is not specified by the user, a random String
             generated by default algorithm will be used.
@@ -2060,7 +2073,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_normal_status is not None:
             body['healthCheckNormalStatus'] = \
                 compat.convert_to_string(health_check_normal_status)
-
+        if udp_health_check_string is not None:
+            body['udpHealthCheckString'] = \
+                compat.convert_to_string(udp_health_check_string)
         return self._send_request(http_methods.PUT, path,
                                   body=json.dumps(body), params=params,
                                   config=config)
