@@ -140,6 +140,23 @@ def get_policy():
     print(response)
 
 
+def update_policy():
+    """
+    Args:
+        None
+    Returns:
+        None
+    """
+    iam_client = IamClient(iam_sample_conf.config)
+    policy_name = b"test_policy"
+    update_policy_request = {"name": "test_policy", "description": "update policy: test_policy_2",
+                             "document": '{ "accessControlList": [ { "region": "bj", "resource": [ "*" ], "effect":'
+                                         '"Allow", "service": "bce:bos", "permission": [ "READ" ] } ] } '}
+    response = iam_client.update_policy(policy_name, update_policy_request)
+
+    print(response)
+
+
 def delete_policy():
     """
     Args:
@@ -314,6 +331,22 @@ def list_policies_from_role():
 
     role_name = b"test_role"
     response = iam_client.list_policies_from_role(role_name)
+
+    print(response)
+
+
+def list_attached_entities_by_grant_type():
+    """
+    Args:
+        None
+    Returns:
+        None
+    """
+    iam_client = IamClient(iam_sample_conf.config)
+
+    policy_id = b"test_policy_id"
+    grant_type = b"UserPolicy"
+    response = iam_client.list_attached_entities_by_grant_type(policy_id, grant_type)
 
     print(response)
 
@@ -519,6 +552,22 @@ def list_user_accesskey():
     print(response)
 
 
+def unbind_user_mfa_device():
+    """
+        Args:
+            None
+        Returns:
+            None
+        """
+    iam_client = IamClient(iam_sample_conf.config)
+
+    user_name = b"test2"
+    mfa_type = b"TOTP"
+    response = iam_client.unbind_user_mfa_device(user_name, mfa_type)
+
+    print(response)
+
+
 def create_group():
     """
     Args:
@@ -675,6 +724,7 @@ if __name__ == "__main__":
     # list_user_accesskey()
     # delete_user_accesskey()
     # delete_user()
+    # unbind_user_mfa_device()
 
     # create_group()
     # get_group()
@@ -705,3 +755,5 @@ if __name__ == "__main__":
     # list_policies_from_role()
     # detach_policy_from_role()
     # delete_policy()
+    # update_policy()
+    # list_attached_entities_by_grant_type()
