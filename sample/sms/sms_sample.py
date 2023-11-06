@@ -116,6 +116,11 @@ if __name__ == '__main__':
         response = sms_client.delete_mobile_black(phones="12345678901")
         LOG.debug('\n%s', response)
 
+        # get statistics data
+        LOG.debug('\n\n\nSample 12: Get Statistics Data\n\n\n')
+        response = sms_client.list_statistics(start_time="2023-07-18", end_time="2023-07-19")
+        LOG.debug('\n%s', response)
+
     except ex.BceHttpClientError as e:
         if isinstance(e.last_error, ex.BceServerError):
             LOG.error('send request failed. Response %s, code: %s, request_id: %s'
