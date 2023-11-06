@@ -151,6 +151,50 @@ class TestSmsClientSendMessageNorQa(unittest.TestCase):
         blacklists = self.sms_client2.get_mobile_black(phone="17600000000")
         self.assertEqual(0, blacklists.total_count)
 
+    def test_statistics(self):
+        # 获取统计信息 - 无数据，因此会有3个结果，所有数值为0
+        response = self.sms_client2.list_statistics(
+            start_time='2023-11-01',
+            end_time='2023-11-02'
+        )
+        self.assertEqual(len(response.statistics_results), 3)
+        print(response)
+
+        # 获取统计信息 - 传入更多可选参数，例如签名
+        response = self.sms_client2.list_statistics(
+            start_time='2023-10-08',
+            end_time='2023-10-09',
+            signature_id='sms-sign-mock'
+        )
+        self.assertEqual(len(response.statistics_results), 3)
+
+        # 获取统计信息 - 缺少必传参数，start_time
+        try:
+            self.sms_client2.list_statistics(
+                end_time='2023-10-09',
+                signature_id='sms-sign-mock'
+            )
+        except TypeError as e:
+            self.assertEqual(type(e), TypeError)
+
+        # 获取统计信息 - 时间参数格式错误
+        try:
+            self.sms_client2.list_statistics(
+                start_time='2023-10-08 0',
+                end_time='2023-10-09',
+            )
+        except BceHttpClientError as e:
+            self.assertEqual(type(e), BceHttpClientError)
+
+        # 查询时间早于1年前
+        try:
+            self.sms_client2.list_statistics(
+                start_time='2022-10-08',
+                end_time='2023-10-09',
+            )
+        except BceHttpClientError as e:
+            self.assertEqual(type(e), BceHttpClientError)
+
 
 if __name__ == '__main__':
     unittest.main()
