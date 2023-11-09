@@ -32,7 +32,7 @@ from baidubce.http import http_headers
 _logger = logging.getLogger(__name__)
 
 
-def _get_connection(protocol, host, port, connection_timeout_in_millis):
+def _get_connection(protocol, host, port, connection_timeout_in_millis, proxy_host=None, proxy_port=None):
     """
     :param protocol
     :type protocol: baidubce.protocol.Protocol
@@ -43,9 +43,21 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis):
     """
     host = compat.convert_to_string(host)
     if protocol.name == baidubce.protocol.HTTP.name:
+        if proxy_host and proxy_port:
+            _logger.debug('Using proxy host: %s, port: %d' % (proxy_host, proxy_port))
+            conn = http.client.HTTPConnection(host=proxy_host, port=proxy_port, 
+                                              timeout=connection_timeout_in_millis / 1000)
+            conn.set_tunnel(host, port)
+            return conn
         return http.client.HTTPConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     elif protocol.name == baidubce.protocol.HTTPS.name:
+        if proxy_host and proxy_port:
+            _logger.debug('Using proxy host: %s, port: %d' % (host, port))
+            conn = http.client.HTTPSConnection(host=proxy_host, port=proxy_port, 
+                                               timeout=connection_timeout_in_millis / 1000)
+            conn.set_tunnel(host, port)
+            return conn
         return http.client.HTTPSConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
     else:
@@ -184,9 +196,9 @@ def send_request(
 
             if retries_attempted > 0 and offset is not None:
                 body.seek(offset)
-            
-            conn = _get_connection(protocol, host, port, config.connection_timeout_in_mills)
-
+        
+            conn = _get_connection(protocol, host, port, config.connection_timeout_in_mills, 
+                                   config.proxy_host, config.proxy_port)
             _logger.debug('request args:method=%s, uri=%s, headers=%s,patams=%s, body=%s',
                     http_method, uri, headers, params, body)
 
