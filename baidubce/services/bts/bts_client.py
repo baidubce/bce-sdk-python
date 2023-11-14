@@ -28,13 +28,16 @@ from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services import bts
 from baidubce.services.bts import INVALID_ARGS_ERROR
-from baidubce.services.bts.model import batch_query_row_args_2_dict
 from baidubce.services.bts.model import create_instance_args_2_dict
 from baidubce.services.bts.model import CreateInstanceArgs
+from baidubce.services.bts.model import Row
+from baidubce.services.bts.model import Cell
+from baidubce.services.bts.model import QueryCell
+from baidubce.services.bts.model import BatchQueryRowArgs
+from baidubce.services.bts.model import QueryRowArgs
+from baidubce.services.bts.model import ScanArgs
 from baidubce.services.bts.model import create_table_args_2_dict
 from baidubce.services.bts.model import update_table_args_2_dict
-from baidubce.services.bts.model import query_row_args_2_dict
-from baidubce.services.bts.model import scan_args_2_dict
 from baidubce.services.bts.util import _decode
 from baidubce.services.bts.util import _encode
 
@@ -226,16 +229,28 @@ class BtsClient(BceBaseClient):
             ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
+        row_data = {
+            'rowkey': _encode(put_row_args.rowkey),
+            'cells': []
+        }
         try:
-            put_row_args.rowkey = _encode(put_row_args.rowkey)
-            for i in range(len(put_row_args.cells)):
-                put_row_args.cells[i]["value"] = _encode(put_row_args.cells[i]["value"])
+            for cell in put_row_args.cells:
+                if isinstance(cell, Cell):
+                    cell_dict = cell.to_dict()
+                    cell_dict['value'] = _encode(cell_dict['value'])
+                    row_data['cells'].append(cell_dict)
+                elif isinstance(cell, dict):
+                    cell['value'] = _encode(cell['value'])
+                    row_data['cells'].append(cell)
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
         except Exception as ex:
             raise ex
 
+        body = json.dumps(row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
-                                  body=json.dumps(put_row_args.__dict__),
+                                  body=body,
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def batch_put_row(self, instance_name, table_name, batch_put_row_args, config=None):
@@ -258,22 +273,31 @@ class BtsClient(BceBaseClient):
             ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
-        try:
-            for i in range(len(batch_put_row_args.rows)):
-                if batch_put_row_args.rows[i]["rowkey"] == "":
-                    ex = BceClientError(INVALID_ARGS_ERROR)
-                    _logger.debug(ex)
-                    raise ex
-                batch_put_row_args.rows[i]["rowkey"] = _encode(batch_put_row_args.rows[i]["rowkey"])
-                for j in range(len(batch_put_row_args.rows[i]["cells"])):
-                    batch_put_row_args.rows[i]["cells"][j]["value"] = \
-                        _encode(batch_put_row_args.rows[i]["cells"][j]["value"])
-        except Exception as ex:
-            raise ex
 
+        rows_data = []
+        for row in batch_put_row_args.rows:
+            try:
+                if isinstance(row, Row):
+                    row_data = row.to_dict()
+                    if row_data["rowkey"] == "":
+                        raise BceClientError(INVALID_ARGS_ERROR)
+                elif isinstance(row, dict):
+                    row_data = copy.deepcopy(row)
+                    if row_data.get("rowkey") == "":
+                        raise BceClientError(INVALID_ARGS_ERROR)
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+                row_data["rowkey"] = _encode(row_data["rowkey"])
+                for cell in row_data.get("cells", []):
+                    cell["value"] = _encode(cell["value"])
+                rows_data.append(row_data)
+            except Exception as ex:
+                raise ex
+
+        body = json.dumps({'rows': rows_data})
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
-                                  body=json.dumps(batch_put_row_args.__dict__),
+                                  body=body,
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def delete_row(self, instance_name, table_name, delete_row_args, config=None):
@@ -292,19 +316,31 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        if delete_row_args is None or delete_row_args.rowkey == "":
+        if delete_row_args is None or not hasattr(delete_row_args, 'rowkey') or delete_row_args.rowkey == "":
             ex = BceClientError(INVALID_ARGS_ERROR)
             _logger.debug(ex)
             raise ex
+        delete_row_data = {
+            'rowkey': _encode(delete_row_args.rowkey),
+            'cells': []
+        }
         try:
-            delete_row_args.rowkey = _encode(delete_row_args.rowkey)
+            if hasattr(delete_row_args, 'cells') and delete_row_args.cells:
+                for cell in delete_row_args.cells:
+                    if isinstance(cell, QueryCell):
+                        delete_row_data['cells'].append(cell.to_dict())
+                    elif isinstance(cell, dict):
+                        delete_row_data['cells'].append(cell)
+                    else:
+                        raise BceClientError(INVALID_ARGS_ERROR)
         except Exception as ex:
             raise ex
 
+        body = json.dumps(delete_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
-                                  body=json.dumps(delete_row_args, default=query_row_args_2_dict),
-                                  headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                              body=body,
+                              headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def batch_delete_row(self, instance_name, table_name, batch_delete_row_args, config=None):
         """
@@ -322,24 +358,32 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        if batch_delete_row_args is None:
-            ex = BceClientError(INVALID_ARGS_ERROR)
-            _logger.debug(ex)
-            raise ex
+        if batch_delete_row_args is None or not isinstance(batch_delete_row_args, BatchQueryRowArgs):
+            raise BceClientError(INVALID_ARGS_ERROR)
+        rows_data = []
         try:
-            for i in range(len(batch_delete_row_args.rows)):
-                if batch_delete_row_args.rows[i]["rowkey"] == "":
-                    ex = BceClientError(INVALID_ARGS_ERROR)
-                    _logger.debug(ex)
-                    raise ex
-                batch_delete_row_args.rows[i]["rowkey"] = _encode(batch_delete_row_args.rows[i]["rowkey"])
+            for row in batch_delete_row_args.rows:
+                if isinstance(row, QueryRowArgs):
+                    row_data = row.to_dict()
+                elif isinstance(row, dict):
+                    row_data = row
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+
+                if "rowkey" in row_data and row_data["rowkey"]:
+                    row_data["rowkey"] = _encode(row_data["rowkey"])
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+                rows_data.append(row_data)
         except Exception as ex:
             raise ex
 
+        batch_delete_row_data = {'rows': rows_data}
+        body = json.dumps(batch_delete_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
-                                  body=json.dumps(batch_delete_row_args, default=batch_query_row_args_2_dict),
-                                  headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                body=body,
+                                headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
 
     def get_row(self, instance_name, table_name, get_row_args, config=None):
         """
@@ -357,19 +401,35 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        try:
-            if get_row_args is None or get_row_args.rowkey == "":
-                ex = BceClientError(INVALID_ARGS_ERROR)
-                _logger.debug(ex)
-                raise ex
-            get_row_args.rowkey = _encode(get_row_args.rowkey)
-        except Exception as ex:
-            raise ex
+        if isinstance(get_row_args, dict):
+            rowkey = get_row_args.get('rowkey')
+        elif isinstance(get_row_args, QueryRowArgs):
+            rowkey = get_row_args.rowkey
+        else:
+            raise BceClientError(INVALID_ARGS_ERROR)
 
+        if not rowkey:
+            raise BceClientError(INVALID_ARGS_ERROR)
+
+        get_row_data = {
+            'rowkey': _encode(rowkey),
+            'cells': []
+        }
+
+        if hasattr(get_row_args, 'cells') and get_row_args.cells:
+            for cell in get_row_args.cells:
+                if isinstance(cell, QueryCell):
+                    get_row_data['cells'].append(cell.to_dict())
+                elif isinstance(cell, dict):
+                    get_row_data['cells'].append(cell)
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+
+        body = json.dumps(get_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
         response = self._send_request(http_methods.GET, path=path, config=config,
-                                      body=json.dumps(get_row_args, default=query_row_args_2_dict),
-                                      headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                    body=body,
+                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
         try:
             if response.result is not None:
                 response.result[0].rowkey = _decode(str(response.result[0].rowkey))
@@ -395,24 +455,38 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        if batch_get_row_args is None:
-            ex = BceClientError(INVALID_ARGS_ERROR)
-            _logger.debug(ex)
-            raise ex
-        try:
-            for i in range(len(batch_get_row_args.rows)):
-                if batch_get_row_args.rows[i]["rowkey"] == "":
-                    ex = BceClientError(INVALID_ARGS_ERROR)
-                    _logger.debug(ex)
-                    raise ex
-                batch_get_row_args.rows[i]["rowkey"] = _encode(batch_get_row_args.rows[i]["rowkey"])
-        except Exception as ex:
-            raise ex
+        batch_get_row_data = {}
 
+        if isinstance(batch_get_row_args, BatchQueryRowArgs):
+            rows_data = []
+            for row_arg in batch_get_row_args.rows:
+                if isinstance(row_arg, QueryRowArgs):
+                    row_data = row_arg.to_dict()
+                elif isinstance(row_arg, dict):
+                    row_data = row_arg
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+
+                if "rowkey" in row_data and row_data["rowkey"]:
+                    row_data["rowkey"] = _encode(row_data["rowkey"])
+                else:
+                    raise BceClientError(INVALID_ARGS_ERROR)
+
+                rows_data.append(row_data)
+            batch_get_row_data['rows'] = rows_data
+
+        elif isinstance(batch_get_row_args, dict):
+            batch_get_row_data = batch_get_row_args
+
+        else:
+            raise BceClientError(INVALID_ARGS_ERROR)
+
+        body = json.dumps(batch_get_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
-                                      body=json.dumps(batch_get_row_args, default=batch_query_row_args_2_dict),
-                                      headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                    body=body,
+                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+
         try:
             if response.result is not None:
                 for i in range(len(response.result)):
@@ -439,22 +513,25 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        if scan_args is None:
-            ex = BceClientError(INVALID_ARGS_ERROR)
-            _logger.debug(ex)
-            raise ex
-        try:
-            if scan_args.start_rowkey is not "":
-                scan_args.start_rowkey = _encode(scan_args.start_rowkey)
-            if scan_args.stop_rowkey is not "":
-                scan_args.stop_rowkey = _encode(scan_args.stop_rowkey)
-        except Exception as ex:
-            raise ex
+        if isinstance(scan_args, ScanArgs):
+            # Convert ScanArgs to a dictionary if necessary
+            scan_args_dict = scan_args.to_dict()  # Assuming ScanArgs has a to_dict() method
+        elif isinstance(scan_args, dict):
+            scan_args_dict = scan_args
+        else:
+            raise BceClientError(INVALID_ARGS_ERROR)
 
+        if "startRowkey" in scan_args_dict and scan_args_dict["startRowkey"]:
+            scan_args_dict["startRowkey"] = _encode(scan_args_dict["startRowkey"])
+        if "stopRowkey" in scan_args_dict and scan_args_dict["stopRowkey"]:
+            scan_args_dict["stopRowkey"] = _encode(scan_args_dict["stopRowkey"])
+
+        body = json.dumps(scan_args_dict)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
-                                      body=json.dumps(scan_args, default=scan_args_2_dict),
-                                      headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                    body=body,
+                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+
         try:
             if response.result is not None:
                 for i in range(len(response.result)):
