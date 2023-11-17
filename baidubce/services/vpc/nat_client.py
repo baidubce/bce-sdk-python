@@ -79,8 +79,8 @@ class NatClient(bce_base_client.BceBaseClient):
     @required(name=(bytes, str),
               vpc_id=(bytes, str),
               spec=(bytes, str))
-    def create_nat(self, name, vpc_id, spec, billing=None, eips=None,
-                   client_token=None, config=None):
+    def create_nat(self, name, vpc_id, spec=None, billing=None, eips=None,
+                   client_token=None, config=None, cu_num=None):
         """
         Create a nat-gateway with the specified options.
         A nat gateway can bind only one public EIP,
@@ -107,6 +107,9 @@ class NatClient(bce_base_client.BceBaseClient):
                 large: support 15 public-IP-bindings at most.
         :type spec: string
 
+        :param cu_num:  The number of CU.
+        :type cu_num: int
+
         :param billing:
             Billing information.
         :type billing: nat_model.Billing
@@ -131,11 +134,14 @@ class NatClient(bce_base_client.BceBaseClient):
         body = {
             'name': compat.convert_to_string(name),
             'vpcId': compat.convert_to_string(vpc_id),
-            'spec': compat.convert_to_string(spec),
             'billing': billing.__dict__
         }
         if eips is not None:
             body['eips'] = eips
+        if cu_num is not None:
+            body['cuNum'] = compat.convert_to_string(cu_num)
+        if spec is not None:
+            body['spec'] = compat.convert_to_string(spec)
         return self._send_request(http_methods.POST,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
