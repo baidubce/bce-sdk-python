@@ -5905,7 +5905,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = b'/getAvailableImageBySpec'
+        path = b'/image/getAvailableImageBySpec'
         params = {}
         if marker is not None:
             params['marker'] = marker
@@ -5913,7 +5913,7 @@ class BccClient(bce_base_client.BceBaseClient):
             params['maxKeys'] = max_keys
         if spec is not None:
             params['spec'] = spec
-        if spec is not None:
+        if os_name is not None:
             params['osName'] = os_name
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
