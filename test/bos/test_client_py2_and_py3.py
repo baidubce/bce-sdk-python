@@ -218,7 +218,7 @@ class MockInputStream(object):
         pass
 
 
-def mock_get_connection(protocol, host, port, timeout):
+def mock_get_connection(protocol, host, port, timeout, proxy_host, proxe_port):
     """
     mock get_connection
     :param protocol:
@@ -2384,6 +2384,18 @@ class TestBceHttpClient(TestClient):
         port = 8080
         connection_timeout = 1000
         conn = bce_http_client._get_connection(test_protocol, host, port, connection_timeout)
+
+        # test proxy host and port
+        test_protocol = protocol.HTTPS
+        host = "1.2.3.4"
+        port = 8080
+        connection_timeout = 1000
+        proxy_host = "1.2.3.5"
+        proxy_port = 8081
+        conn = bce_http_client._get_connection(test_protocol, host, port, connection_timeout, proxy_host, proxy_port)
+        self.assertEqual(conn.host, proxy_host)
+        self.assertEqual(conn.port, proxy_port)
+
 
     def test_send_http_request_normal(self):
         """test abort send http request"""

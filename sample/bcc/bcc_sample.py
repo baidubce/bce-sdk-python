@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
     # modify attribute
     try:
-        bcc_client.modify_instance_attributes(instance_id=instance_id, name=new_name)
+        bcc_client.modify_instance_attributes(instance_id=instance_id, name=new_name, neteth_queuecount=3)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1569,6 +1569,17 @@ if __name__ == "__main__":
     # del_instance_deploy
     try:
         response = bcc_client.del_instance_deploy(instance_id_list=['iid1', 'iid2'], deploy_set_id='dsid')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_available_images_by_spec
+    try:
+        response = bcc_client.get_available_images_by_spec(spec='bcc.ic4.c1m1')
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):

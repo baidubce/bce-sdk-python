@@ -1320,7 +1320,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               name=(bytes, str))  # ***Unicode***
-    def modify_instance_attributes(self, instance_id, name, config=None):
+    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None, config=None):
         """
         Modifying the special attribute to new value of the instance.
         You can reboot the instance only when the instance is Running or Stopped ,
@@ -1334,13 +1334,18 @@ class BccClient(bce_base_client.BceBaseClient):
             The new value for instance's name.
         :type name: string
 
+        :param neteth_queuecount:
+            The new value for instance's neteth_queuecount.
+        :type neteth_queuecount: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
         instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/%s' % instance_id
         body = {
-            'name': name
+            'name': name,
+            'netEthQueueCount': neteth_queuecount
         }
         params = {
             'modifyAttribute': None
@@ -3204,7 +3209,7 @@ class BccClient(bce_base_client.BceBaseClient):
             params['marker'] = marker
         if max_keys is not None:
             params['maxKeys'] = max_keys
-        if name is not None:            
+        if name is not None:
             params['name'] = name
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
@@ -5100,7 +5105,6 @@ class BccClient(bce_base_client.BceBaseClient):
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
-        
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5875,6 +5879,44 @@ class BccClient(bce_base_client.BceBaseClient):
             'deployId': deploy_set_id
         }
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def get_available_images_by_spec(self, marker=None, max_keys=None, spec=None, os_name=None, config=None):
+        """
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 100.
+        :type max_keys: int
+
+        :param os_name:
+            The optional parameter to query specified public image by os name.
+        :type os_name: string
+
+        :param spec:
+            The required parameter to query specified public image by spec.
+        :type spec: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/image/getAvailableImageBySpec'
+        params = {}
+        if marker is not None:
+            params['marker'] = marker
+        if max_keys is not None:
+            params['maxKeys'] = max_keys
+        if spec is not None:
+            params['spec'] = spec
+        if os_name is not None:
+            params['osName'] = os_name
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
 
 
 def generate_client_token_by_uuid():

@@ -130,6 +130,19 @@ class Cell(object):
         self.column = column
         self.value = value
 
+    def to_dict(self):
+        """
+        Convert the Cell instance into a dictionary with keys for column and value.
+
+        :return: A dictionary with 'column' and 'value' as keys, representing
+                 the cell's data.
+        :rtype: dict
+        """
+        return {
+            'column': self.column,
+            'value': self.value
+        }
+
 
 class Row(object):
     """
@@ -163,6 +176,25 @@ class Row(object):
         :rtype Cell[]
         """
         return self.cells
+
+    def to_dict(self):
+        """
+        Convert the Row instance into a dictionary suitable for serialization.
+
+        :return: A dictionary with 'rowkey' as the unique identifier and 'cells'
+                 containing a list of cell data in dictionary form.
+        :rtype: dict
+        """
+        cells = []
+        for cell in self.cells:
+            if isinstance(cell, Cell):
+                cells.append(cell.to_dict())
+            elif isinstance(cell, dict):
+                cells.append(cell)
+        return {
+            'rowkey': self.rowkey,
+            'cells': cells
+        }
 
 
 class BatchPutRowArgs(object):
@@ -205,6 +237,16 @@ class QueryCell(object):
     def __init__(self, column=""):
         self.column = column
 
+    def to_dict(self):
+        """
+        Convert the QueryCell instance into a dictionary
+
+        :return: A dictionary representation of the QueryCell, with 'column' as the key.
+        :rtype: dict
+        """
+        return {
+            'column': self.column,
+        }
 
 class QueryRowArgs(object):
     """
@@ -241,6 +283,19 @@ class QueryRowArgs(object):
         :rtype Cell[]
         """
         return self.cells
+
+    def to_dict(self):
+        """
+        Convert the QueryRowArgs instance into a dictionary suitable for serialization.
+
+        :return: A dictionary representation of the QueryRowArgs, including the rowkey and cells.
+        :rtype: dict
+        """
+        cells_dict = [cell.to_dict() if hasattr(cell, 'to_dict') else cell for cell in self.cells]
+        return {
+            'rowkey': self.rowkey,
+            'cells': cells_dict,
+        }
 
 
 def query_row_args_2_dict(args):
@@ -292,6 +347,28 @@ class BatchQueryRowArgs(object):
         :rtype Row[]
         """
         return self.rows
+
+    def to_dict(self):
+        """
+        Convert the BatchQueryRowArgs instance to a dictionary for JSON serialization.
+
+        :return: A dictionary representation of the BatchQueryRowArgs instance with
+                'rows' key containing a list of rows and 'max_versions' key
+                containing the maximum number of versions.
+        :rtype: dict
+        """
+        rows_data = []
+        for row_arg in self.rows:
+            if isinstance(row_arg, QueryRowArgs):
+                # Assuming QueryRowArgs has a to_dict method
+                row_data = row_arg.to_dict()
+            elif isinstance(row_arg, dict):
+                row_data = row_arg
+            rows_data.append(row_data)
+        return {
+            'rows': rows_data,
+            'max_versions': self.max_versions
+        }
 
 
 def batch_query_row_args_2_dict(args):
@@ -358,6 +435,30 @@ class ScanArgs(object):
         :rtype query_cell[]
         """
         return self.selector
+
+    def to_dict(self):
+        """
+        Convert the ScanArgs instance into a dictionary
+
+        :return: A dictionary representation of the scan arguments.
+        :rtype: dict
+        """
+        selector = []
+        for item in self.selector:
+            if isinstance(item, QueryCell):
+                selector.append({'column': item.column})
+            elif isinstance(item, dict):
+                selector.append(item)
+
+        return {
+            'startRowkey': self.start_rowkey,
+            'includeStart': self.include_start,
+            'stopRowkey': self.stop_rowkey,
+            'includeStop': self.include_stop,
+            'selector': selector,
+            'maxVersions': self.max_versions,
+            'limit': self.limit
+        }
 
 
 def scan_args_2_dict(args):
