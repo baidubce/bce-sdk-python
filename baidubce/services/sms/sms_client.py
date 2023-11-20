@@ -669,3 +669,113 @@ class SmsClient(BceBaseClient):
         }
         return self._send_request(http_method=http_methods.DELETE, function_name='blacklist/delete', params=req_params,
                                   config=config, api_version=2)
+
+    @required(start_time=str, end_time=str)
+    def list_statistics(self, start_time, end_time, sms_type='all', country_type='domestic',
+                        signature_id=None, template_code=None, config=None):
+        """
+        Get messages statistics list
+        :param start_time: The start of time condition, format: yyyy-MM-dd
+        :type  start_time: str
+
+        :param end_time: The end of time condition, format: yyyy-MM-dd
+        :type  end_time: str
+
+        :param sms_type: Queried message type, "all" as default
+        :type  sms_type: str
+
+        :param signature_id: Queried signature id
+        :type  signature_id: str
+
+        :param template_code: Queried template code, for instance: "sms-tmpl-xxxxxxxx"
+        :type  template_code: str
+
+        :param country_type: Queried country type, available values: "domestic", "international"
+        :type  country_type: str
+
+        :param config: None
+        :type  config: BceClientConfiguration
+
+        :return: Object:
+            {
+                "statisticsResults": [
+                    {
+                        "datetime": "合计",
+                        "countryAlpha2Code": "",
+                        "submitLongCount": "10",
+                        "submitCount": "100",
+                        "deliverSuccessCount": "99",
+                        "deliverSuccessLongCount": "10",
+                        "deliverFailureCount": "1",
+                        "unknownCount": "0",
+                        "deliverSuccessProportion": "0.99",
+                        "deliverFailureProportion": "0.01",
+                        "notExistCount": "0",
+                        "signatureOrTemplateCount": "0",
+                        "abnormalCount": "0",
+                        "overclockingCount": "0",
+                        "otherErrorCount": "0",
+                        "blacklistCount": "0",
+                        "routeErrorCount": "0",
+                        "issueFailureCount": "0",
+                        "parameterErrorCount": "0",
+                        "illegalWordCount": "0",
+                        "anomalyCount": "1",
+                        "unknownErrorCount": "0",
+                        "receiptProportion": "1.0",
+                        "unknownProportion": "0",
+                        "responseSuccessCount": "100",
+                        "responseTimeoutCount": "0",
+                        "responseSuccessProportion": "1.0"
+                    },
+                    {
+                        "datetime": "2023-10-30",
+                        "countryAlpha2Code": "",
+                        "submitLongCount": "10",
+                        "submitCount": "100",
+                        "deliverSuccessCount": "99",
+                        "deliverSuccessLongCount": "10",
+                        "deliverFailureCount": "1",
+                        "unknownCount": "0",
+                        "deliverSuccessProportion": "0.99",
+                        "deliverFailureProportion": "0.01",
+                        "notExistCount": "0",
+                        "signatureOrTemplateCount": "0",
+                        "abnormalCount": "0",
+                        "overclockingCount": "0",
+                        "otherErrorCount": "0",
+                        "blacklistCount": "0",
+                        "routeErrorCount": "0",
+                        "issueFailureCount": "0",
+                        "parameterErrorCount": "0",
+                        "illegalWordCount": "0",
+                        "anomalyCount": "1",
+                        "unknownErrorCount": "0",
+                        "receiptProportion": "1.0",
+                        "unknownProportion": "0",
+                        "responseSuccessCount": "100",
+                        "responseTimeoutCount": "0",
+                        "responseSuccessProportion": "1.0"
+                    },
+                ]
+            }
+        """
+
+        req_params = {
+            "startTime": start_time + " 00:00:00",
+            "endTime": end_time + " 23:59:59",
+            "smsType": sms_type,
+            "dimension": "day"
+        }
+
+        if country_type:
+            req_params["countryType"] = country_type
+
+        if signature_id:
+            req_params["signatureId"] = signature_id
+
+        if template_code:
+            req_params["templateCode"] = template_code
+
+        return model.ListStatisticsResponse(self._send_request(http_method=http_methods.GET, function_name='summary',
+                                            params=req_params, config=config, api_version=2))

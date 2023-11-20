@@ -81,6 +81,12 @@ if __name__ == "__main__":
     # create a bos client
     bos_client = BosClient(bos_sample_conf.config)
 
+    # create a bos proxy client
+    conf = bos_sample_conf.config
+    conf.proxy_host = '127.0.0.1'
+    conf.proxy_port = 8080
+    bos_proxy_client = BosClient(conf)
+
     ######################################################################################################
     #            bucket operation samples
     ######################################################################################################

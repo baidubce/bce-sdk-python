@@ -114,3 +114,46 @@ class GetMobileBlackResponse(BceResponse):
         self.page_size = bce_response.page_size
         self.black_lists = bce_response.blacklists
         self.metadata = bce_response.metadata
+
+
+class ListStatisticsResponse(BceResponse):
+    """
+    Get Statistics Information Response as List
+    """
+
+    def __init__(self, bce_response):
+        super(ListStatisticsResponse, self).__init__()
+        self.statistics_results = list(map(self.__result_trans, bce_response.statistics_results))
+
+    def __result_trans(self, statistics_result):
+        res = {
+            'datetime': statistics_result.datetime,
+            'country_alpha2_code': statistics_result.country_alpha2_code,
+            'submit_count': statistics_result.submit_count,
+            'submit_long_count': statistics_result.submit_long_count,
+            'response_success_count': statistics_result.response_success_count,
+            'response_success_proportion': statistics_result.response_success_proportion,
+            'deliver_success_count': statistics_result.deliver_success_count,
+            'deliver_success_long_count': statistics_result.deliver_success_long_count,
+            'deliver_success_proportion': statistics_result.deliver_success_proportion,
+            'deliver_failure_count': statistics_result.deliver_failure_count,
+            'deliver_failure_proportion': statistics_result.deliver_failure_proportion,
+            'receipt_proportion': statistics_result.receipt_proportion,
+            'unknown_count': statistics_result.unknown_count,
+            'unknown_proportion': statistics_result.unknown_proportion,
+            'response_timeout_count': statistics_result.response_timeout_count,
+            'unknown_error_count': statistics_result.unknown_error_count,
+            'not_exist_count': statistics_result.not_exist_count,
+            'signature_or_template_count': statistics_result.signature_or_template_count,
+            'abnormal_count': statistics_result.abnormal_count,
+            'overclocking_count': statistics_result.overclocking_count,
+            'other_error_count': statistics_result.other_error_count,
+            'blacklist_count': statistics_result.blacklist_count,
+            'route_error_count': statistics_result.route_error_count,
+            'issue_failure_count': statistics_result.issue_failure_count,
+            'parameter_error_count': statistics_result.parameter_error_count,
+            'illegal_word_count': statistics_result.illegal_word_count,
+            'anomaly_count': statistics_result.anomaly_count
+        }
+        return res
+
