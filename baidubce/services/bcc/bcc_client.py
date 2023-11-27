@@ -4896,9 +4896,12 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         body = {
             "imageId": image_id,
-            "adminPass": admin_pass,
             "instanceIds": instance_ids
         }
+        if admin_pass is not None:
+            secret_access_key = self.config.credentials.secret_access_key
+            cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
+            body['adminPass'] = cipher_admin_pass
         if keypair_id is not None:
             body['keypairId'] = keypair_id
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
