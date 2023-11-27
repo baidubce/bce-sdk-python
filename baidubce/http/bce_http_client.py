@@ -26,6 +26,7 @@ from baidubce import compat
 from baidubce import utils
 from baidubce.bce_response import BceResponse
 from baidubce.exception import BceHttpClientError
+from baidubce.exception import BceServerError
 from baidubce.exception import BceClientError
 from baidubce.http import http_headers
 
@@ -236,7 +237,14 @@ def send_request(
 
             # insert ">>>>" before all trace back lines and then save it
             errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().splitlines()))
-
+            if isinstance(e, BceServerError):
+                request_id = e.request_id  
+                status_code = e.status_code  
+                code = e.code
+            else:
+                request_id = None
+                status_code = None
+                code = None
             if config.retry_policy.should_retry(e, retries_attempted):
                 delay_in_millis = config.retry_policy.get_delay_before_next_retry_in_millis(
                     e, retries_attempted)
@@ -244,6 +252,8 @@ def send_request(
             else:
                 raise BceHttpClientError('Unable to execute HTTP request. Retried %d times. '
                                          'All trace backs:\n%s' % (retries_attempted,
-                                                                   '\n'.join(errors)), e)
+                                                                   '\n'.join(errors)), e, 
+                                                                   status_code, code, 
+                                                                   request_id=request_id)
 
         retries_attempted += 1
