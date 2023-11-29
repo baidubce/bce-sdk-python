@@ -2302,10 +2302,14 @@ class BccClient(bce_base_client.BceBaseClient):
                                   billing=None,
                                   config=None):
         """
-        :param volume_id:
-        :param billing:
+        :param volume_id: volume id
+        :type volume_id: string
+        :param billing: payment information
+        :type billing: bcc_model.Billing
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
@@ -2571,13 +2575,21 @@ class BccClient(bce_base_client.BceBaseClient):
                     image_id,
                     account=None,
                     account_id=None,
+                    ucaccount=None,
                     config=None):
         """
-        :param image_id:
-        :param account:
-        :param account_id:
+        :param image_id: image id
+        :type image_id: string
+        :param account: share image to target account
+        :type account: string
+        :param account_id: share image to target account_id
+        :type account_id: string
+        :param ucaccount: share image to target ucaccount
+        :type ucaccount: string
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
@@ -2587,6 +2599,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['account'] = account
         if account_id is not None:
             body['accountId'] = account_id
+        if ucaccount is not None:
+            body['ucAccount'] = ucaccount
 
         params = {
             'share': None
@@ -2599,13 +2613,21 @@ class BccClient(bce_base_client.BceBaseClient):
                       image_id,
                       account=None,
                       account_id=None,
+                      ucaccount=None,
                       config=None):
         """
-        :param image_id:
-        :param account:
-        :param account_id:
+        :param image_id: image id
+        :type image_id: string
+        :param account: unshare image with target account
+        :type account: string
+        :param account_id: unshare image with target account_id
+        :type account_id: string
+        :param ucaccount: unshare image with target ucaccount
+        :type ucaccount: string
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
@@ -2615,6 +2637,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['account'] = account
         if account_id is not None:
             body['accountId'] = account_id
+        if ucaccount is not None:
+            body['ucAccount'] = ucaccount
 
         params = {
             'unshare': None
@@ -5702,7 +5726,7 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def create_deploy_set(self, name=None, strategy=None, desc=None, client_token=None, config=None):
+    def create_deploy_set(self, name=None, strategy=None, desc=None, concurrency=None, client_token=None, config=None):
         """
         create_deploy_set
 
@@ -5717,6 +5741,11 @@ class BccClient(bce_base_client.BceBaseClient):
         :param desc:
             description of deploy set
         :type desc: string
+
+        :param concurrency:
+            mark how many instances can created in one location
+            location means host for HOST_HA, rack for RACK_HA, tor for TOR_HA
+        :type concurrency: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5734,6 +5763,9 @@ class BccClient(bce_base_client.BceBaseClient):
             body['strategy'] = strategy
         if desc is not None:
             body['desc'] = desc
+        if concurrency is not None:
+            body['concurrency'] = concurrency
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def list_deploy_sets(self, client_token=None, config=None):
