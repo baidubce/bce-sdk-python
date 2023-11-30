@@ -4277,7 +4277,8 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 
     @required(volume_id=(bytes, str))  # ***Unicode***
-    def release_volume_new(self, volume_id, auto_snapshot=None, manual_snapshot=None, client_token=None, config=None):
+    def release_volume_new(self, volume_id, auto_snapshot=None, manual_snapshot=None,
+                           recycle=None, client_token=None, config=None):
         """
         Releasing the specified volume owned by the user.
         You can release the specified volume only
@@ -4296,6 +4297,10 @@ class BccClient(bce_base_client.BceBaseClient):
             Snapshot volume manually. value: 'on'/'off'. Default value: 'off'.
         :type manual_snapshot: string
 
+        :param recycle:
+            where recycle volume or not, value: 'on'/'off'. Default value: 'on'.
+        :type recycle: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4311,6 +4316,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['autoSnapshot'] = auto_snapshot
         if manual_snapshot is not None:
             body['manualSnapshot'] = manual_snapshot
+        if recycle is not None:
+            body['recycle'] = recycle
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
@@ -5709,7 +5716,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         :param dest_region_infos:
             information of destination region
-        :type dest_region_infos: string
+        :type dest_region_infos: list of bcc_model.DestRegionInfoModel
 
         :return:
         :rtype baidubce.bce_response.BceResponse
