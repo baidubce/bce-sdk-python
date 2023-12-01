@@ -77,11 +77,25 @@ class TestNatClient(unittest.TestCase):
         client_token = generate_client_token()
         name = 'nat_without_EIPs' + client_token
         spec = b'small'
-        self.assertEqual(
-            type(self.client.create_nat(client_token=client_token, name=name,
+        bce_response = self.client.create_nat(client_token=client_token, name=name,
                                         vpc_id=VPC_ID, spec=spec,
-                                        billing=post_paid_billing)),
-            baidubce.bce_response.BceResponse)
+                                        billing=post_paid_billing)
+        print(bce_response)
+        self.assertEqual(type(bce_response), baidubce.bce_response.BceResponse)
+        print(bce_response.nat_id)
+
+    def test_create_enhance_nat(self):
+        """
+        test case for creating enhance nat
+        """
+        client_token = generate_client_token()
+        name = 'enhance_nat_' + client_token
+        bce_response = self.client.create_nat(client_token=client_token, name=name,
+                               vpc_id=VPC_ID,
+                               billing=post_paid_billing, cu_num=10)
+        print (type(bce_response))
+        print(bce_response)
+        print(bce_response.nat_id)
 
     def test_create_nat_with_eip(self):
         """
