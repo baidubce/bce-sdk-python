@@ -8,6 +8,8 @@
 增加VPC和Subnet相关SDK以及sample示例
 涉及产品: ACL
 增加ACL相关SDK以及sample示例
+涉及产品: CSN
+增加CSN相关SDK以及sample示例
 
 【版本：v0.8.97】
 涉及产品：BTS
