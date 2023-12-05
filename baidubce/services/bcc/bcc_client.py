@@ -83,15 +83,14 @@ class BccClient(bce_base_client.BceBaseClient):
                         ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None, auto_renew_time=0,
                         deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
                         internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
-                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, card_count=1, name=None,
-                        admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None,
-                        fpgaCard=None, spec=None, eip_name=None, hostname=None,
-                        auto_seq_suffix=False, is_open_hostname_domain=False, relation_tag=None,
-                        is_open_ipv6=None, enterprise_security_group_id=None, security_group_ids=None,
-                        enterprise_security_group_ids=None, kunlunCard=None,
-                        isomerismCard=None, isomerism_card=None, file_systems=None, user_data=None,
-                        is_open_hosteye=False, deletion_protection=None, res_group_id=None,
-                        client_token=None, config=None):
+                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
+                        zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
+                        spec=None, eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
+                        relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
+                        security_group_ids=None, enterprise_security_group_ids=None,
+                        kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
+                        deletion_protection=None, res_group_id=None,
+                        client_token=None, config=None, card_count=1, isomerism_card=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -678,21 +677,23 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body), params=params,
                                   config=config)
 
-    @required(image_id=(bytes, str))  # ***Unicode***
-    def create_instance_of_bid(self, image_id, cpu_count=None, memory_capacity_in_gb=None, instance_type=None,
+    @required(cpu_count=int,
+              memory_capacity_in_gb=int,
+              image_id=(bytes, str))  # ***Unicode***
+    def create_instance_of_bid(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
                                billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
                                ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None,
                                auto_renew_time=0,
                                deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
                                internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
-                               network_capacity_in_mbps=0, purchase_count=1, cardCount=1, card_count=1, name=None,
-                               admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None,
-                               fpgaCard=None, client_token=None, config=None, spec=None, user_data=None,
+                               network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
+                               zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
+                               client_token=None, config=None, spec=None, user_data=None,
                                eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
                                enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
-                               enterprise_security_group_ids=None, isomerismCard=None, isomerism_card=None,
-                               file_systems=None):
+                               enterprise_security_group_ids=None, isomerismCard=None, file_systems=None,
+                               card_count=1, isomerism_card=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
