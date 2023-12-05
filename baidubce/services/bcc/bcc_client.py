@@ -83,13 +83,14 @@ class BccClient(bce_base_client.BceBaseClient):
                         ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None, auto_renew_time=0,
                         deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
                         internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
-                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
-                        zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
-                        spec=None, eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
-                        relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
-                        security_group_ids=None, enterprise_security_group_ids=None,
-                        kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
-                        deletion_protection=None, res_group_id=None,
+                        network_capacity_in_mbps=0, purchase_count=1, cardCount=1, card_count=1, name=None,
+                        admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None,
+                        fpgaCard=None, spec=None, eip_name=None, hostname=None,
+                        auto_seq_suffix=False, is_open_hostname_domain=False, relation_tag=None,
+                        is_open_ipv6=None, enterprise_security_group_id=None, security_group_ids=None,
+                        enterprise_security_group_ids=None, kunlunCard=None,
+                        isomerismCard=None, isomerism_card=None, file_systems=None, user_data=None,
+                        is_open_hosteye=False, deletion_protection=None, res_group_id=None,
                         client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -175,18 +176,20 @@ class BccClient(bce_base_client.BceBaseClient):
         :type client_token: string
 
         :param fpgaCard:
-            specify the fpgaCard info of creating FPGA instance,
-            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
-        :type gpuCard: string
+            This parameter is obsolete. Use parameter isomerism_card instead.
+        :type fpgaCard: string
 
         :param gpuCard:
-            specify the gpuCard info of creating GPU instance,
-            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type gpuCard: string
 
         :param cardCount:
-            The parameter to specify the card count for creating GPU/FPGA instance
+            This parameter is obsolete. Use parameter card_count instead.
         :type cardCount: int
+
+        :param card_count:
+            The parameter to specify the card count for creating GPU/FPGA instance.
+        :type card_count: int
 
         :param root_disk_size_in_gb:
             The parameter to specify the root disk size in GB.
@@ -270,7 +273,18 @@ class BccClient(bce_base_client.BceBaseClient):
         :type eip_name: string
 
         :param hostname:
-            hostname
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
         :type hostname: string
 
         :param auto_seq_suffix:
@@ -302,14 +316,19 @@ class BccClient(bce_base_client.BceBaseClient):
         :type enterprise_security_group_ids: list<string>
 
         :param kunlunCard:
-            kunlunCard
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type kunlunCard: string
 
         :param isomerismCard:
             type of isomerismCard, including kunlunCard, fpgaCard, gpuCard
         :type isomerismCard: string
 
+        :param isomerism_card:
+            type of isomerismCard, including kunlunCard, fpgaCard, gpuCard.
+        :type isomerism_card: string
+
         :param file_systems:
+            This parameter is obsolete.
         :type file_systems:list<bcc_model.FileSystemModel>
 
         :param user_data:
@@ -336,6 +355,10 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         if billing is None:
             billing = default_billing_to_purchase_created
+        if card_count == 1 and cardCount > 1:
+            card_count = cardCount
+        if isomerism_card is None:
+            isomerism_card = isomerismCard
         body = {
             'cpuCount': cpu_count,
             'memoryCapacityInGB': memory_capacity_in_gb,
@@ -372,7 +395,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if network_capacity_in_mbps != 0:
             body['networkCapacityInMbps'] = network_capacity_in_mbps
         if purchase_count > 0:
@@ -397,16 +420,16 @@ class BccClient(bce_base_client.BceBaseClient):
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if fpgaCard is not None:
             body['fpgaCard'] = fpgaCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if kunlunCard is not None:
             body['kunlunCard'] = kunlunCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
-        if isomerismCard is not None:
-            body['isomerismCard'] = isomerismCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
+        if isomerism_card is not None:
+            body['isomerismCard'] = isomerism_card
+            body['cardCount'] = card_count if card_count > 1 else 1
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
@@ -414,7 +437,7 @@ class BccClient(bce_base_client.BceBaseClient):
         else:
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if ephemeral_disks is not None:
-            body['ephemeralDisks'] = ephemeral_disks
+            body['ephemeralDisks'] = [ephemeral_disk.__dict__ for ephemeral_disk in ephemeral_disks]
         if dedicate_host_id is not None:
             body['dedicatedHostId'] = dedicate_host_id
         if deploy_id is not None:
@@ -655,22 +678,21 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body), params=params,
                                   config=config)
 
-    @required(cpu_count=int,
-              memory_capacity_in_gb=int,
-              image_id=(bytes, str))  # ***Unicode***
-    def create_instance_of_bid(self, cpu_count, memory_capacity_in_gb, image_id, instance_type=None,
+    @required(image_id=(bytes, str))  # ***Unicode***
+    def create_instance_of_bid(self, image_id, cpu_count=None, memory_capacity_in_gb=None, instance_type=None,
                                billing=None, create_cds_list=None, root_disk_size_in_gb=0, root_disk_storage_type=None,
                                ephemeral_disks=None, dedicate_host_id=None, auto_renew_time_unit=None,
                                auto_renew_time=0,
                                deploy_id=None, bid_model=None, bid_price=None, key_pair_id=None, cds_auto_renew=False,
                                internet_charge_type=None, internal_ips=None, request_token=None, asp_id=None, tags=None,
-                               network_capacity_in_mbps=0, purchase_count=1, cardCount=1, name=None, admin_pass=None,
-                               zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
-                               client_token=None, config=None, spec=None, user_data=None,
+                               network_capacity_in_mbps=0, purchase_count=1, cardCount=1, card_count=1, name=None,
+                               admin_pass=None, zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None,
+                               fpgaCard=None, client_token=None, config=None, spec=None, user_data=None,
                                eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
                                enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
-                               enterprise_security_group_ids=None, isomerismCard=None, file_systems=None):
+                               enterprise_security_group_ids=None, isomerismCard=None, isomerism_card=None,
+                               file_systems=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -755,18 +777,20 @@ class BccClient(bce_base_client.BceBaseClient):
         :type client_token: string
 
         :param fpgaCard:
-            specify the fpgaCard info of creating FPGA instance,
-            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
-        :type gpuCard: string
+            This parameter is obsolete. Use parameter isomerism_card instead.
+        :type fpgaCard: string
 
         :param gpuCard:
-            specify the gpuCard info of creating GPU instance,
-            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type gpuCard: string
 
         :param cardCount:
-            The parameter to specify the card count for creating GPU/FPGA instance
+            This parameter is obsolete. Use parameter card_count instead.
         :type cardCount: int
+
+        :param card_count:
+            The parameter to specify the card count for creating GPU/FPGA instance.
+        :type card_count: int
 
         :param root_disk_size_in_gb:
             The parameter to specify the root disk size in GB.
@@ -782,99 +806,123 @@ class BccClient(bce_base_client.BceBaseClient):
             The optional list of ephemeral volume detail info to create.
         :type ephemeral_disks: list<bcc_model.EphemeralDisk>
 
-        :param dedicate_host_id
-            The parameter to specify the dedicate host id.
+        :param dedicate_host_id:
+            This parameter is obsolete.
         :type dedicate_host_id: string
 
-        :param auto_renew_time_unit
-            The parameter to specify the unit of the auto renew time.
-            The auto renew time unit can be "month" or "year".
-            The default value is "month".
+        :param auto_renew_time_unit:
+            This parameter is obsolete.
         :type auto_renew_time_unit: string
 
-        :param auto_renew_time
-            The parameter to specify the auto renew time, the default value is 0.
+        :param auto_renew_time:
+            This parameter is obsolete.
         :type auto_renew_time: string
 
-        :param tags
+        :param tags:
             The optional list of tag to be bonded.
         :type tags: list<bcc_model.TagModel>
 
-        :param deploy_id
-            The parameter to specify the id of the deploymentSet.
+        :param deploy_id:
+            This parameter is obsolete.
         :type deploy_id: string
 
-        :param bid_model
+        :param bid_model:
             The parameter to specify the bidding model.
             The bidding model can be "market" or "custom".
         :type bid_model: string
 
-        :param bid_price
+        :param bid_price:
             The parameter to specify the bidding price.
             When the bid_model is "custom", it works.
         :type bid_price: string
 
-        :param key_pair_id
+        :param key_pair_id:
             The parameter to specify id of the keypair.
         :type key_pair_id: string
 
-        :param asp_id
+        :param asp_id:
             The parameter to specify id of the asp.
         :type asp_id: string
 
-        :param request_token
+        :param request_token:
             The parameter to specify the request token which will make the request idempotent.
         :type request_token: string
 
-        :param internet_charge_type
+        :param internet_charge_type:
             The parameter to specify the internet charge type.
             See more detail on
             https://cloud.baidu.com/doc/BCC/API.html#InternetChargeType
         :type internet_charge_type: string
 
-        :param internal_ips
-            The parameter to specify the internal ips.
+        :param internal_ips:
+            This parameter is obsolete.
         :type internal_ips: list<string>
 
-        :param cds_auto_renew
-            The parameter to specify whether the cds is auto renew or not.
-            The default value is false.
+        :param cds_auto_renew:
+            This parameter is obsolete.
         :type cds_auto_renew: boolean
 
-        :param spec
+        :param spec:
             The parameter to specify Specification to create the instance.
         :type spec: string
 
-        :param user_data
+        :param user_data:
             The parameter to specify instance custom data.
-        :type spec: string
+        :type user_data string
 
         :param hostname:
-        :type spec: string
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
+        :type hostname: string
 
         :param auto_seq_suffix:
-        :type spec: boolean
+            The parameter to specify whether name and hostname order suffixes are automatically generated.
+        :type auto_seq_suffix: boolean
 
         :param is_open_hostname_domain:
-        :type spec: boolean
+            The parameter to specify whether hostname domain is automatically generated
+        :type is_open_hostname_domain: boolean
 
         :param spec_id:
-        :type spec: string
+            Identify of the spec.
+        :type spec_id: string
 
         :param relation_tag:
-        :type spec: boolean
+            The parameter to specify whether the instance related to existing tags
+        :type relation_tag: boolean
 
         :param is_open_ipv6:
-        :type spec: boolean
+            The parameter indicates whether the instance to be created is enabled for IPv6.
+            It can only be enabled when both the image and subnet support IPv6.
+            True indicates enabled, false indicates disabled,
+            and no transmission indicates automatic adaptation of the image and subnet's IPv6 support
+        :type is_open_ipv6: boolean
 
         :param deletion_protection:
-        :type spec: int
+            The status of instance deletion protection. 1:enable, 0:disable.
+        :type deletion_protection: int
 
         :param eip_name:
+            eip name
         :type eip_name: string
 
         :param isomerismCard:
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type isomerismCard: string
+
+        :param isomerism_card:
+            The parameter to specify the card type for creating GPU/FPGA instance.
+        :type isomerism_card: string
 
         :param enterprise_security_group_id:
         :type enterprise_security_group_id: string
@@ -892,6 +940,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :type enterprise_security_group_ids: list<string>
 
         :param file_systems:
+            This parameter is obsolete.
         :type file_systems: list<bcc_model.FileSystemModel>
 
         :return:
@@ -905,6 +954,10 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         if billing is None:
             billing = default_billing_to_purchase_created
+        if card_count == 1 and cardCount > 1:
+            card_count = cardCount
+        if isomerism_card is None:
+            isomerism_card = isomerismCard
         body = {
             'cpuCount': cpu_count,
             'memoryCapacityInGB': memory_capacity_in_gb,
@@ -929,8 +982,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['eipName'] = eip_name
         if enterprise_security_group_id is not None:
             body['enterpriseSecurityGroupId'] = enterprise_security_group_id
-        if isomerismCard is not None:
-            body['isomerismCard'] = isomerismCard
+        if isomerism_card is not None:
+            body['isomerismCard'] = isomerism_card
         if file_systems is not None:
             file_system_list = [file_system.__dict__ for file_system in file_systems]
             body['fileSystems'] = file_system_list
@@ -941,7 +994,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if network_capacity_in_mbps != 0:
             body['networkCapacityInMbps'] = network_capacity_in_mbps
         if purchase_count > 0:
@@ -964,10 +1017,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if fpgaCard is not None:
             body['fpgaCard'] = fpgaCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
@@ -975,7 +1028,7 @@ class BccClient(bce_base_client.BceBaseClient):
         else:
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if ephemeral_disks is not None:
-            body['ephemeralDisks'] = ephemeral_disks
+            body['ephemeralDisks'] = [ephemeral_disk.__dict__ for ephemeral_disk in ephemeral_disks]
         if dedicate_host_id is not None:
             body['dedicatedHostId'] = dedicate_host_id
         if deploy_id is not None:
@@ -3622,6 +3675,10 @@ class BccClient(bce_base_client.BceBaseClient):
             If it's specified to 0, it will get the internal ip address only.
         :type network_capacity_in_mbps: int
 
+        :param eip_name:
+            eip name
+        :type eip_name: string
+
         :param purchase_count:
             The number of instance to buy, the default value is 1.
         :type purchase_count: int
@@ -3629,6 +3686,29 @@ class BccClient(bce_base_client.BceBaseClient):
         :param name:
             The optional parameter to desc the instance that will be created.
         :type name: string
+
+        :param hostname:
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
+        :type hostname: string
+
+        :param auto_seq_suffix:
+            The parameter to specify whether name and hostname order suffixes are automatically generated.
+        :type auto_seq_suffix: boolean
+
+        :param is_open_hostname_domain:
+            The parameter to specify whether hostname domain is automatically generated
+        :type is_open_hostname_domain: boolean
 
         :param admin_pass:
             The optional parameter to specify the password for the instance.
@@ -3669,6 +3749,21 @@ class BccClient(bce_base_client.BceBaseClient):
         :param enterprise_security_group_ids:
             enterprise_security_group_ids
         :type enterprise_security_group_ids: list<string>
+
+        :param relation_tag:
+            The parameter to specify whether the instance related to existing tags
+        :type relation_tag: boolean
+
+        :param is_open_ipv6:
+            The parameter indicates whether the instance to be created is enabled for IPv6.
+            It can only be enabled when both the image and subnet support IPv6.
+            True indicates enabled, false indicates disabled,
+            and no transmission indicates automatic adaptation of the image and subnet's IPv6 support
+        :type is_open_ipv6: boolean
+
+        :param deploy_id_list:
+            This parameter is the list of deployment set IDs where the specified instance is located.
+        :type deploy_id_list: list<string>
 
         :param client_token:
             An ASCII string whose length is less than 64.
