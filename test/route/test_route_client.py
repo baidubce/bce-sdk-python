@@ -120,12 +120,30 @@ class TestRouteClient(unittest.TestCase):
             type(self.the_client.delete_route(route_rule_id)),
             baidubce.bce_response.BceResponse)
 
+    def test_update_route(self):
+        """
+        test case for update_route
+        """
+        client_token = generate_client_token()
+        updated_description = "Updated description"
+        res = self.the_client.update_route(route_rule_id, description=updated_description, client_token=client_token)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_get_route_rule(self):
+        """
+        test case for get_route_rule
+        """
+        res = self.the_client.get_route_rule(route_rule_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     # suite.addTest(TestRouteClient("test_create_route"))
     # suite.addTest(TestRouteClient("test_get_route"))
-    suite.addTest(TestRouteClient("test_delete_route"))
+    # suite.addTest(TestRouteClient("test_delete_route"))
+    # suite.addTest(TestRouteClient("test_update_route"))
+    # suite.addTest(TestRouteClient("test_get_route_rule"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
