@@ -69,7 +69,8 @@ class EniClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, EniClient.prefix + path, body, headers, params)
 
-    @required(name=(bytes, str), subnet_id=(bytes, str))
+    @required(name=(bytes, str), subnet_id=(bytes, str), security_group_ids=list, 
+              enterprise_security_group_ids=list, eni_ip_address_list=list, eni_ipv6_address_list=list)
     def create_eni(self, name, subnet_id, security_group_ids=None, enterprise_security_group_ids=None,
                    eni_ip_address_list=None, eni_ipv6_address_list=None, description=None, 
                    client_token=None, config=None):
