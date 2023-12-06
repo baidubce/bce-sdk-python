@@ -69,6 +69,7 @@ class EniClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, EniClient.prefix + path, body, headers, params)
 
+    @required(name=(bytes, str), subnet_id=(bytes, str))
     def create_eni(self, name, subnet_id, security_group_ids=None, enterprise_security_group_ids=None,
                    eni_ip_address_list=None, eni_ipv6_address_list=None, description=None, 
                    client_token=None, config=None):
@@ -146,6 +147,7 @@ class EniClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
     
+    @required(eni_id=(bytes, str))
     def delete_eni(self, eni_id, client_token=None, config=None):
         """
         release the eni(delete operation)

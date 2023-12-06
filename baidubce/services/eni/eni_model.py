@@ -20,7 +20,7 @@ This module provide eni settings information.
 class EniIPSet(object):
     """ENI IP Set"""
 
-    def __init__(self, public_ip="", private_ip="", primary=False):
+    def __init__(self, public_ip=None, private_ip=None, primary=False):
         """
 
         :param public_ip: public IP
