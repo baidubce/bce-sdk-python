@@ -1,0 +1,26 @@
+# !/usr/bin/env python
+# coding=utf-8
+"""
+Samples for vpn client.
+"""
+
+from baidubce.auth.bce_credentials import BceCredentials
+from baidubce.bce_client_configuration import BceClientConfiguration
+from baidubce.services.vpn.vpn_client import VpnClient
+
+if __name__ == "__main__":
+    config = BceClientConfiguration(
+        credentials=BceCredentials(
+            access_key_id='', # 用户的ak
+            secret_access_key='' # 用户的sk
+        ),
+        endpoint='bcc.bj.baidubce.com' # 请求的域名信息
+    )
+
+    # create a vpn client
+    vpn_client = VpnClient(config)
+
+    # No return value
+    result = vpn_client.delete_vpn_ssl_user(vpn_id='vpn-b4cs1yrbnrn9', ssluser_id='vpn-ssl-user-8drc5ee1uedz')
+
+    print(result.metadata.bce_request_id)
