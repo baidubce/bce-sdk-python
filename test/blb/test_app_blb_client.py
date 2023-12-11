@@ -269,6 +269,11 @@ class TestAppBlbClient(unittest.TestCase):
         test case for describe_app_ssl_listener
         """
         print(self.the_client.describe_app_ssl_listener(blbId))
+    def test_describe_app_all_listener(self):
+        """
+        test case for describe_app_all_listener
+        """
+        print(self.the_client.describe_app_all_listener(blbId))
 
     def test_delete_app_listeners(self):
         """
