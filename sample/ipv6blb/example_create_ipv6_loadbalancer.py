@@ -27,6 +27,6 @@ if __name__ == '__main__':
     blb_client = blb_client.BlbClient(config)  # 初始化client
     try:
         resp = blb_client.create_ipv6_loadbalancer(vpc_id="vpc-xxxx", subnet_id="sbn-xxxx")  # 创建ipv6 blb
-        print("[example] create ipv6 loadbalancer response :%s", resp)
+        print("[example] create ipv6 loadbalancer response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
