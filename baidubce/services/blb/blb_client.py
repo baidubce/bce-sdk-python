@@ -973,7 +973,7 @@ class BlbClient(bce_base_client.BceBaseClient):
     def describe_tcp_listener(self, blb_id, listener_port=None,
                               marker=None, max_keys=None, config=None):
         """
-        get tcp listeners identified by bibID
+        get tcp listeners identified by blbID
 
         :param blb_id
              the id of blb which the listener work on
@@ -1022,7 +1022,7 @@ class BlbClient(bce_base_client.BceBaseClient):
     def describe_udp_listener(self, blb_id, listener_port=None, marker=None,
                               max_keys=None, config=None):
         """
-        get udp listeners identified by bibID
+        get udp listeners identified by blbID
 
         :param blb_id
              the id of blb which the listener work on
@@ -1118,7 +1118,7 @@ class BlbClient(bce_base_client.BceBaseClient):
     def describe_https_listener(self, blb_id, listener_port=None,
                                 marker=None, max_keys=None, config=None):
         """
-        get https listeners identified by bibID
+        get https listeners identified by blbID
 
         :param blb_id
              the id of blb which the listener work on
@@ -1166,7 +1166,7 @@ class BlbClient(bce_base_client.BceBaseClient):
     def describe_ssl_listener(self, blb_id, listener_port=None,
                               marker=None, max_keys=None, config=None):
         """
-        get ssl listeners identified by bibID
+        get ssl listeners identified by blbID
 
         :param blb_id
              the id of blb which the listener work on
@@ -1198,6 +1198,54 @@ class BlbClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = utils.append_uri(self.version, 'blb', blb_id, 'SSLlistener')
+        params = {}
+
+        if listener_port is not None:
+            params[b'listenerPort'] = listener_port
+        if marker is not None:
+            params[b'marker'] = marker
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
+
+        return self._send_request(http_methods.GET, path,
+                                  params=params, config=config)
+
+    @required(blb_id=(bytes, str))
+    def describe_all_listeners(self, blb_id, listener_port=None,
+                               marker=None, max_keys=None, config=None):
+        """
+        get all listeners identified by blbID
+
+        :param blb_id
+             the id of blb which the listener work on
+        :type blb_id:string
+
+        :param listener_port
+             The listener port to query
+        :type listener_port:int
+
+        :param marker
+            The optional parameter marker specified in the original
+            request to specify where in the results to begin listing.
+            Together with the marker, specifies the list result which
+            listing should begin.
+            If the marker is not specified, the list result will listing
+            from the first one.
+        :type marker: string
+
+        :param max_keys
+            The optional parameter to specifies the max number of list
+            result to return.
+            The default value is 1000.
+        :type max_keys: int
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = utils.append_uri(self.version, 'blb', blb_id, 'listener')
         params = {}
 
         if listener_port is not None:
