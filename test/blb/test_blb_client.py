@@ -203,6 +203,12 @@ class TestBlbClient(unittest.TestCase):
         """
         print(self.the_client.describe_ssl_listener(blbId))
 
+    def test_describe_all_listeners(self):
+        """
+        test case for describe_all_listener
+        """
+        print(self.the_client.describe_all_listeners(blbId))
+
     def test_update_tcp_listener(self):
         """
         test case for tcp listener
@@ -346,6 +352,7 @@ if __name__ == "__main__":
     #suite.addTest(TestBlbClient("test_describe_http_listener"))
     #suite.addTest(TestBlbClient("test_describe_https_listener"))
     #suite.addTest(TestBlbClient("test_describe_ssl_listener"))
+    #suite.addTest(TestBlbClient("test_describe_all_listeners"))
     #suite.addTest(TestBlbClient("test_update_tcp_listener"))
     #suite.addTest(TestBlbClient("test_update_udp_listener"))
     #suite.addTest(TestBlbClient("test_update_http_listener"))
