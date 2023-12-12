@@ -27,6 +27,6 @@ if __name__ == '__main__':
     blb_client = blb_client.BlbClient(config)  # 初始化client
     try:
         resp = blb_client.create_loadbalancer(vpc_id="vpc-xxxx", subnet_id="sbn-xxxx")  # 创建blb
-        print("[example] create loadbalancer response :%s", resp)
+        print("[example] create loadbalancer response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

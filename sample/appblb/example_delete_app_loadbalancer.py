@@ -28,6 +28,6 @@ if __name__ == '__main__':
     app_blb_client = app_blb_client.AppBlbClient(config)  # 初始化client
     try:
         resp = app_blb_client.delete_app_loadbalancer("lb-xxxx")  # 删除 app blb
-        print("[example] delete app loadbalancer response :%s", resp)
+        print("[example] delete app loadbalancer response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

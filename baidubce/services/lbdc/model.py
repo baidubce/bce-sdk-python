@@ -13,7 +13,7 @@
 # specific language governing permissions and limitations under the License.
 
 """
-This module provide billing information and eip status condition.
+This module provide billing information.
 """
 
 

@@ -27,6 +27,6 @@ if __name__ == '__main__':
     blb_client = blb_client.BlbClient(config)  # 初始化client
     try:
         resp = blb_client.describe_loadbalancer_detail("lb-xxxx")  # 查询单个普通型blb实例详情
-        print("[example] describe loadbalancer detail response :%s", resp)
+        print("[example] describe loadbalancer detail response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
