@@ -19,7 +19,7 @@ import unittest
 import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.services.bcm import bcm_client
+from baidubce.services.bcm import bcm_client, bcm_model
 
 PY2 = sys.version_info[0] == 2
 if PY2:
@@ -70,6 +70,200 @@ class TestBcmClient(unittest.TestCase):
                                                      dimensions=dimensions_batch, statistics=statistics,
                                                      start_time=start_time,
                                                      end_time=end_time, period_in_second=period_in_second)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_namespace(self):
+        """
+        test create namespace
+        """
+        name = "Test01"
+        namespace_alias = "test"
+        comment = "test"
+        response = self.client.create_namespace(user_id=user_id, name=name,
+                                                namespace_alias=namespace_alias, comment=comment)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_batch_delete_namespace(self):
+        """
+        test batch delete namespaces
+        """
+        names = ["Test01"]
+        response = self.client.batch_delete_namespaces(user_id=user_id, names=names)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_namespace(self):
+        """
+        test update namespace
+        """
+        name = "Test01"
+        namespace_alias = "test01"
+        comment = "test01"
+        response = self.client.update_namespace(user_id=user_id, name=name,
+                                                namespace_alias=namespace_alias, comment=comment)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_namespaces(self):
+        """
+        test list namespaces
+        """
+        response = self.client.list_namespaces(user_id=user_id)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+        name = "test"
+        page_no = 1
+        page_size = 10
+        response = self.client.list_namespaces(user_id=user_id, name=name, page_no=page_no, page_size=page_size)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_namespace_metrics(self):
+        """
+        test create custom metric in one namespace
+        """
+        namespace = "Test01"
+        metric_name_without_dimension = "TestMetric01"
+        metric_alias = "test"
+        unit = "sec"
+        cycle = 60
+        response = self.client.create_namespace_metric(user_id=user_id, namespace=namespace,
+                                                       metric_name=metric_name_without_dimension,
+                                                       metric_alias=metric_alias, unit=unit, cycle=cycle)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+        metric_name_dimension = "TestMetric02"
+        metric_dimensions = [bcm_model.CustomDimensionModel("test", 1, alias="test")]
+        response = self.client.create_namespace_metric(user_id=user_id, namespace=namespace,
+                                                       metric_name=metric_name_dimension, metric_alias=metric_alias,
+                                                       unit=unit, cycle=cycle, dimensions=metric_dimensions)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_batch_delete_namespace_metrics(self):
+        """
+        test batch delete custom metrics in one namespace
+        """
+        namespace = "Test01"
+        ids = [1725, 1726]
+        response = self.client.batch_delete_namespace_metrics(user_id=user_id, namespace=namespace, ids=ids)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_namespace_metric(self):
+        """
+        test update custom metric in one namespace
+        """
+        namespace = "Test01"
+        metric_name_without_dimension = "TestMetric01"
+        metric_alias = "test01"
+        unit = "sec"
+        cycle = 60
+        response = self.client.update_namespace_metric(user_id=user_id, namespace=namespace,
+                                                       metric_name=metric_name_without_dimension,
+                                                       metric_alias=metric_alias, unit=unit, cycle=cycle)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_namespace_metrics(self):
+        """
+        test list custom metrics in one namespace
+        """
+        namespace = "Test01"
+        response = self.client.list_namespace_metrics(user_id=user_id, namespace=namespace)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+        namespace = "Test01"
+        metric_name = "test"
+        metric_alias = "test"
+        page_no = 1
+        page_size = 10
+        response = self.client.list_namespace_metrics(user_id=user_id, namespace=namespace, metric_name=metric_name,
+                                                      metric_alias=metric_alias, page_no=page_no, page_size=page_size)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_custom_metrics(self):
+        """
+        test custom metric in one namespace
+        """
+        namespace = "Test01"
+        metric_name = "TestMetric01"
+        response = self.client.get_custom_metric(user_id=user_id, namespace=namespace, metric_name=metric_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_namespace_events(self):
+        """
+        test create custom event in one namespace
+        """
+        namespace = "Test01"
+        event_name = "TestEvent01"
+        event_name_alias = "test"
+        event_level = bcm_model.EventLevel.NOTICE
+        comment = "test"
+        response = self.client.create_namespace_event(user_id=user_id, namespace=namespace, event_name=event_name,
+                                                      event_name_alias=event_name_alias, event_level=event_level,
+                                                      comment=comment)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_batch_delete_namespace_events(self):
+        """
+        test batch delete custom events in one namespace
+        """
+        namespace = "Test01"
+        names = ["TestEvent01"]
+        response = self.client.batch_delete_namespace_events(user_id=user_id, namespace=namespace, names=names)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_namespace_event(self):
+        """
+        test update custom event in one namespace
+        """
+        namespace = "Test01"
+        event_name = "TestEvent01"
+        event_name_alias = "test01"
+        event_level = bcm_model.EventLevel.NOTICE
+        comment = "test01"
+        response = self.client.update_namespace_event(user_id=user_id, namespace=namespace, event_name=event_name,
+                                                      event_name_alias=event_name_alias, event_level=event_level,
+                                                      comment=comment)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_namespace_events(self):
+        """
+        test list custom events in one namespace
+        """
+        namespace = "Test01"
+        response = self.client.list_namespace_events(user_id=user_id, namespace=namespace)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+        namespace = "Test01"
+        event_name = "test"
+        event_level = bcm_model.EventLevel.NOTICE
+        page_no = 1
+        page_size = 10
+        response = self.client.list_namespace_events(user_id=user_id, namespace=namespace, name=event_name,
+                                                     event_level=event_level, page_no=page_no, page_size=page_size)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_custom_event(self):
+        """
+        test custom event in one namespace
+        """
+        namespace = "Test01"
+        event_name = "TestEvent01"
+        response = self.client.get_custom_event(user_id=user_id, namespace=namespace, event_name=event_name)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
