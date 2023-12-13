@@ -20,7 +20,8 @@ import uuid
 from baidubce import bce_base_client, utils, compat
 from baidubce.auth import bce_v1_signer
 from baidubce.http import handler, bce_http_client, http_methods
-from baidubce.services.bcm import bcm_model, bcm_handler
+from baidubce.services.bcm import bcm_handler, bcm_model
+from baidubce.utils import required
 
 
 class BcmClient(bce_base_client.BceBaseClient):
@@ -928,3 +929,502 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
 
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    @required(page_no=int, page_size=int)
+    def list_notify_group(self, page_no, page_size, name=None):
+        """
+            :param name: notify name
+            :type name: string
+            :param page_no: page number
+            :type page_no: int
+            :param page_size: page size
+            :type page_size: int
+
+            :return
+            :rtype baidubce.bce_response.BceResponse
+        """
+        headers = {self.content_type_header_key: self.content_type_header_value}
+        path = b'/alarm/notify/group/list'
+        body = {
+            "name": name,
+            "pageNo": page_no,
+            "pageSize": page_size
+        }
+
+        return self._send_request(http_methods.POST, path, headers=headers, body=json.dumps(body))
+
+    @required(page_no=int, page_size=int)
+    def list_notify_party(self, page_no, page_size, name=None):
+        """
+            :param name: notify name
+            :type name: string
+            :param page_no: page number
+            :type page_no: int
+            :param page_size: page size
+            :type page_size: int
+
+            :return
+            :rtype baidubce.bce_response.BceResponse
+        """
+        headers = {self.content_type_header_key: self.content_type_header_value}
+        path = b'/alarm/notify/party/list'
+        body = {
+            "name": name,
+            "pageNo": page_no,
+            "pageSize": page_size
+        }
+
+        return self._send_request(http_methods.POST, path, headers=headers, body=json.dumps(body))
+
+    @required(page_no=int, page_size=int, notifications=list, members=list)
+    def create_action(self, user_id, notifications, members, alias, disable_times=None, action_callbacks=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param notifications:
+        :type notifications: list of bcm_model.Notification
+        :param members:
+        :type members: list of bcm_model.Member
+        :param alias: action's alias
+        :type alias: string
+        :param disable_times: disable time
+        :type disable_times: list of bcm_model.DisableTime
+        :param action_callbacks: list of action callback
+        :type action_callbacks: list
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if disable_times is None:
+            disable_times = []
+        if action_callbacks is None:
+            action_callbacks = []
+        path = b'/userId/%s/action/create' % compat.convert_to_bytes(user_id)
+        body = {
+            "userId": user_id,
+            "notifications": notifications,
+            "members": members,
+            "alias": alias,
+            "disableTimes": disable_times,
+            "actionCallBacks": action_callbacks
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def delete_action(self, user_id, name):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param name: action name
+        :type name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/userId/%s/action/delete' % compat.convert_to_bytes(user_id)
+        params = {b'name': name}
+        return self._send_csm_request(http_methods.DELETE, path, params=params)
+
+    @required(page_no=int, page_size=int)
+    def list_action(self, user_id, page_no, page_size, name=None, order=None):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        :param name: action name
+        :type name: string
+        :param order: desc or asc
+        :type name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/userId/%s/action/actionList' % compat.convert_to_bytes(user_id)
+        body = {
+            "name": name,
+            "pageNo": page_no,
+            "pageSize": page_size,
+            "order": order
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(page_no=int, page_size=int, notifications=list, members=list)
+    def update_action(self, user_id, name, notifications, members, alias, disable_times=None,
+                      action_callbacks=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param name: action name
+        :type name: string
+        :param notifications:
+        :type notifications: list of bcm_model.Notification
+        :param members:
+        :type members: list of bcm_model.Member
+        :param alias: action's alias
+        :type alias: string
+        :param disable_times: disable time
+        :type disable_times: list of bcm_model.DisableTime
+        :param action_callbacks: list of action callback
+        :type action_callbacks: list
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if disable_times is None:
+            disable_times = []
+        if action_callbacks is None:
+            action_callbacks = []
+        path = b'/userId/%s/action/update' % compat.convert_to_bytes(user_id)
+        body = {
+            "productName": user_id,
+            "name": name,
+            "notifications": notifications,
+            "members": members,
+            "alias": alias,
+            "disableTimes": disable_times,
+            "actionCallBacks": action_callbacks,
+            "source": "USER"
+        }
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body))
+
+    def log_extract(self, user_id, extract_rule, log_example):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param extract_rule: the log extract rule
+        :type: string
+        :param log_example: log example
+        :type: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/userId/%s/application/logextract' % compat.convert_to_bytes(user_id)
+        body = {
+            "extractRule": extract_rule,
+            "logExample": log_example
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body),
+                                      body_parser=bcm_handler.parse_json_list)
+
+    def query_metric_meta_for_application(self, user_id, app_name, task_name, metric_name, dimension_keys,
+                                          instances=None):
+        """
+
+        :param user_id:
+        :type user_id string
+        :param app_name: application name
+        :type app_name: string
+        :param task_name: task name
+        :type task_name: string
+        :param metric_name:
+        :type metric_name: string
+        :param dimension_keys: multi dimension keys
+        :type dimension_keys: list of string
+        :param instances: multiple instance names
+        :type instances: list of string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+
+        path = (b'/userId/%s/application/%s/task/%s/metricMeta' % (compat.convert_to_bytes(user_id),
+                                                                   compat.convert_to_bytes(app_name),
+                                                                   compat.convert_to_bytes(task_name)))
+        params = {b'metricName': metric_name, b'dimensionKeys': ",".join(dimension_keys)}
+        print(params)
+        if instances is not None and len(instances) > 0:
+            params[b'instances'] = ",".join(instances)
+
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    def query_metric_data_for_application(self, user_id, app_name, task_name, metric_name, start_time, end_time,
+                                          instances=None, cycle=None, dimensions=None, statistics=None, aggr_data=None):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param app_name: application name
+        :type app_name: string
+        :param task_name: task name
+        :type task_name: string
+        :param metric_name: metric name
+        :type metric_name: string
+        :param start_time: start time, such as 2023-12-05T09:54:15Z
+        :type start_time: string
+        :param end_time: end time, such as 2023-12-05T09:54:15Z
+        :type end_time: string
+        :param instances: multiple instance names
+        :type instances: list of string
+        :param cycle: period time
+        :type cycle: int
+        :param dimensions: dimensions, such as ["httpMethod:POST___GET,path:apipath","httpMethod:POST,path:apipath1]
+        :type dimensions: list of string
+        :param statistics: statistics, enum: average, maximum, minimum, sum, sampleCount
+        :type statistics: list of string
+        :param aggr_data: is aggregation data
+        :type aggr_data: bool
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/%s/task/%s/metricData' % (compat.convert_to_bytes(user_id),
+                                                                   compat.convert_to_bytes(app_name),
+                                                                   compat.convert_to_bytes(task_name)))
+        params = {b'startTime': start_time, b'endTime': end_time, b'metricName': metric_name}
+        if statistics is not None and len(statistics) > 0:
+            params[b'statistics'] = ",".join(statistics)
+        if cycle is not None and cycle > 0:
+            params[b'cycle'] = cycle
+        if aggr_data is not None:
+            params[b'aggrData'] = aggr_data
+        if instances is not None and len(instances) > 0:
+            params[b'instances'] = ",".join(instances)
+        if dimensions is not None and len(dimensions) > 0:
+            params[b'dimensions'] = ",".join(dimensions)
+
+        return self._send_csm_request(http_methods.GET, path, params=params, body_parser=bcm_handler.parse_json_list)
+
+    def list_alarm_metrics_for_application(self, user_id, app_name, task_name, search_name=None):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param app_name: application name
+        :type app_name: string
+        :param task_name: task name
+        :type task_name: string
+        :param search_name: metric name
+        :type search_name: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/%s/%s/alarm/metrics' % (compat.convert_to_bytes(user_id),
+                                                                 compat.convert_to_bytes(app_name),
+                                                                 compat.convert_to_bytes(task_name)))
+        params = {}
+        if search_name is None:
+            params[b'searchName'] = search_name
+
+        return self._send_csm_request(http_methods.GET, path, params=params, body_parser=bcm_handler.parse_json_list)
+
+    def get_alarm_policy_for_application(self, user_id, alarm_name, app_name):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param app_name: application name
+        :type app_name: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/alarm/%s/config' % (compat.convert_to_bytes(user_id),
+                                                             compat.convert_to_bytes(alarm_name)))
+        params = {b'appName': app_name}
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    def delete_alarm_policy_for_application(self, user_id, alarm_name, app_name):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param app_name: application name
+        :type app_name: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/alarm/config' % compat.convert_to_bytes(user_id))
+        body = {
+            'appName': app_name,
+            "alarmName": alarm_name
+        }
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(body))
+
+    @required(page_no=int, page_size=int)
+    def list_alarm_policy_for_application(self, user_id, page_no, page_size=None, app_name=None, alarm_name=None,
+                                          action_enabled=None, src_type=None, task_name=None):
+        """
+
+        :param user_id:
+        :type user_id: string
+        :param page_no: page number
+        :type page_no: int
+        :param app_name: application name
+        :type app_name: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+        :param action_enabled: is action enabled
+        :type action_enabled: bool
+        :param src_type: task type, enum: PROC,PORT,LOG,SCR
+        :type src_type: string
+        :param task_name: task name
+        :type task_name: string
+        :param page_size: page size
+        :type page_size: int
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/alarm/config/list' % compat.convert_to_bytes(user_id))
+        params = {
+            b'pageNo': page_no,
+            b'pageSize': page_size,
+            b'appName': app_name,
+            b'alarmName': alarm_name,
+            b'actionEnabled': action_enabled,
+            b'srcType': src_type,
+            b'taskName': task_name,
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    @required(rules=list)
+    def create_alarm_policy_for_application(self, user_id, alarm_description, alarm_name, app_name,
+                                            monitor_object_type, monitor_object, src_name, src_type, type, level,
+                                            rules, action_enabled=True, incident_actions=None, resume_actions=None,
+                                            insufficient_actions=None, insufficient_cycle=None, repeat_alarm_cycle=0,
+                                            max_repeat_count=0):
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_description: alarm policy comment
+        :type alarm_description: string
+        :param alarm_name: unique alarm name in user_id
+        :type alarm_name: string
+        :param app_name: application name
+        :type app_name: string
+        :param monitor_object_type: monitor object type, enum: APP, SERVICE
+        :type monitor_object_type: string
+        :param monitor_object: application monitor object
+        :type monitor_object: bcm_model.ApplicationMonitorObject
+        :param src_name: task name
+        :type src_name: string
+        :param src_type: task type, enum: PROC,PORT,LOG,SCR
+        :type src_type: string
+        :param type: alarm type
+        :type type: string
+        :param level: alarm level
+        :type level: string
+        :param rules: list of application alarm rules
+        :type rules: list of ApplicationAlarmRule
+        :param action_enabled: is alarm action enabled
+        :type action_enabled: bool
+        :param incident_actions: The action to be taken in the alarm state
+        :type incident_actions: list of string
+        :param resume_actions: The action to be taken in the alarm resume
+        :type resume_actions: list of string
+        :param insufficient_actions:
+        :type insufficient_actions: list of string
+        :param insufficient_cycle: insufficient cycle
+        :type insufficient_cycle: int
+        :param repeat_alarm_cycle: repeat alarm_cycle
+        :type repeat_alarm_cycle: int
+        :param max_repeat_count: max repeat count
+        :type max_repeat_count: int
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/alarm/config/create' % compat.convert_to_bytes(user_id))
+        body = {
+            "userId": user_id,
+            "alarmDescription": alarm_description,
+            "appName": app_name,
+            "alarmName": alarm_name,
+            "monitorObjectType": monitor_object_type,
+            "monitorObject": monitor_object,
+            "srcName": src_name,
+            "srcType": src_type,
+            "type": type,
+            "level": level,
+            "actionEnabled": action_enabled,
+            "incidentActions": incident_actions,
+            "resumeActions": resume_actions,
+            "insufficientActions": insufficient_actions,
+            "insufficientCycle": insufficient_cycle,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "rules": rules
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(rules=list)
+    def update_alarm_policy_for_application(self, user_id, alarm_description, alarm_name, app_name,
+                                            monitor_object_type, monitor_object, src_name, src_type, type, level,
+                                            rules, action_enabled=True, incident_actions=None, resume_actions=None,
+                                            insufficient_actions=None, insufficient_cycle=None, repeat_alarm_cycle=0,
+                                            max_repeat_count=0):
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_description: alarm policy comment
+        :type alarm_description: string
+        :param alarm_name: unique alarm name in user_id
+        :type alarm_name: string
+        :param app_name: application name
+        :type app_name: string
+        :param monitor_object_type: monitor object type, enum: APP, SERVICE
+        :type monitor_object_type: string
+        :param monitor_object: application monitor object
+        :type monitor_object: bcm_model.ApplicationMonitorObject
+        :param src_name: task name
+        :type src_name: string
+        :param src_type: task type, enum: PROC,PORT,LOG,SCR
+        :type src_type: string
+        :param type: alarm type
+        :type type: string
+        :param level: alarm level
+        :type level: string
+        :param rules: list of application alarm rules
+        :type rules: list of ApplicationAlarmRule
+        :param action_enabled: is alarm action enabled
+        :type action_enabled: bool
+        :param incident_actions: The action to be taken in the alarm state
+        :type incident_actions: list of string
+        :param resume_actions: The action to be taken in the alarm resume
+        :type resume_actions: list of string
+        :param insufficient_actions:
+        :type insufficient_actions: list of string
+        :param insufficient_cycle: insufficient cycle
+        :type insufficient_cycle: int
+        :param repeat_alarm_cycle: repeat alarm_cycle
+        :type repeat_alarm_cycle: int
+        :param max_repeat_count: max repeat count
+        :type max_repeat_count: int
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/userId/%s/application/alarm/config/update' % compat.convert_to_bytes(user_id))
+        body = {
+            "userId": user_id,
+            "alarmDescription": alarm_description,
+            "appName": app_name,
+            "alarmName": alarm_name,
+            "monitorObjectType": monitor_object_type,
+            "monitorObject": monitor_object,
+            "srcName": src_name,
+            "srcType": src_type,
+            "type": type,
+            "level": level,
+            "actionEnabled": action_enabled,
+            "incidentActions": incident_actions,
+            "resumeActions": resume_actions,
+            "insufficientActions": insufficient_actions,
+            "insufficientCycle": insufficient_cycle,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "rules": rules
+        }
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body))
