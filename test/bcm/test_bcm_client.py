@@ -30,7 +30,7 @@ HOST = b'bcm.bj.baidubce.com'
 AK = b'your ak'
 SK = b'your sk'
 
-user_id = '11111'
+user_id = '111111'
 scope = 'BCE_BCC'
 metric_name = 'CpuIdlePercent'
 metric_name_batch = 'CPUUsagePercent,MemUsagePercent'
@@ -266,6 +266,169 @@ class TestBcmClient(unittest.TestCase):
         response = self.client.get_custom_event(user_id=user_id, namespace=namespace, event_name=event_name)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+
+    def test_list_notify_group(self):
+        """
+        test list notify group
+        """
+        response = self.client.list_notify_group(page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_notify_party(self):
+        """
+        test list notify party
+        """
+        response = self.client.list_notify_party(name="test", page_no=1, page_size=5)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_action(self):
+        """
+        test create action
+        """
+        notification = bcm_model.Notification("EMAIL")
+        member = bcm_model.Member("notifyParty", "56c9e0e2138c4f", "lzs")
+        response = self.client.create_action(user_id, [notification], [member],"test_wjr_py")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_action(self):
+        """
+        test delete action
+        """
+        response = self.client.delete_action(user_id=user_id, name="bb832cf9-ce5e-4c59-85a0-4ddf30******")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_action(self):
+        """
+        test list action
+        """
+        response = self.client.list_action(user_id=user_id, page_no=1, page_size=5, name="test")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_action(self):
+        """
+        test update action
+        """
+        notification = bcm_model.Notification("EMAIL")
+        member = bcm_model.Member("notifyParty", "56c9e0e2138c4f", "lzs")
+        response = self.client.update_action(user_id=user_id, notifications=[notification], members=[member],
+                                             alias="test_wjr_py",
+                                             disable_times=[], action_callbacks=[],
+                                             name="2185c71a-9132-4b4e-92d2-35eebd******")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_log_extract(self):
+        """
+        test log extract
+        """
+        extract_rule = ("800] \"(?<method>(GET|POST|PUT|DELETE)) .*/v1/dashboard/metric/(?<widget>("
+                        "cycle|trend|report|billboard|gaugechart)) HTTP/1.1\".* (?<resTime>[0-9]+)ms")
+        log_example = ("10.157.16.207 - - [09/Apr/2020:20:45:33 +0800] \"POST /v1/dashboard/metric/gaugechart "
+                       "HTTP/1.1\" 200 117 109ms")
+        response = self.client.log_extract(user_id=user_id, extract_rule=extract_rule, log_example=log_example)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_query_metric_meta_for_application(self):
+        """
+        test query metric meta for_application
+        """
+        response = self.client.query_metric_meta_for_application(user_id=user_id, app_name="test14",
+                                                                 task_name="79c35af26c4346ab844bcbcdde******",
+                                                                 metric_name="log.responseTime",
+                                                                 dimension_keys=["method"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_query_metric_data_for_application(self):
+        """
+        test query metric data for_application
+        """
+        response = self.client.query_metric_data_for_application(user_id=user_id, app_name="zmq-log-1115",
+                                                                 task_name="6d3f07e6684d47b69ca9600f7f******",
+                                                                 metric_name="exec.6d3f07e6684d47b69ca9600f7f******.me",
+                                                                 start_time="2023-12-05T09:54:15Z",
+                                                                 end_time="2023-12-05T10:04:15Z",
+                                                                 instances=["0.zmq-log-1115"],
+                                                                 statistics=["average", "maximum"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_alarm_metrics_for_application(self):
+        """
+        test list alarm metrics for application
+        """
+        response = self.client.list_alarm_metrics_for_application(user_id=user_id, app_name="test_ymd_app_0918",
+                                                                  task_name="46e78b2831394f738429f88265******",
+                                                                  search_name="test_name")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_alarm_policy_for_application(self):
+        """
+        test get alarm policy for application
+        """
+        response = self.client.get_alarm_policy_for_application(user_id=user_id, app_name="test_ymd_app_0918",
+                                                                alarm_name="inst-test")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_alarm_policy_for_application(self):
+        """
+        test delete alarm policy for application
+        """
+        response = self.client.delete_alarm_policy_for_application(user_id=user_id, app_name="uuu", alarm_name="dasd")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_alarm_policy_for_application(self):
+        """
+        test list alarm policy for application
+        """
+        response = self.client.list_alarm_policy_for_application(user_id=user_id, page_no=1, src_type="PORT")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_alarm_policy_for_application(self):
+        """
+        test create alarm policy for application
+        """
+        monito_object_view = bcm_model.ApplicationObjectView("zmq-log-1115.453bf9588c9e488f9ba2c98412******")
+        monitor_object = bcm_model.ApplicationMonitorObject("APP", [monito_object_view])
+        rule = bcm_model.ApplicationAlarmRule("log.ab3b543f41974e26ab984d94fc******.log_metric", "log_metric",
+                                              60, "average", 10, ">", 1,
+                                              0, [])
+        response = self.client.create_alarm_policy_for_application(user_id, "", "test_wjr_py",
+                                                                   "zmq-log-1115", "APP",
+                                                                   monitor_object, "ab3b543f41974e26ab984d94fc******",
+                                                                   "LOG", "INSTANCE", "MAJOR",
+                                                                   [[rule]], incident_actions=["624c99b5-5436-478c"
+                                                                                               "-8326-0efc81******"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_alarm_policy_for_application(self):
+        """
+        test update alarm policy for application
+        """
+        monito_object_view = bcm_model.ApplicationObjectView("zmq-log-1115.453bf9588c9e488f9ba2c98412******")
+        monitor_object = bcm_model.ApplicationMonitorObject("APP", [monito_object_view])
+        rule = bcm_model.ApplicationAlarmRule("log.ab3b543f41974e26ab984d94fc******.log_metric2", "log_metric2",
+                                              60, "average", 10, ">", 1,
+                                              0, [])
+        response = self.client.update_alarm_policy_for_application(user_id, "", "test_wjr_py",
+                                                                   "zmq-log-1115", "APP",
+                                                                   monitor_object, "ab3b543f41974e26ab984d94fc******",
+                                                                   "LOG", "INSTANCE", "MAJOR",
+                                                                   [[rule]], incident_actions=["624c99b5-5436-478c-8326-0efc81******"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
 
 
 if __name__ == '__main__':

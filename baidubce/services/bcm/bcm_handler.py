@@ -16,10 +16,32 @@ This module provides general http handler functions for processing http response
 
 import http.client
 import json
-from baidubce import compat
+from baidubce import compat, utils
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 
+
+
+def parse_json_list(http_response, response):
+    """If the body is not empty, convert it to a python object and set as the value of
+    response.body. http_response is always closed if no error occurs.
+
+    :param http_response: the http_response object returned by HTTPConnection.getresponse()
+    :type http_response: httplib.HTTPResponse
+
+    :param response: general response object which will be returned to the caller
+    :type response: baidubce.BceResponse
+
+    :return: always true
+    :rtype bool
+    """
+    body = http_response.read()
+    if body:
+        body = compat.convert_to_string(body)
+        response.__dict__["result"] = json.loads(body, object_hook=utils.dict_to_python_object)
+        response.__dict__["raw_data"] = body
+    http_response.close()
+    return True
 
 def parse_error(http_response, response):
     """If the body is not empty, convert it to a python object and set as the value of
