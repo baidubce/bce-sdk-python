@@ -32,6 +32,8 @@ EIP_GRP_NAME = ''
 EIP_GROUP_STATUS = ''
 MARKER = ''
 MAX_KEYS = 500
+EIP_MOVE_OUT_ID = []
+EIP_MOVE_IN_ID = []
 
 pre_paid_billing = eip_group_model.Billing('Prepaid')
 
@@ -137,6 +139,27 @@ class TestEipGroupClient(unittest.TestCase):
         client_token = generate_client_token()
         self.client.purchase_reserved_eip_group(
             id=EIP_GRP_ID, client_token=client_token)
+        
+    def test_delete_eip_group(self):
+        """
+        test case for deleting EIP group
+        """
+        client_token = generate_client_token()
+        self.client.delete_eip_group(id=EIP_GRP_ID, client_token=client_token)
+    
+    def test_eip_group_move_out(self):
+        """
+        test case for moving EIP group out
+        """
+        client_token = generate_client_token()
+        self.client.eip_group_move_out(id=EIP_GRP_ID,move_out_args=EIP_MOVE_OUT_ID)
+
+    def test_eip_group_move_in(self):
+        """
+        test case for moving EIP group in
+        """
+        client_token = generate_client_token()
+        self.client.eip_group_move_in(id=EIP_GRP_ID, move_in_args=EIP_MOVE_IN_ID)
 
 
 def generate_client_token_by_uuid():
@@ -165,6 +188,9 @@ if __name__ == '__main__':
     # suite.addTest(TestEipGroupClient("test_resize_eip_group_bandwidth"))
     # suite.addTest(TestEipGroupClient("test_resize_eip_group_count"))
     # suite.addTest(TestEipGroupClient("test_purchase_reserved_eip_group"))
+    # suite.addTest(TestEipGroupClient("test_delete_eip_group"))
+    # suite.addTest(TestEipGroupClient("test_eip_group_move_out"))
+    # suite.addTest(TestEipGroupClient("test_eip_group_move_in"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

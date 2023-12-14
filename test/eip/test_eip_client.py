@@ -94,6 +94,56 @@ class TestEipClient(unittest.TestCase):
         # self.the_client.list_eips(eip='x.x.x.x')
         print((self.the_client.list_eips(status=EipStatus.BINDED)))
 
+    def test_start_auto_renew_eip(self):
+        """
+        test case for start_auto_renew_eip
+        """
+        self.the_client.start_auto_renew_eip('x.x.x.x', 'Month', 1)
+
+    def test_stop_auto_renew_eip(self):
+        """
+        test case for stop_auto_renew_eip
+        """
+        self.the_client.stop_auto_renew_eip('x.x.x.x')
+
+    def test_direct_eip(self):
+        """
+        test case for direct_eip
+        """
+        self.the_client.direct_eip('x.x.x.x')
+    
+    def test_undirect_eip(self):
+        """
+        test case for undirect_eip
+        """
+        self.the_client.undirect_eip('x.x.x.x')
+    
+    def test_list_eip_recycle(self):
+        """
+        test case for list_eip_recycle
+        """
+        print(self.the_client.list_eip_recycle())
+        print(self.the_client.list_eip_recycle('x.x.x.x'))
+
+    def test_optional_delete_eip(self):
+        """
+        test case for optional_delete_eip
+        """
+        self.the_client.optional_delete_eip('x.x.x.x', False)
+    
+    def test_restore_recycle_eip(self):
+        """
+        test case for restore_recycle_eip
+        """
+        self.the_client.restore_recycle_eip('x.x.x.x')
+
+    def test_delete_recycle_eip(self):
+        """
+        test case for delete_recycle_eip
+        """
+        self.the_client.delete_recycle_eip('x.x.x.x')
+    
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -104,5 +154,13 @@ if __name__ == "__main__":
     # suite.addTest(TestEipClient("test_purchase_reserved_eip"))
     # suite.addTest(TestEipClient("test_bind_eip"))
     # suite.addTest(TestEipClient("test_unbind_eip"))
+    # suite.addTest(TestEipClient("test_list_eip_recycle"))
+    # suite.addTest(TestEipClient("test_optional_delete_eip"))
+    # suite.addTest(TestEipClient("test_restore_recycle_eip"))
+    # suite.addTest(TestEipClient("test_delete_recycle_eip"))
+    # suite.addTest(TestEipClient("test_start_auto_renew_eip"))
+    # suite.addTest(TestEipClient("test_stop_auto_renew_eip"))
+    # suite.addTest(TestEipClient("test_direct_eip"))
+    # suite.addTest(TestEipClient("test_undirect_eip"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
