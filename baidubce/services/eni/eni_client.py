@@ -134,13 +134,13 @@ class EniClient(bce_base_client.BceBaseClient):
             pri_ip_set = []
             for ip_set in eni_ip_address_list:
                 pri_ip_set.append({"publicIpAddress":ip_set.public_ip, "primary":ip_set.primary,
-                                  "privateIpAddress":ip_set.private_ip})
+                                   "privateIpAddress":ip_set.private_ip})
             body['privateIpSet'] = pri_ip_set
         if eni_ipv6_address_list is not None:
             pri_ipv6_set = []
             for ip_set in eni_ipv6_address_list:
                 pri_ipv6_set.append({"publicIpAddress":ip_set.public_ip, "primary":ip_set.primary,
-                                    "privateIpAddress":ip_set.private_ip})
+                                     "privateIpAddress":ip_set.private_ip})
             body['ipv6PrivateIpSet'] = pri_ipv6_set
         if description is not None:
             body['description'] = compat.convert_to_string(description)
@@ -216,7 +216,7 @@ class EniClient(bce_base_client.BceBaseClient):
 
     @required(vpc_id=(bytes, str), instance_id=(bytes, str), name=(bytes, str), private_ip_address_list=list, 
               marker=(bytes, str), max_keys=int)
-    def list_eni(self, vpc_id=None, instance_id=None, name=None, private_ip_address_list=None, 
+    def list_eni(self, vpc_id, instance_id=None, name=None, private_ip_address_list=None, 
                  marker=None, max_keys=None, client_token=None, config=None):
         """
         :param vpc_id: The parameter to specify the vpc id
@@ -256,8 +256,7 @@ class EniClient(bce_base_client.BceBaseClient):
         """
         path = b'/eni'
         params = {}
-        if vpc_id is not None:
-            params[b'vpcId'] = compat.convert_to_string(vpc_id)
+        params[b'vpcId'] = compat.convert_to_string(vpc_id)
         if instance_id is not None:
             params[b'instanceId'] = compat.convert_to_string(instance_id)
         if name is not None:
@@ -279,7 +278,7 @@ class EniClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(eni_id=(bytes, str), is_ipv6=bool, private_ip_address=(bytes, str))
-    def add_private_ip(self, eni_id, is_ipv6=None, private_ip_address=None, client_token=None, config=None):
+    def add_private_ip(self, eni_id, private_ip_address, is_ipv6=None, client_token=None, config=None):
         """
         :param eni_id: The parameter to specify the id of eni
         :type eni_id: string
@@ -310,15 +309,14 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        if private_ip_address is not None:
-            body[b'privateIpAddress'] = compat.convert_to_bytes(private_ip_address)
+        body[b'privateIpAddress'] = compat.convert_to_bytes(private_ip_address)
         if is_ipv6 is not None:
             body[b'isIpv6'] = is_ipv6
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
     @required(eni_id=(bytes, str), private_ip_address=(bytes, str))
-    def delete_private_ip(self, eni_id, private_ip_address=None, client_token=None, config=None):
+    def delete_private_ip(self, eni_id, private_ip_address, client_token=None, config=None):
         """
         :param eni_id: The parameter to specify the id of eni
         :type eni_id: string
@@ -469,8 +467,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        if security_group_ids is not None:
-            body[b'securityGroupIds'] = security_group_ids
+        body[b'securityGroupIds'] = security_group_ids
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -503,8 +500,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        if enterprise_security_group_ids is not None:
-            body[b'enterpriseSecurityGroupIds'] = enterprise_security_group_ids
+        body[b'enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -551,7 +547,7 @@ class EniClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(eni_id=(bytes, str), private_ip_address_list=list)
-    def batch_delete_private_ip(self, eni_id, private_ip_address_list=None, client_token=None, config=None):
+    def batch_delete_private_ip(self, eni_id, private_ip_address_list, client_token=None, config=None):
         """
         :param eni_id: The parameter to specify the id of eni
         :type eni_id: string
@@ -579,8 +575,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        if private_ip_address_list is not None:
-            body[b'privateIpAddresses'] = private_ip_address_list
+        body[b'privateIpAddresses'] = private_ip_address_list
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
