@@ -37,7 +37,6 @@ class BcmClient(bce_base_client.BceBaseClient):
     content_type_header_value = b"application/json;charset=utf-8"
     request_id_header_key = b"x-bce-request-id"
 
-
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
@@ -554,7 +553,8 @@ class BcmClient(bce_base_client.BceBaseClient):
             raise ValueError('cycle should not be none')
 
         path = (b'/userId/%s/custom/namespaces/%s/metrics/%s' % (compat.convert_to_bytes(user_id),
-                compat.convert_to_bytes(namespace), compat.convert_to_bytes(metric_name)))
+                                                                 compat.convert_to_bytes(namespace),
+                                                                 compat.convert_to_bytes(metric_name)))
         body = {
             "userId": user_id,
             "namespace": namespace,
@@ -664,7 +664,8 @@ class BcmClient(bce_base_client.BceBaseClient):
             raise ValueError('metric_name should not be none or empty string')
 
         path = (b'/userId/%s/custom/namespaces/%s/metrics/%s' % (compat.convert_to_bytes(user_id),
-                compat.convert_to_bytes(namespace), compat.convert_to_bytes(metric_name)))
+                                                                 compat.convert_to_bytes(namespace),
+                                                                 compat.convert_to_bytes(metric_name)))
         params = {}
 
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
@@ -1428,3 +1429,518 @@ class BcmClient(bce_base_client.BceBaseClient):
             "rules": rules
         }
         return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body))
+
+    def create_dashboard(self, user_id=None, title=None, configure=None, dashboard_type=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param title:
+                Title of the dashboard
+            :type title: string
+
+            :param configure:
+                Configure the dashboard
+            :type configure:string
+
+            :param dashboard_type:
+                Dashboard type
+            :type dashboard_type:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "userId": user_id,
+            "title": title,
+            "configure": configure,
+            "type": dashboard_type
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/dashboard/products/%s/dashboards' % user_id
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard(self, user_id=None, dashboard_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        path = b'/dashboard/products/%s/dashboards/%s' % (user_id, dashboard_name)
+        return self._send_csm_request(http_methods.GET, path, config=config)
+
+    def update_dashboard(self, user_id=None, title=None, configure=None,
+                         dashboard_type=None, dashboard_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param title:
+                Title of the dashboard
+            :type title: string
+
+            :param configure:
+                Configure the dashboard
+            :type configure:string
+
+            :param dashboard_type:
+                Dashboard type
+            :type dashboard_type:string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        body = {
+            "userId": user_id,
+            "title": title,
+            "configure": configure,
+            "type": dashboard_type
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        path = b'/dashboard/products/%s/dashboards/%s' % (user_id, dashboard_name)
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def delete_dashboard(self, user_id=None, dashboard_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        path = b'/dashboard/products/%s/dashboards/%s' % (user_id, dashboard_name)
+        return self._send_csm_request(http_methods.DELETE, path, config=config)
+
+    def duplicate_dashboard(self, user_id=None, dashboard_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        body = {
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        path = b'/dashboard/products/%s/dashboards/%s/duplicate' % (user_id, dashboard_name)
+        return self._send_csm_request(http_methods.POST, path, json.dumps(body), config=config)
+
+    def create_dashboard_widget(self, user_id=None, dashboard_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        body = {
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        path = b'/dashboard/products/%s/dashboards/%s/widgets' % (user_id, dashboard_name)
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_widget(self, user_id=None, dashboard_name=None, widget_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param widget_name:
+                Widget name
+            :type widget_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        if len(widget_name) <= 0:
+            raise ValueError('widget_name should be none or empty string')
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        widget_name = compat.convert_to_bytes(widget_name)
+        path = b'/dashboard/products/%s/dashboards/%s/widgets/%s' % (user_id, dashboard_name, widget_name)
+        return self._send_csm_request(http_methods.GET, path, config=config)
+
+    def delete_dashboard_widget(self, user_id=None, dashboard_name=None, widget_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param widget_name:
+                Widget name
+            :type widget_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        if len(widget_name) <= 0:
+            raise ValueError('widget_name should be none or empty string')
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        widget_name = compat.convert_to_bytes(widget_name)
+        path = b'/dashboard/products/%s/dashboards/%s/widgets/%s' % (user_id, dashboard_name, widget_name)
+        return self._send_csm_request(http_methods.DELETE, path, config=config)
+
+    def duplicate_dashboard_widget(self, user_id=None, dashboard_name=None, widget_name=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param widget_name:
+                Widget name
+            :type widget_name:string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        if len(widget_name) <= 0:
+            raise ValueError('widget_name should be none or empty string')
+        body = {
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        widget_name = compat.convert_to_bytes(widget_name)
+        path = (b'/dashboard/products/%s/dashboards/%s/widgets/%s/duplicate' %
+                (user_id, dashboard_name, widget_name))
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_dashboard_widget(self, user_id=None, dashboard_name=None, widget_name=None,
+                                widget_type=None, title=None, configure=None, config=None):
+        """
+            Create a dashboard
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dashboard_name:
+                Dashboard name
+            :type dashboard_name:string
+
+            :param widget_name:
+                Widget name
+            :type widget_name:string
+
+            :param widget_type:
+                Widget type
+            :type widget_type:string
+
+            :param configure:
+                Widget configure
+            :type configure:object
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(dashboard_name) <= 0:
+            raise ValueError('dashboard_name should not be none or empty string')
+        if len(widget_name) <= 0:
+            raise ValueError('widget_name should be none or empty string')
+        body = {
+            "title": title,
+            "type": widget_type,
+            "configure": configure
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        dashboard_name = compat.convert_to_bytes(dashboard_name)
+        widget_name = compat.convert_to_bytes(widget_name)
+        path = b'/dashboard/products/%s/dashboards/%s/widgets/%s' % (user_id, dashboard_name, widget_name)
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_report_data(self, data=None, time=None, config=None):
+        """
+            Get dashboard report data
+            :param data:
+                Query data
+            :type data: object
+
+            :param time:
+                Query data time
+            :type time: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "data": data,
+            "time": time
+        }
+        path = b'/dashboard/metric/report'
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_trend_data(self, data=None, time=None, config=None):
+        """
+            Get dashboard report data
+            :param data:
+                Query data
+            :type data: object
+
+            :param time:
+                Query data time
+            :type time: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "data": data,
+            "time": time
+        }
+        path = b'/dashboard/metric/trend'
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_gauge_chart_data(self, data=None, time=None, config=None):
+        """
+            Get dashboard report data
+            :param data:
+                Query data
+            :type data: object
+
+            :param time:
+                Query data time
+            :type time: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "data": data,
+            "time": time
+        }
+        path = b'/dashboard/metric/gaugechart'
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_billboard_data(self, data=None, time=None, config=None):
+        """
+            Get dashboard report data
+            :param data:
+                Query data
+            :type data: object
+
+            :param time:
+                Query data time
+            :type time: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "data": data,
+            "time": time
+        }
+        path = b'/dashboard/metric/billboard'
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_trend_senior_data(self, data=None, time=None, config=None):
+        """
+            Get dashboard report data
+            :param data:
+                Query data
+            :type data: object
+
+            :param time:
+                Query data time
+            :type time: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        body = {
+            "data": data,
+            "time": time
+        }
+        path = b'/dashboard/metric/trend/senior'
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def get_dashboard_dimensions(self, user_id, metric_name, region, service, show_id,
+                                 dimensions=None, config=None):
+        """
+            Get dashboard dimensions
+            :param user_id:
+                 Master account ID
+            :type user_id: string
+
+            :param dimensions:
+                dashboard dimensions
+            :type dimensions: string
+
+            :param metric_name:
+                dashboard metric_name
+            :type metric_name: string
+
+            :param region:
+                dashboard dimensions region
+            :type region: string
+
+            :param service:
+                cloud service
+            :type service:
+
+            :param show_id:
+                cloud resourceId
+            :type show_id:
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(metric_name) <= 0:
+            raise ValueError('metric_name should not be none or empty string')
+        if len(region) <= 0:
+            raise ValueError('region should not be none or empty string')
+        if len(service) <= 0:
+            raise ValueError('service should not be none or empty string')
+        if len(show_id) <= 0:
+            raise ValueError('show_id should not be none or empty string')
+        params = {
+            b'dimensions': dimensions,
+            b'userId': user_id,
+            b'metricName': metric_name,
+            b'region': region,
+            b'service': service,
+            b'showId': show_id,
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        service = compat.convert_to_bytes(service)
+        region = compat.convert_to_bytes(region)
+        path = b'/userId/%s/services/%s/region/%s/metric/dimensions' % (user_id, service, region)
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)

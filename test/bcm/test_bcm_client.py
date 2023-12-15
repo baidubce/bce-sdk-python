@@ -430,6 +430,683 @@ class TestBcmClient(unittest.TestCase):
         print(response)
 
 
+    def test_get_dashboard(self):
+        dashboard_name = '_54507'
+        response = self.client.get_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_dashboard(self):
+        title = 'yyy-python3'
+        dashboard_type = 'common'
+        configure = "{\"tabs\":[{\"dimensions\":[],\"metric\":[],\"name\":\"\",\"namespace\":[],\"widgets\":[[{\"name\":\"_54382_54383\"},{\"name\":\"_54382_54384\"},{\"name\":\"_54382_54385\"}],[{\"name\":\"_54382_54386\"}]]}]}"
+        response = self.client.create_dashboard(user_id=user_id, configure=configure,
+                                                title=title, dashboard_type=dashboard_type)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_dashboard(self):
+        dashboard_name = '_54550'
+        title = 'yyy-python-update2'
+        dashboard_type = 'common'
+        configure = "{\"tabs\":[{\"dimensions\":[],\"metric\":[],\"name\":\"\",\"namespace\":[],\"widgets\":[[{\"name\":\"_54382_54383\"},{\"name\":\"_54382_54384\"},{\"name\":\"_54382_54385\"}],[{\"name\":\"_54382_54386\"}]]}]}"
+        response = self.client.update_dashboard(user_id=user_id, configure=configure,
+                                                title=title, dashboard_type=dashboard_type,
+                                                dashboard_name=dashboard_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_dashboard(self):
+        dashboard_name = '_54549'
+        response = self.client.delete_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_duplicate_dashboard(self):
+        dashboard_name = '_54579'
+        response = self.client.duplicate_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_widget(self):
+        dashboard_name = '_54579'
+        widget_name = '_54579_54586'
+        response = self.client.get_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                    , widget_name=widget_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_dashboard_widget(self):
+        dashboard_name = '_54579'
+        response = self.client.create_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_dashboard_widget(self):
+        dashboard_name = '_54579'
+        widget_name = '_54579_54586'
+        response = self.client.delete_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                       , widget_name=widget_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_duplicate_dashboard_widget(self):
+        dashboard_name = '_54579'
+        widget_name = '_54579_54584'
+        response = self.client.duplicate_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                          , widget_name=widget_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_dashboard_widget(self):
+        dashboard_name = '_54579'
+        widget_name = '_54579_54584'
+        widget_type = 'trend'
+        title = 'bccNew'
+        configure = {
+            "data": [
+                {
+                    "metric": [
+                        {
+                            "name": "CpuIdlePercent",
+                            "unit": "%",
+                            "alias": "CPU空闲率",
+                            "contrast": [],
+                            "timeContrast": [],
+                            "statistics": "avg"
+                        }
+                    ],
+                    "monitorObject": [
+                        {
+                            "instanceName": "zmq-as0001 ",
+                            "id": "i-yq8qU5Qf"
+                        }
+                    ],
+                    "scope": "BCE_BCC",
+                    "subService": "linux",
+                    "region": "bj",
+                    "scopeValue": {
+                        "name": "BCC",
+                        "value": "BCE_BCC",
+                    },
+                    "resourceType": "Instance",
+                    "monitorType": "scope",
+                    "namespace": [
+                        {
+                            "namespaceType": "instance",
+                            "transfer": "",
+                            "filter": "",
+                            "name": "i-yq8qU5Qf___bj.BCE_BCC.453bf9588c9e488f9ba2c984129090dc",
+                            "instanceName": "zmq-as0001 ",
+                            "region": "bj",
+                            "bcmService": "BCE_BCC",
+                            "subService": [
+                                {
+                                    "name": "serviceType",
+                                    "value": "linux"
+                                }
+                            ]
+                        }
+                    ],
+                    "product": "453bf9588c9e488f9ba2c984129090dc"
+                }
+            ],
+            "style": {
+                "displayType": "line",
+                "nullPointMode": "zero",
+                "threshold": 0,
+                "decimals": 2,
+                "isEdit": "true",
+                "unit": "%"
+            },
+            "title": "bccNew",
+            "timeRange": {
+                "timeType": "dashboard",
+                "unit": "minutes",
+                "number": 1,
+                "relative": "today()"
+            },
+            "time": "",
+            "monitorType": "scope"
+        }
+        response = self.client.update_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name,
+                                                       widget_name=widget_name, widget_type=widget_type,
+                                                       title=title, configure=configure, )
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_report_data(self):
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = self.client.get_dashboard_report_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_trend_data(self):
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = self.client.get_dashboard_trend_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_gauge_chart_data(self):
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = self.client.get_dashboard_gauge_chart_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_billboard_data(self):
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = self.client.get_dashboard_billboard_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_trend_senior_data(self):
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = self.client.get_dashboard_trend_senior_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_report_muti_data(self):
+        data = [
+            {
+                "region": "bj",
+                "subService": "linux",
+                "namespace": [
+                    {
+                        "namespaceType": "app",
+                        "transfer": "",
+                        "filter": "",
+                        "name": "41b372b8-3acc-423c-a6b0-af5c69fd1c41___bj.BCE_BEC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "instanceName": "prod.nmp.nn.yd1 ",
+                        "region": "bj",
+                        "bcmService": "BCE_BEC",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ]
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "monitorObject": [
+                    {
+                        "instanceName": "prod.nmp.nn.yd1",
+                        "id": "41b372b8-3acc-423c-a6b0-af5c69fd1c41"
+                    }
+                ],
+                "scope": "BCE_BEC",
+                "scopeValue": {
+                    "name": "BEC",
+                    "value": "BCE_BEC",
+                },
+                "metric": [
+                    {
+                        "displayName": "",
+                        "name": "vNicInBytes",
+                        "alias": "网卡输入流量",
+                        "unit": "Bytes",
+                        "contrast": [],
+                        "timeContrast": [],
+                        "statistics": "avg",
+                        "cycle": 60,
+                        "dimensions": [
+                            "eth1",
+                            "eth0"
+                        ],
+                        "metricDimensions": [
+                            {
+                                "name": "nicName",
+                                "values": [
+                                    "eth1",
+                                    "eth0"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = self.client.get_dashboard_report_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_trend_muti_data(self):
+        data = [
+            {
+                "region": "bj",
+                "subService": "linux",
+                "namespace": [
+                    {
+                        "namespaceType": "app",
+                        "transfer": "",
+                        "filter": "",
+                        "name": "41b372b8-3acc-423c-a6b0-af5c69fd1c41___bj.BCE_BEC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "instanceName": "prod.nmp.nn.yd1 ",
+                        "region": "bj",
+                        "bcmService": "BCE_BEC",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ]
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "monitorObject": [
+                    {
+                        "instanceName": "prod.nmp.nn.yd1",
+                        "id": "41b372b8-3acc-423c-a6b0-af5c69fd1c41"
+                    }
+                ],
+                "scope": "BCE_BEC",
+                "scopeValue": {
+                    "name": "BEC",
+                    "value": "BCE_BEC",
+                },
+                "metric": [
+                    {
+                        "displayName": "",
+                        "name": "vNicInBytes",
+                        "alias": "网卡输入流量",
+                        "unit": "Bytes",
+                        "contrast": [],
+                        "timeContrast": [],
+                        "statistics": "avg",
+                        "cycle": 60,
+                        "dimensions": [
+                            "eth1",
+                            "eth0"
+                        ],
+                        "metricDimensions": [
+                            {
+                                "name": "nicName",
+                                "values": [
+                                    "eth1",
+                                    "eth0"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = self.client.get_dashboard_trend_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_gauge_chart_muti_data(self):
+        data = [
+            {
+                "region": "bj",
+                "subService": "linux",
+                "namespace": [
+                    {
+                        "namespaceType": "app",
+                        "transfer": "",
+                        "filter": "",
+                        "name": "41b372b8-3acc-423c-a6b0-af5c69fd1c41___bj.BCE_BEC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "instanceName": "prod.nmp.nn.yd1 ",
+                        "region": "bj",
+                        "bcmService": "BCE_BEC",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ]
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "monitorObject": [
+                    {
+                        "instanceName": "prod.nmp.nn.yd1",
+                        "id": "41b372b8-3acc-423c-a6b0-af5c69fd1c41"
+                    }
+                ],
+                "scope": "BCE_BEC",
+                "scopeValue": {
+                    "name": "BEC",
+                    "value": "BCE_BEC",
+                },
+                "metric": [
+                    {
+                        "displayName": "",
+                        "name": "vNicInBytes",
+                        "alias": "网卡输入流量",
+                        "unit": "Bytes",
+                        "contrast": [],
+                        "timeContrast": [],
+                        "statistics": "avg",
+                        "cycle": 60,
+                        "dimensions": [
+                            "eth1",
+                            "eth0"
+                        ],
+                        "metricDimensions": [
+                            {
+                                "name": "nicName",
+                                "values": [
+                                    "eth1",
+                                    "eth0"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = self.client.get_dashboard_gauge_chart_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_billboard_muti_data(self):
+        data = [
+            {
+                "region": "bj",
+                "subService": "linux",
+                "namespace": [
+                    {
+                        "namespaceType": "app",
+                        "transfer": "",
+                        "filter": "",
+                        "name": "41b372b8-3acc-423c-a6b0-af5c69fd1c41___bj.BCE_BEC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "instanceName": "prod.nmp.nn.yd1 ",
+                        "region": "bj",
+                        "bcmService": "BCE_BEC",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ]
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "monitorObject": [
+                    {
+                        "instanceName": "prod.nmp.nn.yd1",
+                        "id": "41b372b8-3acc-423c-a6b0-af5c69fd1c41"
+                    }
+                ],
+                "scope": "BCE_BEC",
+                "scopeValue": {
+                    "name": "BEC",
+                    "value": "BCE_BEC",
+                },
+                "metric": [
+                    {
+                        "displayName": "",
+                        "name": "vNicInBytes",
+                        "alias": "网卡输入流量",
+                        "unit": "Bytes",
+                        "contrast": [],
+                        "timeContrast": [],
+                        "statistics": "avg",
+                        "cycle": 60,
+                        "dimensions": [
+                            "eth1",
+                            "eth0"
+                        ],
+                        "metricDimensions": [
+                            {
+                                "name": "nicName",
+                                "values": [
+                                    "eth1",
+                                    "eth0"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = self.client.get_dashboard_billboard_data(data=data, time=time, config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_dashboard_dimensions(self):
+        dimensions = "nicName"
+        metric_name = "vNicInBytes"
+        region = "bj"
+        service = "BCE_BEC"
+        show_id = "7744b3f3-ec04-459a-b3ae-4379111534ff"
+        response = self.client.get_dashboard_dimensions(user_id=user_id, metric_name=metric_name, region=region,
+                                                        service=service, show_id=show_id, dimensions=dimensions,
+                                                        config=None)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()

@@ -519,3 +519,517 @@ if __name__ == '__main__':
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # create_dashboard
+    try:
+        title = 'yyy-python3'
+        dashboard_type = 'common'
+        configure = ("{\"tabs\":[{\"dimensions\":[],\"metric\":[],\"name\":\"\",\"namespace\":[],"
+                     "\"widgets\":[[{\"name\":\"_54382_54383\"},{\"name\":\"_54382_54384\"},"
+                     "{\"name\":\"_54382_54385\"}],[{\"name\":\"_54382_54386\"}]]}]}")
+        response = bcm_client.create_dashboard(user_id=user_id, configure=configure,
+                                               title=title, dashboard_type=dashboard_type)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard
+    try:
+        dashboard_name = '_54507'
+        response = bcm_client.client.get_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update_dashboard
+    try:
+        dashboard_name = '_54550'
+        title = 'yyy-python-update2'
+        dashboard_type = 'common'
+        configure = ("{\"tabs\":[{\"dimensions\":[],\"metric\":[],\"name\":\"\",\"namespace\":[],\"widgets\":[[{"
+                     "\"name\":\"_54382_54383\"},{\"name\":\"_54382_54384\"},{\"name\":\"_54382_54385\"}],"
+                     "[{\"name\":\"_54382_54386\"}]]}]}")
+        response = bcm_client.update_dashboard(user_id=user_id, configure=configure,
+                                               title=title, dashboard_type=dashboard_type,
+                                               dashboard_name=dashboard_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete_dashboard
+    try:
+        dashboard_name = '_54549'
+        response = bcm_client.delete_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # duplicate_dashboard
+    try:
+        dashboard_name = '_54579'
+        response = bcm_client.duplicate_dashboard(user_id=user_id, dashboard_name=dashboard_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_widget
+    try:
+        dashboard_name = '_54579'
+        widget_name = '_54579_54586'
+        response = bcm_client.get_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                   , widget_name=widget_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create_dashboard_widget
+    try:
+        dashboard_name = '_54579'
+        response = bcm_client.create_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete_dashboard_widget
+    try:
+        dashboard_name = '_54579'
+        widget_name = '_54579_54586'
+        response = bcm_client.delete_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                      , widget_name=widget_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # duplicate_dashboard_widget
+    try:
+        dashboard_name = '_54579'
+        widget_name = '_54579_54584'
+        response = bcm_client.duplicate_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name
+                                                         , widget_name=widget_name)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update_dashboard_widget
+    try:
+        dashboard_name = '_54579'
+        widget_name = '_54579_54584'
+        widget_type = 'trend'
+        title = 'bccNew'
+        configure = {
+            "data": [
+                {
+                    "metric": [
+                        {
+                            "name": "CpuIdlePercent",
+                            "unit": "%",
+                            "alias": "CPU空闲率",
+                            "contrast": [],
+                            "timeContrast": [],
+                            "statistics": "avg"
+                        }
+                    ],
+                    "monitorObject": [
+                        {
+                            "instanceName": "zmq-as0001 ",
+                            "id": "i-yq8qU5Qf"
+                        }
+                    ],
+                    "scope": "BCE_BCC",
+                    "subService": "linux",
+                    "region": "bj",
+                    "scopeValue": {
+                        "name": "BCC",
+                        "value": "BCE_BCC",
+                    },
+                    "resourceType": "Instance",
+                    "monitorType": "scope",
+                    "namespace": [
+                        {
+                            "namespaceType": "instance",
+                            "transfer": "",
+                            "filter": "",
+                            "name": "i-yq8qU5Qf___bj.BCE_BCC.453bf9588c9e488f9ba2c984129090dc",
+                            "instanceName": "zmq-as0001 ",
+                            "region": "bj",
+                            "bcmService": "BCE_BCC",
+                            "subService": [
+                                {
+                                    "name": "serviceType",
+                                    "value": "linux"
+                                }
+                            ]
+                        }
+                    ],
+                    "product": "453bf9588c9e488f9ba2c984129090dc"
+                }
+            ],
+            "style": {
+                "displayType": "line",
+                "nullPointMode": "zero",
+                "threshold": 0,
+                "decimals": 2,
+                "isEdit": "true",
+                "unit": "%"
+            },
+            "title": "bccNew",
+            "timeRange": {
+                "timeType": "dashboard",
+                "unit": "minutes",
+                "number": 1,
+                "relative": "today()"
+            },
+            "time": "",
+            "monitorType": "scope"
+        }
+        response = bcm_client.update_dashboard_widget(user_id=user_id, dashboard_name=dashboard_name,
+                                                      widget_name=widget_name, widget_type=widget_type,
+                                                      title=title, configure=configure, )
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_report_data
+    try:
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+
+        time = "2023-12-08 09:10:59|2023-12-08 10:10:59"
+        response = bcm_client.get_dashboard_report_data(data=data, time=time, config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard
+    try:
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = bcm_client.get_dashboard_trend_data(data=data, time=time, config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_gauge_chart_data
+    try:
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = bcm_client.get_dashboard_gauge_chart_data(data=data, time=time, config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_billboard_data
+    try:
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = bcm_client.get_dashboard_billboard_data(data=data, time=time, config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_trend_senior_data
+    try:
+        data = [
+            {
+                "metric": [
+                    {
+                        "alias": "CPU空闲率",
+                        "cycle": 30,
+                        "displayName": "cpu",
+                        "name": "CpuIdlePercent",
+                        "statistics": "avg",
+                        "unit": "%"
+                    }
+                ],
+                "monitorObject": [
+                    {
+                        "id": "i-isvkUW76",
+                        "instanceName": "instance-xcy9049y "
+                    }
+                ],
+                "monitorType": "scope",
+                "namespace": [
+                    {
+                        "bcmService": "BCE_BCC",
+                        "instanceName": "instance-xcy9049y ",
+                        "name": "i-isvkUW76___bj.BCE_BCC.a0d04d7c202140cb80155ff7b6752ce4",
+                        "namespaceType": "app",
+                        "region": "bj",
+                        "subService": [
+                            {
+                                "name": "serviceType",
+                                "value": "linux"
+                            }
+                        ],
+                        "transfer": ""
+                    }
+                ],
+                "product": "a0d04d7c202140cb80155ff7b6752ce4",
+                "region": "bj",
+                "scope": "BCE_BCC",
+                "scopeValue": {
+                    "name": "BCC",
+                    "value": "BCE_BCC"
+                },
+                "subService": "linux"
+            }
+        ]
+        time = "2023-12-08 09:10:59|2023-12-08 09:11:59"
+        response = bcm_client.get_dashboard_trend_senior_data(data=data, time=time, config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_dashboard_dimensions
+    try:
+        dimensions = "nicName"
+        metric_name = "vNicInBytes"
+        region = "bj"
+        service = "BCE_BEC"
+        show_id = "7744b3f3-ec04-459a-b3ae-4379111534ff"
+        response = bcm_client.get_dashboard_dimensions(user_id=user_id, metric_name=metric_name, region=region,
+                                                       service=service, show_id=show_id, dimensions=dimensions,
+                                                       config=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
