@@ -30,7 +30,8 @@ HOST = b'bcm.bj.baidubce.com'
 AK = b'your ak'
 SK = b'your sk'
 
-user_id = '111111'
+user_id = '11111'
+app_name = "app_name"
 scope = 'BCE_BCC'
 metric_name = 'CpuIdlePercent'
 metric_name_batch = 'CPUUsagePercent,MemUsagePercent'
@@ -289,7 +290,7 @@ class TestBcmClient(unittest.TestCase):
         """
         notification = bcm_model.Notification("EMAIL")
         member = bcm_model.Member("notifyParty", "56c9e0e2138c4f", "lzs")
-        response = self.client.create_action(user_id, [notification], [member],"test_wjr_py")
+        response = self.client.create_action(user_id, [notification], [member], "test_wjr_py")
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -425,7 +426,177 @@ class TestBcmClient(unittest.TestCase):
                                                                    "zmq-log-1115", "APP",
                                                                    monitor_object, "ab3b543f41974e26ab984d94fc******",
                                                                    "LOG", "INSTANCE", "MAJOR",
-                                                                   [[rule]], incident_actions=["624c99b5-5436-478c-8326-0efc81******"])
+                                                                   [[rule]], incident_actions=[
+                "624c99b5-5436-478c-8326-0efc81******"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_application_data(self):
+        response = self.client.create_application_data(app_name, "BCC", user_id, "testAlias-1213", "description-1213")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_data_list(self):
+        response = self.client.get_application_data_list(user_id, 1, 10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_application_data(self):
+        response = self.client.update_application_data(user_id, "5401", app_name, "BCC", "test", "t1")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_application_data(self):
+        response = self.client.delete_application_data(user_id, "test_1213")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_instance_list(self):
+        response = self.client.get_application_instance_list(user_id, "bj", "test_1213", "name",
+                                                             1, 10, "bsm")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_application_instance(self):
+        host_list = [{
+            "instanceId": "7d4e09af-d01b-4492-88e9-c27d90967f0b",
+            "region": "bj"
+        }, {
+            "instanceId": "d8293318-7d34-433e-928a-b0e72cb3f3ba",
+            "region": "bj"
+        }]
+        response = self.client.create_application_instance(user_id, app_name, host_list)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_instance_created_list(self):
+        response = self.client.get_application_instance_created_list(user_id, app_name, "bj")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_application_instance(self):
+        response = self.client.delete_application_instance(user_id, app_name, "7099")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_application_instance_task(self):
+        response = self.client.create_application_instance_task(user_id, app_name, "task_proc_test",
+                                                                0, "/proc/exe", 300)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_application_instance_log_task(self):
+        log_example = "namespace:04b91096-a294-477d-bd11-1a7bcfb5a921\n"
+        match_rule = "namespace:(?P<namespace>[0-9a-fA-F-]+)"
+        rate = 5
+        extract_result = [{
+            "extractFieldName": "namespace",
+            "extractFieldValue": "04b91096-a294-477d-bd11-1a7bcfb5a921",
+            "dimensionMapTable": "namespaceTable"
+        }]
+        metrics = [
+            {
+                "metricName": "space",
+                "saveInstanceData": 1,
+                "valueFieldType": 0,
+                "aggrTags": [
+                    {
+                        "range": "App",
+                        "tags": ""
+                    },
+                    {
+                        "range": "App",
+                        "tags": "namespace"
+                    }
+                ],
+                "metricAlias": "",
+                "metricUnit": "",
+                "valueFieldName": ""
+            }
+        ]
+        response = self.client.create_application_instance_task(user_id, app_name, "task_log_test", 2, "/bin/log/info",
+                                                                60, "test_description", log_example, match_rule, rate,
+                                                                extract_result, metrics)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_monitor_task_detail(self):
+        task_name = "9b67163479fe4ffcb31a8a79aaf14cf9"
+        response = self.client.get_application_monitor_task_detail(user_id, app_name, task_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_monitor_task_list(self):
+        response = self.client.get_application_monitor_task_list(user_id, app_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_application_monitor_task(self):
+        response = self.client.update_application_monitor_task(user_id, app_name, "task_proc_test",
+                                                                "9b67163479fe4ffcb31a8a79aaf14cf9",
+                                                               0, "/proc/bin", 300, "test_description")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_application_monitor_log_task(self):
+        log_example = "namespace:04b91096-a294-477d-bd11-1a7bcfb5a921\n"
+        match_rule = "namespace:(?P<namespace>[0-9a-fA-F-]+)"
+        rate = 5
+        extract_result = [{
+            "extractFieldName": "namespace",
+            "extractFieldValue": "04b91096-a294-477d-bd11-1a7bcfb5a921",
+            "dimensionMapTable": "namespaceTable"
+        }]
+        metrics = [
+            {
+                "metricName": "space",
+                "saveInstanceData": 1,
+                "valueFieldType": 0,
+                "aggrTags": [
+                    {
+                        "range": "App",
+                        "tags": ""
+                    },
+                    {
+                        "range": "App",
+                        "tags": "namespace"
+                    }
+                ],
+                "metricAlias": "",
+                "metricUnit": "",
+                "valueFieldName": ""
+            }
+        ]
+        response = self.client.update_application_monitor_task(user_id, app_name, "task_log_test01", "424c68d575d24ef7bcd0b3f5e72643a2",
+                                                               2, "/bin/log/info",60, "test_description01", log_example, match_rule, rate,
+                                                                extract_result, metrics)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_application_monitor_task(self):
+        response = self.client.delete_application_monitor_task(user_id, "424c68d575d24ef7bcd0b3f5e72643a2", app_name)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_application_dimension_table(self):
+        response = self.client.create_application_dimension_table(user_id, app_name, "test_table",
+                                                                  "a=>1\nb=>2")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_application_dimension_table_list(self):
+        response = self.client.get_application_dimension_table_list(user_id, app_name, "test")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_application_dimension_table(self):
+        response = self.client.update_application_dimension_table(user_id, app_name, "test_table",
+                                                                  "a=>1")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_application_dimension_table(self):
+        response = self.client.delete_application_dimension_table(user_id, app_name, "test_table")
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
