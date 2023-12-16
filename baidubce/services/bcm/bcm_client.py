@@ -15,6 +15,7 @@ This module provides a client class for BCM.
 """
 import copy
 import json
+import sys
 import uuid
 
 from baidubce import bce_base_client, utils, compat
@@ -22,6 +23,11 @@ from baidubce.auth import bce_v1_signer
 from baidubce.http import handler, bce_http_client, http_methods
 from baidubce.services.bcm import bcm_handler, bcm_model
 from baidubce.utils import required
+
+if sys.version_info[0] == 2:
+    value_type = (str, unicode)
+else:
+    value_type = (str, bytes)
 
 
 class BcmClient(bce_base_client.BceBaseClient):
@@ -34,7 +40,7 @@ class BcmClient(bce_base_client.BceBaseClient):
     version = b'/v1'
 
     content_type_header_key = b"content-type"
-    content_type_header_value = b"application/json;charset=utf-8"
+    content_type_header_value = b"application/json;charset=UTF-8"
     request_id_header_key = b"x-bce-request-id"
 
     def __init__(self, config=None):
@@ -1944,3 +1950,556 @@ class BcmClient(bce_base_client.BceBaseClient):
         region = compat.convert_to_bytes(region)
         path = b'/userId/%s/services/%s/region/%s/metric/dimensions' % (user_id, service, region)
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+
+    def create_application_data(self, name, type, user_id, alias=None, description=None, config=None):
+        """
+        create application data
+        :param name:
+        :param type:
+        :param user_id:
+        :param alias:
+        :param description:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(type) <= 0:
+            raise ValueError("type should not be null")
+        if len(name) <= 0:
+            raise ValueError("name should not be null")
+        req = {
+            "name": name,
+            "type": type,
+            "userId": user_id,
+        }
+        if alias is not None:
+            req["alias"] = alias
+        if description is not None:
+            req["description"] = description
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application' % user_id
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(req), config=config)
+
+    def get_application_data_list(self, user_id, page_no=None, page_size=None, search_name=None, config=None):
+        """
+        get_application_data_list
+        :param user_id:
+        :param page_no:
+        :param page_size:
+        :param search_name:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if page_no is None:
+            page_no = 1
+        if page_size is None:
+            page_size = 10
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application' % user_id
+        params = {
+            b'pageSize': page_size,
+            b'pageNo': page_no,
+        }
+        if search_name is not None:
+            params[b'searchName'] = search_name
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def update_application_data(self, user_id, id, name, type, alias=None, description=None, config=None):
+        """
+        update_application_data
+        :param user_id:
+        :param id:
+        :param name:
+        :param type:
+        :param alias:
+        :param description:
+        :param config:
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(type) <= 0:
+            raise ValueError("type should not be null")
+        if len(name) <= 0:
+            raise ValueError("name should not be null")
+        if len(id) <= 0:
+            raise ValueError("id should not be null")
+        req = {
+            "userId": user_id,
+            "id": id,
+            "name": name,
+            "type": type
+        }
+        if alias is not None:
+            req["alias"] = alias
+        if description is not None:
+            req["description"] = description
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application' % user_id
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(req), config=config)
+
+    def delete_application_data(self, user_id, name, config=None):
+        """
+        delete_application_data
+        :param user_id:
+        :param name:
+        :param config:
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(name) <= 0:
+            raise ValueError("name should null be null")
+        req = {
+            "name": name
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application' % user_id
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(req), config=config)
+
+    def get_application_instance_list(self, user_id, region, app_name, search_name, page_no=None, page_size=None,
+                                      search_value=None, config=None):
+        """
+        get_application_instance_list
+        :param user_id:
+        :param region:
+        :param app_name:
+        :param search_name:
+        :param page_no:
+        :param page_size:
+        :param search_value:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if page_no is None:
+            page_no = 1
+        if page_size is None:
+            page_size = 10
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/instances/all' % user_id
+        req = {
+            "appName": app_name,
+            "region": region,
+            "pageNo": page_no,
+            "pageSize": page_size,
+            "searchName": search_name
+        }
+        if search_value is not None:
+            req["searchValue"] = search_value
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(req), config=config)
+
+    @required(user_id=value_type,
+              app_name=value_type,
+              host_list=list)
+    def create_application_instance(self, user_id, app_name, host_list, config=None):
+        """
+        create_application_instance
+        :param user_id:
+        :param app_name:
+        :param host_list:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(host_list) <= 0:
+            raise ValueError("host_list should not be null")
+        host_list_json = []
+        for host in host_list:
+            host_list_json.append(host)
+        req = {
+            "appName": app_name,
+            "userId": user_id,
+            "hostList": host_list_json
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/instance/bind' % user_id
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(req), config=config)
+
+    def get_application_instance_created_list(self, user_id, app_name, region=None, config=None):
+        """
+        get_application_instance_created_list
+        :param user_id:
+        :param app_name:
+        :param region:
+        :param config:
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        app_name = compat.convert_to_bytes(app_name)
+        path = b'/userId/%s/application/%s/instance/list' % (user_id, app_name)
+        params = None
+        if region is not None:
+            params = {
+                'region': region
+            }
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def delete_application_instance(self, user_id, app_name, id, config=None):
+        """
+        delete_application_instance
+        :param user_id:
+        :param app_name:
+        :param id:
+        :param config:
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(id) <= 0:
+            raise ValueError("id should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/instance' % user_id
+        req = {
+            "id": id,
+            "appName": app_name
+        }
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(req), config=config)
+
+    @required(user_id=value_type, app_name=value_type, alias_name=value_type, type=int,
+              target=value_type, cycle=int, description=value_type, log_example=value_type,
+              match_rule=value_type, rate=int, extract_result=list, metrics=list)
+    def create_application_instance_task(self, user_id, app_name, alias_name, type, target,
+                                         cycle=None, description=None, log_example=None, match_rule=None, rate=None,
+                                         extract_result=None, metrics=None, config=None):
+        """
+        create_application_instance_task
+        :param user_id:
+        :param app_name:
+        :param alias_name:
+        :param type:
+        :param target:
+        :param cycle:
+        :param description:
+        :param log_example:
+        :param match_rule:
+        :param rate:
+        :param extract_result:
+        :param metrics:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if type is None:
+            raise ValueError("type should not be null")
+        if len(alias_name) <= 0:
+            raise ValueError("alias_name should not be null")
+        if len(target) <= 0:
+            raise ValueError("target should not be null")
+        if cycle is None:
+            cycle = 60
+        req = {
+            "appName": app_name,
+            "type": str(type),
+            "aliasName": alias_name,
+            "target": target,
+            "cycle": str(cycle)
+        }
+        if description is not None:
+            req["description"] = description
+        if str(type) == "2":
+            if log_example is None:
+                raise ValueError("log_example should not be null")
+            if match_rule is None:
+                raise ValueError("match_rule should not be null")
+            if rate is None:
+                raise ValueError("rate should not be null")
+            if extract_result is None:
+                raise ValueError("extract_result should not be null")
+            if metrics is None:
+                raise ValueError("metrics should not be null")
+            req["logExample"] = log_example
+            req["matchRule"] = match_rule
+            req["rate"] = rate
+
+            extract_result_json = []
+            for result in extract_result:
+                extract_result_json.append(result)
+            req["extractResult"] = extract_result_json
+
+            metrics_json = []
+            for metric in metrics:
+                metrics_json.append(metric)
+            req["metrics"] = metrics_json
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/task/create' % user_id
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(req), config=config)
+
+    def get_application_monitor_task_detail(self, user_id, app_name, task_name, config=None):
+        """
+        get_application_monitor_task_detail
+        :param user_id:
+        :param app_name:
+        :param task_name:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(task_name) <= 0:
+            raise ValueError("task_name should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        app_name = compat.convert_to_bytes(app_name)
+        task_name = compat.convert_to_bytes(task_name)
+        path = b'/userId/%s/application/%s/task/%s' % (user_id, app_name, task_name)
+        return self._send_csm_request(http_methods.GET, path, config=config)
+
+    def get_application_monitor_task_list(self, user_id, app_name, type=None, config=None):
+        """
+        get_application_monitor_task_list
+        :param user_id:
+        :param app_name:
+        :param type:
+        :param config:
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        app_name = compat.convert_to_bytes(app_name)
+        path = b'/userId/%s/application/%s/task/list' % (user_id, app_name)
+        params = None
+        if type is not None:
+            params = {
+                'type': type
+            }
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config,
+                                      body_parser=bcm_handler.parse_json_list)
+
+    @required(user_id=value_type, app_name=value_type, name=value_type, alias_name=value_type, type=int,
+              target=value_type, cycle=int, description=value_type, log_example=value_type,
+              match_rule=value_type, rate=int, extract_result=list, metrics=list)
+    def update_application_monitor_task(self, user_id, app_name, alias_name, name, type, target,
+                                        cycle=None, description=None, log_example=None, match_rule=None, rate=None,
+                                        extract_result=None, metrics=None, config=None):
+        """
+        update application monitor task
+        :param user_id:
+        :param app_name:
+        :param alias_name:
+        :param name:
+        :param type:
+        :param target:
+        :param cycle:
+        :param description:
+        :param log_example:
+        :param match_rule:
+        :param rate:
+        :param extract_result:
+        :param metrics:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(name) <= 0:
+            raise ValueError("name should not be null")
+        if type is None:
+            raise ValueError("type should not be null")
+        if len(alias_name) <= 0:
+            raise ValueError("alias_name should not be null")
+        if len(target) <= 0:
+            raise ValueError("target should not be null")
+        req = {
+            "appName": app_name,
+            "name": name,
+            "type": str(type),
+            "aliasName": alias_name,
+            "target": target,
+        }
+        if cycle is not None:
+            req["cycle"] = cycle
+        if description is not None:
+            req["description"] = description
+        if str(type) == "2":
+            if log_example is None:
+                raise ValueError("log_example should not be null")
+            if match_rule is None:
+                raise ValueError("match_rule should not be null")
+            if rate is None:
+                raise ValueError("rate should not be null")
+            if extract_result is None:
+                raise ValueError("extract_result should not be null")
+            if metrics is None:
+                raise ValueError("metrics should not be null")
+            req["logExample"] = log_example
+            req["matchRule"] = match_rule
+            req["rate"] = rate
+
+            extract_result_json = []
+            for result in extract_result:
+                extract_result_json.append(result)
+            req["extractResult"] = extract_result_json
+
+            metrics_json = []
+            for metric in metrics:
+                metrics_json.append(metric)
+            req["metrics"] = metrics_json
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/task/update' % user_id
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(req), config=config)
+
+    def delete_application_monitor_task(self, user_id, name, app_name, config=None):
+        """
+        delete_application_monitor_task
+        :param user_id:
+        :param name:
+        :param app_name:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(name) <= 0:
+            raise ValueError("name should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/task/delete' % user_id
+        req = {
+            "name": name,
+            "appName": app_name
+        }
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(req), config=config)
+
+    def create_application_dimension_table(self, user_id, app_name, table_name, map_content_json, config=None):
+        """
+        create_application_dimension_table
+        :param user_id:
+        :param app_name:
+        :param table_name:
+        :param map_content_json:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(table_name) <= 0:
+            raise ValueError("table_name should not be null")
+        if len(map_content_json) <= 0:
+            raise ValueError("map_content_json should not be null")
+        req = {
+            "userId": user_id,
+            "appName": app_name,
+            "tableName": table_name,
+            "mapContentJson": map_content_json
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/dimensionMap/create' % user_id
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(req), config=config)
+
+    def get_application_dimension_table_list(self, user_id, app_name, search_name=None, config=None):
+        """
+        get_application_dimension_table_list
+        :param user_id:
+        :param app_name:
+        :param search_name:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        user_id = compat.convert_to_bytes(user_id)
+        app_name = compat.convert_to_bytes(app_name)
+        path = b'/userId/%s/application/%s/dimensionMap/list' % (user_id, app_name)
+        params = None
+        if search_name is not None:
+            params = {
+                'searchName': search_name
+            }
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def update_application_dimension_table(self, user_id, app_name, table_name, map_content_json, config=None):
+        """
+        update_application_dimension_table
+        :param user_id:
+        :param app_name:
+        :param table_name:
+        :param map_content_json:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(table_name) <= 0:
+            raise ValueError("table_name should not be null")
+        if len(map_content_json) <= 0:
+            raise ValueError("map_content_json should not be null")
+        req = {
+            "userId": user_id,
+            "appName": app_name,
+            "tableName": table_name,
+            "mapContentJson": map_content_json
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/dimensionMap/update' % user_id
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(req), config=config)
+
+    def delete_application_dimension_table(self, user_id, app_name, table_name, config=None):
+        """
+        delete_application_dimension_table
+        :param user_id:
+        :param app_name:
+        :param table_name:
+        :param config:
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(app_name) <= 0:
+            raise ValueError("app_name should not be null")
+        if len(table_name) <= 0:
+            raise ValueError("table_name should not be null")
+        req = {
+            "userId": user_id,
+            "appName": app_name,
+            "tableName": table_name
+        }
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/application/dimensionMap/delete' % user_id
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(req), config=config)

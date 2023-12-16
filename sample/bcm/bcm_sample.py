@@ -433,8 +433,8 @@ if __name__ == '__main__':
     # list alarm metrics for application
     try:
         response = bcm_client.list_alarm_metrics_for_application(user_id=user_id, app_name="test_ymd_app_0918",
-                                                                  task_name="46e78b2831394f738429f8826******",
-                                                                  search_name="test_name")
+                                                                 task_name="46e78b2831394f738429f8826******",
+                                                                 search_name="test_name")
         print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -446,7 +446,7 @@ if __name__ == '__main__':
     # test get alarm policy for application
     try:
         response = bcm_client.get_alarm_policy_for_application(user_id=user_id, app_name="test_ymd_app_0918",
-                                                                alarm_name="inst-test")
+                                                               alarm_name="inst-test")
         print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -484,12 +484,10 @@ if __name__ == '__main__':
         rule = bcm_model.ApplicationAlarmRule("log.ab3b543f41974e26ab984d94fc******.log_metric2", "log_metric2",
                                               60, "average", 10, ">", 1,
                                               0, [])
-        response = bcm_client.create_alarm_policy_for_application(user_id, "", "test_wjr_py",
-                                                                   "zmq-log-1115", "APP",
-                                                                   monitor_object, "ab3b543f41974e26ab984d94fc******",
-                                                                   "LOG", "INSTANCE", "MAJOR",
-                                                                   [[rule]], incident_actions=[
-                                                                            "624c99b5-5436-478c-8326-0efc81******"])
+        response = bcm_client.create_alarm_policy_for_application(
+            user_id, "", "test_wjr_py", "zmq-log-1115", "APP",
+            monitor_object, "ab3b543f41974e26ab984d94fc******", "LOG", "INSTANCE",
+            "MAJOR", [[rule]], incident_actions=["624c99b5-5436-478c-8326-0efc81******"])
         print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -506,10 +504,10 @@ if __name__ == '__main__':
                                               60, "average", 10, ">", 1,
                                               0, [])
         response = bcm_client.update_alarm_policy_for_application(user_id, "", "test_wjr_py",
-                                                                   "zmq-log-1115", "APP",
-                                                                   monitor_object, "ab3b543f41974e26ab984d94fc******",
-                                                                   "LOG", "INSTANCE", "MAJOR",
-                                                                   [[rule]], incident_actions=[
+                                                                  "zmq-log-1115", "APP",
+                                                                  monitor_object, "ab3b543f41974e26ab984d94fc******",
+                                                                  "LOG", "INSTANCE", "MAJOR",
+                                                                  [[rule]], incident_actions=[
                 "624c99b5-5436-478c-8326-0efc8******"])
         print(response)
     except BceHttpClientError as e:
@@ -1033,3 +1031,300 @@ if __name__ == '__main__':
             __logger.error('send request failed. Unknown exception: %s' % e)
 
 
+    # create application data
+    try:
+        response = bcm_client.create_application_data(name="app_name", type="BCC", user_id=user_id,
+                                                      alias="testAlias-1213", description="description-1213")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get application data list
+    try:
+        response = bcm_client.get_application_data_list(user_id=user_id, page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update application data
+    try:
+        response = bcm_client.update_application_data(user_id=user_id, id="1234", name="app_name", type="BCC",
+                                                      alias="test", description="description")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete application data
+    try:
+        response = bcm_client.delete_application_data(user_id=user_id, name="app_name")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get application instance list
+    try:
+        response = bcm_client.get_application_instance_list(user_id=user_id, region="bj", app_name="test_1213",
+                                                            search_name="name", page_no=1, page_size=10,
+                                                            search_value="bsm")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create application instance
+    try:
+        host_list = [{
+            "instanceId": "7d4e09af-d01b-4492-88e9-c27d909****",
+            "region": "bj"
+        }, {
+            "instanceId": "d8293318-7d34-433e-928a-b0e72cb3****",
+            "region": "bj"
+        }]
+        response = bcm_client.create_application_instance(user_id=user_id, app_name="app_name", host_list=host_list)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+    # get application instance created list
+    try:
+        response = bcm_client.get_application_instance_created_list(user_id=user_id, app_name="app_name", region="bj")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete application instance
+    try:
+        response = bcm_client.delete_application_instance(user_id=user_id, app_name="app_name", id="7099")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create application instance task
+    try:
+        response = bcm_client.create_application_instance_task(user_id=user_id, app_name="app_name",
+                                                               alias_name="task_proc_test",
+                                                               type=0, target="/proc/exe", cycle=300)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create application instance log task
+    try:
+        log_example = "namespace:04b91096-a294-477d-bd11-1a7bcfb5a921\n"
+        match_rule = "namespace:(?P<namespace>[0-9a-fA-F-]+)"
+        rate = 5
+        extract_result = [{
+            "extractFieldName": "namespace",
+            "extractFieldValue": "04b91096-a294-477d-bd11-1a7bcfb5a921",
+            "dimensionMapTable": "namespaceTable"
+        }]
+        metrics = [
+            {
+                "metricName": "space",
+                "saveInstanceData": 1,
+                "valueFieldType": 0,
+                "aggrTags": [
+                    {
+                        "range": "App",
+                        "tags": ""
+                    },
+                    {
+                        "range": "App",
+                        "tags": "namespace"
+                    }
+                ],
+                "metricAlias": "",
+                "metricUnit": "",
+                "valueFieldName": ""
+            }
+        ]
+        response = bcm_client.create_application_instance_task(user_id=user_id, app_name="app_name",
+                                                               alias_anem="task_log_test", type=2,
+                                                               target="/bin/log/info",
+                                                               cycle=60, description="test_description",
+                                                               log_example=log_example, match_rule=match_rule,
+                                                               rate=rate,
+                                                               extract_result=extract_result, metrics=metrics)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get application monitor task detail
+    try:
+        response = bcm_client.get_application_monitor_task_detail(user_id=user_id, app_name="app_name",
+                                                                  task_name="9b67163479fe4ffcb31a8a79aaf1****")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    #  get application monitor task list
+    try:
+        response = bcm_client.get_application_monitor_task_list(user_id=user_id, app_name="app_name")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update application monitor task
+    try:
+        response = bcm_client.update_application_monitor_task(user_id=user_id, app_anme="app_name",
+                                                              alias_name="task_proc_test",
+                                                              name="9b67163479fe4ffcb31a8a79aaf1****",
+                                                              type=0, target="/proc/bin", cycle=300,
+                                                              description="test_description")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+    #  update application monitor log task
+    try:
+        log_example = "namespace:04b91096-a294-477d-bd11-1a7bcfb5a921\n"
+        match_rule = "namespace:(?P<namespace>[0-9a-fA-F-]+)"
+        rate = 5
+        extract_result = [{
+            "extractFieldName": "namespace",
+            "extractFieldValue": "04b91096-a294-477d-bd11-1a7bcfb5a921",
+            "dimensionMapTable": "namespaceTable"
+        }]
+        metrics = [
+            {
+                "metricName": "space",
+                "saveInstanceData": 1,
+                "valueFieldType": 0,
+                "aggrTags": [
+                    {
+                        "range": "App",
+                        "tags": ""
+                    },
+                    {
+                        "range": "App",
+                        "tags": "namespace"
+                    }
+                ],
+                "metricAlias": "",
+                "metricUnit": "",
+                "valueFieldName": ""
+            }
+        ]
+        response = bcm_client.update_application_monitor_task(user_id=user_id, app_anme="app_name",
+                                                              alias_name="task_proc_test",
+                                                              name="9b67163479fe4ffcb31a8a79aaf1****",
+                                                              type=2, target="/proc/bin", cycle=60,
+                                                              description="test_description",
+                                                              log_example=log_example,
+                                                              match_rule=match_rule,
+                                                              rate=rate, extract_result=extract_result, metrics=metrics)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete application monitor task
+    try:
+        response = bcm_client.delete_application_monitor_task(
+            user_id=user_id, name="424c68d575d24ef7bcd0b3f5e726****", app_name="app_name")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create application dimension table
+    try:
+        response = bcm_client.create_application_dimension_table(
+            user_id=user_id, app_name="app_name", table_name="test_table", map_content_json="a=>1\nb=>2")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    #    get application dimension table list
+    try:
+        response = bcm_client.get_application_dimension_table_list(
+            user_id=user_id, app_name="app_name", search_name="test")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+    #  update application dimension table
+    try:
+        response = bcm_client.update_application_dimension_table(
+            user_id=user_id, app_name="app_name", table_name="test_table", map_content_json="a=>1")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    #  delete application dimension table
+    try:
+        response = bcm_client.delete_application_dimension_table(
+            user_id=user_id, app_name="app_name", table_name="test_table")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
