@@ -4,6 +4,8 @@
 涉及产品：NAT
 支持增强型NAT
 涉及产品：ENI, 增加弹性网卡相关SDK以及sample示例
+涉及产品：VPC、Subnet
+增加VPC和Subnet相关SDK以及sample示例
 
 【版本：v0.8.97】
 涉及产品：BTS

@@ -109,6 +109,19 @@ class TestVpcClient(unittest.TestCase):
             type(self.the_client.update_vpc(vpc_id, 'test_update_name', 'test_update_description')),
             baidubce.bce_response.BceResponse)
 
+    def test_get_vpc_ip(self):
+        """
+        test case for get private ip address info
+        """
+        self.assertEqual(
+            type(self.the_client.get_private_ip_address_info(vpc_id,
+                                                             private_ip_addresses=["192.168.240.3", "192.168.240.5"])),
+            baidubce.bce_response.BceResponse)
+        
+        self.assertEqual(
+            type(self.the_client.get_private_ip_address_info(vpc_id,
+                                                             private_ip_range="192.168.240.3-192.168.240.5")),
+            baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
