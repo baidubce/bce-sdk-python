@@ -9,6 +9,7 @@ from baidubce import bce_base_client, compat
 from baidubce.auth import bce_v1_signer
 from baidubce.http import handler, bce_http_client, http_methods
 from baidubce.services.autoscaling import as_handler
+from baidubce.utils import required
 
 
 class AsClient(bce_base_client.BceBaseClient):
@@ -18,7 +19,7 @@ class AsClient(bce_base_client.BceBaseClient):
     version = b'/v1'
 
     content_type_header_key = b"content-type"
-    content_type_header_value = b"application/json;charset=utf-8"
+    content_type_header_value = b"application/json;charset=UTF-8"
     request_id_header_key = b"x-bce-request-id"
 
     def __init__(self, config=None):
@@ -246,3 +247,226 @@ class AsClient(bce_base_client.BceBaseClient):
             'bccNameConfig': bcc_name_config
         }
         return self._send_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(group_id=str, nodes=list)
+    def detach_node(self, group_id, nodes):
+        """
+        Detach nodes from group
+        :param group_id: the id of group
+        :type group_id: string
+        :param nodes: the list of node
+        :type nodes: list
+        :return: the result of detach node
+        :rtype: dict
+        """
+        path = b'/group/%s' % compat.convert_to_bytes(group_id)
+        params = {
+            "detachNode": ""
+        }
+        body = {
+            "nodes": nodes
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params)
+
+    @required(rule_name=str, group_id=str, state=str, rule_type=str, action_type=str, action_num=int,
+              cooldown_in_sec=int)
+    def create_rule(self, rule_name, group_id, state, rule_type, action_type, action_num, cooldown_in_sec,
+                    target_type="", target_id="", indicator="", threshold="0", unit="",
+                    comparison_operator="", cron_time="", period_type=None, period_value=None,
+                    period_start_time=None, period_end_time=None):
+
+        """
+        Create rule
+        :param rule_name: the name of the rule
+        :type rule_name: string
+        :param group_id: the id of the group
+        :type group_id: string
+        :param state: the state of the rule, can be "ENABLE" or "DISABLE"
+        :type state: string
+        :param rule_type: the type of the rule, can be "ALARM", "CRONTAB", or "PERIOD"
+        :type rule_type: string
+        :param target_type: the type of the target
+        :type target_type: string
+        :param target_id: the id of the target
+        :type target_id: string
+        :param indicator: the indicator of the rule
+        :type indicator: string
+        :param threshold: the threshold of the rule
+        :type threshold: string
+        :param unit: the unit of the threshold
+        :type unit: string
+        :param comparison_operator: the comparison operator of the rule
+        :type comparison_operator: string
+        :param action_type: the action type of the rule, can be INCREASE, DECREASE, ADJUST
+        :type action_type: string
+        :param action_num: the number of actions to be performed
+        :type action_num: int
+        :param cron_time: the cron time of the rule
+        :type cron_time: string
+        :param cooldown_in_sec: the cooldown time in seconds
+        :type cooldown_in_sec: int
+        :param period_type: the period type of the rule
+        :type period_type: string
+        :param period_value: the period value of the rule
+        :type period_value: int
+        :param period_start_time: the start time of the period
+        :type period_start_time: string
+        :param period_end_time: the end time of the period
+        :type period_end_time: string
+        """
+        path = b'/rule'
+        body = {
+            "ruleName": rule_name,
+            "groupId": group_id,
+            "state": state,
+            "type": rule_type,
+            "targetType": target_type,
+            "targetId": target_id,
+            "indicator": indicator,
+            "threshold": threshold,
+            "unit": unit,
+            "comparisonOperator": comparison_operator,
+            "actionType": action_type,
+            "actionNum": action_num,
+            "cronTime": cron_time,
+            "cooldownInSec": cooldown_in_sec,
+            "periodType": period_type,
+            "periodValue": period_value,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time
+        }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(rule_id=str, rule_name=str, group_id=str, state=str, rule_type=str, action_type=str, action_num=int,
+              cooldown_in_sec=int)
+    def update_rule(self, rule_id, rule_name, group_id, state, rule_type, action_type, action_num, cooldown_in_sec,
+                    target_type="", target_id="", indicator="", threshold="0", unit="",
+                    comparison_operator="", cron_time="", period_type=None, period_value=None,
+                    period_start_time=None, period_end_time=None):
+        """
+        Update rule
+        :param rule_id: the id of the rule
+        :type rule_id: string
+        :param rule_name: the name of the rule
+        :type rule_name: string
+        :param group_id: the id of the group
+        :type group_id: string
+        :param state: the state of the rule, can be "ENABLE" or "DISABLE"
+        :type state: string
+        :param rule_type: the type of the rule, can be "ALARM", "CRONTAB", or "PERIOD"
+        :type rule_type: string
+        :param target_type: the type of the target
+        :type target_type: string
+        :param target_id: the id of the target
+        :type target_id: string
+        :param indicator: the indicator of the rule
+        :type indicator: string
+        :param threshold: the threshold of the rule
+        :type threshold: string
+        :param unit: the unit of the threshold
+        :type unit: string
+        :param comparison_operator: the comparison operator of the rule
+        :type comparison_operator: string
+        :param action_type: the action type of the rule, can be INCREASE, DECREASE, ADJUST
+        :type action_type: string
+        :param action_num: the number of actions to be performed
+        :type action_num: int
+        :param cron_time: the cron time of the rule
+        :type cron_time: string
+        :param cooldown_in_sec: the cooldown time in seconds
+        :type cooldown_in_sec: int
+        :param period_type: the period type of the rule
+        :type period_type: string
+        :param period_value: the period value of the rule
+        :type period_value: int
+        :param period_start_time: the start time of the period
+        :type period_start_time: string
+        :param period_end_time: the end time of the period
+        :type period_end_time: string
+        """
+        path = b'/rule/%s' % compat.convert_to_bytes(rule_id)
+        body = {
+            "ruleName": rule_name,
+            "groupId": group_id,
+            "state": state,
+            "type": rule_type,
+            "targetType": target_type,
+            "targetId": target_id,
+            "indicator": indicator,
+            "threshold": threshold,
+            "unit": unit,
+            "comparisonOperator": comparison_operator,
+            "actionType": action_type,
+            "actionNum": action_num,
+            "cronTime": cron_time,
+            "cooldownInSec": cooldown_in_sec,
+            "periodType": period_type,
+            "periodValue": period_value,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time
+        }
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body))
+
+    @required(rule_id=str)
+    def get_rule(self, rule_id):
+        """
+        Get rule
+        :param rule_id: the id of the rule
+        :type rule_id: string
+        :return: the result of get rule
+        :rtype: dict
+        """
+        path = b'/rule/%s' % compat.convert_to_bytes(rule_id)
+        return self._send_request(http_methods.GET, path)
+
+    @required(group_id=str)
+    def list_rule(self, group_id, keyword="", keyword_type="", order="desc", order_by="createTime", page_no=1,
+                  page_size=1000):
+        """
+        Query rule list
+        :param group_id: the id of the group
+        :type group_id: string
+        :param keyword: the keyword of the rule
+        :type keyword: string
+        :param keyword_type: the type of the keyword
+        :type keyword_type: string
+        :param order: the order of the rule
+        :type order: string
+        :param order_by: the order by of the rule
+        :type order_by: string
+        :param page_no: the page number
+        :type page_no: int
+        :param page_size: the page size
+        :type page_size: int
+        """
+        path = b'/rule'
+        params = {
+            "groupid": group_id,
+            "keyword": keyword,
+            "keywordType": keyword_type,
+            "order": order,
+            "orderBy": order_by,
+            "pageNo": page_no,
+            "pageSize": page_size
+        }
+        return self._send_request(http_methods.GET, path, params=params)
+
+    def delete_rule(self, rule_ids=None, group_ids=None):
+        """
+        Delete rule
+        :param rule_ids: the list of rule id
+        :type rule_ids: list
+        :param group_ids: the list of group id
+        :type group_ids: list
+        """
+        if not rule_ids and not group_ids:
+            raise ValueError("rule_ids and group_ids can not be empty at the same time")
+        path = b'/rule'
+        params = {
+            "delete": ""
+        }
+        body = {
+            "ruleIds": rule_ids,
+            "groupIds": group_ids
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))

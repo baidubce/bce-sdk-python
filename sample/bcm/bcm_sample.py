@@ -1030,7 +1030,6 @@ if __name__ == '__main__':
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-
     # create application data
     try:
         response = bcm_client.create_application_data(name="app_name", type="BCC", user_id=user_id,
@@ -1326,5 +1325,175 @@ if __name__ == '__main__':
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get cloud event list
+    try:
+        response = bcm_client.get_cloud_event_data(account_id=user_id,
+                                                   start_time="2023-10-01T00:00:00Z", end_time="2023-11-01T01:00:00Z",
+                                                   page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get platform event list
+    try:
+        response = bcm_client.get_platform_event_data(account_id=user_id,
+                                                      start_time="2023-10-01T00:00:00Z",
+                                                      end_time="2023-11-01T01:00:00Z",
+                                                      page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create event policy
+    try:
+        event_filter = bcm_model.EventFilter(event_level="*", event_type_list=["*"], eventAliasNames=[])
+        resource = bcm_model.EventResourceFilter(region="bj", type="Instance", monitor_object_type="ALL", resources=[])
+        incident_actions = ["2fc6e953-331a-4404-8ce7-1c0597*****"]
+        response = bcm_client.create_event_policy(account_id=user_id, service_name="BCE_BCC", name="event_policy_name",
+                                                  block_status="NORMAL", event_filter=event_filter,
+                                                  resource=resource, incident_actions=incident_actions)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create instance group
+    try:
+        response = bcm_client.create_instance_group(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                    type_name="Instance", name="py-sdk-test",
+                                                    resource_id_list=[])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update instance group
+    try:
+        response = bcm_client.update_instance_group(user_id=user_id, ig_id="****", region="bj", service_name="BCE_BCC",
+                                                    type_name="Instance", name="py-sdk-test-update")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete instance group
+    try:
+        response = bcm_client.delete_instance_group(user_id=user_id, ig_id="****")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get instance group detail
+    try:
+        response = bcm_client.get_instance_group_detail(user_id=user_id, ig_id="****")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list instance group
+    try:
+        response = bcm_client.list_instance_group(user_id=user_id, name="", region="bj", service_name="BCE_BCC",
+                                                  type_name="Instance", page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # add instance to instance group
+    try:
+        resource_id_list = bcm_model.MonitorResource(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", identifiers=[],
+                                                     resource_id="InstanceId:dd0109a3-****-****-b2ae-3c6aa0b63705")
+        response = bcm_client.add_ig_instance(ig_id="****", user_id=user_id, resource_id_list=[resource_id_list])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # remove instance from instance group
+    try:
+        resource_id_list = bcm_model.MonitorResource(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", identifiers=[],
+                                                     resource_id="InstanceId:dd0109a3-****-****-b2ae-3c6aa0b63705")
+        response = bcm_client.remove_ig_instance(ig_id="****", user_id=user_id, resource_id_list=[resource_id_list])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # query instance in instance group
+    try:
+        response = bcm_client.list_ig_instance(ig_id="****", user_id=user_id, service_name="BCE_BCC",
+                                               type_name="Instance", region="bj", view_type="DETAIL_VIEW",
+                                               page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # query all instances when you create a scaling group
+    try:
+        response = bcm_client.list_all_instance(user_id=user_id, service_name="BCE_BCC",
+                                                type_name="Instance", region="bj", view_type="LIST_VIEW",
+                                                keyword_type="name", keyword="", page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s' % (
+                e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # query filter instances that is not in an instance group
+    try:
+        response = bcm_client.list_filter_instance(user_id=user_id, service_name="BCE_BCC",
+                                                   type_name="Instance", region="bj", view_type="LIST_VIEW",
+                                                   keyword_type="name", keyword="", page_no=1, page_size=10,
+                                                   ig_id="7923", ig_uuid="bc59b391-2973-****-****-596c0b268682")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error(
+                'send request failed. Response %s, code: %s, msg: %s' % (e.last_error.status_code, e.last_error.code,
+                                                                         e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)

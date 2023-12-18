@@ -14,6 +14,7 @@ if PY2:
 HOST = b'http://as.bj.baidubce.com'
 AK = b''
 SK = b''
+group_id = "asg-mPWF****"
 
 
 class TestAsClient(unittest.TestCase):
@@ -87,3 +88,84 @@ class TestAsClient(unittest.TestCase):
                                             bcc_name_config=bcc_name_config)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+
+    def test_detach_node(self):
+        """
+        test detach node
+        """
+        response = self.client.detach_node(group_id=group_id, nodes=["i-mPkY5ZG5"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_rule(self):
+        """
+        test create rule
+        """
+        response = self.client.create_rule(rule_name="testRule",
+                                           group_id=group_id,
+                                           rule_type="PERIOD",
+                                           action_type="INCREASE",
+                                           action_num=1,
+                                           cooldown_in_sec=300,
+                                           state="ENABLE",
+                                           period_type="WEEK",
+                                           period_start_time="2023-12-11T11:00:00Z",
+                                           period_end_time="2023-12-21T11:00:00Z",
+                                           cron_time="12:30",
+                                           period_value=2)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_rule(self):
+        """
+        test update rule
+        """
+        response = self.client.update_rule(rule_id="asrule-u1gUQ2Zw",
+                                           rule_name="testRule_update",
+                                           group_id=group_id,
+                                           rule_type="PERIOD",
+                                           action_type="INCREASE",
+                                           action_num=1,
+                                           cooldown_in_sec=300,
+                                           state="ENABLE",
+                                           period_type="WEEK",
+                                           period_start_time="2023-12-11T11:00:00Z",
+                                           period_end_time="2023-12-21T11:00:00Z",
+                                           cron_time="12:40",
+                                           period_value=2
+                                           )
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_rule(self):
+        """
+        test get rule
+        """
+        response = self.client.get_rule(rule_id="asrule-u1gUQ2Zw")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_rule(self):
+        """
+        test list rule
+        """
+        response = self.client.list_rule(group_id=group_id)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_rule(self):
+        """
+        test delete rule
+        """
+        response = self.client.delete_rule(rule_ids=["asrule-u1gUQ2Zw"])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+
+if __name__ == '__main__':
+    suite = unittest.TestSuite()
+
+    # suite.addTest(TestBcmClient("test_get_metric_data"))
+
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

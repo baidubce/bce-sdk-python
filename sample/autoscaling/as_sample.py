@@ -107,3 +107,92 @@ if __name__ == '__main__':
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+# detach_node
+    try:
+        response = as_client.detach_node(group_id="asg-mPWF****", nodes=["i-mPkY****"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create as rule
+    try:
+        response = as_client.create_rule(rule_name="testRule",
+                                         group_id="asg-mPWF****",
+                                         rule_type="PERIOD",
+                                         action_type="INCREASE",
+                                         action_num=1,
+                                         cooldown_in_sec=300,
+                                         state="ENABLE",
+                                         period_type="WEEK",
+                                         period_start_time="2023-12-11T11:00:00Z",
+                                         period_end_time="2023-12-21T11:00:00Z",
+                                         cron_time="12:30",
+                                         period_value=2)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update as rule
+    try:
+        response = as_client.update_rule(rule_id="asrule-u1gU****",
+                                         rule_name="testRule_update",
+                                         group_id="asg-mPWF****",
+                                         rule_type="PERIOD",
+                                         action_type="INCREASE",
+                                         action_num=1,
+                                         cooldown_in_sec=300,
+                                         state="ENABLE",
+                                         period_type="WEEK",
+                                         period_start_time="2023-12-11T11:00:00Z",
+                                         period_end_time="2023-12-21T11:00:00Z",
+                                         cron_time="12:40",
+                                         period_value=2)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get as rule
+    try:
+        response = as_client.get_rule(rule_id="asrule-u1gU****")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list as rule
+    try:
+        response = as_client.list_rule(group_id="asg-mPWF****")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete as rule
+    try:
+        response = as_client.delete_rule(rule_ids=["asrule-u1gU****"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
