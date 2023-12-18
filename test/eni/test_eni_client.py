@@ -249,7 +249,7 @@ class TestEniClient(unittest.TestCase):
         """
         self.the_client._send_request = mock_send_http_request()
         res = self.the_client.bind_eni_public_ip(eni_id="eni-7bqg7jf0m88f", privat_ip_address="10.0.1.5", 
-                                                  public_ip_address="120.48.142.121")  # 弹性网卡绑定EIP
+                                                 public_ip_address="120.48.142.121")  # 弹性网卡绑定EIP
         self.assertEqual(res.status, 200)
 
     def test_unbind_eni_public_ip(self):
