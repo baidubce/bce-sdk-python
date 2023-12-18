@@ -37,6 +37,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
     prefix = b'/json-api'
     csm_prefix = b'/csm/api'
+    event_prefix = b'/event-api'
     version = b'/v1'
 
     content_type_header_key = b"content-type"
@@ -80,6 +81,22 @@ class BcmClient(bce_base_client.BceBaseClient):
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [bcm_handler.parse_error, body_parser],
             http_method, BcmClient.csm_prefix + BcmClient.version + path, body, headers, params)
+
+    def _send_event_request(self, http_method, path,
+                            body=None, headers=None, params=None, config=None, body_parser=None):
+        config = self._merge_config(config)
+        if body_parser is None:
+            body_parser = handler.parse_json
+        if headers is None:
+            headers = {}
+        if self.content_type_header_key not in headers:
+            headers[self.content_type_header_key] = self.content_type_header_value
+        if self.request_id_header_key not in headers:
+            headers[self.request_id_header_key] = uuid.uuid4()
+
+        return bce_http_client.send_request(
+            config, bce_v1_signer.sign, [bcm_handler.parse_error, body_parser],
+            http_method, BcmClient.event_prefix + BcmClient.version + path, body, headers, params)
 
     def get_metric_data(self, user_id=None, scope=None, metric_name=None,
                         dimensions=None, statistics=None, start_time=None,
@@ -1951,7 +1968,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         path = b'/userId/%s/services/%s/region/%s/metric/dimensions' % (user_id, service, region)
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
 
-
     def create_application_data(self, name, type, user_id, alias=None, description=None, config=None):
         """
         create application data
@@ -2503,3 +2519,406 @@ class BcmClient(bce_base_client.BceBaseClient):
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/application/dimensionMap/delete' % user_id
         return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(req), config=config)
+
+    @required(page_no=int, page_size=int, account_id=str, start_time=str, end_time=str)
+    def get_cloud_event_data(self, page_no=1, page_size=10, start_time=None, end_time=None, account_id=None,
+                             ascending=None, scope=None, region=None, event_level=None, event_name=None,
+                             event_alias=None, resource_type=None, resource_id=None, event_id=None):
+        """
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        :param start_time: start time, such as 2023-12-05T09:54:15Z
+        :type start_time: string
+        :param end_time: end time, such as 2023-12-05T09:54:15Z
+        :type end_time: string
+        :param account_id: account id
+        :type account_id: string
+        :param ascending: ascending
+        :type ascending: bool
+        :param scope: scope
+        :type scope: string
+        :param region: region
+        :type region: string
+        :param event_level: event level
+        :type event_level: None or ENUM {'NOTICE', 'WARNING', 'MAJOR', 'CRITICAL'}
+        :param event_name: event name
+        :type event_name: string
+        :param event_alias: event alias
+        :type event_alias: string
+        :param resource_type: resource type
+        :type resource_type: string
+        :param resource_id: resource id
+        :type resource_id: string
+        :param event_id: event id
+        :type event_id: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/bce-event/list'
+        params = {
+            b'pageNo': page_no,
+            b'pageSize': page_size,
+            b'startTime': start_time,
+            b'endTime': end_time,
+            b'accountId': account_id,
+            b'ascending': ascending,
+            b'scope': scope,
+            b'region': region,
+            b'eventLevel': event_level,
+            b'eventName': event_name,
+            b'eventAlias': event_alias,
+            b'resourceType': resource_type,
+            b'resourceId': resource_id,
+            b'eventId': event_id,
+        }
+        return self._send_event_request(http_methods.GET, path, params=params)
+
+    @required(page_no=int, page_size=int, account_id=str, start_time=str, end_time=str)
+    def get_platform_event_data(self, page_no=1, page_size=10, start_time=None, end_time=None, account_id=None,
+                                ascending=None, scope=None, region=None, event_level=None, event_name=None,
+                                event_alias=None, event_id=None):
+        """
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        :param start_time: start time, such as 2023-12-05T09:54:15Z
+        :type start_time: string
+        :param end_time: end time, such as 2023-12-05T09:54:15Z
+        :type end_time: string
+        :param account_id: account id
+        :type account_id: string
+        :param ascending: ascending
+        :type ascending: bool
+        :param scope: scope
+        :type scope: string
+        :param region: region
+        :type region: string
+        :param event_level: event level
+        :type event_level: None or ENUM {'NOTICE', 'WARNING', 'MAJOR', 'CRITICAL'}
+        :param event_name: event name
+        :type event_name: string
+        :param event_alias: event alias
+        :type event_alias: string
+        :param event_id: event id
+        :type event_id: string
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/platform-event/list'
+        params = {
+            b'pageNo': page_no,
+            b'pageSize': page_size,
+            b'startTime': start_time,
+            b'endTime': end_time,
+            b'accountId': account_id,
+            b'ascending': ascending,
+            b'scope': scope,
+            b'region': region,
+            b'eventLevel': event_level,
+            b'eventName': event_name,
+            b'eventAlias': event_alias,
+            b'eventId': event_id,
+        }
+        return self._send_event_request(http_methods.GET, path, params=params)
+
+    @required(account_id=str, service_name=str, name=str, block_status=str, incident_actions=list)
+    def create_event_policy(self, account_id, service_name, name, block_status, event_filter,
+                            resource, incident_actions):
+        """
+        :param account_id: account id
+        :type account_id: string
+        :param service_name: service name
+        :type service_name: string
+        :param name: event policy name
+        :type name: string
+        :param block_status: block status, enum: NORMAL, BLOCKED
+        :type block_status: string
+        :param event_filter: event filter
+        :type event_filter: EventFilter
+        :param resource: resource filter
+        :type resource: EventResourceFilter
+        :param incident_actions: incident actions
+        :type incident_actions: list of string
+        """
+        if event_filter is None:
+            raise ValueError('event_filter should not be none')
+        if resource is None:
+            raise ValueError('resource should not be none')
+
+        path = b'/accounts/%s/services/%s/alarm-policies' % (compat.convert_to_bytes(account_id),
+                                                             compat.convert_to_bytes(service_name))
+        body = {
+            "account_id": account_id,
+            "service_name": service_name,
+            "name": name,
+            "blockStatus": block_status,
+            "eventFilter": event_filter,
+            "resource": resource,
+            "incidentActions": incident_actions
+        }
+        return self._send_event_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(user_id=str, region=str, service_name=str, type_name=str, name=str)
+    def create_instance_group(self, user_id, region, service_name, type_name, name, resource_id_list):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param region: region
+        :type region: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param name: instance group name
+        :type name: string
+        :param resource_id_list: resource id list
+        :type resource_id_list: list of MonitorResource
+        """
+        path = b'/userId/%s/instance-group' % compat.convert_to_bytes(user_id)
+        body = {
+            "userId": user_id,
+            "region": region,
+            "serviceName": service_name,
+            "typeName": type_name,
+            "name": name,
+            "resourceIdList": resource_id_list
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(user_id=str, ig_id=str, region=str, service_name=str, type_name=str, name=str)
+    def update_instance_group(self, ig_id, user_id, region, service_name, type_name, name):
+        """
+        :param ig_id: instance group id
+        :type ig_id: string
+        :param user_id: user id
+        :type user_id: string
+        :param region: region
+        :type region: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param name: instance group name
+        :type name: string
+        """
+        path = b'/userId/%s/instance-group' % compat.convert_to_bytes(user_id)
+        body = {
+            "id": ig_id,
+            "userId": user_id,
+            "region": region,
+            "serviceName": service_name,
+            "typeName": type_name,
+            "name": name,
+        }
+        return self._send_csm_request(http_methods.PATCH, path, body=json.dumps(body))
+
+    @required(user_id=str, ig_id=str)
+    def delete_instance_group(self, user_id, ig_id):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param ig_id: instance group id
+        :type ig_id: string
+        """
+        path = b'/userId/%s/instance-group/%s' % (compat.convert_to_bytes(user_id), compat.convert_to_bytes(ig_id))
+        return self._send_csm_request(http_methods.DELETE, path)
+
+    @required(user_id=str, ig_id=str)
+    def get_instance_group(self, user_id, ig_id):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param ig_id: instance group id
+        :type ig_id: string
+        """
+        path = b'/userId/%s/instance-group/%s' % (compat.convert_to_bytes(user_id), compat.convert_to_bytes(ig_id))
+        return self._send_csm_request(http_methods.GET, path)
+
+    @required(user_id=str, page_no=int, page_size=int)
+    def list_instance_group(self, user_id, name, service_name, region, type_name, page_no, page_size):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param name: instance group name
+        :type name: string
+        :param service_name: service name
+        :type service_name: string
+        :param region: region
+        :type region: string
+        :param type_name: type name
+        :type type_name: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        """
+        path = b'/userId/%s/instance-group/list' % compat.convert_to_bytes(user_id)
+        params = {
+            b"userId": user_id,
+            b"name": name,
+            b"serviceName": service_name,
+            b"region": region,
+            b"typeName": type_name,
+            b"pageNo": page_no,
+            b"pageSize": page_size
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    @required(user_id=str, ig_id=str, resource_id_list=list)
+    def add_ig_instance(self, ig_id, user_id, resource_id_list):
+        """
+        :param ig_id: instance group id
+        :type ig_id: string
+        :param user_id: user id
+        :type user_id: string
+        :param resource_id_list: resource id list
+        :type resource_id_list: list of MonitorResource
+        """
+        path = b'/userId/%s/instance-group/%s/instance/add' % (compat.convert_to_bytes(user_id),
+                                                               compat.convert_to_bytes(ig_id))
+        body = {
+            "id": ig_id,
+            "userId": user_id,
+            "resourceIdList": resource_id_list
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(user_id=str, ig_id=str, resource_id_list=list)
+    def remove_ig_instance(self, ig_id, user_id, resource_id_list):
+        """
+        :param ig_id: instance group id
+        :type ig_id: string
+        :param user_id: user id
+        :type user_id: string
+        :param resource_id_list: resource id list
+        :type resource_id_list: list of MonitorResource
+        """
+        path = b'/userId/%s/instance-group/%s/instance/remove' % (compat.convert_to_bytes(user_id),
+                                                                  compat.convert_to_bytes(ig_id))
+        body = {
+            "id": ig_id,
+            "userId": user_id,
+            "resourceIdList": resource_id_list
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(user_id=str, ig_id=str, service_name=str, type_name=str, region=str, view_type=str,
+              page_no=int, page_size=int)
+    def list_ig_instance(self, user_id, ig_id, service_name, type_name, region, view_type, page_no, page_size):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param ig_id: instance group id
+        :type ig_id: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param region: region
+        :type region: string
+        :param view_type: view type, enum: LIST_VIEW, DETAIL_VIEW
+        :type view_type: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        """
+        path = b'/userId/%s/instance-group/instance/list' % compat.convert_to_bytes(user_id)
+        params = {
+            b"id": ig_id,
+            b"userId": user_id,
+            b"serviceName": service_name,
+            b"typeName": type_name,
+            b"region": region,
+            b"viewType": view_type,
+            b"pageNo": page_no,
+            b"pageSize": page_size
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    @required(user_id=str, service_name=str, type_name=str, region=str, view_type=str, keyword_type=str, keyword=str,
+              page_no=int, page_size=int)
+    def list_all_instance(self, user_id, service_name, type_name, region, view_type, keyword_type, keyword,
+                          page_no, page_size):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param region: region
+        :type region: string
+        :param view_type: view type, enum: LIST_VIEW, DETAIL_VIEW
+        :type view_type: string
+        :param keyword_type: keyword type, enum: name, id
+        :type keyword_type: string
+        :param keyword: keyword
+        :type keyword: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        """
+        path = b'/userId/%s/instance/list' % compat.convert_to_bytes(user_id)
+        params = {
+            b"userId": user_id,
+            b"serviceName": service_name,
+            b"typeName": type_name,
+            b"region": region,
+            b"viewType": view_type,
+            b"keywordType": keyword_type,
+            b"keyword": keyword,
+            b"pageNo": page_no,
+            b"pageSize": page_size
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    @required(user_id=str, ig_id=str, ig_uuid=str, service_name=str, type_name=str, region=str, view_type=str,
+              keyword_type=str, keyword=str, page_no=int, page_size=int)
+    def list_filter_instance(self, user_id, ig_id, ig_uuid, service_name, type_name, region, view_type,
+                             keyword_type, keyword, page_no, page_size):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param ig_id: instance group id
+        :type ig_id: string
+        :param ig_uuid: instance group uuid
+        :type ig_uuid: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param region: region
+        :type region: string
+        :param view_type: view type, enum: LIST_VIEW, DETAIL_VIEW
+        :type view_type: string
+        :param keyword_type: keyword type, enum: name, id
+        :type keyword_type: string
+        :param keyword: keyword
+        :type keyword: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        """
+        path = b'/userId/%s/instance/filteredList' % compat.convert_to_bytes(user_id)
+        params = {
+            b"userId": user_id,
+            b"id": ig_id,
+            b"uuid": ig_uuid,
+            b"serviceName": service_name,
+            b"typeName": type_name,
+            b"region": region,
+            b"viewType": view_type,
+            b"keywordType": keyword_type,
+            b"keyword": keyword,
+            b"pageNo": page_no,
+            b"pageSize": page_size
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params)

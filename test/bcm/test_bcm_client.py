@@ -1278,6 +1278,140 @@ class TestBcmClient(unittest.TestCase):
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
+    def test_get_cloud_event_data(self):
+        """
+        test get cloud event data
+        """
+        response = self.client.get_cloud_event_data(account_id="a0d04d7c202140cb80155ff7b6752ce4",
+                                                    start_time="2023-10-01T00:00:00Z", end_time="2023-11-01T01:00:00Z",
+                                                    page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_platform_event_data(self):
+        """
+        test get platform event data
+        """
+        response = self.client.get_platform_event_data(account_id="a0d04d7c202140cb80155ff7b6752ce4",
+                                                       start_time="2023-10-01T00:00:00Z",
+                                                       end_time="2023-11-01T01:00:00Z",
+                                                       page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_event_policy(self):
+        """
+        test create event policy
+        """
+        account_id = user_id
+        service_name = "BCE_BCC"
+        name = "py_sdk_test"
+        block_status = "NORMAL"
+        event_filter = bcm_model.EventFilter(event_level="*", event_type_list=["*"], eventAliasNames=[])
+        resource = bcm_model.EventResourceFilter(region="bj", type="Instance", monitor_object_type="ALL", resources=[])
+        incident_actions = ["2fc6e953-331a-4404-8ce7-1c05975dbd9c"]
+        response = self.client.create_event_policy(account_id=account_id, service_name=service_name, name=name,
+                                                   block_status=block_status, event_filter=event_filter,
+                                                   resource=resource, incident_actions=incident_actions)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_create_instance_group(self):
+        """
+        test create instance group
+        """
+        response = self.client.create_instance_group(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", name="py-sdk-test",
+                                                     resource_id_list=[])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_update_instance_group(self):
+        """
+        test update instance group
+        """
+        response = self.client.update_instance_group(user_id=user_id, ig_id="7923", region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", name="py-sdk-test-update")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_delete_instance_group(self):
+        """
+        test delete instance group
+        """
+        response = self.client.delete_instance_group(user_id=user_id, ig_id="7923")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_get_instance_group(self):
+        """
+        test get instance group
+        """
+        response = self.client.get_instance_group(user_id=user_id, ig_id="7923")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_instance_group(self):
+        """
+        test list instance group
+        """
+        response = self.client.list_instance_group(user_id=user_id, name="", region="bj", service_name="BCE_BCC",
+                                                   type_name="Instance", page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_add_ig_instance(self):
+        """
+        test add instance to instance group
+        """
+        resource_id_list = bcm_model.MonitorResource(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", identifiers=[],
+                                                     resource_id="InstanceId:dd0109a3-a7fe-4ffb-b2ae-3c6aa0b63705")
+        response = self.client.add_ig_instance(ig_id="7923", user_id=user_id, resource_id_list=[resource_id_list])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_remove_ig_instance(self):
+        """
+        test remove instance from instance group
+        """
+        resource_id_list = bcm_model.MonitorResource(user_id=user_id, region="bj", service_name="BCE_BCC",
+                                                     type_name="Instance", identifiers=[],
+                                                     resource_id="InstanceId:dd0109a3-a7fe-4ffb-b2ae-3c6aa0b63705")
+        response = self.client.remove_ig_instance(ig_id="7923", user_id=user_id, resource_id_list=[resource_id_list])
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_ig_instance(self):
+        """
+        test list instance from instance group
+        """
+        response = self.client.list_ig_instance(ig_id="7923", user_id=user_id, service_name="BCE_BCC",
+                                                type_name="Instance", region="bj", view_type="DETAIL_VIEW",
+                                                page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_all_instance(self):
+        """
+        test list all instance
+        """
+        response = self.client.list_all_instance(user_id=user_id, service_name="BCE_BCC",
+                                                 type_name="Instance", region="bj", view_type="LIST_VIEW",
+                                                 keyword_type="name", keyword="", page_no=1, page_size=10)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_list_filter_instance(self):
+        """
+        test list filter instance
+        """
+        response = self.client.list_filter_instance(user_id=user_id, service_name="BCE_BCC",
+                                                    type_name="Instance", region="bj", view_type="LIST_VIEW",
+                                                    keyword_type="name", keyword="", page_no=1, page_size=10,
+                                                    ig_id="7923", ig_uuid="bc59b391-2973-41f5-b13f-596c0b268682")
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()

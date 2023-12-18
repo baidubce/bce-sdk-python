@@ -212,3 +212,114 @@ class ApplicationMonitorObject(dict):
         super(ApplicationMonitorObject, self).__init__()
         self["monitorObjectType"] = monitor_object_type
         self["monitorObjectView"] = monitor_object_view
+
+
+class EventFilter(dict):
+    """
+    This class define event filter
+    """
+
+    def __init__(self, event_level, event_type_list, eventAliasNames):
+        """
+        :param event_level: event level, enum: NOTICE, WARNING, MAJOR, CRITICAL, * means all
+        :type event_level: string
+        :param event_type_list: event type list, * means all
+        :type event_type_list: list
+        :param eventAliasNames: event alias name list, * means all
+        :type eventAliasNames: list
+        """
+        super(EventFilter, self).__init__()
+        self["eventLevel"] = event_level
+        self["eventTypeList"] = event_type_list
+        self["eventAliasNames"] = eventAliasNames
+
+
+class EventResourceFilter(dict):
+    """
+    This class define event resource filter
+    """
+
+    def __init__(self, region, type, monitor_object_type, resources):
+        """
+
+        :param region: region
+        :type region: string
+        :param type: resource type, enum: APP, SERVICE
+        :type type: string
+        :param monitor_object_type: monitor object type, enum: ALL, TAG
+        :type monitor_object_type: string
+        :param resources: resource list of EventResource
+        :type resources: list of EventResource
+        """
+        super(EventResourceFilter, self).__init__()
+        self["region"] = region
+        self["type"] = type
+        self["monitorObjectType"] = monitor_object_type
+        self["resources"] = resources
+
+
+class EventResource(dict):
+    """
+    This class define event resource
+    """
+
+    def __init__(self, identifiers):
+        """
+        :param identifiers: resource identifiers
+        :type identifiers: list of Dimension
+        """
+        super(EventResource, self).__init__()
+        self["identifiers"] = identifiers
+
+
+class Dimension(dict):
+    """
+    This class define dimension
+    """
+
+    def __init__(self, name, value):
+        """
+        :param name: dimension name
+        :type name: string
+        :param value: dimension value
+        :type value: string
+        """
+        super(Dimension, self).__init__()
+        self["name"] = name
+        self["value"] = value
+
+
+class MonitorResource(dict):
+    """
+    This class define monitor resource
+    """
+
+    def __init__(self, user_id, region, service_name, type_name, resource_id, identifiers=None,
+                 properties=None, tags=None):
+        """
+        :param user_id: user id
+        :type user_id: string
+        :param region: region
+        :type region: string
+        :param service_name: service name
+        :type service_name: string
+        :param type_name: type name
+        :type type_name: string
+        :param resource_id: resource id
+        :type resource_id: string
+        :param identifiers: identifier list
+        :type identifiers: list of Dimension
+        :param properties: property list
+        :type properties: list of Dimension
+        :param tags: tag list
+        :type tags: list of Dimension
+        """
+        super(MonitorResource, self).__init__()
+        self["userId"] = user_id
+        self["region"] = region
+        self["serviceName"] = service_name
+        self["typeName"] = type_name
+        self["resourceId"] = resource_id
+        self["identifiers"] = identifiers
+        self["properties"] = properties
+        self["tags"] = tags
