@@ -2922,3 +2922,1392 @@ class BcmClient(bce_base_client.BceBaseClient):
             b"pageSize": page_size
         }
         return self._send_csm_request(http_methods.GET, path, params=params)
+
+
+    def push_metric_data(self, user_id=None, scope=None, metric_data=None, config=None):
+
+        """
+        :param user_id: user_id
+        :type user_id: string
+        :param scope: scope
+        :type scope: string
+        :param metric_data: metric_data
+        :type bcm_model.MetricDatum array
+        :return:
+        """
+        user_id = compat.convert_to_bytes(user_id)
+        scope = compat.convert_to_bytes(scope)
+        path = b'/metricdata/%s/%s' % (user_id, scope)
+        body = {
+            "metricData": metric_data
+        }
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+
+    def get_custom_metric_data(self, user_id=None, namespaces=None, metric_name=None,
+                               dimensions=None, statistics=None, start_time=None,
+                               end_time=None, cycle=None, config=None):
+        """
+        Return metric data of product instances owned by the authenticated user.
+
+        This site may help you: https://cloud.baidu.com/doc/BCM/s/9jwvym3kb
+
+        :param user_id:
+            Master account ID
+        :type user_id: string
+
+        :param namespaces:
+            Cloud product namespace, eg: BCE_BCC.
+        :type namespaces: string
+
+        :param metric_name:
+            The metric name of baidu cloud monitor, eg: CpuIdlePercent.
+        :type metric_name: string
+
+        :param dimensions:
+            Consists of dimensionName: dimensionValue.
+            Use semicolons when items have multiple dimensions,
+            such as dimensionName: dimensionValue; dimensionName: dimensionValue.
+            Only one dimension value can be specified for the same dimension.
+            eg: InstanceId:fakeid-2222
+        :type dimensions: string
+
+        :param statistics:
+            According to the format of statistics1,statistics2,statistics3,
+            the optional values are `average`, `maximum`, `minimum`, `sum`, `sampleCount`
+        :type statistics: string
+
+        :param start_time:
+            Query start time.
+            Please refer to the date and time, UTC date indication
+        :type start_time: string
+
+        :param end_time:
+            Query end time.
+            Please refer to the date and time, UTC date indication
+        :type end_time: string
+
+        :param cycle:
+            Statistical period.
+            Multiples of 60 in seconds (s).
+        :type cycle: int
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        user_id = compat.convert_to_bytes(user_id)
+        namespaces = compat.convert_to_bytes(namespaces)
+        metric_name = compat.convert_to_bytes(metric_name)
+        path = b'/userId/%s/custom/namespaces/%s/metrics/%s/data' % (user_id, namespaces, metric_name)
+
+        body = {
+            "statistics": statistics,
+            "dimensions": dimensions,
+            "startTime": start_time,
+            "endTime": end_time,
+            "cycle": cycle
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body),
+                                      body_parser=bcm_handler.parse_json_list, config=config)
+
+    def push_custom_metric_data(self, user_id=None, namespace=None, metric_name=None,
+                                dimensions=None, value=None,
+                                timestamp=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param namespace:
+        :type namespace: string
+        :param metric_name:
+        :type metric_name: string
+        :param dimensions:
+        :type dimensions: bcm_model.Dimension array
+        :param value:
+        :type value: double
+        :param timestamp:
+        :type timestamp: string
+        :param config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        namespace = compat.convert_to_bytes(namespace)
+        path = b'/userId/%s/custom/data' % (user_id)
+        body = {
+            "namespace": namespace,
+            "metricName": metric_name,
+            "dimensions": dimensions,
+            "value": value,
+            "timestamp": timestamp
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+
+    def create_site_http_task_config(self, user_id=None, task_name=None, address=None,
+                                     method=None, post_content=None,
+                                     advance_config=None, cycle=None, idc=None, timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param method:
+        :type method: string
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/http/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "method": method,
+            "postContent": post_content,
+            "advanceConfig": advance_config,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_http_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                     method=None, post_content=None,
+                                     advance_config=None, cycle=None, idc=None, timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param method:
+        :type method: string
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/http/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "method": method,
+            "postContent": post_content,
+            "advanceConfig": advance_config,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_http_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/http/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_https_task_config(self, user_id=None, task_name=None, address=None,
+                                      method=None, post_content=None,
+                                      advance_config=None, cycle=None, idc=None, timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param method:
+        :type method: string
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/https/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "method": method,
+            "postContent": post_content,
+            "advanceConfig": advance_config,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_https_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                      method=None, post_content=None,
+                                      advance_config=None, cycle=None, idc=None, timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param method:
+        :type method: string
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/https/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "method": method,
+            "postContent": post_content,
+            "advanceConfig": advance_config,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_https_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/https/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_ping_task_config(self, user_id=None, task_name=None, address=None,
+                                     packet_count=None, packet_loss_rate=None, cycle=None, idc=None,
+                                     timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param packet_count:
+        :type packet_count: int
+        :param packet_loss_rate:
+        :type packet_loss_rate: int
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ping/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "packetCount": packet_count,
+            "packetLossRate": packet_loss_rate,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_ping_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                     packet_count=None, packet_loss_rate=None, cycle=None, idc=None,
+                                     timeout=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param packet_count:
+        :type packet_count: int
+        :param packet_loss_rate:
+        :type packet_loss_rate: int
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ping/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "packetCount": packet_count,
+            "packetLossRate": packet_loss_rate,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_ping_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ping/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_tcp_task_config(self, user_id=None, task_name=None, address=None,
+                                    port=None, advance_config=None, cycle=None, idc=None, timeout=None,
+                                    input_type=None, output_type=None, input=None, expected_output=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param method:
+        :type method: string
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/tcp/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "advanceConfig": advance_config,
+            "inputType": input_type,
+            "outputType": output_type,
+            "input": input,
+            "expectedOutput": expected_output,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_tcp_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                    port=None, advance_config=None, cycle=None, idc=None, timeout=None,
+                                    input_type=None, output_type=None, input=None, expected_output=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param port:
+        :type port: int
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param input_type:
+        :type input_type: int
+        :param output_type:
+        :type output_type: int
+        :param input:
+        :type input: string
+        :param expected_output:
+        :type expected_output: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/tcp/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "advanceConfig": advance_config,
+            "inputType": input_type,
+            "outputType": output_type,
+            "input": input,
+            "expectedOutput": expected_output,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_tcp_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/tcp/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_udp_task_config(self, user_id=None, task_name=None, address=None,
+                                    port=None, advance_config=None, cycle=None, idc=None, timeout=None,
+                                    input_type=None, output_type=None, input=None, expected_output=None, config=None):
+        """
+            :param user_id:
+            :type user_id: string
+            :param task_name:
+            :type task_name: string
+            :param address:
+            :type address: string
+            :param method:
+            :type method: string
+            :param post_content:
+            :type post_content: string
+            :param advance_config:
+            :type advance_config: bool
+            :param cycle:
+            :type cycle: int
+            :param idc:
+            :type idc: string
+            :param timeout:
+            :type timeout: int
+            :param config:
+            :type config
+            :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/udp/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "advanceConfig": advance_config,
+            "inputType": input_type,
+            "outputType": output_type,
+            "input": input,
+            "expectedOutput": expected_output,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_udp_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                    port=None, advance_config=None, cycle=None, idc=None, timeout=None,
+                                    input_type=None, output_type=None, input=None, expected_output=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param port:
+        :type port: int
+        :param post_content:
+        :type post_content: string
+        :param advance_config:
+        :type advance_config: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param input_type:
+        :type input_type: int
+        :param output_type:
+        :type output_type: int
+        :param input:
+        :type input: string
+        :param expected_output:
+        :type expected_output: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/udp/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "advanceConfig": advance_config,
+            "inputType": input_type,
+            "outputType": output_type,
+            "input": input,
+            "expectedOutput": expected_output,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_udp_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/udp/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_ftp_task_config(self, user_id=None, task_name=None, address=None,
+                                    port=None, anonymous_login=None, cycle=None, idc=None, timeout=None,
+                                    user_name=None, password=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param port:
+        :type port: int
+        :param post_content:
+        :type post_content: string
+        :param anonymous_login:
+        :type anonymous_login: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param user_name:
+        :type user_name: string
+        :param password:
+        :type password: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ftp/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "anonymousLogin": anonymous_login,
+            "userName": user_name,
+            "password": password,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_ftp_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                    port=None, anonymous_login=None, cycle=None, idc=None, timeout=None,
+                                    user_name=None, password=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param port:
+        :type port: int
+        :param post_content:
+        :type post_content: string
+        :param anonymous_login:
+        :type anonymous_login: bool
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param user_name:
+        :type user_name: string
+        :param password:
+        :type password: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ftp/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "port": port,
+            "anonymousLogin": anonymous_login,
+            "userName": user_name,
+            "password": password,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_ftp_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/ftp/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def create_site_dns_task_config(self, user_id=None, task_name=None, address=None,
+                                    cycle=None, idc=None, timeout=None,
+                                    server=None, resolve_type=None, kidnap_white=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param post_content:
+        :type post_content: string
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param server:
+        :type server: string
+        :param resolve_type:
+        :type resolve_type: ENUM {'RECURSION', 'ITERATION'}
+        :param kidnap_white:
+        :type kidnap_white: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/dns/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskName": task_name,
+            "address": address,
+            "server": server,
+            "resolveType": resolve_type,
+            "kidnapWhite": kidnap_white,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def update_site_dns_task_config(self, user_id=None, task_id=None, task_name=None, address=None,
+                                    cycle=None, idc=None, timeout=None,
+                                    server=None, resolve_type=None, kidnap_white=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param task_name:
+        :type task_name: string
+        :param address:
+        :type address: string
+        :param post_content:
+        :type post_content: string
+        :param cycle:
+        :type cycle: int
+        :param idc:
+        :type idc: string
+        :param timeout:
+        :type timeout: int
+        :param server:
+        :type server: string
+        :param resolve_type:
+        :type resolve_type: ENUM {'RECURSION', 'ITERATION'}
+        :param kidnap_white:
+        :type kidnap_white: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/dns/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "taskName": task_name,
+            "address": address,
+            "server": server,
+            "resolveType": resolve_type,
+            "kidnapWhite": kidnap_white,
+            "cycle": cycle,
+            "idc": idc,
+            "timeout": timeout,
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_dns_task_config(self, user_id=None, task_id=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/dns/detail' % (user_id)
+        params = {}
+
+        if task_id is not None:
+            params["taskId"] = task_id
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def get_site_task_config_list(self, user_id=None, query=None, type=None, page_no=None, page_size=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param query:
+        :type query: string
+        :param type:
+        :type type: string
+        :param page_no:
+        :type page_no: int
+        :param page_size:
+        :type page_size: int
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/list' % (user_id)
+        if query is None:
+            query = "NAME:"
+        params = {
+            b'query': query,
+            b'type': type,
+        }
+
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def delete_site_task_config(self, user_id=None, task_id=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_Id:
+        :type task_Id: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/delete' % (user_id)
+        params = {
+            b'taskId': task_id,
+        }
+
+
+        return self._send_csm_request(http_methods.DELETE, path, params=params, config=config)
+
+    def get_site_task_config_info(self, user_id=None, task_id=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_Id:
+        :type task_Id: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        task_id = compat.convert_to_bytes(task_id)
+        path = b'/userId/%s/site/%s' % (user_id, task_id)
+
+
+        return self._send_csm_request(http_methods.GET, path, config=config)
+
+    def create_site_alarm_config(self, user_id=None, task_id=None, comment=None, alias_name=None,
+                                 level=None, action_enabled=None, resume_actions=None, insufficient_actions=None,
+                                 incident_action=None, insufficient_cycle=None, rules=None, region=None,
+                                 callback_url=None, method=None, site_monitor=None, tag=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param comment:
+        :type comment: string
+        :param alias_name:
+        :type alias_name: string
+        :param level:
+        :type level: ENUM {'NOTICE', 'WARNING', 'CRITICAL', 'MAJOR', 'CUSTOM'}
+        :param action_enabled:
+        :type action_enabled: bool
+        :param resume_actions:
+        :type :type user_id: string: string
+        :param insufficient_actions:
+        :type insufficient_actions: string
+        :param incident_action:
+        :type incident_action: string
+        :param insufficient_cycle:
+        :type insufficient_cycle: int
+        :param rules:
+        :type rules: list of SiteAlarmRule
+        :param region:
+        :type region: string
+        :param callback_url:
+        :type callback_url: string
+        :param method:
+        :type method: string
+        :param site_monitor:
+        :type site_monitor: string
+        :param tag:
+        :type tag: string
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/create' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "comment": comment,
+            "aliasName": alias_name,
+            "level": level,
+            "actionEnabled": action_enabled,
+            "resumeActions": resume_actions,
+            "insufficientActions": insufficient_actions,
+            "incidentAction": incident_action,
+            "insufficientCycle": insufficient_cycle,
+            "rules": rules,
+            "region": region,
+            "callbackUrl": callback_url,
+            "method": method,
+            "siteMonitor": site_monitor,
+            "tag": tag
+        }
+
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
+
+    def delete_site_alarm_config(self, user_id=None, alarm_names=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_names:
+        :type alarm_names: list
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/delete' % (user_id)
+        body = {
+            "alarmNames": alarm_names
+        }
+
+
+        return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(body), config=config)
+
+    def update_site_alarm_config(self, user_id=None, task_id=None, alarm_name=None, comment=None, alias_name=None,
+                                 level=None, action_enabled=None, resume_actions=None, insufficient_actions=None,
+                                 incident_action=None, insufficient_cycle=None, rules=None, region=None,
+                                 callback_url=None, method=None, site_monitor=None, tag=None, config=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param alarm_name:
+        :type alarm_name: string
+        :param comment:
+        :type comment: string
+        :param alias_name:
+        :type alias_name: string
+        :param level:
+        :type level: ENUM {'NOTICE', 'WARNING', 'CRITICAL', 'MAJOR', 'CUSTOM'}
+        :param action_enabled:
+        :type action_enabled: bool
+        :param resume_actions:
+        :type :type user_id: string: string
+        :param insufficient_actions:
+        :type insufficient_actions: string
+        :param incident_action:
+        :type incident_action: string
+        :param insufficient_cycle:
+        :type insufficient_cycle: int
+        :param rules:
+        :type rules: list of SiteAlarmRule
+        :param region:
+        :type region: string
+        :param callback_url:
+        :type callback_url: string
+        :param method:
+        :type method: string
+        :param site_monitor:
+        :type site_monitor: string
+        :param tag:
+        :type tag: string
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/update' % (user_id)
+        body =  {
+            "userId": user_id,
+            "taskId": task_id,
+            "alarmName": alarm_name,
+            "comment": comment,
+            "aliasName": alias_name,
+            "level": level,
+            "actionEnabled": action_enabled,
+            "resumeActions": resume_actions,
+            "insufficientActions": insufficient_actions,
+            "incidentAction": incident_action,
+            "insufficientCycle": insufficient_cycle,
+            "rules": rules,
+            "region": region,
+            "callbackUrl": callback_url,
+            "method": method,
+            "siteMonitor": site_monitor,
+            "tag": tag
+        }
+
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config)
+
+    def get_site_alarm_config_detail(self, user_id=None, alarm_name=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_name:
+        :type alarm_name: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/detail' % (user_id)
+        params = {
+            b'alarmName': alarm_name,
+        }
+
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def get_site_alarm_config_list(self, user_id=None, task_id=None, alarm_name=None,
+                                   action_enabled=None, page_no=None, page_size=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param alarm_name:
+        :type alarm_name: string
+        :param action_enabled:
+        :type action_enabled: bool
+        :param page_no:
+        :type page_no: int
+        :param page_size:
+        :type page_size: int
+        :param config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/list' % (user_id)
+        params = {}
+
+
+        if task_id is not None:
+            params[b'taskId'] = task_id
+        if alarm_name is not None:
+            params[b'alarmName'] = alarm_name
+        if action_enabled is not None:
+            params[b'actionEnabled'] = action_enabled
+
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def block_site_alarm_config(self, user_id=None, alarm_name=None, namespace=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_name:
+        :type alarm_name: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/block' % (user_id)
+        params = {
+            "alarmName": alarm_name,
+            "namespace": namespace
+        }
+
+        return self._send_csm_request(http_methods.POST, path, params=params, config=config)
+
+    def unblock_site_alarm_config(self, user_id=None, alarm_name=None, namespace=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_name:
+        :type alarm_name: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/alarm/config/unblock' % (user_id)
+        params = {
+            "alarmName": alarm_name,
+            "namespace": namespace
+        }
+
+        return self._send_csm_request(http_methods.POST, path, params=params, config=config)
+
+    def get_site_metric_data(self, user_id=None, task_id=None, metric_name=None, statistics=None,
+                             start_time=None, end_time=None, cycle=None,
+                             dimensions=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param metric_name:
+        :type metric_name: string
+        :param statistics:
+        :type statistics: list
+        :param start_time:
+        :type start_time: string
+        :param end_time:
+        :type end_time: string
+        :param cycle:
+        :type cycle: int
+        :param dimensions:
+        :type dimensions: string
+        :param config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/metricSiteData' % (user_id)
+        params = {
+            "taskId": task_id,
+        }
+
+        if metric_name is not None:
+            params[b'metricName'] = metric_name
+        if dimensions is not None:
+            params[b'dimensions'] = dimensions
+        if statistics is not None and len(statistics) > 0:
+            params[b'statistics'] = ",".join(statistics)
+        if start_time is not None:
+            params[b'startTime'] = start_time
+        if end_time is not None:
+            params[b'endTime'] = end_time
+        if cycle is not None:
+            params[b'cycle'] = cycle
+
+        return self._send_csm_request(http_methods.GET, path, params=params,
+                                      body_parser=bcm_handler.parse_json_list, config=config)
+
+    def get_site_overall_view(self, user_id=None, task_id=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/idc/overallView' % (user_id)
+        params = {
+            "taskId": task_id
+        }
+
+
+        return self._send_csm_request(http_methods.GET, path, params=params,
+                                      body_parser=bcm_handler.parse_json_list, config=config)
+
+    def get_site_provincial_view(self, user_id=None, task_id=None, isp=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param isp:
+        :type isp: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/idc/provincialView' % (user_id)
+        params = {
+            "taskId": task_id,
+            "isp": isp
+        }
+
+
+        return self._send_csm_request(http_methods.GET, path, params=params,
+                                      body_parser=bcm_handler.parse_json_list, config=config)
+
+    def get_site_agent(self, user_id=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/agent/list' % (user_id)
+
+
+        return self._send_csm_request(http_methods.GET, path, body_parser=bcm_handler.parse_json_list, config=config)
+
+    def get_site_agent_for_task(self, user_id=None, task_id=None, config=None):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param task_id:
+        :type task_id: string
+        :param config:
+        :type config:
+        :return:
+        """
+
+        user_id = compat.convert_to_bytes(user_id)
+        path = b'/userId/%s/site/agent/idcIsp' % (user_id)
+        params = {
+            "taskId": task_id
+        }
+
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
