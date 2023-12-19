@@ -84,7 +84,7 @@ class NatClient(bce_base_client.BceBaseClient):
               vpc_id=(bytes, str),
               spec=(bytes, str))
     def create_nat(self, name, vpc_id, spec=None, billing=None, eips=None,
-                   client_token=None, config=None, cu_num=None):
+                   dnat_eips=None, client_token=None, config=None, cu_num=None):
         """
         Create a nat-gateway with the specified options.
         A nat gateway can bind only one public EIP,
@@ -123,6 +123,9 @@ class NatClient(bce_base_client.BceBaseClient):
             which will be bound with nat-gateway.
         :type eips: list<String>
 
+        :param dnat_eips:
+        :type dnat_eips: list<String>
+
         :param config:
         :type config: baidubce.BceClientConfiguration
 
@@ -142,6 +145,8 @@ class NatClient(bce_base_client.BceBaseClient):
         }
         if eips is not None:
             body['eips'] = eips
+        if dnat_eips is not None:
+            body['dnatEips'] = dnat_eips
         if cu_num is not None:
             body['cuNum'] = compat.convert_to_string(cu_num)
         if spec is not None:
