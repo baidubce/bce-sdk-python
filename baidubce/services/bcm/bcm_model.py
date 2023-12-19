@@ -323,3 +323,72 @@ class MonitorResource(dict):
         self["identifiers"] = identifiers
         self["properties"] = properties
         self["tags"] = tags
+
+class MetricDatum(dict):
+    """
+    This class metric datum.
+    """
+    def __init__(self, metric_name, dimensions, value, timestamp):
+
+        """
+        :param metric_name: metric_name
+        :type  metric_name: string
+        :param dimensions: dimensions
+        :type  dimensions: list
+        :param value: value
+        :type value: double
+        :param timestamp: timestamp
+        :type  timestamp: string
+        """
+
+        super(MetricDatum, self).__init__()
+        self["metricName"] = metric_name
+        self["dimensions"] = dimensions
+        self["value"] = value
+        self["timestamp"] = timestamp
+
+
+class SiteAlarmRule(dict):
+    """
+    This class define site alarm policy config
+    """
+
+    def __init__(self, metric, metric_alias, cycle, statistics, threshold, comparison_operator, count,
+                 function, act_on_idcs, act_on_isps, version_site):
+        """
+
+        :param metric: metric identifier
+        :type metric: string
+        :param metric_alias: metric name
+        :type metric_alias: string
+        :param cycle: period, second
+        :type cycle: int
+        :param statistics: statistics, enum: average, minimum, maximum, sum
+        :type statistics: string
+        :param threshold:
+        :type threshold: float
+        :param comparison_operator: operator, enum: ">", "<", ">=", "<="
+        :type: string
+        :param count:
+        :type count: int
+        :param function:
+        :type function: string
+        :param act_on_idcs:
+        :type act_on_idcs: list
+        :param act_on_isps:
+        :type act_on_isps: list
+        :param version_site:
+        :type version_site: string
+        """
+        super(SiteAlarmRule, self).__init__()
+        self["metric"] = metric
+        self["metricAlias"] = metric_alias
+        self["cycle"] = cycle
+        self["statistics"] = statistics
+        self["threshold"] = threshold
+        self["function"] = "THRESHOLD"
+        self["comparisonOperator"] = comparison_operator
+        self["count"] = count
+        self["actOnIdcs"] = act_on_idcs
+        self["actOnIsps"] = act_on_isps
+        self["versionSite"] = version_site

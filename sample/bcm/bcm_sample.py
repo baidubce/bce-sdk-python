@@ -1497,3 +1497,562 @@ if __name__ == '__main__':
                                                                          e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # query custom metric data from bcm interface
+    try:
+        response = bcm_client.get_custom_metric_data(user_id=user_id,
+                                                     scope="scope_test",
+                                                     metric_name="metric_name",
+                                                     dimensions=[],
+                                                     statistics="average",
+                                                     start_time="2023-12-05T09:54:15Z",
+                                                     end_time="2023-12-05T10:04:15Z",
+                                                     cycle=60)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # push metric data from bcm interface
+    try:
+        metric_data = [bcm_model.MetricDatum("cpu_test", [], 1.2, "1702555303")]
+        response = bcm_client.push_metric_data(user_id=user_id,
+                                               scope="scope_test",
+                                               metric_data = metric_data)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # push custom metric data from bcm interface
+    try:
+        response = bcm_client.push_custom_metric_data(user_id=user_id,
+                                                      namespace="test_ns", metric_name="pv",
+                                                      dimensions=[], value=123, timestamp="2023-12-17T08:00:00Z")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site http task config
+    try:
+        response = bcm_client.create_site_http_task_config(user_id=user_id,
+                                                           task_name="task_name", address="www.baidu.com",
+                                                           method="get", post_content="", advance_config=False,
+                                                           cycle=60, idc="beijing-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site http task config
+    try:
+        response = bcm_client.update_site_http_task_config(user_id=user_id,
+                                                           task_id="rriHgFGaIaVIqYanAveRMervXWWfQufq",
+                                                           task_name="task_name", address="www.baidu.com",
+                                                           method="get", post_content="", advance_config=False,
+                                                           cycle=60, idc="henan-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site http task config
+    try:
+        response = bcm_client.get_site_http_task_config(user_id=user_id,
+                                                        task_id="rriHgFGaIaVIqYanAveRMervXWWfQufq")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site https task config
+    try:
+        response = bcm_client.create_site_https_task_config(user_id=user_id,
+                                                            task_name="task_name", address="www.baidu.com",
+                                                            method="get", post_content="", advance_config=False,
+                                                            cycle=60, idc="beijing-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site https task config
+    try:
+        response = bcm_client.update_site_https_task_config(user_id=user_id,
+                                                            task_id="rriHgFGaIaVIqYanAveRMervXWWfQufq",
+                                                            task_name="task_name", address="www.baidu.com",
+                                                            method="get", post_content="", advance_config=False,
+                                                            cycle=60, idc="henan-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site https task config
+    try:
+        response = bcm_client.get_site_https_task_config(user_id=user_id,
+                                                         task_id="rriHgFGaIaVIqYanAveRMervXWWfQufq")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site ping task config
+    try:
+        response = bcm_client.create_site_ping_task_config(user_id=user_id,
+                                                           task_name="task_name", address="www.baidu.com",
+                                                           packet_count=1, packet_loss_rate=1,
+                                                           cycle=60, idc="beijing-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site ping task config
+    try:
+        response = bcm_client.update_site_ping_task_config(user_id=user_id,
+                                                           task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS",
+                                                           task_name="task_name", address="www.baidu.com",
+                                                           packet_count=1, packet_loss_rate=1,
+                                                           cycle=60, idc="henan-CMNET", timeout = 20)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site ping task config
+    try:
+        response = bcm_client.get_site_ping_task_config(user_id=user_id,
+                                                        task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site tcp task config
+    try:
+        response = bcm_client.create_site_tcp_task_config(user_id=user_id,
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, advance_config=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 2,
+                                                          input_type=0, output_type=0, input="", expected_output="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site tcp task config
+    try:
+        response = bcm_client.update_site_tcp_task_config(user_id=user_id,
+                                                          task_id="JAbvZxtXWxreAkiHgFnPtEQqBWcZzkjU",
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, advance_config=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          input_type=0, output_type=0, input="", expected_output="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site tcp task config
+    try:
+        response = bcm_client.get_site_tcp_task_config(user_id=user_id,
+                                                       task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site udp task config
+    try:
+        response = bcm_client.create_site_udp_task_config(user_id=user_id,
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, advance_config=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 2,
+                                                          input_type=0, output_type=0, input="", expected_output="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site udp task config
+    try:
+        response = bcm_client.update_site_udp_task_config(user_id=user_id,
+                                                          task_id="JAbvZxtXWxreAkiHgFnPtEQqBWcZzkjU",
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, advance_config=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          input_type=0, output_type=0, input="", expected_output="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site udp task config
+    try:
+        response = bcm_client.get_site_udp_task_config(user_id=user_id,
+                                                       task_id="JAbvZxtXWxreAkiHgFnPtEQqBWcZzkjU")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site ftp task config
+    try:
+        response = bcm_client.create_site_ftp_task_config(user_id=user_id,
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, anonymous_login=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          user_name="", password="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site ftp task config
+    try:
+        response = bcm_client.update_site_ftp_task_config(user_id=user_id,
+                                                          task_id="JAbvZxtXWxreAkiHgFnPtEQqBWcZzkjU",
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          port=80, anonymous_login=False,
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          user_name="", password="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site ftp task config
+    try:
+        response = bcm_client.get_site_ftp_task_config(user_id=user_id,
+                                                       task_id="JAbvZxtXWxreAkiHgFnPtEQqBWcZzkjU")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site dns task config
+    try:
+        response = bcm_client.create_site_dns_task_config(user_id=user_id,
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          resolve_type="RECURSION", kidnap_white="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # update site dns task config
+    try:
+        response = bcm_client.update_site_dns_task_config(user_id=user_id,
+                                                          task_id="SisKPHhkfWQvkRUeUGZYGuLLSDymnTsA",
+                                                          task_name="task_name", address="www.baidu.com",
+                                                          cycle=60, idc="beijing-CMNET", timeout = 3,
+                                                          resolve_type="RECURSION", kidnap_white="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site dns task config
+    try:
+        response = bcm_client.get_site_dns_task_config(user_id=user_id,
+                                                       task_id="SisKPHhkfWQvkRUeUGZYGuLLSDymnTsA")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # get site task config list
+    try:
+        response = bcm_client.get_site_task_config_list(user_id=user_id,
+                                                        query=None, type="http", page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete site task config
+    try:
+        response = bcm_client.delete_site_task_config(user_id=user_id,
+                                                      task_id="rriHgFGaIaVIqYanAveRMervXWWfQufq")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site task config info
+    try:
+        response = bcm_client.get_site_task_config_info(user_id=user_id,
+                                                        task_id="SisKPHhkfWQvkRUeUGZYGuLLSDymnTsA")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site alarm config
+    try:
+        rule = bcm_model.SiteAlarmRule("connectTime",
+                                       None,
+                                       60, "average", 10, ">", 1,
+                                       "THRESHOLD", ["average"], [], None)
+        response = bcm_client.create_site_alarm_config(user_id=user_id,
+                                                       task_id="SisKPHhkfWQvkRUeUGZYGuLLSDymnTsA",
+                                                       comment="", alias_name="pyy_test",
+                                                       level="MAJOR", action_enabled=True,
+                                                       resume_actions=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       insufficient_actions=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       incident_action=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       insufficient_cycle=0, rules=[rule], region="bj",
+                                                       callback_url="", method=None, site_monitor=None, tag="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update site alarm config
+    try:
+        rule = bcm_model.SiteAlarmRule("connectTime",
+                                       None,
+                                       60, "average", 10, ">", 1,
+                                       "THRESHOLD", ["average"], [], None)
+        response = bcm_client.update_site_alarm_config(user_id=user_id,
+                                                       task_id="SisKPHhkfWQvkRUeUGZYGuLLSDymnTsA",
+                                                       alarm_name="b87ffe8c1c584b09b2baf15e6244d55d",
+                                                       comment="", alias_name="pyy_test",
+                                                       level="MAJOR", action_enabled=True,
+                                                       resume_actions=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       insufficient_actions=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       incident_action=["37eddd21-a44c-42c6-b0bb-a3e9d738a091"],
+                                                       insufficient_cycle=60, rules=[rule], region="bj",
+                                                       callback_url="", method=None, site_monitor=None, tag="")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete site alarm config
+    try:
+        response = bcm_client.delete_site_alarm_config(user_id=user_id,
+                                                       alarm_names=["b87ffe8c1c584b09b2baf15e6244d55d"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site alarm config detail
+    try:
+        response = bcm_client.get_site_alarm_config_detail(user_id=user_id,
+                                                           alarm_name="b87ffe8c1c584b09b2baf15e6244d55d")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site alarm config list
+    try:
+        response = bcm_client.get_site_alarm_config_list(user_id=user_id,
+                                                         alarm_name="b87ffe8c1c584b09b2baf15e6244d55d",
+                                                         task_id=None, action_enabled=True,
+                                                         page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # block site alarm config
+    try:
+        response = bcm_client.block_site_alarm_config(user_id=user_id,
+                                                      alarm_name="b87ffe8c1c584b09b2baf15e6244d55d",
+                                                      namespace=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # unblock site alarm config
+    try:
+        response = bcm_client.unblock_site_alarm_config(user_id=user_id,
+                                                        alarm_name="b87ffe8c1c584b09b2baf15e6244d55d",
+                                                        namespace=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site metric data
+    try:
+        response = bcm_client.get_site_metric_data(user_id=user_id,
+                                                   task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS",
+                                                   metric_name="success", statistics=["average", "sum"],
+                                                   start_time="2023-12-19T06:09:12Z",
+                                                   end_time="2023-12-19T06:19:12Z",
+                                                   cycle=60, dimensions=None)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site overall view
+    try:
+        response = bcm_client.get_site_overall_view(user_id=user_id,
+                                                    task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site provincial view
+    try:
+        response = bcm_client.get_site_provincial_view(user_id=user_id,
+                                                       task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS",
+                                                       isp="beijing")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site agent
+    try:
+        response = bcm_client.get_site_agent(user_id=user_id)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site agent for task
+    try:
+        response = bcm_client.get_site_agent_for_task(user_i=user_id,
+                                                      task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
