@@ -53,6 +53,7 @@ setup(
               'baidubce.services.cdn',
               'baidubce.services.blb',
               'baidubce.services.eip',
+              'baidubce.services.eni',
               'baidubce.services.route',
               'baidubce.services.subnet',
               'baidubce.services.vpc',

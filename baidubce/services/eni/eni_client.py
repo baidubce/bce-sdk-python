@@ -262,7 +262,7 @@ class EniClient(bce_base_client.BceBaseClient):
         if name is not None:
             params[b'name'] = compat.convert_to_string(name)
         if private_ip_address_list is not None:
-            params[b'privateIpAddress'] = (b",").join(private_ip_address_list)
+            params[b'privateIpAddress'] = (",").join(private_ip_address_list)
         if marker is not None:
             params[b'marker'] = compat.convert_to_string(marker)
         if max_keys is None:
@@ -309,9 +309,9 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        body[b'privateIpAddress'] = compat.convert_to_bytes(private_ip_address)
+        body['privateIpAddress'] = compat.convert_to_string(private_ip_address)
         if is_ipv6 is not None:
-            body[b'isIpv6'] = is_ipv6
+            body['isIpv6'] = is_ipv6
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -402,7 +402,7 @@ class EniClient(bce_base_client.BceBaseClient):
         }
         body = {}
         if instance_id is not None:
-            body[b'instanceId'] = compat.convert_to_bytes(instance_id)
+            body['instanceId'] = compat.convert_to_string(instance_id)
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -435,7 +435,7 @@ class EniClient(bce_base_client.BceBaseClient):
         }
         body = {}
         if instance_id is not None:
-            body[b'instanceId'] = compat.convert_to_bytes(instance_id)
+            body['instanceId'] = compat.convert_to_string(instance_id)
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -467,7 +467,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        body[b'securityGroupIds'] = security_group_ids
+        body['securityGroupIds'] = security_group_ids
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -500,7 +500,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        body[b'enterpriseSecurityGroupIds'] = enterprise_security_group_ids
+        body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -538,11 +538,11 @@ class EniClient(bce_base_client.BceBaseClient):
         }
         body = {}
         if private_ip_address_list is not None:
-            body[b'privateIpAddresses'] = private_ip_address_list
+            body['privateIpAddresses'] = private_ip_address_list
         if is_ipv6 is not None:
-            body[b'isIpv6'] = is_ipv6
+            body['isIpv6'] = is_ipv6
         if private_ip_address_count is not None:
-            body[b'privateIpAddressCount'] = private_ip_address_count
+            body['privateIpAddressCount'] = private_ip_address_count
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -575,7 +575,7 @@ class EniClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {}
-        body[b'privateIpAddresses'] = private_ip_address_list
+        body['privateIpAddresses'] = private_ip_address_list
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
