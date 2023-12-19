@@ -3,6 +3,8 @@
 【版本：v0.8.98】
 涉及产品：NAT
 支持增强型NAT，Python SDK&Examples 和官网 OpenAPI 打平
+涉及产品：EIP
+新增EIPGroup SDK、EIP SDK与EIP产品SDK的example，同时修改了Exception的BceHttpClientError
 
 【版本：v0.8.97】
 涉及产品：BTS
