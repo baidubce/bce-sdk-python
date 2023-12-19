@@ -230,9 +230,9 @@ class TestEniClient(unittest.TestCase):
         """
         self.the_client._send_request = mock_send_http_request()
         # 批量删除弹性网卡内网IP
-        res = self.the_client.batch_delete_private_ip(eni_id="eni-7bqg7jf0m88f", 
-                                                       private_ip_address_list=["240c:4081:8005:5e04::0a", 
-                                                                                "240c:4081:8005:5e04::0b"])
+        res = self.the_client.batch_delete_private_ip(
+            eni_id="eni-7bqg7jf0m88f", 
+            private_ip_address_list=["240c:4081:8005:5e04::0a", "240c:4081:8005:5e04::0b"])
         self.assertEqual(res.status, 200)
 
     def test_get_eni_status(self):
@@ -263,9 +263,3 @@ class TestEniClient(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    # suite = unittest.TestSuite()
-    # suite.addTest(TestEniClient("test_update_eni"))
-    
-    # runner = unittest.TextTestRunner()
-    # runner.run(suite)
-
