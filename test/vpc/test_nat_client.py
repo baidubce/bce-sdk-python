@@ -115,6 +115,16 @@ class TestNatClient(unittest.TestCase):
         self.client.create_nat(client_token=client_token, name=name,
                                vpc_id=VPC_ID, spec='small',
                                eips=EIP)
+    
+    def test_create_nat_with_dnat_eip(self):
+        """
+        test case for creating nat with dnat eips binding
+        """
+        client_token = generate_client_token()
+        name = 'with_dnat_eip_binded' + client_token
+        self.client.create_nat(client_token=client_token, name=name,
+                               vpc_id=VPC_ID, cu_num=10,
+                               dnat_eips=EIP)
 
     def test_create_nat_with_shared_eip(self):
         """
