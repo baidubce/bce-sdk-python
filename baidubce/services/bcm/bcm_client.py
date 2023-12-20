@@ -39,6 +39,7 @@ class BcmClient(bce_base_client.BceBaseClient):
     csm_prefix = b'/csm/api'
     event_prefix = b'/event-api'
     version = b'/v1'
+    version_v2 = b'/v2'
 
     content_type_header_key = b"content-type"
     content_type_header_value = b"application/json;charset=UTF-8"
@@ -66,7 +67,7 @@ class BcmClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, BcmClient.prefix + BcmClient.version + path, body, headers, params)
 
-    def _send_csm_request(self, http_method, path,
+    def _send_csm_request(self, http_method, path, version=b'/v1',
                           body=None, headers=None, params=None, config=None, body_parser=None):
         config = self._merge_config(config)
         if body_parser is None:
@@ -80,7 +81,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [bcm_handler.parse_error, body_parser],
-            http_method, BcmClient.csm_prefix + BcmClient.version + path, body, headers, params)
+            http_method, BcmClient.csm_prefix + version + path, body, headers, params)
 
     def _send_event_request(self, http_method, path,
                             body=None, headers=None, params=None, config=None, body_parser=None):
@@ -4311,3 +4312,826 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
 
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+
+    def create_alarm_config(self, user_id, alias_name, scope, level, region, monitor_object, alarm_actions, rules,
+                            src_type="INSTANCE", ok_actions=None, insufficient_actions=None, config_type="NORMAL",
+                            insufficient_cycle=0, max_repeat_count=0, repeat_alarm_cycle=0, callback_url="",
+                            callback_token="", description="", config=None):
+        """
+            create alarm config
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alias_name: alarm config alias name
+            :type alias_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param level: alarm level
+            :type level: string
+
+            :param region: alarm region
+            :type region: string
+
+            :param monitor_object: monitor object
+            :type monitor_object: MonitorObject
+
+            :param alarm_actions: alarm actions
+            :type alarm_actions: string array
+
+            :param rules: alarm rules
+            :type rules: AlarmRule double dimensional array
+
+            :param src_type: src type
+            :type src_type: string
+
+            :param ok_actions: ok actions
+            :type ok_actions: string array
+
+            :param insufficient_actions: insufficient actions
+            :type insufficient_actions: string array
+
+            :param config_type: alarm config type
+            :type config_type: string
+
+            :param insufficient_cycle: insufficient cycle
+            :type insufficient_cycle: int
+
+            :param max_repeat_count: max repeat count
+            :type max_repeat_count: int
+
+            :param repeat_alarm_cycle: repeat alarm cycle
+            :type repeat_alarm_cycle: int
+
+            :param callback_url: callback url
+            :type callback_url: string
+
+            :param callback_token: callback token
+            :type callback_token: string
+
+            :param description: description
+            :type description: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alias_name) <= 0:
+            raise ValueError('alias_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+        if len(region) <= 0:
+            raise ValueError('region should not be none or empty string')
+        if len(level) <= 0:
+            raise ValueError('level should not be none or empty string')
+        if monitor_object is None:
+            raise ValueError('monitor_object should not be none')
+        if len(alarm_actions) <= 0:
+            raise ValueError('alarm_actions should not be empty')
+        if len(rules) <= 0:
+            raise ValueError('rules should not be empty')
+        if insufficient_actions is None:
+            insufficient_actions = []
+        if ok_actions is None:
+            ok_actions = []
+
+        path = b'/services/alarm/config/create'
+        body = {
+            "alarmDescription": description,
+            "aliasName": alias_name,
+            "userId": user_id,
+            "scope": scope,
+            "region": region,
+            "level": level,
+            "monitorObject": monitor_object,
+            "alarmActions": alarm_actions,
+            "okActions": ok_actions,
+            "insufficientActions": insufficient_actions,
+            "srcType": src_type,
+            "type": config_type,
+            "insufficientCycle": insufficient_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "rules": rules,
+        }
+        self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def update_alarm_config(self, user_id, alarm_name, alias_name, scope, level, region,
+                            monitor_object, alarm_actions, rules,
+                            src_type="INSTANCE", ok_actions=None, insufficient_actions=None, config_type="NORMAL",
+                            insufficient_cycle=0, max_repeat_count=0, repeat_alarm_cycle=0, callback_url="",
+                            callback_token="", description="", config=None):
+        """
+            update alarm config
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param alias_name: alarm config alias name
+            :type alias_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param level: alarm level
+            :type level: string
+
+            :param region: alarm region
+            :type region: string
+
+            :param monitor_object: monitor object
+            :type monitor_object: MonitorObject
+
+            :param alarm_actions: alarm actions
+            :type alarm_actions: string array
+
+            :param rules: alarm rules
+            :type rules: AlarmRule double dimensional array
+
+            :param src_type: src type
+            :type src_type: string
+
+            :param ok_actions: ok actions
+            :type ok_actions: string array
+
+            :param insufficient_actions: insufficient actions
+            :type insufficient_actions: string array
+
+            :param config_type: alarm config type
+            :type config_type: string
+
+            :param insufficient_cycle: insufficient cycle
+            :type insufficient_cycle: int
+
+            :param max_repeat_count: max repeat count
+            :type max_repeat_count: int
+
+            :param repeat_alarm_cycle: repeat alarm cycle
+            :type repeat_alarm_cycle: int
+
+            :param callback_url: callback url
+            :type callback_url: string
+
+            :param callback_token: callback token
+            :type callback_token: string
+
+            :param description: description
+            :type description: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alias_name) <= 0:
+            raise ValueError('alias_name should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+        if len(region) <= 0:
+            raise ValueError('region should not be none or empty string')
+        if len(level) <= 0:
+            raise ValueError('level should not be none or empty string')
+        if monitor_object is None:
+            raise ValueError('monitor_object should not be none')
+        if len(alarm_actions) <= 0:
+            raise ValueError('alarm_actions should not be empty')
+        if len(rules) <= 0:
+            raise ValueError('rules should not be empty')
+        if insufficient_actions is None:
+            insufficient_actions = []
+        if ok_actions is None:
+            ok_actions = []
+
+        path = b'/services/alarm/config/update'
+        body = {
+            "alarmDescription": description,
+            "alarmName": alarm_name,
+            "aliasName": alias_name,
+            "userId": user_id,
+            "scope": scope,
+            "region": region,
+            "level": level,
+            "monitorObject": monitor_object,
+            "alarmActions": alarm_actions,
+            "okActions": ok_actions,
+            "insufficientActions": insufficient_actions,
+            "srcType": src_type,
+            "type": config_type,
+            "insufficientCycle": insufficient_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "rules": rules,
+        }
+        self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def delete_alarm_config(self, user_id, alarm_name, scope, config=None):
+        """
+            delete alarm config
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/services/alarm/config/delete'
+        params = {
+            b"alarmName": alarm_name,
+            b"userId": user_id,
+            b"scope": scope,
+        }
+        self._send_csm_request(http_methods.POST, path, params=params, config=config)
+
+    def block_alarm_config(self, user_id, alarm_name, scope, config=None):
+        """
+            block alarm config
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/services/alarm/config/block'
+        params = {
+            b"alarmName": alarm_name,
+            b"userId": user_id,
+            b"scope": scope,
+        }
+        self._send_csm_request(http_methods.POST, path, params=params, config=config)
+
+    def unblock_alarm_config(self, user_id, alarm_name, scope, config=None):
+        """
+            unblock alarm config
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/services/alarm/config/unblock'
+        params = {
+            b"alarmName": alarm_name,
+            b"userId": user_id,
+            b"scope": scope,
+        }
+        self._send_csm_request(http_methods.POST, path, params=params, config=config)
+
+    def get_alarm_config_detail(self, user_id, alarm_name, scope, config=None):
+        """
+            get alarm config detail
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/services/alarm/config'
+        params = {
+            b"alarmName": alarm_name,
+            b"userId": user_id,
+            b"scope": scope,
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def get_single_instance_alarm_configs(self, user_id, scope, page_no, page_size,
+                                          region="bj", alarm_name_prefix="", action_enabled=None, dimensions="",
+                                          order="desc", config=None):
+        """
+            get alarm config detail
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param region: region
+            :type region: string
+
+            :param page_no: page no
+            :type page_no: int
+
+            :param page_size: page size
+            :type page_size: int
+
+            :param alarm_name_prefix: alarm name prefix
+            :type alarm_name_prefix: string
+
+            :param action_enabled: action enable flag
+            :type action_enabled: bool
+
+            :param dimensions: dimensions
+            :type dimensions: string
+
+            :param order: order
+            :type order: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+        if page_no <= 0:
+            raise ValueError('page_no should be greater than 0')
+        if page_size <= 0:
+            raise ValueError('page_size should be greater than 0')
+
+        path = b'/services/alarm/config/list'
+        params = {
+            b"region": region,
+            b"userId": user_id,
+            b"scope": scope,
+            b"pageNo": page_no,
+            b"pageSize": page_size,
+            b"dimensions": dimensions,
+            b"order": order,
+            b"alarmNamePrefix": alarm_name_prefix,
+        }
+        if action_enabled is not None:
+            if action_enabled:
+                params["actionEnabled"] = "true"
+            else:
+                params["actionEnabled"] = "false"
+        return self._send_csm_request(http_methods.GET, path, params=params, config=config)
+
+    def get_alarm_metrics(self, user_id, scope, region="bj", dimensions="", metric_type="", locale="", config=None):
+        """
+            get alarm config detail
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/Vks8iqqnx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param region: region
+            :type region: string
+
+            :param dimensions: dimensions
+            :type dimensions: string
+
+            :param metric_type: metric type
+            :type metric_type: string
+
+            :param locale: locale
+            :type locale: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/services/alarm/config/metrics'
+        params = {
+            b"region": region,
+            b"userId": user_id,
+            b"scope": scope,
+            b"dimensions": dimensions,
+            b"type": metric_type,
+            b"locale": locale,
+        }
+        return self._send_csm_request(http_methods.GET, path, params=params,
+                                      body_parser=bcm_handler.parse_json_list, config=config)
+
+    def create_alarm_config_v2(self, user_id, alias_name, scope, target_type, level, region, actions, policies,
+                               target_instances=None, insufficient_period=0,
+                               alarm_repeat_interval=0, alarm_repeat_count=0,
+                               callback_url="", callback_token="", target_instance_tags=None,
+                               target_instance_groups=None, resource_type="Instance", config=None):
+        """
+            get alarm config detail
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/blhrp7kdx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alias_name: alarm config alias name
+            :type alias_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param target_type: alarm config target type
+            :type target_type: string
+
+            :param level: alarm level
+            :type level: string
+
+            :param region: alarm config region
+            :type region: string
+
+            :param actions: alarm actions
+            :type actions: AlarmAction array
+
+            :param policies: alarm config policies
+            :type policies: AlarmConfigPolicy array
+
+            :param target_instances: alarm config target instances
+            :type target_instances: TargetInstance array
+
+            :param insufficient_period: insufficient data pending period
+            :type insufficient_period: int
+
+            :param alarm_repeat_interval: alarm repeat interval
+            :type alarm_repeat_interval: int
+
+            :param alarm_repeat_count: alarm repeat count
+            :type alarm_repeat_count: int
+
+            :param callback_url: callback url
+            :type callback_url: string
+
+            :param callback_token: callback token
+            :type callback_token: string
+
+            :param target_instance_tags: target instance tags
+            :type target_instance_tags: KV array
+
+            :param target_instance_groups: target instance groups
+            :type target_instance_groups: string array
+
+            :param resource_type: resource type
+            :type resource_type: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+        if len(alias_name) <= 0:
+            raise ValueError('alias_name should not be none or empty string')
+        if len(target_type) <= 0:
+            raise ValueError('target_type should not be none or empty string')
+        if len(level) <= 0:
+            raise ValueError('level should not be none or empty string')
+        if len(region) <= 0:
+            raise ValueError('region should not be none or empty string')
+        if len(actions) <= 0:
+            raise ValueError('actions should not be empty')
+        if len(policies) <= 0:
+            raise ValueError('policies should not be empty')
+        if target_type == "TARGET_TYPE_MULTI_INSTANCES" and len(target_instances) <= 0:
+            raise ValueError('target_instances should not be empty')
+        if target_type == "TARGET_TYPE_INSTANCE_GROUP" and len(target_instance_groups) <= 0:
+            raise ValueError('target_instance_groups should not be empty')
+        if target_type == "TARGET_TYPE_INSTANCE_TAGS" and len(target_instance_tags) <= 0:
+            raise ValueError('target_instance_tags should not be empty')
+        if target_instance_groups is None:
+            target_instance_groups = []
+        if target_instance_tags is None:
+            target_instance_tags = []
+        if target_instances is None:
+            target_instances = []
+
+        path = b'/userId/%s/services/%s/alarm/config/create' % (user_id, scope)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "aliasName": alias_name,
+            "targetType": target_type,
+            "resourceType": resource_type,
+            "alarmLevel": level,
+            "targetInstanceGroups": target_instance_groups,
+            "targetInstanceTags": target_instance_tags,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "insufficientDataPendingPeriod": insufficient_period,
+            "alarmRepeatInterval": alarm_repeat_interval,
+            "alarmRepeatCount": alarm_repeat_count,
+            "policies": policies,
+            "targetInstances": target_instances,
+            "actions": actions,
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config,
+                                      version=BcmClient.version_v2)
+
+    def update_alarm_config_v2(self, user_id, alarm_name, alias_name, scope, target_type, level, region,
+                               actions, policies, target_instances=None, insufficient_period=0,
+                               alarm_repeat_interval=0, alarm_repeat_count=0,
+                               callback_url="", callback_token="", target_instance_tags=None,
+                               target_instance_groups=None, resource_type="Instance", config=None):
+        """
+            get alarm config detail
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/blhrp7kdx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param alias_name: alarm config alias name
+            :type alias_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param target_type: alarm config target type
+            :type target_type: string
+
+            :param level: alarm level
+            :type level: string
+
+            :param region: alarm config region
+            :type region: string
+
+            :param actions: alarm actions
+            :type actions: AlarmAction array
+
+            :param policies: alarm config policies
+            :type policies: AlarmConfigPolicy array
+
+            :param target_instances: alarm config target instances
+            :type target_instances: TargetInstance array
+
+            :param insufficient_period: insufficient data pending period
+            :type insufficient_period: int
+
+            :param alarm_repeat_interval: alarm repeat interval
+            :type alarm_repeat_interval: int
+
+            :param alarm_repeat_count: alarm repeat count
+            :type alarm_repeat_count: int
+
+            :param callback_url: callback url
+            :type callback_url: string
+
+            :param callback_token: callback token
+            :type callback_token: string
+
+            :param target_instance_tags: target instance tags
+            :type target_instance_tags: KV array
+
+            :param target_instance_groups: target instance groups
+            :type target_instance_groups: string array
+
+            :param resource_type: resource type
+            :type resource_type: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(alias_name) <= 0:
+            raise ValueError('alias_name should not be none or empty string')
+        if len(target_type) <= 0:
+            raise ValueError('target_type should not be none or empty string')
+        if len(level) <= 0:
+            raise ValueError('level should not be none or empty string')
+        if len(region) <= 0:
+            raise ValueError('region should not be none or empty string')
+        if len(actions) <= 0:
+            raise ValueError('actions should not be empty')
+        if len(policies) <= 0:
+            raise ValueError('policies should not be empty')
+        if target_type == "TARGET_TYPE_MULTI_INSTANCES" and len(target_instances) <= 0:
+            raise ValueError('target_instances should not be empty')
+        if target_type == "TARGET_TYPE_INSTANCE_GROUP" and len(target_instance_groups) <= 0:
+            raise ValueError('target_instance_groups should not be empty')
+        if target_type == "TARGET_TYPE_INSTANCE_TAGS" and len(target_instance_tags) <= 0:
+            raise ValueError('target_instance_tags should not be empty')
+        if target_instance_tags is None:
+            target_instance_tags = []
+        if target_instance_groups is None:
+            target_instance_groups = []
+        if target_instances is None:
+            target_instances = []
+
+        path = b'/userId/%s/services/%s/alarm/config/update' % (user_id, scope)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "aliasName": alias_name,
+            "alarmName": alarm_name,
+            "targetType": target_type,
+            "resourceType": resource_type,
+            "alarmLevel": level,
+            "targetInstanceGroups": target_instance_groups,
+            "targetInstanceTags": target_instance_tags,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "insufficientDataPendingPeriod": insufficient_period,
+            "alarmRepeatInterval": alarm_repeat_interval,
+            "alarmRepeatCount": alarm_repeat_count,
+            "policies": policies,
+            "targetInstances": target_instances,
+            "actions": actions,
+        }
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body), config=config,
+                                      version=BcmClient.version_v2)
+
+    def block_alarm_config_v2(self, user_id, alarm_name, scope, config=None):
+        """
+            block alarm config v2
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/blhrp7kdx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/userId/%s/services/%s/alarm/config/block' % (user_id, scope)
+        params = {
+            b"alarmName": alarm_name
+        }
+        self._send_csm_request(http_methods.POST, path, params=params, config=config,
+                               version=BcmClient.version_v2)
+
+    def unblock_alarm_config_v2(self, user_id, alarm_name, scope, config=None):
+        """
+            unblock alarm config v2
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/blhrp7kdx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/userId/%s/services/%s/alarm/config/unblock' % (user_id, scope)
+        params = {
+            b"alarmName": alarm_name
+        }
+        self._send_csm_request(http_methods.POST, path, params=params, config=config,
+                               version=BcmClient.version_v2)
+
+    def get_alarm_config_detail_v2(self, user_id, alarm_name, scope, config=None):
+        """
+            get alarm config detail v2
+
+            This site may help you: https://cloud.baidu.com/doc/BCM/s/blhrp7kdx
+
+            :param user_id: master account id
+            :type user_id: string
+
+            :param alarm_name: alarm config name
+            :type alarm_name: string
+
+            :param scope: scope
+            :type scope: string
+
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+
+        """
+        if len(user_id) <= 0:
+            raise ValueError('user_id should not be none or empty string')
+        if len(alarm_name) <= 0:
+            raise ValueError('alarm_name should not be none or empty string')
+        if len(scope) <= 0:
+            raise ValueError('scope should not be none or empty string')
+
+        path = b'/userId/%s/services/%s/alarm/config' % (user_id, scope)
+        params = {
+            b"alarmName": alarm_name
+        }
+        self._send_csm_request(http_methods.GET, path, params=params, config=config, version=BcmClient.version_v2)

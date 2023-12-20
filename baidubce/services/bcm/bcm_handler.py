@@ -21,7 +21,6 @@ from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 
 
-
 def parse_json_list(http_response, response):
     """If the body is not empty, convert it to a python object and set as the value of
     response.body. http_response is always closed if no error occurs.
@@ -42,6 +41,7 @@ def parse_json_list(http_response, response):
         response.__dict__["raw_data"] = body
     http_response.close()
     return True
+
 
 def parse_error(http_response, response):
     """If the body is not empty, convert it to a python object and set as the value of

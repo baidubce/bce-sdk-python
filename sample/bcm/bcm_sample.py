@@ -1497,6 +1497,155 @@ if __name__ == '__main__':
                                                                          e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+    # create alarm policy
+    try:
+        monitor_object = bcm_model.MonitorObject("INSTANCE", ["InstanceId:i-WvElew**"])
+        rule = bcm_model.AlarmRule(1, "CPUUsagePercent", 60, "average", "12345", ">", 1)
+        bcm_client.create_alarm_config(user_id, "test_policy_0123", "BCE_BCC", "CRITICAL", "bj",
+                                       monitor_object, ["d242711b-****-****-****-b8ac175f8e7d"], [[rule]])
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update alarm policy
+    try:
+        monitor_object = bcm_model.MonitorObject("INSTANCE", ["InstanceId:i-WvElew**"])
+        rule = bcm_model.AlarmRule(1, "CPUUsagePercent", 60, "average", "12345", ">", 1)
+        bcm_client.update_alarm_config(user_id, "5c09e9********************d62091",
+                                       "test_policy_01234", "BCE_BCC", "CRITICAL", "bj",
+                                       monitor_object, ["d242711b-****-****-****-b8ac175f8e7d"], [[rule]])
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete alarm policy
+    try:
+        bcm_client.delete_alarm_config(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # block alarm policy
+    try:
+        bcm_client.block_alarm_config(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # unblock alarm policy
+    try:
+        bcm_client.unblock_alarm_config(user_id, "374e9c8a591847f294a9a695a8a35038", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get alarm policy detail
+    try:
+        bcm_client.get_alarm_config_detail(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get single instance alarm configs
+    try:
+        bcm_client.get_single_instance_alarm_configs(user_id, "BCE_BCC", 1, 10)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get alarm metrics
+    try:
+        bcm_client.get_alarm_metrics(user_id, "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create alarm policy v2
+    try:
+        action = bcm_model.AlarmAction("test_yangmoda")
+        rule = bcm_model.AlarmConfigRule("CPUUsagePercent", ">", "average", 12345.0)
+        policy = bcm_model.AlarmConfigPolicy([rule], 1)
+        identifier = bcm_model.KV("InstanceId", "i-WvElew**")
+        instance = bcm_model.TargetInstance("bj", [identifier])
+        bcm_client.create_alarm_config_v2(user_id, "test_policy_01234", "BCE_BCC", "TARGET_TYPE_MULTI_INSTANCES",
+                                          "CRITICAL", "bj", [action], [policy], target_instances=[instance])
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update alarm policy v2
+    try:
+        action = bcm_model.AlarmAction("test_yangmoda")
+        rule = bcm_model.AlarmConfigRule("CPUUsagePercent", ">", "average", 12345.0)
+        policy = bcm_model.AlarmConfigPolicy([rule], 1)
+        identifier = bcm_model.KV("InstanceId", "i-WvElew**")
+        instance = bcm_model.TargetInstance("bj", [identifier])
+        bcm_client.update_alarm_config_v2(user_id, "5c09e9********************d62091", "test_policy_012345",
+                                          "BCE_BCC", "TARGET_TYPE_MULTI_INSTANCES",
+                                          "CRITICAL", "bj", [action], [policy], target_instances=[instance])
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # block alarm policy v2
+    try:
+        bcm_client.block_alarm_config_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # unblock alarm policy v2
+    try:
+        bcm_client.unblock_alarm_config_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get alarm policy detail v2
+    try:
+        bcm_client.get_alarm_config_detail_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
 
 
     # query custom metric data from bcm interface

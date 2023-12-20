@@ -27,8 +27,8 @@ if PY2:
     sys.setdefaultencoding('utf8')
 
 HOST = b'bcm.bj.baidubce.com'
-AK = b'your ak'
-SK = b'your sk'
+AK = b'ak'
+SK = b'sk'
 
 user_id = '11111'
 app_name = "app_name"
@@ -36,10 +36,10 @@ scope = 'BCE_BCC'
 metric_name = 'CpuIdlePercent'
 metric_name_batch = 'CPUUsagePercent,MemUsagePercent'
 statistics = 'average,maximum,minimum'
-dimensions = 'InstanceId:i-xhWSkyNb'
-dimensions_batch = 'InstanceId:4c3069002046,InstanceId:b9a044ee30f2'
-start_time = '2022-05-10T06:11:48Z'
-end_time = '2022-05-10T07:11:48Z'
+dimensions = 'InstanceId:i-ysNRS8Vs'
+dimensions_batch = 'InstanceId:i-JJlYmXGi,InstanceId:i-OyWnVQc9'
+start_time = '2023-09-10T06:11:48Z'
+end_time = '2023-09-10T07:11:48Z'
 period_in_second = 60
 
 
@@ -1848,6 +1848,109 @@ class TestBcmClient(unittest.TestCase):
                                                        task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
+
+    def test_create_alarm_policy(self):
+        """
+        test create alarm policy
+        """
+        monitor_object = bcm_model.MonitorObject("INSTANCE", [dimensions])
+        rule = bcm_model.AlarmRule(1, "CPUUsagePercent", 60, "average", "12345", ">", 1)
+        self.client.create_alarm_config(user_id, "test_policy_0123", "BCE_BCC", "CRITICAL", "bj",
+                                        monitor_object, ["d242711b-****-****-****-b8ac175f8e7d"], [[rule]])
+
+    def test_update_alarm_policy(self):
+        """
+        test update alarm policy
+        """
+        monitor_object = bcm_model.MonitorObject("INSTANCE", ["InstanceId:i-WvElewBV"])
+        rule = bcm_model.AlarmRule(1, "CPUUsagePercent", 60, "average", "12345", ">", 1)
+        self.client.update_alarm_config(user_id, "5c09e9********************d62091",
+                                        "test_policy_01234", "BCE_BCC", "CRITICAL", "bj",
+                                        monitor_object, ["d242711b-****-****-****-b8ac175f8e7d"], [[rule]])
+
+    def test_delete_alarm_policy(self):
+        """
+        test delete alarm policy
+        """
+        self.client.delete_alarm_config(user_id, "5c09e9********************d62091", "BCE_BCC")
+
+    def test_block_alarm_policy(self):
+        """
+        test block alarm policy
+        """
+        self.client.block_alarm_config(user_id, "5c09e9********************d62091", "BCE_BCC")
+
+    def test_unblock_alarm_policy(self):
+        """
+        test unblock alarm policy
+        """
+        self.client.unblock_alarm_config(user_id, "5c09e9********************d62091", "BCE_BCC")
+
+    def test_get_alarm_policy_detail(self):
+        """
+        test get alarm policy detail
+        """
+        resp = self.client.get_alarm_config_detail(user_id, "5c09e9********************d62091", "BCE_BCC")
+        print resp
+
+    def test_get_single_instance_alarm_configs(self):
+        """
+        test get single instance alarm configs
+        """
+        resp = self.client.get_single_instance_alarm_configs(user_id, "BCE_BCC", 1, 10)
+        print resp
+
+    def test_get_alarm_metrics(self):
+        """
+        test get alarm metrics
+        """
+        resp = self.client.get_alarm_metrics(user_id, "BCE_BCC")
+        print resp
+
+    def test_create_alarm_policy_v2(self):
+        """
+        test create alarm policy v2
+        """
+        action = bcm_model.AlarmAction("test_yangmoda")
+        rule = bcm_model.AlarmConfigRule("CPUUsagePercent", ">", "average", 12345.0)
+        policy = bcm_model.AlarmConfigPolicy([rule], 1)
+        identifier = bcm_model.KV("InstanceId", "i-WvElew**")
+        instance = bcm_model.TargetInstance("bj", [identifier])
+        self.client.create_alarm_config_v2(user_id, "test_policy_01234", "BCE_BCC", "TARGET_TYPE_MULTI_INSTANCES",
+                                           "CRITICAL", "bj", [action], [policy], target_instances=[instance])
+
+    def test_update_alarm_policy_v2(self):
+        """
+        test update alarm policy v2
+        """
+        action = bcm_model.AlarmAction("test_yangmoda")
+        rule = bcm_model.AlarmConfigRule("CPUUsagePercent", ">", "average", 12345.0)
+        policy = bcm_model.AlarmConfigPolicy([rule], 1)
+        identifier = bcm_model.KV("InstanceId", "i-WvElewBV")
+        instance = bcm_model.TargetInstance("bj", [identifier])
+        self.client.update_alarm_config_v2(user_id, "5c09e9********************d62091", "test_policy_012345",
+                                           "BCE_BCC", "TARGET_TYPE_MULTI_INSTANCES",
+                                           "CRITICAL", "bj", [action], [policy], target_instances=[instance])
+
+    def test_block_alarm_policy_v2(self):
+        """
+        test block alarm policy v2
+        """
+        self.client.block_alarm_config_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+
+    def test_unblock_alarm_policy_v2(self):
+        """
+        test unblock alarm policy v2
+        """
+        self.client.unblock_alarm_config_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+
+    def test_get_alarm_policy_detail_v2(self):
+        """
+        test get alarm policy detail v2
+        """
+        resp = self.client.get_alarm_config_detail_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
+        print resp
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
