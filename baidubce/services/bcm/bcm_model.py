@@ -308,7 +308,8 @@ class AlarmRule(dict):
 
     This class define alarm rule.
     """
-    def __init__(self, index, metric, period, statistics, threshold, operator, evaluation_count, metric_dimensions=None):
+    def __init__(self, index, metric, period, statistics, threshold, operator, evaluation_count,
+                 metric_dimensions=None):
         """
         :param index: alarm rule index.
         :type index: int
