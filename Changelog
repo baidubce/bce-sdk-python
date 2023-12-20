@@ -1,8 +1,12 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.8.99】
+涉及产品：NAT
+Python SDK&Examples 和官网 OpenAPI 打平
+
 【版本：v0.8.98】
 涉及产品：NAT
-支持增强型NAT，Python SDK&Examples 和官网 OpenAPI 打平
+支持增强型NAT
 涉及产品：EIP
 新增EIPGroup SDK、EIP SDK与EIP产品SDK的example，同时修改了Exception的BceHttpClientError
 涉及产品：BCC
