@@ -214,6 +214,231 @@ class ApplicationMonitorObject(dict):
         self["monitorObjectView"] = monitor_object_view
 
 
+class Dimension(dict):
+    """
+    This class define dimension.
+    """
+    def __init__(self, name, value):
+        """
+        :param name: dimension name.
+        :type name: string
+
+        :param value: dimension value.
+        :type value: string
+        """
+        super(Dimension, self).__init__()
+        self["name"] = name
+        self["value"] = value
+
+
+class KV(dict):
+    """
+    This class define kv.
+    """
+    def __init__(self, key, value):
+        """
+        :param key: key.
+        :type key: string
+
+        :param value: dimension value.
+        :type value: string
+        """
+        super(KV, self).__init__()
+        self["key"] = key
+        self["value"] = value
+
+
+class PolicyResource(dict):
+    """
+    This class define policy resource.
+    """
+    def __init__(self, identifiers, metric_dimensions=None):
+        """
+        :param identifiers: identifiers.
+        :type identifiers: Dimension array
+
+        :param metric_dimensions: metric dimensions.
+        :type metric_dimensions: Dimension array
+        """
+        super(PolicyResource, self).__init__()
+        if metric_dimensions is None:
+            metric_dimensions = []
+        self["identifiers"] = identifiers
+        self["metricDimensions"] = metric_dimensions
+
+
+class MonitorObject(dict):
+    """
+    This class define monitor object.
+    """
+    def __init__(self, object_type, names, resources=None, type_name="Instance"):
+        """
+        :param object_type: monitor object type.
+        :type object_type: string
+
+        :param names: monitor object names.
+        :type names: string array
+
+        :param resources: monitor object resources.
+        :type resources: PolicyResource array
+
+        :param type_name: monitor object typename.
+        :type type_name: string
+        """
+        super(MonitorObject, self).__init__()
+        if resources is None:
+            resources = []
+        self["type"] = object_type
+        self["names"] = names
+        self["resources"] = resources
+        self["typeName"] = type_name
+
+
+class AlarmRule(dict):
+    """
+
+    private Long index;
+    private String metric;
+    private Long periodInSecond;
+    private String statistics;
+    private String threshold;
+    private String comparisonOperator;
+    private Integer evaluationPeriodCount;
+    private List<Dimension> metricDimensions;
+
+    This class define alarm rule.
+    """
+    def __init__(self, index, metric, period, statistics, threshold, operator, evaluation_count, metric_dimensions=None):
+        """
+        :param index: alarm rule index.
+        :type index: int
+
+        :param metric: metric name.
+        :type metric: string
+
+        :param period: period in second.
+        :type period: int
+
+        :param statistics: statistics.
+        :type statistics: string
+
+        :param threshold: threshold.
+        :type threshold: string
+
+        :param operator: comparison operator.
+        :type operator: string
+
+        :param evaluation_count: evaluation period count.
+        :type evaluation_count: int
+
+        :param metric_dimensions: metric dimensions.
+        :type metric_dimensions: Dimension array
+        """
+        super(AlarmRule, self).__init__()
+        if metric_dimensions is None:
+            metric_dimensions = []
+        self["index"] = index
+        self["metric"] = metric
+        self["periodInSecond"] = period
+        self["statistics"] = statistics
+        self["threshold"] = threshold
+        self["comparisonOperator"] = operator
+        self["evaluationPeriodCount"] = evaluation_count
+        self["metricDimensions"] = metric_dimensions
+
+
+class AlarmAction(dict):
+    """
+    This class define alarm action.
+    """
+    def __init__(self, name, action_id=""):
+        """
+        :param name: action name.
+        :type name: string
+
+        :param id: action id.
+        :type id: string
+        """
+        super(AlarmAction, self).__init__()
+        self["name"] = name
+        self["id"] = action_id
+
+
+class AlarmConfigRule(dict):
+    """
+    This class define alarm config rule.
+    """
+    def __init__(self, metric_name, operator, statistics, threshold, window=60, metric_dimensions=None):
+        """
+        :param metric_name: metric name.
+        :type metric_name: string
+
+        :param operator: operator.
+        :type operator: string
+
+        :param statistics: statistics.
+        :type statistics: string
+
+        :param threshold: threshold.
+        :type threshold: float
+
+        :param window: window.
+        :type window: int
+
+        :param metric_dimensions: metric dimensions.
+        :type metric_dimensions: KV array
+        """
+        super(AlarmConfigRule, self).__init__()
+        if metric_dimensions is None:
+            metric_dimensions = []
+        self["metricName"] = metric_name
+        self["operator"] = operator
+        self["statistics"] = statistics
+        self["threshold"] = threshold
+        self["window"] = window
+        self["metricDimensions"] = metric_dimensions
+
+
+class AlarmConfigPolicy(dict):
+    """
+    This class define alarm config policy.
+    """
+    def __init__(self, rules, alarm_pending_count):
+        """
+        :param rules: alarm config rules.
+        :type rules: AlarmConfigRule array
+
+        :param alarm_pending_count: alarm pending period count.
+        :type alarm_pending_count: int
+        """
+        super(AlarmConfigPolicy, self).__init__()
+        self["rules"] = rules
+        self["alarmPendingPeriodCount"] = alarm_pending_count
+
+
+class TargetInstance(dict):
+    """
+    This class define alarm config policy target instance.
+    """
+    def __init__(self, region, identifiers, metric_dimensions=None):
+        """
+        :param region: region.
+        :type region: string
+
+        :param identifiers: identifiers.
+        :type identifiers: KV array
+
+        :param metric_dimensions: metric dimensions.
+        :type metric_dimensions: KV array
+        """
+        super(TargetInstance, self).__init__()
+        if metric_dimensions is None:
+            metric_dimensions = []
+        self["region"] = region
+        self["identifiers"] = identifiers
+        self["metricDimensions"] = metric_dimensions
+
+
 class EventFilter(dict):
     """
     This class define event filter
@@ -270,23 +495,6 @@ class EventResource(dict):
         """
         super(EventResource, self).__init__()
         self["identifiers"] = identifiers
-
-
-class Dimension(dict):
-    """
-    This class define dimension
-    """
-
-    def __init__(self, name, value):
-        """
-        :param name: dimension name
-        :type name: string
-        :param value: dimension value
-        :type value: string
-        """
-        super(Dimension, self).__init__()
-        self["name"] = name
-        self["value"] = value
 
 
 class MonitorResource(dict):
