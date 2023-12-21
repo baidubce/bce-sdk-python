@@ -136,6 +136,14 @@ class TestRouteClient(unittest.TestCase):
         res = self.the_client.get_route_rule(route_rule_id)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
+    def test_switch_route(self):
+        """
+            test case for switch_route
+        """
+        self.assertEqual(
+            type(self.the_client.switch_route(route_rule_id)),
+            baidubce.bce_response.BceResponse)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
