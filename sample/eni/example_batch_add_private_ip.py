@@ -21,7 +21,7 @@ if __name__ == '__main__':
                                            is_ipv6=True, 
                                            private_ip_address_list=["240c:4081:8005:5e04::0a", 
                                                                     "240c:4081:8005:5e04::0b"])
-
+        private_ip_addresses = resp.private_ip_addresses # 添加的弹性网卡的内网IPv4/IPv6地址列表
         print("batch add private ip response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

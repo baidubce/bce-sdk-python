@@ -17,6 +17,7 @@ if __name__ == '__main__':
     
     try:
         resp = client.get_eni_status(eni_id="eni-7bqg7jf0m88f")  # 查询弹性网卡状态
+        status = resp.status  # 获取弹性网卡状态
         print("get eni status response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

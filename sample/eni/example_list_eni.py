@@ -19,6 +19,11 @@ if __name__ == '__main__':
         resp = client.list_eni(vpc_id="vpc-jm7h2j497ut7", instance_id="i-Dqf1k9ul", name="eni-1", 
                                private_ip_address_list=["10.0.1.115", "10.0.1.116"], 
                                marker="eni-tnj00he350fh", max_keys=2)  # 查询弹性网卡列表
+        enis = resp.enis                 # 查询到的弹性网卡列表
+        marker = resp.marker             # 查询的起始位置   
+        is_truncated = resp.is_truncated # 后面是否还有数据
+        next_marker = resp.next_marker   # 获取下一页所需要传递的marker值
+        max_keys = resp.max_keys         # 每页包含的最大数量
         print("list eni response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

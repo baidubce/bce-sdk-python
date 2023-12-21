@@ -23,6 +23,7 @@ if __name__ == '__main__':
         resp = client.create_eni(name="eni-1", subnet_id="sbn-d63m7t0bbwt5", 
                                  security_group_ids=["g-92600fd1grhr"],
                                  eni_ip_address_list=eni_ip_list)  # 创建eni
+        eni_id = resp.eni_id    # 获取eni_id
         print("create eni response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
