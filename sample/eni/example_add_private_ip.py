@@ -19,7 +19,7 @@ if __name__ == '__main__':
         # 增加弹性网卡内网IP
         resp = client.add_private_ip(eni_id="eni-7bqg7jf0m88f", 
                                      is_ipv6=True, private_ip_address="240c:4081:8005:5e04::9")  
-
+        private_ip_address = resp.private_ip_address # 弹性网卡内网IPv4/IPv6地址
         print("add private ip response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
