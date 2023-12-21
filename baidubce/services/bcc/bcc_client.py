@@ -3001,6 +3001,78 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    def update_security_group_rule(self, security_group_rule_id,
+                                   remark=None,
+                                   direction=None,
+                                   protocol=None,
+                                   portrange=None,
+                                   source_ip=None,
+                                   sourcegroup_id=None,
+                                   dest_ip=None,
+                                   destgroup_id=None,
+                                   config=None):
+        """
+            uodate a security group rule from the specified security group
+            :param security_group_rule_id:
+                security group rule id.
+            :param: remark:
+                The remark for the rule.
+            :param: portrange:
+                The port range to specify the port which the rule will work on.
+                Available range is rang [0, 65535], the fault value is "" for all port.
+            :param: protocol:
+                The parameter specify which protocol will the rule work on, the fault value is "" for all protocol.
+                Available protocol are tcp, udp and icmp.
+            :param: source_ip:
+                The source ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
+                other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
+                Only works for  direction = "ingress".
+            :param: sourcegroup_id:
+                The source security group id. Cannot coexist with sourceIP.
+            :param: dest_ip:
+                The destination ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
+                other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
+                Only works for  direction = "egress".
+            :param: destgroup_id:
+                The destination security group id. Cannot coexist with destIP.
+            :param: priority:
+                The parameter specify the priority of the rule(range 1-1000).
+            :param config:
+                :type config: baidubce.BceClientConfiguration
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/securityGroup/rule/update'
+        body = {
+            'securityGroupRuleId': security_group_rule_id,
+            'remark': remark,
+            'direction': direction,
+            'protocol': protocol,
+            'portRange': portrange,
+            'sourceIp': source_ip,
+            'sourceGroupId': sourcegroup_id,
+            'destIp': dest_ip,
+            'destGroupId': destgroup_id
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=None, config=config)
+
+    @required(security_group_rule_id=(bytes, str))  # ***Unicode***
+    def delete_security_group_rule(self, security_group_rule_id, config=None):
+        """
+            delete a security group rule from the specified security group
+            :param security_group_rule_id:
+                The id of SecurityGroupRule that will be deleted.
+            :type security_group_id: string
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        security_group_rule_id = compat.convert_to_bytes(security_group_rule_id)
+        path = b'/securityGroup/rule/%s' % security_group_rule_id
+        return self._send_request(http_methods.DELETE, path, params=None, config=config)
+
     def list_zones(self, config=None):
         """
         Get zone detail list within current region

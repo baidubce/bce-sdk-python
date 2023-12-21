@@ -23,11 +23,14 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.csn import csn_client
 from baidubce.services.csn import csn_model
 
-csn_id = 'csn-xxxxxxxxxxxxxxxx'
+csn_id = 'csn-xxxxxxxxxxxx'
 csn_bp_id = 'csnBp-xxxxxxxxxxxx'
 vpc_id = 'vpc-xxxxxxxxxxxx'
 csn_rt_id = 'csnRt-xxxxxxxxxxxx'
 instance_id = 'instance-xxxxxxxxxxxx'
+csn_rt_rule_id = 'csnRtRule-xxxxxxxxxxxx'
+tgw_id = 'tgw-xxxxxxxxxxxx'
+
 
 class TestCsnClient(unittest.TestCase):
     """
@@ -153,6 +156,34 @@ class TestCsnClient(unittest.TestCase):
         res = self.the_client.list_route_rule(csn_rt_id)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
+    def test_delete_route_rule(self):
+        """
+        test case for delete_route_rule
+        """
+        print(self.the_client.delete_route_rule(csn_rt_id, csn_rt_rule_id, client_token='clienttoken'))
+
+    def test_list_tgw(self):
+        """
+        test case for list_tgw
+        """
+        print(self.the_client.list_csn())
+
+    def test_update_tgw(self):
+        """
+        test case for update_tgw
+        """
+        body = {
+            "name": "tesr",
+            "description": "test-mark"
+        }
+        print(self.the_client.update_tgw(csn_id=csn_id, tgw_id=tgw_id, update_tgw_request=body))
+
+    def test_list_tgw_rule(self):
+        """
+        test case for list_tgw_rule
+        """
+        print(self.the_client.list_tgw_rule(csn_id=csn_id, tgw_id=tgw_id))
+
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     # suite.addTest(TestCsnClient("test_create_csn"))
@@ -166,5 +197,10 @@ if __name__ == "__main__":
     # suite.addTest(TestCsnClient("test_create_csn_bp"))
     # suite.addTest(TestCsnClient("test_update_csn_bp"))
     # suite.addTest(TestCsnClient("test_delete_csn_bp"))
+    # suite.addTest(TestCsnClient("test_delete_route_rule"))
+    # suite.addTest(TestCsnClient("test_list_tgw"))
+    # suite.addTest(TestCsnClient("test_update_tgw"))
+    # suite.addTest(TestCsnClient("test_list_tgw_rule"))
+
     runner = unittest.TextTestRunner()
     runner.run(suite)

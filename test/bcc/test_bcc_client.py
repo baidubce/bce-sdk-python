@@ -753,6 +753,22 @@ class TestBccClient(unittest.TestCase):
                                                                protocol='tcp')
         print(self.client.revoke_security_group_rule("g-RrAecfjQ", security_group_rule))
 
+    def test_update_security_group_rule(self):
+        """
+        test case for update_security_group_rule
+        """
+        res = self.client.update_security_group_rule(security_group_rule_id="g-RrAecfjQ", direction='ingress')
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_delete_security_group_rule(self):
+        """
+        test case for delete_security_group_rule
+        """
+        res = self.client.delete_security_group_rule(security_group_rule_id="g-RrAecfjQ")
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
     def test_list_zones(self):
         """
         test case for list_zones
@@ -2063,5 +2079,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
     suite.addTest(TestBccClient("test_get_available_images_by_spec"))
 
+    # 0.8.91 New Testcases
+    # suite.addTest(TestBccClient("test_update_security_group_rule"))
+    # suite.addTest(TestBccClient("test_delete_security_group_rule"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
