@@ -10,6 +10,7 @@ import unittest
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.et import et_client
+from baidubce.services.et.model import ETStatus
 
 et_id = 'dcphy-gq65bz9ip712'
 etchannel_id = 'dedicatedconn-zy9t7n91k0iq'
@@ -103,8 +104,45 @@ class TestEtClient(unittest.TestCase):
                                                      ipv6_networks, client_token=client_token))
 
 
-if __name__ == "__main__":
+    def test_create_et_dcphy(self):
+        """
+        test case for create_et_dcphy
+        """
+        self.the_client.create_et_dcphy('et_18', 'ISP_CMCC', '1G', 'SINGLE', 'BJYZ', 'z3',
+                                        '13333333333', '123@123.com', 'BJ|K2')
+        
+    def test_update_et_dcphy(self):
+        """
+        test case for update_et_dcphy
+        """
+        self.the_client.update_et_dcphy('dcphy-2222', name='et_update', user_name='z3', user_phone='13333333336', user_email='123@126.com')
+
+    def test_list_et_dcphy(self):
+        """
+        test case for list_et_dcphy
+        """
+        self.the_client.list_et_dcphy()
+        
+    def test_list_et_dcphy_detail(self):
+        """
+        test case for list_et_dcphy_detail
+        """
+        self.the_client.list_et_dcphy_detail('dcphy-2222')
+
+    def test_create_et_channel(self):
+        """
+        test case for create_et_channel
+        """
+        self.the_client.create_et_channel('dcphy-234r5', '172.1.1.1/24', 'testChannel', '172.1.1.2/24',
+                                          'static-route', 100)
+
+if __name__ == '__main__':
     suite = unittest.TestSuite()
+    #suite.addTest(TestEtClient("test_create_et_dcphy"))
+    #suite.addTest(TestEtClient("test_update_et_dcphy"))
+    #suite.addTest(TestEtClient("test_list_et_dcphy"))
+    #suite.addTest(TestEtClient("test_list_et_dcphy_detail"))
+    #suite.addTest(TestEtClient("test_create_et_channel"))
     #suite.addTest(TestEtClient("test_get_et_channel"))
     #suite.addTest(TestEtClient("test_recommit_et_channel"))
     #suite.addTest(TestEtClient("test_update_et_channel"))
