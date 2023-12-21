@@ -236,7 +236,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(create_csn_bp_limit_request))
 
-    def create_propagation(self, csn_rt_id=None, create_propagation_request=None, client_token=None):
+    def create_propagation(self, csn_rt_id, attach_id, description=None, client_token=None):
         """
         创建路由表的学习关系。
 
@@ -244,8 +244,8 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 云智能网路由表的ID
         :type csn_rt_id: str
 
-        :param create_propagation_request:
-        :desc
+        :param attach_id:
+        :desc 网络实例在云智能网中的身份的ID
         :type create_propagation_request: json
 
         :param client_token:
@@ -260,10 +260,15 @@ class CsnClient(bce_base_client.BceBaseClient):
         self._add_path_param(api_config, "csnRtId", csn_rt_id)
         self._add_query(api_config, "clientToken", client_token)
 
-        return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(create_propagation_request))
+        body = {
+            'attachId': attach_id,
+            'description': description,
+        }
 
-    def create_route_rule(self, csn_rt_id=None, create_route_rule_request=None, client_token=None):
+        return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
+                                  api_config["queries"], json.dumps(body))
+
+    def create_route_rule(self, csn_rt_id, attach_id, destAddress, routeType="custom", client_token=None):
         """
         添加云智能网路由表的路由条目。
 
@@ -271,9 +276,17 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 云智能网路由表的ID
         :type csn_rt_id: str
 
-        :param create_route_rule_request:
-        :desc
-        :type create_route_rule_request: json
+        :param attach_id:
+        :desc 网络实例在云智能网中的身份的ID
+        :type attach_id: str
+
+        :param destAddress:
+        :desc 目的地址
+        :type destAddress: str
+
+        :param routeType:
+        :desc 路由类型，目前只支持"custom"
+        :type routeType: str
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串，详见ClientToken幂等性
@@ -287,8 +300,14 @@ class CsnClient(bce_base_client.BceBaseClient):
         self._add_path_param(api_config, "csnRtId", csn_rt_id)
         self._add_query(api_config, "clientToken", client_token)
 
+        body = {
+            "attachId": attach_id,
+            "destAddress": destAddress,
+            "routeType": routeType,
+        }
+
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(create_route_rule_request))
+                                  api_config["queries"], json.dumps(body))
 
     def delete_association(self, csn_rt_id=None, attach_id=None, client_token=None):
         """
@@ -391,7 +410,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(delete_csn_bp_limit_request))
 
-    def delete_propagation(self, csn_rt_id=None, attach_id=None, client_token=None):
+    def delete_propagation(self, csn_rt_id, attach_id, client_token=None):
         """
         ​删除云智能网路由表的学习关系。
 
@@ -663,7 +682,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_propagation(self, csn_rt_id=None):
+    def list_propagation(self, csn_rt_id):
         """
         查询指定云智能网路由表的学习关系。
 
@@ -681,7 +700,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_route_rule(self, csn_rt_id=None, marker=None, max_keys=None):
+    def list_route_rule(self, csn_rt_id, marker=None, max_keys=None):
         """
         查询指定云智能网路由表的路由条目。
 

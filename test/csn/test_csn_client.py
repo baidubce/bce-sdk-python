@@ -17,6 +17,7 @@ This module for test.
 
 import unittest
 
+import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.csn import csn_client
@@ -25,6 +26,8 @@ from baidubce.services.csn import csn_model
 csn_id = 'csn-xxxxxxxxxxxxxxxx'
 csn_bp_id = 'csnBp-xxxxxxxxxxxx'
 vpc_id = 'vpc-xxxxxxxxxxxx'
+csn_rt_id = 'csnRt-xxxxxxxxxxxx'
+instance_id = 'instance-xxxxxxxxxxxx'
 
 class TestCsnClient(unittest.TestCase):
     """
@@ -114,6 +117,41 @@ class TestCsnClient(unittest.TestCase):
         test case for delete_csn_bp
         """
         print(self.the_client.delete_csn_bp(csn_bp_id))
+    
+    def test_create_propagation(self):
+        """
+        test case for create_propagation
+        """
+        res = self.the_client.create_propagation(csn_rt_id, instance_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+    
+    def test_list_propagation(self):
+        """
+        test case for list_propagation
+        """
+        res = self.the_client.list_propagation(csn_rt_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+    
+    def test_delete_propagation(self):
+        """
+        test case for delete_propagation
+        """
+        res = self.the_client.delete_propagation(csn_rt_id, instance_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+          
+    def test_create_route_rule(self):
+        """
+        test case for create_route_rule
+        """
+        res = self.the_client.create_route_rule(csn_rt_id, instance_id, '10.254.36.0/24')
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_list_route_rule(self):
+        """
+        test case for list_route_rule
+        """
+        res = self.the_client.list_route_rule(csn_rt_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
