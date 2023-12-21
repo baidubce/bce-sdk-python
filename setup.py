@@ -76,6 +76,7 @@ setup(
               'baidubce.services.localdns',
               'baidubce.services.localdns.api',
               'baidubce.services.oos',
+              'baidubce.services.et',
               'baidubce.services.csn'
               ],
     url='http://bce.baidu.com',
