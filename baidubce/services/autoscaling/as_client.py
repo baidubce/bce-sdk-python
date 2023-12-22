@@ -470,3 +470,184 @@ class AsClient(bce_base_client.BceBaseClient):
             "groupIds": group_ids
         }
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+
+    def get_records(self, group_id, page_no=1, page_size=1000, order=None, order_by="startTime",
+                    start_time=None, end_time=None):
+        """
+           Get details of a specific group
+           :param group_id:
+                Group identifier
+           :type group_id: str
+
+           :param page_no:
+                Page number
+           :type page_no: int
+
+           :param page_size:
+                Page size
+           :type page_size: int
+
+           :param order:
+               Order-ascending order or descending order
+           :type order: string
+
+           :param order_by:
+               Order by parameter
+           :type order_by: string
+
+           :param start_time:
+               Start time for filtering the results
+           :type start_time: string
+
+           :param end_time:
+               End time for filtering the results
+           :type end_time: string
+
+           :return:
+           rtype baidubce.bce_response.BceResponse
+       """
+        params = {
+            b'groupid': group_id,
+            b'order': order,
+            b'orderBy': order_by,
+            b'pageNo': page_no,
+            b'pageSize': page_size,
+            b'startTime': start_time,
+            b'endTime': end_time,
+        }
+        path = b'/record'
+        return self._send_request(http_methods.GET, path, params=params)
+
+    def exec_rule(self, group_id, rule_id):
+        """
+           Execute a specific rule within a group
+           :param group_id:
+                Group identifier
+           :type group_id: str
+
+           :param rule_id:
+                Rule identifier within the group
+           :type rule_id: str
+
+           :return:
+           rtype baidubce.bce_response.BceResponse
+       """
+
+        group_id = compat.convert_to_bytes(group_id)
+        path = b'/group/%s' % group_id
+        params = {
+            b'execRule': '',
+        }
+        body = {
+            "ruleId": rule_id
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+
+    def scaling_up(self, group_id, node_count, zone, expansion_strategy=None):
+        """
+            Scale up a specific group
+
+            :param group_id:
+                Group identifier
+            :type group_id: str
+
+            :param node_count:
+                Number of nodes to be added
+            :type node_count: int
+
+            :param zone:
+                Zone where the nodes will be added
+            :type zone: str
+
+            :param expansion_strategy:
+                Strategy to be used for the expansion, optional
+            :type expansion_strategy: str, optional
+
+            :return:
+            rtype baidubce.bce_response.BceResponse
+        """
+        group_id = compat.convert_to_bytes(group_id)
+        path = b'/group/%s' % group_id
+        params = {
+            b'scalingUp': '',
+        }
+        body = {
+            "nodeCount": node_count,
+            "zone": zone,
+            "expansionStrategy": expansion_strategy
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+
+    def scaling_down(self, group_id, nodes):
+        """
+            Scale down a specific group
+
+            :param group_id:
+                Group identifier
+            :type group_id: str
+
+            :param nodes:
+                Nodes to be removed
+            :type nodes: list or str
+
+            :return:
+            rtype baidubce.bce_response.BceResponse
+        """
+        group_id = compat.convert_to_bytes(group_id)
+        path = b'/group/%s' % group_id
+        params = {
+            b'scalingDown': '',
+        }
+        body = {
+            "nodes": nodes,
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+
+    def adjust_node(self, group_id, adjust_num):
+        """
+            Adjust the number of nodes in a specific group
+
+            :param group_id:
+                Group identifier
+            :type group_id: str
+
+            :param adjust_num:
+                Number to adjust the nodes by. This could be positive (for adding nodes) or
+                negative (for removing nodes).
+            :type adjust_num: int
+
+            :return:
+            rtype baidubce.bce_response.BceResponse
+        """
+        group_id = compat.convert_to_bytes(group_id)
+        path = b'/group/%s' % group_id
+        params = {
+            b'adjustNode': '',
+        }
+        body = {
+            "adjustNum": adjust_num,
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
+
+    def attach_node(self, group_id, nodes):
+        """
+            Attach nodes to a specific group.
+
+            :param group_id: str
+                The unique identifier of the group to which the nodes will be attached.
+            :param nodes: list or str
+                The nodes that will be attached to the group.
+                This can be a list of node identifiers or a single node identifier.
+
+            :return: baidubce.bce_response.BceResponse
+            rtype baidubce.bce_response.BceResponse
+        """
+        group_id = compat.convert_to_bytes(group_id)
+        path = b'/group/%s' % group_id
+        params = {
+            b'attachNode': '',
+        }
+        body = {
+            "nodes": nodes,
+        }
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))

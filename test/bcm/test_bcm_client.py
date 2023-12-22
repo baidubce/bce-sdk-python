@@ -20,6 +20,7 @@ import baidubce
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.bcm import bcm_client, bcm_model
+from baidubce.services.bcm.bcm_model import SiteOnceConfig
 
 PY2 = sys.version_info[0] == 2
 if PY2:
@@ -41,7 +42,8 @@ dimensions_batch = 'InstanceId:i-JJlYmXGi,InstanceId:i-OyWnVQc9'
 start_time = '2023-09-10T06:11:48Z'
 end_time = '2023-09-10T07:11:48Z'
 period_in_second = 60
-
+custom_namespace = "test_qsh"
+custom_metric_name = "taasd"
 
 class TestBcmClient(unittest.TestCase):
     """
@@ -1836,7 +1838,7 @@ class TestBcmClient(unittest.TestCase):
         """
         test get site agent
         """
-        response = self.client.get_site_agent(user_id=user_id)
+        response = self.client.get_site_once_agent(user_id=user_id)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -1951,6 +1953,116 @@ class TestBcmClient(unittest.TestCase):
         resp = self.client.get_alarm_config_detail_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
         print resp
 
+    def test_create_custom_alarm_policy(self):
+        """
+        create alarm policy for customNamespace
+        """
+        rule = bcm_model.CustomAlarmRule(custom_metric_name, 60, "average", 10, ">", 1, 1, [])
+
+        response = self.client.create_custom_alarm_policy(user_id, "test_policy_zz", custom_namespace, "MAJOR",
+                                                         rules=[rule])
+    def test_delete_custom_alarm_policy(self):
+        """
+        delete alarm policy for customNamespace
+        """
+        custom_alarm_list = [
+            {
+                "scope": "test_qsh",
+                "userId": "a0d04d7c202140cb80155ff7********",
+                "alarmName": [
+                    "test_policy_zz"
+                ]
+            }
+        ]
+        response = self.client.delete_custom_alarm_policy(custom_alarm_list)
+
+    def test_update_custom_alarm_policy(self):
+        """
+         update alarm policy for customNamespace
+        """
+        rule = bcm_model.CustomAlarmRule(custom_metric_name, 60, "average", 10, ">", 1, 1, [])
+
+        response = self.client.update_custom_alarm_policy(user_id, "test_policy_13", custom_namespace, "MAJOR",
+                                                         rules=[rule])
+        print(response)
+    def test_list_custom_policy(self):
+        """
+        list alarm policies for customNamespace
+        """
+        res = self.client.list_custom_policy("a0d04d7c202140cb80155ff7********", 1, 10)
+        print(res)
+
+    def test_detail_custom_policy(self):
+        """
+        detail alarm policy for customNamespace
+        """
+        res = self.client.detail_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+    def test_block_custom_policy(self):
+        """
+        block alarm policy for customNamespace
+        """
+        res = self.client.block_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+    def test_unblock_custom_policy(self):
+        """
+        unblock alarm policy for customNamespace
+        """
+        res = self.client.unblock_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+
+    def test_create_site_once_task(self):
+        """
+        create site once task
+        """
+        onceConfig = SiteOnceConfig(method="get")
+        res = self.client.create_site_once_task("HTP", "a0d04d7c202140cb80155ff7********", "www.baidu.com",
+                                               "beijing-CMNET", 60, "HTTP", once_config=onceConfig)
+        print(res)
+    def test_list_site_once_records(self):
+        """
+        list site once records
+        """
+        res = self.client.list_site_once_records()
+        print(res)
+    def test_delete_site_once_record(self):
+        """
+        delete site once record
+        """
+        res = self.client.delete_site_once_record("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu")
+        print(res)
+    def test_detail_site_once_result(self):
+        """
+        detail site once result
+        """
+        res = self.client.detail_site_once_result("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu",
+                                                 filter_area="beijing")
+        print(res)
+    def test_detail_site_once(self):
+        """
+        detail site once
+        """
+        res = self.client.detail_site_once("a0d04d7c202140cb80155ff7********")
+        print(res)
+    def test_again_exec_site_once(self):
+        """
+        again exec site once
+        """
+        res = self.client.again_exec_site_once("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu")
+        print(res)
+
+    def test_list_site_once_history(self):
+        """
+        list site once history
+        """
+        res = self.client.list_site_once_history(user_id="a0d04d7c202140cb80155ff7********")
+        print(res)
+    def test_get_site_once_agent(self):
+        """
+        get site agent
+        """
+        res = self.client.get_site_once_agent(user_id="a0d04d7c202140cb80155ff7********")
+        print(res)
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
