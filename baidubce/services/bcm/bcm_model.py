@@ -601,3 +601,143 @@ class SiteAlarmRule(dict):
         self["actOnIdcs"] = act_on_idcs
         self["actOnIsps"] = act_on_isps
         self["versionSite"] = version_site
+
+
+class CustomAlarmRule(dict):
+    """
+    This class define custom alarm policy config
+    """
+
+    def __init__(self, metric, cycle, statistics, threshold, comparison_operator, count,
+                 index, metric_dimensions):
+        """
+
+        :param metric: metric identifier
+        :type metric: string
+        :param cycle: period, second
+        :type cycle: int
+        :param statistics: statistics, enum: average, minimum, maximum, sum
+        :type statistics: string
+        :param threshold:
+        :type threshold: float
+        :param comparison_operator: operator, enum: ">", "<", ">=", "<="
+        :type: string
+        :param count:
+        :type count: int
+        :param index: rule's sequence, begin with 0
+        :type index: int
+        :param metric_dimensions: dimensions
+        :type metric_dimensions: list
+        """
+        super(CustomAlarmRule, self).__init__()
+        self["metricName"] = metric
+        self["cycle"] = cycle
+        self["statistics"] = statistics
+        self["threshold"] = threshold
+        self["function"] = "THRESHOLD"
+        self["comparisonOperator"] = comparison_operator
+        self["count"] = count
+        self["index"] = index
+        self["metricDimensions"] = metric_dimensions
+
+
+class SiteOnceConfig(dict):
+    """
+    This class define site once config
+    """
+
+    def __init__(self, anonymous_login=None, method=None, post_content=None, kidnap_white=None, resolve_type=None,
+                 server=None, packet_count=None, port=None, input_type=None, input_data=None, output_type=None,
+                 expected_output=None, username=None, password=None):
+        """
+
+        :param anonymous_login: anonymous login
+        :type anonymous_login: bool
+        :param method: method, enum: get, post, put, delete, patch
+        :type method: string
+        :param post_content: post content
+        :type post_content: string
+        :param kidnap_white: kidnap white
+        :type kidnap_white: bool
+        :param resolve_type: resolve type
+        :type resolve_type: string
+        :param server: server
+        :type server: string
+        :param packet_count: packet count
+        :type packet_count: int
+        :param port: port
+        :type port: int
+        :param input_type: input type
+        :type input_type: string
+        :param input_data: input data
+        :type input_data: string
+        :param output_type: output type
+        :type output_type: string
+        :param expected_output: expected output
+        :type expected_output: string
+        :param username: username
+        :type username: string
+        :param password: password
+        :type password: string
+        """
+        super(SiteOnceConfig, self).__init__()
+        self["anonymousLogin"] = anonymous_login
+        self["method"] = method
+        self["postContent"] = post_content
+        self["kidnapWhite"] = kidnap_white
+        self["resolveType"] = resolve_type
+        self["server"] = server
+        self["packetCount"] = packet_count
+        self["port"] = port
+        self["inputType"] = input_type
+        self["input"] = input_data
+        self["outputType"] = output_type
+        self["expectedOutput"] = expected_output
+        self["username"] = username
+        self["password"] = password
+
+
+class AdvancedConfig(dict):
+    """
+    This class define advanced site once config
+    """
+
+    def __init__(self, cookies=None, user_agent=None, host=None, response_code=None,
+                 response_check=None, username=None, password=None, input_type=None,
+                 input_data=None, output_type=None, expected_output=None):
+        """
+       :param cookies: cookies
+       :type cookies: string
+       :param user_agent: user agent
+       :type user_agent: string
+       :param host: host
+       :type host: string
+       :param response_code: response code
+       :type response_code: int
+       :param response_check: response check
+       :type response_check: bool
+       :param username: username
+       :type username: string
+       :param password: password
+       :type password: string
+       :param input_type: input type
+       :type input_type: string
+       :param input_data: input data
+       :type input_data: string
+       :param output_type: output type
+       :type output_type: string
+       :param expected_output: expected output
+       :type expected_output: string
+       """
+        super(AdvancedConfig, self).__init__()
+        self["cookies"] = cookies
+        self["userAgent"] = user_agent
+        self["host"] = host
+        self["responseCode"] = response_code
+        self["responseCheck"] = response_check
+        self["username"] = username
+        self["password"] = password
+        self["inputType"] = input_type
+        self["input"] = input_data
+        self["outputType"] = output_type
+        self["expectedOutput"] = expected_output

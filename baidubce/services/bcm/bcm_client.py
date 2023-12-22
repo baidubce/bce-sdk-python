@@ -5135,3 +5135,500 @@ class BcmClient(bce_base_client.BceBaseClient):
             b"alarmName": alarm_name
         }
         self._send_csm_request(http_methods.GET, path, params=params, config=config, version=BcmClient.version_v2)
+
+    @required(rules=list, insufficientActions=int, repeatAlarmCycle=int, maxRepeatCount=int)
+    def create_custom_alarm_policy(self, user_id, alarm_name, namespace, level, comment="",
+                                   action_enabled=True, policy_enabled=None, alarm_actions=None, ok_actions=None,
+                                   insufficient_actions=None, insufficient_cycle=None, rules=None, region=None,
+                                   callback_url=None, callback_token=None, tag="", repeat_alarm_cycle=0,
+                                   max_repeat_count=0):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+        :param namespace: custom namespace
+        :type namespace: string
+        :param level: level
+        :type level: string  enum: NOTICE, NOTICE, CRITICAL, MAJOR
+        :param comment: comment
+        :type comment: string
+        :param action_enabled: is action enabled
+        :type action_enabled: bool
+        :param policy_enabled: is policy enabled
+        :type policy_enabled: bool
+        :param alarm_actions: alarm actions
+        :type alarm_actions: list
+        :param ok_actions: ok actions
+        :type ok_actions: list of string
+        :param insufficient_actions: insufficient actions
+        :type insufficient_actions: list of string
+        :param insufficient_cycle: insufficient cycle
+        :type insufficient_cycle: int
+        :param rules: rules
+        :type rules: list of CustomAlarmRule
+        :param region: region
+        :type region: string
+        :param callback_url: callback url
+        :type callback_url: string
+        :param callback_token: callback token
+        :type callback_token: string
+        :param tag: tag
+        :type tag: string
+        :param repeat_alarm_cycle: repeat alarm cycle
+        :type repeat_alarm_cycle: int
+        :param max_repeat_count: max repeat count
+        :type max_repeat_count: int
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/custom/alarm/configs/create'
+        body = {
+            "userId": user_id,
+            "alarmName": alarm_name,
+            "namespace": namespace,
+            "level": level,
+            "comment": comment,
+            "actionEnabled": action_enabled,
+            "policyEnabled": policy_enabled,
+            "alarmActions": alarm_actions,
+            "okActions": ok_actions,
+            "insufficientActions": insufficient_actions,
+            "insufficientCycle": insufficient_cycle,
+            "rules": rules,
+            "region": region,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "tag": tag
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(custom_alarm_list=list)
+    def delete_custom_alarm_policy(self, custom_alarm_list):
+        """
+        :param custom_alarm_list:
+        :type custom_alarm_list:  list of custom alarm
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = (b'/custom/alarm/configs/delete')
+        body = {
+            "customAlarmList": [
+            ]
+        }
+        for custom_alarm in custom_alarm_list:
+            body["customAlarmList"].append({
+                "scope": custom_alarm["scope"],
+                "userId": custom_alarm["userId"],
+                "alarmName": custom_alarm["alarmName"]
+            })
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    @required(rules=list, insufficientActions=int, repeatAlarmCycle=int, maxRepeatCount=int)
+    def update_custom_alarm_policy(self, user_id, alarm_name, namespace, level, comment="",
+                                   action_enabled=True, policy_enabled=None, alarm_actions=None, ok_actions=None,
+                                   insufficient_actions=None, insufficient_cycle=None, rules=None, region=None,
+                                   callback_url=None, callback_token=None, tag="", repeat_alarm_cycle=0,
+                                   max_repeat_count=0):
+
+        """
+        :param user_id:
+        :type user_id: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+        :param namespace: custom namespace
+        :type namespace: string
+        :param level: level
+        :type level: string  enum: NOTICE, NOTICE, CRITICAL, MAJOR
+        :param comment: comment
+        :type comment: string
+        :param action_enabled: is action enabled
+        :type action_enabled: bool
+        :param policy_enabled: is policy enabled
+        :type policy_enabled: bool
+        :param alarm_actions: alarm actions
+        :type alarm_actions: list
+        :param ok_actions: ok actions
+        :type ok_actions: list of string
+        :param insufficient_actions: insufficient actions
+        :type insufficient_actions: list of string
+        :param insufficient_cycle: insufficient cycle
+        :type insufficient_cycle: int
+        :param rules: rules
+        :type rules: list of CustomAlarmRule
+        :param region: region
+        :type region: string
+        :param callback_url: callback url
+        :type callback_url: string
+        :param callback_token: callback token
+        :type callback_token: string
+        :param tag: tag
+        :type tag: string
+        :param repeat_alarm_cycle: repeat alarm cycle
+        :type repeat_alarm_cycle: int
+        :param max_repeat_count: max repeat count
+        :type max_repeat_count: int
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        if alarm_actions is None:
+            alarm_actions = []
+        if ok_actions is None:
+            alarm_actions = []
+        if insufficient_actions is None:
+            insufficient_actions = []
+
+        path = b'/custom/alarm/configs/update'
+        body = {
+            "userId": user_id,
+            "alarmName": alarm_name,
+            "namespace": namespace,
+            "level": level,
+            "comment": comment,
+            "actionEnabled": action_enabled,
+            "policyEnabled": policy_enabled,
+            "alarmActions": alarm_actions,
+            "okActions": ok_actions,
+            "insufficientActions": insufficient_actions,
+            "insufficientCycle": insufficient_cycle,
+            "rules": rules,
+            "region": region,
+            "callbackUrl": callback_url,
+            "callbackToken": callback_token,
+            "repeatAlarmCycle": repeat_alarm_cycle,
+            "maxRepeatCount": max_repeat_count,
+            "tag": tag
+        }
+        return self._send_csm_request(http_methods.PUT, path, body=json.dumps(body))
+
+    def list_custom_policy(self, user_id, page_no, page_size, alarm_name=None, namespace=None, action_enabled=None):
+        """
+        :param user_id:
+        :type user_id: string
+        :param page_no: page number
+        :type page_no: int
+        :param page_size: page size
+        :type page_size: int
+        :param alarm_name: alarm name
+        :type alarm_name: string
+        :param namespace: namespace
+        :type namespace: string
+        :param action_enabled: is action enabled
+        :type action_enabled: bool
+
+        :return
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {
+            b'pageNo': page_no,
+            b'pageSize': page_size,
+            b'userId': user_id,
+            b'alarmName': alarm_name,
+            b'actionEnabled': action_enabled,
+            b'namespace': namespace
+        }
+        path = b'/custom/alarm/configs/list'
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    def detail_custom_policy(self, user_id, namespace, alarm_name):
+        """
+        :param user_id:
+        :type user_id: string
+        :param namespace: namespace
+        :type namespace: string
+        :param alarm_name: alarm name
+        :type alarm_name: string
+
+        :return: Returns detailed information about a custom policy.
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {
+            b'userId': user_id,
+            b'alarmName': alarm_name,
+            b'namespace': namespace
+        }
+        path = b'/custom/alarm/configs/detail'
+        return self._send_csm_request(http_methods.GET, path, params=params)
+
+    def block_custom_policy(self, user_id, namespace, alarm_name):
+        """
+        :param user_id: User's identifier
+        :type user_id: string
+        :param namespace: Namespace
+        :type namespace: string
+        :param alarm_name: Alarm name
+        :type alarm_name: string
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {
+            b'userId': user_id,
+            b'alarmName': alarm_name,
+            b'namespace': namespace
+        }
+        path = b'/custom/alarm/configs/block'
+        return self._send_csm_request(http_methods.POST, path, params=params)
+
+    def unblock_custom_policy(self, user_id, namespace, alarm_name):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param namespace: Namespace
+        :type namespace: str
+        :param alarm_name: Alarm name
+        :type alarm_name: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        params = {
+            b'userId': user_id,
+            b'alarmName': alarm_name,
+            b'namespace': namespace
+        }
+        path = b'/custom/alarm/configs/unblock'
+        return self._send_csm_request(http_methods.POST, path, params=params)
+
+    def create_site_once_task(self, site_once_type, user_id, address, idc, timeout, protocol_type, once_config,
+                              task_type="NET_QUAILTY", ip_type="ipv4", advanced_flag=False,
+                              advanced_config=None, group_id=None):
+        """
+        :param site_once_type: Type of site
+        :type site_once_type: str
+        :param user_id: User's identifier
+        :type user_id: str
+        :param address: Address
+        :type address: str
+        :param idc: IDC
+        :type idc: str
+        :param timeout: Timeout
+        :type timeout: int
+        :param protocol_type: Protocol type
+        :type protocol_type: str
+        :param once_config: Configuration for once
+        :type once_config: dict
+        :param task_type: Task type
+        :type task_type: str
+        :param ip_type: IP type
+        :type ip_type: str
+        :param advanced_flag: Advanced flag
+        :type advanced_flag: bool
+        :param advanced_config: Advanced configuration
+        :type advanced_config: dict
+        :param group_id: Group identifier
+        :type group_id: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        types = ["HTTP", "HTTPS", "PING", "FTP", "TCP", "UDP", "DNS"]
+        if site_once_type is not None and site_once_type not in types:
+            raise ValueError('site_once_type must be none or one of %s' % str(types))
+        path = (b'/site/once/%s/taskCreate' % compat.convert_to_bytes(site_once_type))
+        if advanced_config is None:
+            advanced_config = {}
+        body = {
+            "userId": user_id,
+            "address": address,
+            "idc": idc,
+            "timeout": timeout,
+            "protocolType": protocol_type,
+            "onceConfig": once_config,
+            "taskType": task_type,
+            "ipType": ip_type,
+            "advancedFlag": advanced_flag,
+            "advancedConfig": advanced_config,
+            "groupId": group_id
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def list_site_once_records(self, user_id=None, url=None, page_no=1, page_size=10,
+                               order=None, order_by=None, group_id=None):
+        """
+        :param user_id: User's identifier, defaults to None
+        :type user_id: str
+        :param url: URL
+        :type url: str
+        :param page_no: Page number
+        :type page_no: int
+        :param page_size: Page size
+        :type page_size: int
+        :param order: Order
+        :type order: str
+        :param order_by: Order by
+        :type order_by: str
+        :param group_id: Group identifier
+        :type group_id: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/taskList'
+        body = {
+            "userId": user_id,
+            "url": url,
+            "pageNo": page_no,
+            "pageSize": page_size,
+            "order": order,
+            "orderBy": order_by,
+            "groupId": group_id
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def delete_site_once_record(self, user_id, site_id):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param site_id: Site identifier
+        :type site_id: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/taskDelete'
+        body = {
+            "userId": user_id,
+            "siteId": site_id,
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def detail_site_once_result(self, user_id, site_id, page_no=1, page_size=10, order=None, order_by=None,
+                                filter_area=None, filter_isp=None):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param site_id: Site identifier
+        :type site_id: str
+        :param page_no: Page number
+        :type page_no: int
+        :param page_size: Page size
+        :type page_size: int
+        :param order: Order
+        :type order: str
+        :param order_by: Order by
+        :type order_by: str
+        :param filter_area: Filter area
+        :type filter_area: str
+        :param filter_isp: Filter ISP
+        :type filter_isp: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/loadData'
+        body = {
+            "userId": user_id,
+            "siteId": site_id,
+            "pageNo": page_no,
+            "pageSize": page_size,
+            "order": order,
+            "orderBy": order_by,
+            "filterArea": filter_area,
+            "filterIsp": filter_isp
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def detail_site_once(self, user_id, site_id=None, site_ids=None, group_id=None, page_no=1, page_size=10,
+                         order=None, order_by=None, filter_area=None, filter_isp=None):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param site_id: Site identifier
+        :type site_id: str
+        :param site_ids: List of site identifiers
+        :type site_ids: list
+        :param group_id: Group identifier
+        :type group_id: str
+        :param page_no: Page number
+        :type page_no: int
+        :param page_size: Page size
+        :type page_size: int
+        :param order: Order
+        :type order: str
+        :param order_by: Order by
+        :type order_by: str
+        :param filter_area: Filter area
+        :type filter_area: str
+        :param filter_isp: Filter ISP
+        :type filter_isp: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/groupTask'
+        body = {
+            "userId": user_id,
+            "siteId": site_id,
+            "siteIds": site_ids,
+            "groupId": group_id,
+            "pageNo": page_no,
+            "pageSize": page_size,
+            "order": order,
+            "orderBy": order_by,
+            "filterArea": filter_area,
+            "filterIsp": filter_isp
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def again_exec_site_once(self, user_id, site_id):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param site_id: Site identifier
+        :type site_id: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/createFromTask'
+        body = {
+            "userId": user_id,
+            "siteId": site_id
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def list_site_once_history(self, user_id="", site_id="", group_id=""):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param site_id: Site identifier
+        :type site_id: str
+        :param group_id: group identifier
+        :type group_id: str
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/site/once/groupTaskList'
+        body = {
+            "userId": user_id,
+            "groupId": group_id,
+            "siteId": site_id
+        }
+        return self._send_csm_request(http_methods.POST, path, body=json.dumps(body))
+
+    def get_site_once_agent(self, user_id, ip_type="ipv4"):
+        """
+        :param user_id: User's identifier
+        :type user_id: str
+        :param ip_type: the type of ip, enum: ipv4, ipv6
+        :type ip_type: str
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        types = ["ipv4", "ipv6"]
+        if ip_type is not None and ip_type not in types:
+            raise ValueError('ip_type must be none or one of %s' % str(types))
+        params = {
+            b'userId': user_id,
+            b'ipType': ip_type,
+        }
+        path = b'/site/once/siteAgent'
+        return self._send_csm_request(http_methods.GET, path, params=params)

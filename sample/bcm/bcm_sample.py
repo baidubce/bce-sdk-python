@@ -15,6 +15,7 @@ Samples for bcm client.
 # !/usr/bin/env python
 # coding=utf-8
 from baidubce.exception import BceHttpClientError, BceServerError
+from baidubce.services.bcm.bcm_model import SiteOnceConfig
 from baidubce.services.bcm.bcm_client import BcmClient, bcm_model
 import bcm_sample_conf
 
@@ -35,6 +36,9 @@ if __name__ == '__main__':
     start_time = "2020-01-20T00:00:01Z"
     end_time = "2020-01-20T00:10:01Z"
     period_in_second = 60
+    custom_namespace = "test_qsh"
+    custom_metric_name = "taasd"
+
 
     # create a bcm client
     bcm_client = BcmClient(bcm_sample_conf.config)
@@ -2199,6 +2203,189 @@ if __name__ == '__main__':
         response = bcm_client.get_site_agent_for_task(user_i=user_id,
                                                       task_id="VoFXOMtXwLJSWgxIUjavNPgHcdznwivS")
         print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create alarm policy for customNamespace
+    try:
+        rule = bcm_model.CustomAlarmRule(custom_metric_name, 60, "average", 10, ">", 1, 1, [])
+
+        response = bcm_client.create_custom_alarm_policy(user_id, "test_policy_zz", custom_namespace, "MAJOR",
+                                                         rules=[rule])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete alarm policy for customNamespace
+    try:
+        custom_alarm_list = [
+            {
+                "scope": "test_qsh",
+                "userId": "a0d04d7c202140cb80155ff7********",
+                "alarmName": [
+                    "test_policy_zz"
+                ]
+            }
+        ]
+        response = bcm_client.delete_custom_alarm_policy(custom_alarm_list)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update alarm policy for customNamespace
+    try:
+        rule = bcm_model.CustomAlarmRule(custom_metric_name, 60, "average", 10, ">", 1, 1, [])
+
+        response = bcm_client.update_custom_alarm_policy(user_id, "test_policy_13", custom_namespace, "MAJOR",
+                                                         rules=[rule])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list alarm policies for customNamespace
+    try:
+        res = bcm_client.list_custom_policy("a0d04d7c202140cb80155ff7********", 1, 10)
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # detail alarm policy for customNamespace
+    try:
+        res = bcm_client.detail_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # block alarm policy for customNamespace
+    try:
+        res = bcm_client.block_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # unblock alarm policy for customNamespace
+    try:
+        res = bcm_client.unblock_custom_policy("a0d04d7c202140cb80155ff7********", "test_qsh", "test_policy_zz")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create site once task
+    try:
+        onceConfig = SiteOnceConfig(method="get")
+        res = bcm_client.create_site_once_task("HTP", "a0d04d7c202140cb80155ff7********", "www.baidu.com",
+                                               "beijing-CMNET", 60, "HTTP", once_config=onceConfig)
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list site once records
+    try:
+        res = bcm_client.list_site_once_records()
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete site once record
+    try:
+        res = bcm_client.delete_site_once_record("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # detail site once result
+    try:
+        res = bcm_client.detail_site_once_result("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu",
+                                                 filter_area="beijing")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # detail site once
+    try:
+        res = bcm_client.detail_site_once("a0d04d7c202140cb80155ff7********")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # again exec site once
+    try:
+        res = bcm_client.again_exec_site_once("a0d04d7c202140cb80155ff7********", "OMVQcQTDPmSeLIXAsJEKAAbZwynfOINu")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list site once history
+    try:
+        res = bcm_client.list_site_once_history(user_id="a0d04d7c202140cb80155ff7********")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get site agent
+    try:
+        res = bcm_client.get_site_once_agent(user_id="a0d04d7c202140cb80155ff7********")
+        print(res)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
