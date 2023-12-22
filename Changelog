@@ -8,6 +8,9 @@
 增加VPN相关SDK以及sample示例
 涉及产品：CSN
 增加学习关系和路由规则相关SDK以及sample示例
+涉及产品：HAVIP
+新增HAVIP创建、查询、删除、更新、绑定
+增加相关SDK以及sample示例
 
 【版本：v0.8.98】
 涉及产品：NAT
