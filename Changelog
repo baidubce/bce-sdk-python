@@ -14,6 +14,8 @@
 增加相关SDK以及sample示例
 涉及产品：子网
 增加相关SDK以及sample示例
+涉及产品：PROBE
+新增PROBE创建、查询列表、查询详情、删除、更新SDK以及sample示例
 
 【版本：v0.8.98】
 涉及产品：NAT
