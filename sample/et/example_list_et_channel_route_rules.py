@@ -16,10 +16,12 @@ if __name__ == '__main__':
     client = et_client.EtClient(config)
  
     try:
-        resp = client.list_et_channel_route_rules(et_id="Your etId",
-                                                  et_channel_id="Your etChannelId",
-                                                  max_Keys=10,
-                                                  dest_address="192.168.0.7/32")
-        print("list et channel route rule response: %s." % resp)
+        resp = client.list_et_channel_route_rules(et_id="dcphy-gq65bz9ip712",
+                                                  et_channel_id="dedicatedconn-zy9t7n91k0iq",
+                                                  max_Keys=1,
+                                                  dest_address="10.0.0.1/32")
+        print("List et channel route rules successfully,"
+              " request_id: %s, route_rules: %s." % 
+              (resp.metadata.bce_request_id, resp.route_rules))
     except BceHttpClientError as e:
-        print("Exception when calling api: %s.\n" % e)
+        print("Exception when calling api: %s." % e)

@@ -18,14 +18,16 @@ if __name__ == '__main__':
     client = et_client.EtClient(config)
 
     try:
-        resp = client.create_et_channel_route_rule(et_id="Your etID",
-                                                   et_channel_id="Your etChannelId",
+        resp = client.create_et_channel_route_rule(et_id="dcphy-gq65bz9ip712",
+                                                   et_channel_id="dedicatedconn-zy9t7n91k0iq",
                                                    dest_address="192.168.0.7/32",
                                                    nexthop_type="etGateway",
-                                                   nexthop_id="Your nexthopId",
+                                                   nexthop_id="dcgw-p5x55p77u8ah",
                                                    description="Your description",
                                                    ip_version=4,
                                                    client_token=str(uuid.uuid4()))
-        print("create et channel route rule response: %s." % resp)
+        print("Create et channel route rule successfully,"
+              " request_id: %s, route_rule_id: %s." % 
+              (resp.metadata.bce_request_id, resp.route_rule_id))
     except BceHttpClientError as e:
-        print("Exception when calling api: %s.\n" % e)
+        print("Exception when calling api: %s." % e)

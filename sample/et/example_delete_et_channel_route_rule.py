@@ -18,10 +18,11 @@ if __name__ == '__main__':
     client = et_client.EtClient(config)
 
     try:
-        resp = client.delete_et_channel_route_rule(et_id="Your etId",
-                                                   et_channel_id="Your etChannelId",
-                                                   et_channel_route_rule_id="Your routeRuleId",
+        resp = client.delete_et_channel_route_rule(et_id="dcphy-gq65bz9ip712",
+                                                   et_channel_id="dedicatedconn-zy9t7n91k0iq",
+                                                   et_channel_route_rule_id="dcrr-5afcf643-94e",
                                                    client_token=str(uuid.uuid4()))
-        print("delete et channel route rule response: %s." % resp)
+        print("Delete et channel route rule successfully,"
+              " request_id: %s." % resp.metadata.bce_request_id)
     except BceHttpClientError as e:
-        print("Exception when calling api: %s.\n" % e)
+        print("Exception when calling api: %s." % e)
