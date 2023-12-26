@@ -108,7 +108,7 @@ class TestEtClient(unittest.TestCase):
         test case for disable et channel ipv6
         """
         client_token = generate_client_token()
-        self.the_client.disable_et_channel_ipv6(et_id, etchannel_id, client_token=client_token)
+        print(self.the_client.disable_et_channel_ipv6(et_id, etchannel_id, client_token=client_token))
 
     def test_create_et_dcphy(self):
         """
