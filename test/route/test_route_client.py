@@ -138,11 +138,10 @@ class TestRouteClient(unittest.TestCase):
 
     def test_switch_route(self):
         """
-            test case for switch_route
+        test case for switch_route
         """
-        self.assertEqual(
-            type(self.the_client.switch_route(route_rule_id)),
-            baidubce.bce_response.BceResponse)
+        self.assertEqual(type(self.the_client.switch_route(route_rule_id)),
+                         baidubce.bce_response.BceResponse)
 
 
 if __name__ == "__main__":

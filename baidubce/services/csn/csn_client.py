@@ -80,7 +80,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
-    def bind_csn_bp(self, csn_bp_id=None, bind_csn_bp_request=None, client_token=None):
+    def bind_csn_bp(self, csn_bp_id, csn_id, client_token=None):
         """
         带宽包绑定云智能网。
 
@@ -88,9 +88,9 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param bind_csn_bp_request:
-        :desc
-        :type bind_csn_bp_request: json
+        :param csn_id:
+        :desc 云智能网ID
+        :type csn_id
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
@@ -103,11 +103,12 @@ class CsnClient(bce_base_client.BceBaseClient):
         api_config = self._get_config(csn_apis, "bind_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
         self._add_query(api_config, "clientToken", client_token)
+        self._add_path_param(api_config, "csnId", csn_id)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(bind_csn_bp_request))
+                                  api_config["queries"])
 
-    def create_association(self, csn_rt_id=None, create_association_request=None, client_token=None):
+    def create_association(self, csn_rt_id, attach_id, description=None, client_token=None):
         """
         ​创建路由表的关联关系。
 
@@ -115,9 +116,13 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 云智能网路由表的ID
         :type csn_rt_id: str
 
-        :param create_association_request:
-        :desc
-        :type create_association_request: json
+        :param attach_id:
+        :desc 网络实例在云智能网中的身份ID
+        :type attach_id: str
+        
+        :param description:
+        :desc 路由表的关联关系的描述
+        :type description: str
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串，详见ClientToken幂等性
@@ -130,9 +135,13 @@ class CsnClient(bce_base_client.BceBaseClient):
         api_config = self._get_config(csn_apis, "create_association")
         self._add_path_param(api_config, "csnRtId", csn_rt_id)
         self._add_query(api_config, "clientToken", client_token)
+        body = {
+            'attachId': attach_id,
+            'description': description,
+        }
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(create_association_request))
+                                  api_config["queries"], json.dumps(body))
 
     def create_csn(self, name, description=None, client_token=None):
         """
@@ -214,7 +223,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
-    def create_csn_bp_limit(self, csn_bp_id=None, create_csn_bp_limit_request=None):
+    def create_csn_bp_limit(self, csn_bp_id, local_region, peer_region, bandwidth, client_token=None):
         """
         创建带宽包中两个地域间的地域带宽。
 
@@ -222,9 +231,17 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param create_csn_bp_limit_request:
-        :desc
-        :type create_csn_bp_limit_request: json
+        :param local_region:
+        :desc 地域带宽的本端region，云边互通场景中表示云端region
+        :type local_region: str
+        
+        :param peer_region:
+        :desc 地域带宽的对端region，云边互通场景中表示边缘region
+        :type peer_region: str
+        
+        :param bandwidth:
+        :desc 地域带宽的带宽值
+        :type bandwidth: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -232,9 +249,15 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "create_csn_bp_limit")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
-
+        self._add_query(api_config, "clientToken", client_token)
+        body = {
+            'localRegion': local_region,
+            'peerRegion': peer_region,
+            'bandwidth': bandwidth,
+        }
+        
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(create_csn_bp_limit_request))
+                                  api_config["queries"], json.dumps(body))
 
     def create_propagation(self, csn_rt_id, attach_id, description=None, client_token=None):
         """
@@ -383,7 +406,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def delete_csn_bp_limit(self, csn_bp_id=None, delete_csn_bp_limit_request=None, client_token=None):
+    def delete_csn_bp_limit(self, csn_bp_id, local_region, peer_region, client_token=None):
         """
         ​删除带宽包中两个地域间的地域带宽。
 
@@ -391,9 +414,13 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param delete_csn_bp_limit_request:
-        :desc
-        :type delete_csn_bp_limit_request: json
+        :param local_region:
+        :desc 地域带宽的本端region，云边互通场景中表示云端region
+        :type local_region: str
+        
+        :param peer_region:
+        :desc 地域带宽的对端region，云边互通场景中表示边缘region
+        :type peer_region: str
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
@@ -406,9 +433,13 @@ class CsnClient(bce_base_client.BceBaseClient):
         api_config = self._get_config(csn_apis, "delete_csn_bp_limit")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
         self._add_query(api_config, "clientToken", client_token)
-
+        body = {
+            'localRegion': local_region,
+            'peerRegion': peer_region,
+        }
+        
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(delete_csn_bp_limit_request))
+                                  api_config["queries"], json.dumps(body))
 
     def delete_propagation(self, csn_rt_id, attach_id, client_token=None):
         """
@@ -632,17 +663,13 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_csn_bp_limit_by_csn_id(self, csn_id=None, list_csn_bp_limit_by_csn_id_request=None):
+    def list_csn_bp_limit_by_csn_id(self, csn_id=None):
         """
         查询云智能网的地域带宽列表。
 
         :param csn_id:
         :desc 云智能网的ID
         :type csn_id: str
-
-        :param list_csn_bp_limit_by_csn_id_request:
-        :desc
-        :type list_csn_bp_limit_by_csn_id_request: json
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -652,7 +679,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         self._add_path_param(api_config, "csnId", csn_id)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(list_csn_bp_limit_by_csn_id_request))
+                                  api_config["queries"])
 
     def list_instance(self, csn_id, marker=None, max_keys=None):
         """
@@ -728,7 +755,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_route_table(self, csn_id=None, marker=None, max_keys=None):
+    def list_route_table(self, csn_id, marker=None, max_keys=None):
         """
         查询云智能网的路由表列表。
 
@@ -821,7 +848,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(list_tgw_rule_request))
 
-    def resize_csn_bp(self, csn_bp_id=None, resize_csn_bp_request=None, client_token=None):
+    def resize_csn_bp(self, csn_bp_id, bandwidth, client_token=None):
         """
         带宽包的带宽升降级。
 
@@ -829,9 +856,9 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param resize_csn_bp_request:
-        :desc
-        :type resize_csn_bp_request: json
+        :param bandwidth:
+        :desc 升降级的带宽值，最大值为10000
+        :type bandwidth: int
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
@@ -843,12 +870,13 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "resize_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
+        self._add_path_param(api_config, "bandwidth", bandwidth)
         self._add_query(api_config, "clientToken", client_token)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(resize_csn_bp_request))
 
-    def unbind_csn_bp(self, csn_bp_id=None, unbind_csn_bp_request=None, client_token=None):
+    def unbind_csn_bp(self, csn_bp_id, csn_id, client_token=None):
         """
         带宽包解绑云智能网。
 
@@ -856,9 +884,9 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param unbind_csn_bp_request:
-        :desc
-        :type unbind_csn_bp_request: json
+        :param csn_id:
+        :desc 云智能网ID
+        :type csn_id
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
@@ -870,10 +898,11 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "unbind_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
+        self._add_path_param(api_config, "csnId", csn_id)
         self._add_query(api_config, "clientToken", client_token)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(unbind_csn_bp_request))
+                                  api_config["queries"])
 
     def update_csn(self, csn_id, name=None, description=None, client_token=None):
         """
@@ -939,7 +968,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
-    def update_csn_bp_limit(self, csn_bp_id=None, update_csn_bp_limit_request=None, client_token=None):
+    def update_csn_bp_limit(self, csn_bp_id, local_region, peer_region, bandwidth, client_token=None):
         """
         ​更新带宽包中两个地域间的地域带宽。
 
@@ -947,9 +976,17 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的ID
         :type csn_bp_id: str
 
-        :param update_csn_bp_limit_request:
-        :desc
-        :type update_csn_bp_limit_request: json
+        :param local_region:
+        :desc 地域带宽的本端region，云边互通场景中表示云端region
+        :type local_region: str
+        
+        :param peer_region:
+        :desc 地域带宽的对端region，云边互通场景中表示边缘region
+        :type peer_region: str
+        
+        :param bandwidth:
+        :desc 地域带宽的带宽值
+        :type bandwidth: int
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
@@ -962,9 +999,14 @@ class CsnClient(bce_base_client.BceBaseClient):
         api_config = self._get_config(csn_apis, "update_csn_bp_limit")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
         self._add_query(api_config, "clientToken", client_token)
+        body = {
+            'localRegion': local_region,
+            'peerRegion': peer_region,
+            'bandwidth': bandwidth,
+        }
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"], json.dumps(update_csn_bp_limit_request))
+                                  api_config["queries"], json.dumps(body))
 
     def update_tgw(self, csn_id=None, tgw_id=None, update_tgw_request=None):
         """
