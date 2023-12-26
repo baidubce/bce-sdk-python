@@ -103,6 +103,12 @@ class TestEtClient(unittest.TestCase):
         print(self.the_client.enable_et_channel_ipv6(et_id, etchannel_id, local_ipv6, remote_ipv6,
                                                      ipv6_networks, client_token=client_token))
 
+    def test_disable_et_channel_ipv6(self):
+        """
+        test case for disable et channel ipv6
+        """
+        client_token = generate_client_token()
+        self.the_client.disable_et_channel_ipv6(et_id, etchannel_id, client_token=client_token)
 
     def test_create_et_dcphy(self):
         """
@@ -148,5 +154,6 @@ if __name__ == '__main__':
     #suite.addTest(TestEtClient("test_update_et_channel"))
     #suite.addTest(TestEtClient("test_delete_et_channel"))
     #suite.addTest(TestEtClient("test_enable_et_channel_ipv6"))
+    #suite.addTest(TestEtClient("test_disable_et_channel_ipv6"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
