@@ -18,9 +18,11 @@ if __name__ == '__main__':
     client = et_client.EtClient(config)
   
     try:
-        resp = client.disable_et_channel_ipv6(et_id="Your etId",
-                                              et_channel_id="Your etChannelId",
+        resp = client.disable_et_channel_ipv6(et_id="dcphy-gq65bz9ip712",
+                                              et_channel_id="dedicatedconn-zy9t7n91k0iq",
                                               client_token=str(uuid.uuid4()))
-        print("disable et channel ipv6 response: %s." % resp)
+        
+        print("Disable et channel ipv6 response successfully,"
+              " request_id: %s." % resp.metadata.bce_request_id)
     except BceHttpClientError as e:
-        print("Exception when calling api: %s.\n" % e)
+        print("Exception when calling api: %s." % e)
