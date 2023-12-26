@@ -30,7 +30,7 @@ csn_rt_id = 'csnRt-xxxxxxxxxxxx'
 instance_id = 'instance-xxxxxxxxxxxx'
 csn_rt_rule_id = 'csnRtRule-xxxxxxxxxxxx'
 tgw_id = 'tgw-xxxxxxxxxxxx'
-
+attach_id = "tgwAttach-xxxxxxxxx"
 
 class TestCsnClient(unittest.TestCase):
     """
@@ -154,6 +154,118 @@ class TestCsnClient(unittest.TestCase):
         test case for list_route_rule
         """
         res = self.the_client.list_route_rule(csn_rt_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_bind_csn_bp(self):
+        """
+        test case for bind_csn_bp
+        """
+        res = self.the_client.bind_csn_bp(csn_bp_id, csn_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+       
+    def test_create_association(self):
+        """
+        test case for create_association
+        """
+        res = self.the_client.create_association(csn_rt_id, attach_id, "csn_test description")
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_create_csn_bp_limit(self):
+        """
+        test case for create_csn_bp_limit
+        """
+        res = self.the_client.create_csn_bp_limit(csn_bp_id, "bj", "cn-hangzhou-cm", 10)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_delete_association(self):
+        """
+        test case for delete_association
+        """
+        res = self.the_client.delete_association(csn_rt_id, attach_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_delete_csn_bp_limit(self):
+        """
+        test case for delete_csn_bp_limit
+        """
+        res = self.the_client.delete_csn_bp_limit(csn_bp_id, "bj", "cn-hangzhou-cm")
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_get_csn_bp(self):
+        """
+        test case for get_csn_bp
+        """
+        res = self.the_client.get_csn_bp(csn_bp_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_list_association(self):
+        """
+        test case for list_association
+        """
+        res = self.the_client.list_association(csn_rt_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_list_csn_bp(self):
+        """
+        test case for list_csn_bp
+        """
+        res = self.the_client.list_csn_bp()
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_list_csn_bp_limit(self):
+        """
+        test case for list_csn_bp_limit
+        """
+        res = self.the_client.list_csn_bp_limit(csn_bp_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_list_csn_bp_limit_by_csn_id(self):
+        """
+        test case for list_csn_bp_limit_by_csn_id
+        """
+        res = self.the_client.list_csn_bp_limit_by_csn_id(csn_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_list_route_table(self):
+        """
+        test case for list_route_table
+        """
+        res = self.the_client.list_route_table(csn_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_resize_csn_bp(self):
+        """
+        test case for resize_csn_bp
+        """
+        res = self.the_client.resize_csn_bp(csn_bp_id, 1000)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_unbind_csn_bp(self):
+        """
+        test case for unbind_csn_bp
+        """
+        res = self.the_client.unbind_csn_bp(csn_bp_id, csn_id)
+        print(res)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        
+    def test_update_csn_bp_limit(self):
+        """
+        test case for update_csn_bp_limit
+        """
+        res = self.the_client.update_csn_bp_limit(csn_bp_id, "bj", "cn-hangzhou-cm", 10)
+        print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_delete_route_rule(self):
