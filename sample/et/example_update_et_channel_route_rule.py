@@ -2,10 +2,12 @@
 """
 example for et channel route rule.
 """
+import uuid
+
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
-from baidubce.services.et import et_channel_route_rule_client as client
+from baidubce.services.et import et_client
 
 if __name__ == '__main__':
     ak = "Your Ak"  # 账号的Ak
@@ -13,16 +15,14 @@ if __name__ == '__main__':
     endpoint = "bcc.bj.baidubce.com"  # 服务对应的Region域名
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
-    client = client.EtChannelRouteRuleClient(config)  # client 初始化
-    
-    et_id = "etId"  # 专线ID
-    et_channel_id = "etChannelId"  # 专线通道ID
-    et_channel_route_rule_id = "routeRuleId"  # 专线通道路由规则ID
-    description = "route_2"  # 描述信息
-    
+    client = et_client.EtClient(config)
+
     try:
-        resp = client.update_et_channel_route_rule(et_id, et_channel_id, et_channel_route_rule_id,
-            description)  # 修改专线通道路由规则
-        print("[example] update et channel route rule response: %s." % resp)
+        resp = client.update_et_channel_route_rule(et_id="Your etId",
+                                                   et_channel_id="Your etChannelId",
+                                                   et_channel_route_rule_id="Your routeRuleId",
+                                                   description="Your description",
+                                                   client_token=str(uuid.uuid4()))
+        print("update et channel route rule response: %s." % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s.\n" % e)

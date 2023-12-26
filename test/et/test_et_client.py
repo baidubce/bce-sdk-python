@@ -142,6 +142,48 @@ class TestEtClient(unittest.TestCase):
         self.the_client.create_et_channel('dcphy-234r5', '172.1.1.1/24', 'testChannel', '172.1.1.2/24',
                                           'static-route', 100)
 
+    def test_create_et_channel_route_rule(self):
+        """
+        test create et channel route rule
+        """
+        client_token = generate_client_token()
+        dest_address = "192.168.0.7/32" 
+        nexthop_type = "etChannel"
+        nexthop_id = ""
+        resp = self.the_client.create_et_channel_route_rule(et_id, etchannel_id, dest_address,
+                                                            nexthop_type, nexthop_id,
+                                                            client_token=client_token)
+        print(resp)
+
+    def test_list_et_channel_route_rule(self):
+        """
+        test list et channel route rule
+        """
+        client_token = generate_client_token()
+        resp = self.the_client.list_et_channel_route_rules(et_id, etchannel_id, client_token=client_token)
+        print(resp)
+
+    def test_update_et_channel_route_rule(self):
+        """
+        test update et channel route rule
+        """
+        client_token = generate_client_token()
+        route_rule_id = ""
+        description = "test_update"
+        resp = self.the_client.update_et_channel_route_rule(et_id, etchannel_id, route_rule_id,
+                                                            description, client_token=client_token)
+        print(resp)
+
+    def test_delete_et_channel_route_rule(self):
+        """
+        test delete et channel route rule
+        """
+        client_token = generate_client_token()
+        route_rule_id = ""
+        resp = self.the_client.delete_et_channel_route_rule(et_id, etchannel_id, route_rule_id,
+                                                            client_token=client_token)
+        print(resp)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     #suite.addTest(TestEtClient("test_create_et_dcphy"))
@@ -155,5 +197,9 @@ if __name__ == '__main__':
     #suite.addTest(TestEtClient("test_delete_et_channel"))
     #suite.addTest(TestEtClient("test_enable_et_channel_ipv6"))
     #suite.addTest(TestEtClient("test_disable_et_channel_ipv6"))
+    #suite.addTest(TestEtClient("test_create_et_channel_route_rule"))
+    #suite.addTest(TestEtClient("test_update_et_channel_route_rule"))
+    #suite.addTest(TestEtClient("test_list_et_channel_route_rule"))
+    #suite.addTest(TestEtClient("test_delete_et_channel_route_rule"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
