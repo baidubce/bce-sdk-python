@@ -11,21 +11,8 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.et import et_channel_route_rule_client
 
-et_id = 'dcphy-tm25m1reihvw'
-et_channel_id = 'dedicatedconn-ybffmxnpygcx'
-authorized_users = ['xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx']
-description = ''
-local_ip = '11.11.11.21/24'
-remote_ip = '11.11.11.12/24'
-name = 'channel_name'
-networks = ['192.168.0.0/16']
-route_type = 'static-route'
-vlan_id = 56
-enable_ipv6 = 1
-local_ipv6 = '2400:da00:e003:0:1eb:200::1/88'
-remote_ipv6 = '2400:da00:e003:0:0:200::1/88'
-ipv6_networks = ['2400:da00:e003:0:15f::/87']
-
+et_id = ''
+et_channel_id = ''
 
 if sys.version < '3':
     reload(sys)
@@ -64,35 +51,39 @@ class TestEtClient(unittest.TestCase):
         client_token = generate_client_token()
         dest_address = "192.168.0.7/32" 
         nexthop_type = "etChannel"
-        nexthop_id = "dedicatedconn-ybffmxnpygcx"
-        self.client.create_et_channel_route_rule(et_id, et_channel_id, dest_address,
+        nexthop_id = ""
+        resp = self.client.create_et_channel_route_rule(et_id, et_channel_id, dest_address,
             nexthop_type, nexthop_id, client_token=client_token)
+        print(resp)
 
     def test_list_et_channel_route_rule(self):
         """
         test list et channel route rule
         """
         client_token = generate_client_token()
-        self.client.list_et_channel_route_rules(et_id, et_channel_id, client_token=client_token)
+        resp = self.client.list_et_channel_route_rules(et_id, et_channel_id, client_token=client_token)
+        print(resp)
 
     def test_update_et_channel_route_rule(self):
         """
         test update et channel route rule
         """
         client_token = generate_client_token()
-        route_rule_id = "dcrr-07a5967b-84a"
+        route_rule_id = ""
         description = "test_update"
-        self.client.update_et_channel_route_rule(et_id, et_channel_id, route_rule_id,
+        resp = self.client.update_et_channel_route_rule(et_id, et_channel_id, route_rule_id,
             description, client_token=client_token)
+        print(resp)
 
     def test_delete_et_channel_route_rule(self):
         """
         test delete et channel route rule
         """
         client_token = generate_client_token()
-        route_rule_id = "dcrr-07a5967b-84a"
-        self.client.delete_et_channel_route_rule(et_id, et_channel_id, route_rule_id,
+        route_rule_id = ""
+        resp = self.client.delete_et_channel_route_rule(et_id, et_channel_id, route_rule_id,
             client_token=client_token)
+        print(resp)
 
 
 if __name__ == '__main__':
