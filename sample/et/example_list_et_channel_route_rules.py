@@ -20,8 +20,8 @@ if __name__ == '__main__':
                                                   et_channel_id="dedicatedconn-zy9t7n91k0iq",
                                                   max_Keys=1,
                                                   dest_address="10.0.0.1/32")
-        print("List et channel route rules successfully,"
-              " request_id: %s, route_rules: %s." % 
+        print("List et channel route rules successfully, response: %s." % resp)
+        print("request_id: %s, route_rules: %s." % 
               (resp.metadata.bce_request_id, resp.route_rules))
     except BceHttpClientError as e:
         print("Exception when calling api: %s." % e)

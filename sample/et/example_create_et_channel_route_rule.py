@@ -26,8 +26,8 @@ if __name__ == '__main__':
                                                    description="Your description",
                                                    ip_version=4,
                                                    client_token=str(uuid.uuid4()))
-        print("Create et channel route rule successfully,"
-              " request_id: %s, route_rule_id: %s." % 
+        print("Create et channel route rule successfully, response: %s." % resp)
+        print("request_id: %s, route_rule_id: %s." % 
               (resp.metadata.bce_request_id, resp.route_rule_id))
     except BceHttpClientError as e:
         print("Exception when calling api: %s." % e)
