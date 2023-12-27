@@ -22,7 +22,7 @@ if __name__ == '__main__':
                                               et_channel_id="dedicatedconn-zy9t7n91k0iq",
                                               client_token=str(uuid.uuid4()))
         
-        print("Disable et channel ipv6 response successfully,"
-              " request_id: %s." % resp.metadata.bce_request_id)
+        print("Disable et channel ipv6 response successfully, response: %s." % resp)
+        print("request_id: %s." % resp.metadata.bce_request_id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s." % e)

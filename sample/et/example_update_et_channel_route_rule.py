@@ -23,7 +23,7 @@ if __name__ == '__main__':
                                                    et_channel_route_rule_id="dcrr-5afcf643-94e",
                                                    description="route_2",
                                                    client_token=str(uuid.uuid4()))
-        print("Update et channel route rule successfully,"
-              " request_id: %s." % resp.metadata.bce_request_id)
+        print("Update et channel route rule successfully, response: %s." % resp)
+        print("request_id: %s." % resp.metadata.bce_request_id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s." % e)
