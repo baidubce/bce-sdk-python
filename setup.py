@@ -53,6 +53,7 @@ setup(
               'baidubce.services.cdn',
               'baidubce.services.blb',
               'baidubce.services.eip',
+              'baidubce.services.eni',
               'baidubce.services.route',
               'baidubce.services.subnet',
               'baidubce.services.vpc',
@@ -75,7 +76,10 @@ setup(
               'baidubce.services.localdns',
               'baidubce.services.localdns.api',
               'baidubce.services.oos',
-              'baidubce.services.ipv6gateway'
+              'baidubce.services.ipv6gateway',
+              'baidubce.services.et',
+              'baidubce.services.csn',
+              'baidubce.services.havip'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',

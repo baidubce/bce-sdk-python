@@ -111,6 +111,42 @@ class TestSubnetClient(unittest.TestCase):
                                                'test_update_description1')),
             baidubce.bce_response.BceResponse)
 
+    def test_create_subnet_ipreserve(self):
+        """
+        Test case for creating a reserved subnet
+        """
+        client_token = generate_client_token()
+        subnet_id = "sbn-a4cikyt7756r"  # Replace with an actual subnet ID
+        ip_cidr = "192.168.0.100/30"  # Replace with the desired IP CIDR
+        ip_version = 4
+        description = "test"
+
+        res = self.the_client.create_subnet_ipreserve(
+            subnet_id=subnet_id,
+            ip_cidr=ip_cidr,
+            ip_version=ip_version,
+            description=description,
+            client_token=client_token
+        )
+
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_list_subnet_ipreserve(self):
+        """
+        Test case for list_subnet_ipreserve
+        """
+        response = self.the_client.list_subnet_ipreserve(subnet_id='sbn-a4cikyt7756r', max_keys=1)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+
+    def test_delete_subnet_ipreserve(self):
+        """
+        Test case for delete_subnet_ipreserve
+        """
+        client_token = generate_client_token()
+        ip_reserve_id = 'ipr-te2pa9cv4ikk'  # Replace with the actual IP reserve ID
+        res = self.the_client.delete_subnet_ipreserve(ip_reserve_id, client_token=client_token)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -118,7 +154,10 @@ if __name__ == "__main__":
     # suite.addTest(TestSubnetClient("test_list_subnets"))
     # suite.addTest(TestSubnetClient("test_get_subnet"))
     # suite.addTest(TestSubnetClient("test_delete_subnet"))
-    suite.addTest(TestSubnetClient("test_update_subnet"))
+    #suite.addTest(TestSubnetClient("test_update_subnet"))
+    #suite.addTest(TestSubnetClient("test_create_subnet_ipreserve"))
+    #suite.addTest(TestSubnetClient("test_list_subnet_ipreserve"))
+    #suite.addTest(TestSubnetClient("test_delete_subnet_ipreserve"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
