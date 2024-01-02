@@ -22,6 +22,6 @@ if __name__ == "__main__":
         resp = peerconn_client.purchase_reserved_peerconn(peer_conn_id="peerconn-9td54fmx143e",
                                                           billing=peerconn_model.Billing('Prepaid'),
                                                           client_token=str(uuid.uuid4()))
-        print("Purchase reserved peerconn response: %s", resp)
+        print("Purchase reserved peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

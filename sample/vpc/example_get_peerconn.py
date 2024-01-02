@@ -28,6 +28,6 @@ if __name__ == "__main__":
         local_vpc_id = resp.local_vpc_id
         peer_vpc_id = resp.peer_vpc_id
         bandwith_in_mbp = resp.bandwith_in_mbp
-        print("Get peerconn response: %s", resp)
+        print("Get peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

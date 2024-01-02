@@ -21,6 +21,6 @@ if __name__ == "__main__":
     try:
         resp = et_client.delete_et_channel(et_id="Your Et ID", et_channel_id="Your Et Channel ID",
                                            client_token=str(uuid.uuid4()))
-        print("Delete et response: %s", resp)
+        print("Delete et response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

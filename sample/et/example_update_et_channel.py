@@ -20,6 +20,6 @@ if __name__ == "__main__":
     try:
         resp = et_client.update_et_channel(et_id="Your Et ID", et_channel_id="Your Et Channel ID",
                                            name="name", description="description", client_token=str(uuid.uuid4()))
-        print("Update et response: %s", resp)
+        print("Update et response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

@@ -17,6 +17,6 @@ if __name__ == '__main__':
     security_group_id = "g-dcqaukr9u3yn"  # 指定要删除的SecurityGroup的id
     try:
         resp = bcc_client.delete_security_group(security_group_id=security_group_id, config=None)  # 删除指定SecurityGroup
-        print("[example] delete sg response :%s", resp)
+        print("[example] delete sg response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

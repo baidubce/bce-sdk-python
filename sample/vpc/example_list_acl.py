@@ -19,6 +19,6 @@ if __name__ == '__main__':
     acl_client = acl_client.AclClient(config)  # 创建acl client
     try:
         response = acl_client.list_acl_entrys(vpc_id='vpc-vi7kwp20ii5z')  # 查询所属vpc所有的acl，传参为vpc id
-        print("[example] query acl  response :%s", response)
+        print("[example] query acl  response: %s" % response)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

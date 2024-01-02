@@ -38,7 +38,7 @@ if __name__ == '__main__':
                                                            tags=tags, # 标签
                                                            client_token=str(uuid.uuid4()))  # 创建esg
         esg_id = resp.enterprise_security_group_id  # 获取esg id
-        print("[example] create esg response :%s", resp)
-        print("[example] create esg id :%s", esg_id)
+        print("[example] create esg response: %s" % resp)
+        print("[example] create esg id: %s" % esg_id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

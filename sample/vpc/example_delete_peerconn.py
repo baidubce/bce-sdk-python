@@ -20,6 +20,6 @@ if __name__ == "__main__":
     try:
         resp = peerconn_client.delete_peerconn(peer_conn_id="peerconn-9td54fmx143e",
                                                client_token=str(uuid.uuid4()))
-        print("Delete peerconn response: %s", resp)
+        print("Delete peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

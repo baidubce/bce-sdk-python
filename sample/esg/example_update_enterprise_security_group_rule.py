@@ -27,6 +27,6 @@ if __name__ == '__main__':
                                                                 local_ip='10.0.0.9', # 本地ip
                                                                 priority=150
                                                                 ) # 更新企业安全组规则
-        print("[example] update esg rules response :%s", resp)
+        print("[example] update esg rules response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -18,6 +18,6 @@ if __name__ == '__main__':
     try:
         # 删除esg
         resp = esg_client.delete_enterprise_security_group(enterprise_security_group_id=enterprise_security_group_id)  #企业安全组id
-        print("[example] delete esg response :%s", resp)
+        print("[example] delete esg response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

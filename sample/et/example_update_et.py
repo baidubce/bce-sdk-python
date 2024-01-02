@@ -25,6 +25,6 @@ if __name__ == "__main__":
                                          user_phone='Your Phone',
                                          user_email='Your Email',
                                          client_token=str(uuid.uuid4()))
-        print("update et response: %s", resp)
+        print("update et response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

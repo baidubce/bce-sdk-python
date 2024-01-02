@@ -26,6 +26,6 @@ if __name__ == "__main__":
     try:
         resp = et_client.get_et_channel(et_id="Your Et ID", client_token=str(uuid.uuid4()))
         et_channels = resp.et_channels
-        print("Get et response: %s", resp)
+        print("Get et response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

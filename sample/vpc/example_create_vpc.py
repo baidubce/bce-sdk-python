@@ -21,6 +21,6 @@ if __name__ == '__main__':
             name=vpc_name,
             cidr=cidr
         )  # 创建vpc
-        print("[example] create vpc response :%s", resp)
+        print("[example] create vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

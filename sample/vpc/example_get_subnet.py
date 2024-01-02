@@ -17,6 +17,6 @@ if __name__ == '__main__':
     subnet_id = "xxxxx" # 要查询的子网的id
     try:
         resp = subnet_client.get_subnet(subnet_id)  # 查询子网信息
-        print("[example] get subnet response :%s", resp)
+        print("[example] get subnet response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

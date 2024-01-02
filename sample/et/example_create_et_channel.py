@@ -25,6 +25,6 @@ if __name__ == "__main__":
                                            route_type="Your RouteType",
                                            vlan_id=100,
                                            client_token=str(uuid.uuid4()))
-        print("create et channel response: %s", resp.id)
+        print("create et channel response: %s" % resp.id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

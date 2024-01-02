@@ -34,7 +34,7 @@ if __name__ == '__main__':
                                                         rule=security_group_rule1,# SecurityGroupRule
                                                         client_token=str(uuid.uuid4()),
                                                         config=None)  # client_token
-        print("[example] authorize sg rule response :%s", resp)
+        print("[example] authorize sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                                                         rule=security_group_rule2,# SecurityGroupRule
                                                         client_token=str(uuid.uuid4()),
                                                         config=None)  # client_token
-        print("[example] authorize sg rule response :%s", resp)
+        print("[example] authorize sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
 
@@ -74,6 +74,6 @@ if __name__ == '__main__':
                                                         rule=security_group_rule3,# SecurityGroupRule
                                                         client_token=str(uuid.uuid4()),
                                                         config=None)  # client_token
-        print("[example] authorize sg rule response :%s", resp)
+        print("[example] authorize sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

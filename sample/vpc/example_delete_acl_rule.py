@@ -19,6 +19,6 @@ if __name__ == '__main__':
     acl_client = acl_client.AclClient(config)  # 创建acl client
     try:
         response = acl_client.delete_acl(acl_rule_id="ar-m8x3irp1f67d")  # 删除acl rule，传参为acl rule id
-        print("[example] delete acl rule response :%s", response)
+        print("[example] delete acl rule response: %s" % response)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
