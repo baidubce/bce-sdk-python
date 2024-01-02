@@ -34,6 +34,6 @@ if __name__ == '__main__':
                                                      rule=security_group_rule,# 撤销SecurityGroupRule
                                                      client_token=str(uuid.uuid4()),  # client_token
                                                      config=None)
-        print("[example] revoke sgrule response :%s", resp)
+        print("[example] revoke sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

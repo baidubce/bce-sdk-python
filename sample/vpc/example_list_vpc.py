@@ -16,6 +16,6 @@ if __name__ == '__main__':
     vpc_client = vpc_client.VpcClient(config)  # client 初始化
     try:
         resp = vpc_client.list_vpcs()  # 查询vpc列表
-        print("[example] list vpc response :%s", resp)
+        print("[example] list vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -17,6 +17,6 @@ if __name__ == '__main__':
     subnet_id = "xxxxx" # 要更新的子网的id
     try:
         resp = subnet_client.update_subnet(subnet_id, name="subnet_name")  # 更新子网的名称
-        print("[example] update subnet response :%s", resp)
+        print("[example] update subnet response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

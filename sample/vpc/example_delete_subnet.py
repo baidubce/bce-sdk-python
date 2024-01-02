@@ -17,6 +17,6 @@ if __name__ == '__main__':
     subnet_id = "xxxx"  # 要删除的子网ID
     try:
         resp = subnet_client.delete_subnet(subnet_id=subnet_id)  # 删除子网
-        print("[example] delete subnet response :%s", resp)
+        print("[example] delete subnet response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

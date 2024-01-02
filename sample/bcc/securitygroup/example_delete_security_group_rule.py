@@ -18,6 +18,6 @@ if __name__ == '__main__':
     bcc_client = bcc_client.BccClient(config)  # client 初始化
     try:
         resp = bcc_client.delete_security_group_rule(security_group_rule_id='r-q1ek3jvwuede', config=None) # security group rule id
-        print("[example] delete sg rule response :%s", resp)
+        print("[example] delete sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -17,6 +17,6 @@ if __name__ == '__main__':
     vpc_id = "xxxxx" # 要更新的vpc的id
     try:
         resp = vpc_client.update_vpc(vpc_id, name="vpc_name")  # 更新vpc的名称
-        print("[example] update vpc response :%s", resp)
+        print("[example] update vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -22,6 +22,6 @@ if __name__ == "__main__":
                                               marker="20",
                                               max_keys=1)
         peer_conns = resp.peer_conns
-        print("List peerconn response: %s", resp)
+        print("List peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

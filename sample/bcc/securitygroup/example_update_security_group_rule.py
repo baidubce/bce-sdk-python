@@ -26,6 +26,6 @@ if __name__ == '__main__':
                                                      # dest_ip="10.0.0.2", # 指定目的ip, 不能否同时指定destGroupId
                                                      # destgroup_id="destgroup_id"
                                                      )
-        print("[example] update sg rule response :%s", resp)
+        print("[example] update sg rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

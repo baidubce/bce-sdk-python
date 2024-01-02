@@ -29,6 +29,6 @@ if __name__ == "__main__":
                                          user_idc='Your Idc',
                                          description='Your Et description',
                                          client_token=str(uuid.uuid4()))
-        print("create et response: %s", resp.id)
+        print("create et response: %s" % resp.id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

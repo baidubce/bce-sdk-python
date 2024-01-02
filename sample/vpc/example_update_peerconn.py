@@ -23,6 +23,6 @@ if __name__ == "__main__":
                                                description="peer_diff_accounts",
                                                local_if_name="test",
                                                client_token=str(uuid.uuid4()))
-        print("Update peerconn response: %s", resp)
+        print("Update peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

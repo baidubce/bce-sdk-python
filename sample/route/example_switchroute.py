@@ -16,6 +16,6 @@ if __name__ == '__main__':
     route_client = route_client.RouteClient(config)  # client 初始化
     try:
         resp = route_client.switch_route(route_rule_id="Your routeruleid") # 指定路由规则ID
-        print("[example] switch route rule response :%s", resp)
+        print("[example] switch route rule response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

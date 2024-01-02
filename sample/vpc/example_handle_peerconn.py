@@ -21,6 +21,6 @@ if __name__ == "__main__":
         resp = peerconn_client.handle_peerconn(peer_conn_id="peerconn-9td54fmx143e",
                                                action="accept",
                                                client_token=str(uuid.uuid4()))
-        print("Handle peerconn response: %s", resp)
+        print("Handle peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

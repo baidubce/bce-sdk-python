@@ -23,7 +23,7 @@ if __name__ == '__main__':
     try:
         resp = vpc_client.get_private_ip_address_info(vpc_id=vpc_id,
                                                         private_ip_addresses=private_ip_addresses)  # 查询vpc私有ip地址信息
-        print("[example] get vpc private ip response :%s", resp)
+        print("[example] get vpc private ip response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
 
@@ -32,6 +32,6 @@ if __name__ == '__main__':
     try:
         resp = vpc_client.get_private_ip_address_info(vpc_id=vpc_id,
                                                         private_ip_range=private_ip_addresses_range)  # 查询vpc私有ip地址信息
-        print("[example] get vpc private ip range response :%s", resp)
+        print("[example] get vpc private ip range response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

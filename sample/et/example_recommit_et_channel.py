@@ -24,6 +24,6 @@ if __name__ == "__main__":
                                             authorized_users=["Your user"], description="description", enable_ipv6=1,
                                             local_ipv6="BaiduIPv6Address", remote_ipv6="CustomerIPv6Address",
                                             ipv6_networks=["Your IPv6 cidr"], client_token=str(uuid.uuid4()))
-        print("Recommit et response: %s", resp)
+        print("Recommit et response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

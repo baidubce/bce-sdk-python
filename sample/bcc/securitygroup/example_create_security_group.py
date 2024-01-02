@@ -41,7 +41,7 @@ if __name__ == '__main__':
                                                 config=None
                                                 )  # 创建sg
         security_group_id = resp.security_group_id  # 获取创建的sg id
-        print("[example] create sg response :%s", resp)
-        print("[example] create sg id :%s", security_group_id)
+        print("[example] create sg response: %s" % resp)
+        print("[example] create sg id: %s" % security_group_id)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

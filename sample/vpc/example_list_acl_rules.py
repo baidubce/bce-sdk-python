@@ -19,6 +19,6 @@ if __name__ == '__main__':
     acl_client = acl_client.AclClient(config)  # 创建acl client
     try:
         response = acl_client.list_subnet_acl(subnet_id='sbn-zuabnf2w6qtn')  # 查询acl rule，传参为subnet id
-        print("[example] query acl rule response :%s", response)
+        print("[example] query acl rule response: %s" % response)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

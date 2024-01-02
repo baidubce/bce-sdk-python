@@ -21,6 +21,6 @@ if __name__ == "__main__":
         resp = peerconn_client.resize_peerconn(peer_conn_id="peerconn-9td54fmx143e",
                                                new_bandwidth_in_mbps=20,
                                                client_token=str(uuid.uuid4()))
-        print("Resize peerconn response: %s", resp)
+        print("Resize peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

@@ -21,6 +21,6 @@ if __name__ == "__main__":
         resp = peerconn_client.open_peerconn_dns_sync(peer_conn_id="peerconn-9td54fmx143e",
                                                       role="initiator",
                                                       client_token=str(uuid.uuid4()))
-        print("Open peerconn sync dns response: %s", resp)
+        print("Open peerconn sync dns response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

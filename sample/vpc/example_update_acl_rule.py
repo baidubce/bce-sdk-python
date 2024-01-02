@@ -28,6 +28,6 @@ if __name__ == '__main__':
                                          destination_port=20,
                                          action='deny',
                                          position=3)
-        print("[example] update acl rule response :%s", response)
+        print("[example] update acl rule response: %s" % response)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

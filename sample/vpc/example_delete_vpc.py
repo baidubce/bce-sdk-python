@@ -17,6 +17,6 @@ if __name__ == '__main__':
     vpc_id = "xxxxx" # 要删除的vpc的id
     try:
         resp = vpc_client.delete_vpc(vpc_id)  # 删除vpc
-        print("[example] delete vpc response :%s", resp)
+        print("[example] delete vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

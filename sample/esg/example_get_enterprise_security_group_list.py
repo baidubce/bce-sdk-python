@@ -45,6 +45,6 @@ if __name__ == '__main__':
                 rule_updated_time = resp[0].updated_time
 
             tags = resp[0].tags
-        print("[example] list esg response :%s", resp)
+        print("[example] list esg response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

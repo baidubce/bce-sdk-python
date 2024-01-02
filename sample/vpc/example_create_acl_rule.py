@@ -31,6 +31,6 @@ if __name__ == '__main__':
             'description': ''
         }]
         response = acl_client.create_acl(rule_list=acl_rule_list)  # 创建acl rule
-        print("[example] create acl rule response :%s", response)
+        print("[example] create acl rule response: %s" % response)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -22,6 +22,6 @@ if __name__ == "__main__":
         resp = et_client.enable_et_channel_ipv6(et_id="Your et_id", et_channel_id="Your et_channel_id",
                                                 local_ipv6="BaiduIPv6Address", remote_ipv6="CustomerIPv6Address",
                                                 ipv6_networks=["Your IPv6 cidr"], client_token=str(uuid.uuid4()))
-        print("Enable et IPv6 response: %s", resp)
+        print("Enable et IPv6 response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

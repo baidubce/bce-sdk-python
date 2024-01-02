@@ -29,6 +29,6 @@ if __name__ == "__main__":
                                                local_if_name='localIfName',
                                                peer_if_name='peerIfName')
         peer_conn_id = resp.peer_conn_id
-        print("Create peerconn response: %s", resp)
+        print("Create peerconn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

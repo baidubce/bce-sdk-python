@@ -23,6 +23,6 @@ if __name__ == '__main__':
                                            zone_name=zone_name,
                                            cidr=cidr,
                                            vpc_id=vpc_id)  # 创建子网
-        print("[example] create subnet response :%s", resp)
+        print("[example] create subnet response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -19,6 +19,6 @@ if __name__ == "__main__":
     et_client = et_client.EtClient(config)
     try:
         resp = et_client.list_et_dcphy()
-        print("list ets response: %s", resp)
+        print("list ets response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

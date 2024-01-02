@@ -48,6 +48,6 @@ if __name__ == '__main__':
                                                                    client_token=str(uuid.uuid4()), # 幂等token
                                                                    enterprise_security_group_id='esg-fg01y9tdm13a' # 企业安全组 id
                                                                    )  # 创建esg rule
-        print("[example] authorize esg rules response :%s", resp)
+        print("[example] authorize esg rules response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
