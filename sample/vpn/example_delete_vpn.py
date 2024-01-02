@@ -6,6 +6,7 @@ Samples for vpn client.
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
+from baidubce.exception import BceHttpClientError
 from baidubce.services.vpn.vpn_client import VpnClient
 
 if __name__ == "__main__":
@@ -20,8 +21,9 @@ if __name__ == "__main__":
     # create a vpn client
     vpn_client = VpnClient(config)
 
-    # No return value
-    result = vpn_client.delete_vpn(vpn_id='vpn-b4cs1yrbnrn9')
-
-    print(result.metadata.bce_request_id)
-
+    try:
+        resp = vpn_client.delete_vpn(vpn_id='vpn-bu21ety4wuei')
+        request_id = resp.metadata.bce_request_id
+        print("delete vpn gw response: %s" % resp)
+    except BceHttpClientError as e:
+        print("Exception when calling: %s" % e)
