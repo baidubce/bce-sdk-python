@@ -56,8 +56,6 @@ FETCH_MODE_ASYNC = b"async"
 
 ENCRYPTION_ALGORITHM= "AES256"
 
-DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
-
 HTTP_PROTOCOL_HEAD = b'http'
 
 
@@ -103,6 +101,7 @@ class BosClient(BceBaseClient):
         :returns: all buckets owned by the user.
         :rtype: baidubce.bce_response.BceResponse
         """
+        _logger.debug('list buckets')
         return self._send_request(http_methods.GET, config=config)
 
     @required(bucket_name=(bytes, str))
@@ -2434,6 +2433,49 @@ class BosClient(BceBaseClient):
             params={b'mirroring': b''},
             config=config,
             )
+
+    def put_objectTagging(self, bucket_name, key, obj_tag_args, config=None):
+        """
+        put object tagging
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :type obj_tag_args: dict
+        :param obj_tag_args: object tagging args
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT,
+            bucket_name=bucket_name,
+            key=key,
+            body=json.dumps(obj_tag_args, default=BosClient._dump_acl_object),
+            params={b'tagging': b''},
+            config=config,)
+
+    def get_objectTagging(self, bucket_name, key, config=None):
+        """
+        put object tagging
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET,
+            bucket_name=bucket_name,
+            key=key,
+            params={b'tagging': b''},
+            config=config,)
+
         
 
     @staticmethod
@@ -2548,25 +2590,46 @@ class BosClient(BceBaseClient):
         host = config.endpoint
         if use_backup_endpoint:
             host = config.backup_endpoint
-        if config.cname_enabled or utils.is_cname_like_host(host) or utils.is_custom_host(host, bucket_name):
+        endpoint_protocol, host_name, endpoint_port = \
+            utils.parse_host_port(config.endpoint, config.protocol)
+        if config.cname_enabled or utils.is_cname_like_host(host_name) or utils.is_custom_host(host_name, bucket_name):
             return utils.append_uri(bos.URL_PREFIX, key)
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
+    
 
     def _merge_config(self, config, bucket_name):
-        # if config is None:
-        #     return self.config
-        # else:
-        #     new_config = copy.copy(self.config)
-        #     new_config.merge_non_none_values(config)
-        #     return new_config
-        
         new_config = copy.copy(self.config)
         if config is not None:
             new_config.merge_non_none_values(config)
-        if bucket_name is not None and not utils.is_cname_like_host(self.config.endpoint):
-            user_endpoint = self.config.endpoint
-            user_endpoint_split = compat.convert_to_bytes(user_endpoint).split(b'.') 
-            if user_endpoint.endswith(DEFAULT_BOS_DOMAIN_SUFFIX) and len(user_endpoint_split) == 3:
+        endpoint_protocol, user_host_name, endpoint_port = \
+            utils.parse_host_port(new_config.endpoint, new_config.protocol)
+        user_endpoint_split = compat.convert_to_bytes(user_host_name).split(b'.')
+        user_endpoint = new_config.endpoint
+        is_bos_path_style_host = utils.is_bos_suffixed_host(user_host_name) and len(user_endpoint_split) == 3
+        # 1. check ipv4 or path style
+        if utils.check_ipv4(user_host_name):
+            return new_config
+        
+        if  new_config.path_style_enable:
+            # check path style
+            if is_bos_path_style_host:
+                return new_config
+            else:
+                raise ValueError(
+                    'endpoint is not path style, please set path_style_enable=False')
+        
+        # 2. check cname domain
+        if new_config.cname_enabled or utils.is_cname_like_host(user_host_name):
+            # cname domain
+            if is_bos_path_style_host:
+                raise ValueError(
+                    'endpoint is not cname domain, please set cname_enabled=False')
+            else:
+                return new_config
+        
+        # default use virtual-hosted endpoint
+        if bucket_name is not None:
+            if is_bos_path_style_host:
                 # split http head
                 if user_endpoint.startswith(HTTP_PROTOCOL_HEAD):
                     http_head_split = user_endpoint.split(b'//') 
@@ -2576,9 +2639,16 @@ class BosClient(BceBaseClient):
                         b'.' + http_head_split[1]
                     new_config.endpoint = compat.convert_to_bytes(bucket_endpoint)
                     return new_config
-                
-                new_config.endpoint = compat.convert_to_bytes(bucket_name)+b'.'+\
-                compat.convert_to_bytes(user_endpoint)
+                else:
+                    new_config.endpoint = compat.convert_to_bytes(bucket_name)+b'.'+\
+                    compat.convert_to_bytes(user_endpoint)
+                    return new_config
+        
+        # check virtual-hosted endpoint's bucket_name is not query bucket_name
+        if len(user_endpoint_split) == 4 and bucket_name is not None:
+            if  user_endpoint_split[0] != compat.convert_to_bytes(bucket_name):
+                raise ValueError('your endpoint\'s bucket_name is not equal your query bucket_name!')
+
         return new_config
 
     @staticmethod
