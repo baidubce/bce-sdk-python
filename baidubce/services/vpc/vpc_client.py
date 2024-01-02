@@ -252,6 +252,40 @@ class VpcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    @required(vpc_id=(bytes, str))
+    def get_private_ip_address_info(self, vpc_id, private_ip_range=None, private_ip_addresses=None, config=None):
+        """
+        Get the privateIpAddressesInfo from vpc.
+
+        :param vpc_id:
+            The id of vpc.
+        :type vpc_id: string
+
+        :param private_ip_range:
+            The optional parameter specifying the private IP range.
+        :type private_ip_range: string
+
+        :param private_ip_addresses:
+            The optional list parameter specifying the private IP addresses.
+        :type private_ip_addresses: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/vpc/%s/privateIpAddressInfo' % compat.convert_to_bytes(vpc_id)
+        params = {}
+
+        if private_ip_range is not None:
+            params[b'privateIpRange'] = private_ip_range
+
+        if private_ip_addresses is not None:
+            params[b'privateIpAddresses'] = (",").join(private_ip_addresses)
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
 
 def generate_client_token_by_uuid():
     """
