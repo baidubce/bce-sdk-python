@@ -107,6 +107,16 @@ class TestBlbClient(unittest.TestCase):
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_update_loadbalancer_acl(self):
+        """
+        test case for update_loadbalancer_acl
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_loadbalancer_acl(
+                blbId, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
     def test_delete_loadbalancer(self):
         """
         test case for delete_loadbalancer
