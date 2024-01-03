@@ -29,7 +29,7 @@ csn_apis = {
     },
     "bind_csn_bp": {
         "method": http_methods.PUT,
-        "path": "/v1/csn/bp/[csnBpId]?bind",
+        "path": "/v1/csn/bp/[csnBpId]",
         "queries": {
         },
         "headers": {
@@ -269,7 +269,7 @@ csn_apis = {
     },
     "resize_csn_bp": {
         "method": http_methods.PUT,
-        "path": "/v1/csn/bp/[csnBpId]?resize",
+        "path": "/v1/csn/bp/[csnBpId]",
         "queries": {
             "client_token": None
         },
@@ -278,7 +278,7 @@ csn_apis = {
     },
     "unbind_csn_bp": {
         "method": http_methods.PUT,
-        "path": "/v1/csn/bp/[csnBpId]?unbind",
+        "path": "/v1/csn/bp/[csnBpId]",
         "queries": {
             "client_token": None
         },
