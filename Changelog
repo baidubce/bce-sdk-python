@@ -25,6 +25,8 @@ Python SDK&Examples 和官网 OpenAPI 打平
 增加SecurityGroup, Enterprise SecurityGroup相关SDK更新以及sample示例
 涉及产品：PEERCONN
 增加相关SDK sample示例
+涉及产品：ETGATEWAY
+增加相关SDK sample示例
 涉及产品：DNS
 增加私有域相关SDK sample示例
 涉及产品：ENI, 增加弹性网卡相关SDK以及sample示例
