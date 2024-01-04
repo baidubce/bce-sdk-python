@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 """
-This module provides models for NAT-SDK.
+This module provides models for PEERCONN-SDK.
 """
 
 
