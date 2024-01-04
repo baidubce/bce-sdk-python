@@ -26,6 +26,7 @@ from baidubce import compat
 from baidubce import utils
 from baidubce.bce_response import BceResponse
 from baidubce.exception import BceHttpClientError
+from baidubce.exception import BceServerError
 from baidubce.exception import BceClientError
 from baidubce.http import http_headers
 
@@ -45,7 +46,7 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis, proxy_ho
     if protocol.name == baidubce.protocol.HTTP.name:
         if proxy_host and proxy_port:
             _logger.debug('Using proxy host: %s, port: %d' % (proxy_host, proxy_port))
-            conn = http.client.HTTPConnection(host=proxy_host, port=proxy_port, 
+            conn = http.client.HTTPConnection(host=proxy_host, port=proxy_port,
                                               timeout=connection_timeout_in_millis / 1000)
             conn.set_tunnel(host, port)
             return conn
@@ -54,7 +55,7 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis, proxy_ho
     elif protocol.name == baidubce.protocol.HTTPS.name:
         if proxy_host and proxy_port:
             _logger.debug('Using proxy host: %s, port: %d' % (host, port))
-            conn = http.client.HTTPSConnection(host=proxy_host, port=proxy_port, 
+            conn = http.client.HTTPSConnection(host=proxy_host, port=proxy_port,
                                                timeout=connection_timeout_in_millis / 1000)
             conn.set_tunnel(host, port)
             return conn
@@ -107,7 +108,7 @@ def check_headers(headers):
     """
     for k, v in iteritems(headers):
         if isinstance(v, (bytes, str)) and \
-        b'\n' in compat.convert_to_bytes(v):
+                b'\n' in compat.convert_to_bytes(v):
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))
 
 
@@ -142,7 +143,7 @@ def send_request(
     user_agent = user_agent.replace('\n', '')
     user_agent = compat.convert_to_bytes(user_agent)
     headers[http_headers.USER_AGENT] = user_agent
- 
+
     should_get_new_date = False
     if http_headers.BCE_DATE not in headers:
         should_get_new_date = True
@@ -196,15 +197,15 @@ def send_request(
 
             if retries_attempted > 0 and offset is not None:
                 body.seek(offset)
-        
-            conn = _get_connection(protocol, host, port, config.connection_timeout_in_mills, 
+
+            conn = _get_connection(protocol, host, port, config.connection_timeout_in_mills,
                                    config.proxy_host, config.proxy_port)
             _logger.debug('request args:method=%s, uri=%s, headers=%s,patams=%s, body=%s',
-                    http_method, uri, headers, params, body)
+                          http_method, uri, headers, params, body)
 
             http_response = _send_http_request(
                 conn, http_method, uri, headers, body, config.send_buf_size)
-            
+
             headers_list = http_response.getheaders()
 
             # on py3 ,values of headers_list is decoded with ios-8859-1 from
@@ -236,7 +237,14 @@ def send_request(
 
             # insert ">>>>" before all trace back lines and then save it
             errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().splitlines()))
-
+            if isinstance(e, BceServerError):
+                request_id = e.request_id
+                status_code = e.status_code
+                code = e.code
+            else:
+                request_id = None
+                status_code = None
+                code = None
             if config.retry_policy.should_retry(e, retries_attempted):
                 delay_in_millis = config.retry_policy.get_delay_before_next_retry_in_millis(
                     e, retries_attempted)
@@ -244,6 +252,8 @@ def send_request(
             else:
                 raise BceHttpClientError('Unable to execute HTTP request. Retried %d times. '
                                          'All trace backs:\n%s' % (retries_attempted,
-                                                                   '\n'.join(errors)), e)
+                                                                   '\n'.join(errors)), e,
+                                                                   status_code, code,
+                                                                   request_id=request_id)
 
         retries_attempted += 1

@@ -1,8 +1,49 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.8.99】
+涉及产品：NAT
+Python SDK&Examples 和官网 OpenAPI 打平
+涉及产品：IPv6Gateway
+支持IPv6Gateway
+涉及产品：ET
+新增专线通道查询、重提交、删除、更新、开启IPv6功能、关闭IPv6功能
+新增申请物理专线、更新物理专线、查询专线列表、查询专线详情、新建专线通道功能
+新增申请专线通道路由规则、更新专线通道路由规则、查询专线通道路由规则列表、删除专线通道路由规则
+涉及产品：VPN
+增加VPN相关SDK以及sample示例
+涉及产品：CSN 
+增加学习关系和路由规则相关SDK以及sample示例, 修改CSN 部分SDK入参
+涉及产品：HAVIP
+新增HAVIP创建、查询、删除、更新、绑定
+涉及产品：路由表
+增加相关SDK以及sample示例
+涉及产品：子网
+增加相关SDK以及sample示例
+涉及产品：PROBE
+新增PROBE创建、查询列表、查询详情、删除、更新SDK以及sample示例
+涉及产品: SecurityGroup, Enterprise SecurityGroup
+增加SecurityGroup, Enterprise SecurityGroup相关SDK更新以及sample示例
+涉及产品：PEERCONN
+增加相关SDK sample示例
+涉及产品：ETGATEWAY
+增加相关SDK sample示例
+涉及产品：DNS
+增加私有域相关SDK sample示例
+涉及产品：ENI, 增加弹性网卡相关SDK以及sample示例
+涉及产品：VPC、Subnet
+增加VPC和Subnet相关SDK以及sample示例
+涉及产品: ACL
+增加ACL相关SDK以及sample示例
+
 【版本：v0.8.98】
 涉及产品：NAT
 支持增强型NAT
+涉及产品：EIP
+新增EIPGroup SDK、EIP SDK与EIP产品SDK的example，同时修改了Exception的BceHttpClientError
+涉及产品：BCC
+补充创建实例、指定套餐创建实例、竞价实例相关参数说明，参数结构优化。
+修复重装实例(批量重装)未对密码加密的问题
+补充分享镜像、取消分享镜像参数说明并支持unaccount参数；创建部署集接口支持指定concurrency；释放磁盘支持recycle
 
 【版本：v0.8.97】
 涉及产品：BTS
