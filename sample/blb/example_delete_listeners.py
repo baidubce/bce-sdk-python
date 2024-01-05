@@ -26,9 +26,9 @@ if __name__ == '__main__':
                                     endpoint=endpoint)
     blb_client = blb_client.BlbClient(config)  # client 初始化
     try:
-        blb_id = 'Your Blbid' # 指定的BLB ID
+        blb_id = 'Your Blbid'  # 指定的BLB ID
         portList = []
-        portList.append('Your Listenerport') # 所有待释放的监听器的端口
+        portList.append('Your Listenerport')  # 所有待释放的监听器的端口
         resp = blb_client.delete_listeners(blb_id=blb_id, portList=portList, config=config)
         print("[example] delete listeners response :%s" % resp)
     except BceHttpClientError as e:
