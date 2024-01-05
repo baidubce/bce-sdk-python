@@ -600,6 +600,65 @@ class TestAppBlbClient(unittest.TestCase):
         """
         print(self.the_client.describe_rs_unmount(blbId, appServerGroupId))
 
+    def test_create_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = [
+            {
+                "ip": "10.100.0.136",
+                "weight": 100,
+                "port" : 80
+            }
+        ]
+
+        self.assertEqual(
+            type(self.the_client.create_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = [
+            {
+                "memberId": "ip_member-ed40258f",
+                "weight": 70,
+                "port" : 80
+            }
+        ]
+
+        self.assertEqual(
+            type(self.the_client.update_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_delete_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = ["ip_member-ed40258f"]
+
+        self.assertEqual(
+            type(self.the_client.delete_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        ip_group_id = "ip_group-e49b4871"
+
+        print(self.the_client.describe_app_ip_group_rs(blbId, ip_group_id))
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
