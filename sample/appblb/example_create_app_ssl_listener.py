@@ -26,11 +26,11 @@ if __name__ == '__main__':
                                     endpoint=endpoint)
     app_blb_client = app_blb_client.AppBlbClient(config)  # client 初始化
     try:
-        blb_id = 'Your Blbid' # 指定的BLB ID
-        listener_port = 'Your Listenerport' # 监听器的监听端口
-        scheduler = 'Your Scheduler' # 负载均衡算法
+        blb_id = 'Your Blbid'  # 指定的BLB ID
+        listener_port = 80  # 监听器的监听端口
+        scheduler = 'Your Scheduler'  # 负载均衡算法
         cert_ids = []
-        cert_ids.append('Your CertIDs') # 监听器要加载的证书链
+        cert_ids.append('Your CertIDs')  # 监听器要加载的证书链
         resp = app_blb_client.create_app_ssl_listener(blb_id=blb_id, listener_port=listener_port,
                                                       cert_ids=cert_ids, scheduler=scheduler, config=config)
         print("[example] create app ssl listener response :%s" % resp)

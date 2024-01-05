@@ -10,25 +10,42 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-example for describe all listeners.
+Example for app blb create ipgroup policys
 """
-from baidubce.auth.bce_credentials import BceCredentials
-from baidubce.bce_client_configuration import BceClientConfiguration
-from baidubce.exception import BceHttpClientError
 
-from baidubce.services.blb import blb_client
+from baidubce.bce_client_configuration import BceClientConfiguration
+from baidubce.auth.bce_credentials import BceCredentials
+from baidubce.exception import BceHttpClientError
+from baidubce.services.blb import app_blb_client
 
 if __name__ == '__main__':
+
     ak = "Your Ak"  # 账号的Ak
     sk = "Your Sk"  # 账号的Sk
     endpoint = "Your Endpoint"  # 服务对应的Region域名
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
-    blb_client = blb_client.BlbClient(config)  # client 初始化
+
+    app_blb_client = app_blb_client.AppBlbClient(config)
     try:
-        blb_id = 'Your Blbid'  # 指定的BLB ID
-        listener_port = 80  # 监听器的监听端口
-        resp = blb_client.describe_all_listeners(blb_id=blb_id, listener_port=listener_port, config=config)
-        print("[example] describe all listeners response :%s" % resp)
+        blbid = "Your appblb's id"  # 指定的BLB ID
+        listener_port = 80  # 指定监听的端口
+        type = 'TCP'  # 指定协议类型
+        apppolicyvos = [
+            {
+                "appIpGroupId": "ip_group-b8xxxxxe",  # 策略绑定服务器组标识符
+                "priority": 110,  # 策略优先级
+                "desc": "test",  # 策略描述
+                "ruleList": [  # 策略规则列表
+                    {
+                        "key": "*",  # 规则的类型
+                        "value": "*"  # 通配符匹配字符串
+                    }
+                ]
+            }
+        ]
+        resp = app_blb_client.create_app_ipgroup_policys(blbid, listener_port,
+                                                         apppolicyvos, type, None, config)
+        print("[example] create app policys response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

@@ -26,8 +26,8 @@ if __name__ == '__main__':
                                     endpoint=endpoint)
     blb_client = blb_client.BlbClient(config)  # client 初始化
     try:
-        blb_id = 'Your Blbid' # 指定的BLB ID
-        listener_port = 'Your Listenerport' # 监听器的监听端口
+        blb_id = 'Your Blbid'  # 指定的BLB ID
+        listener_port = 80  # 监听器的监听端口
         resp = blb_client.describe_http_listener(blb_id=blb_id, listener_port=listener_port, config=config)
         print("[example] describe http listener response :%s" % resp)
     except BceHttpClientError as e:
