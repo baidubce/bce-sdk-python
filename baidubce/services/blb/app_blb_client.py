@@ -1417,7 +1417,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
     @required(blb_id=(bytes, str))
     def describe_app_all_listener(self, blb_id, listener_port=None,
-                              marker=None, max_keys=None, config=None):
+                                  marker=None, max_keys=None, config=None):
         """
         get app all listeners identified by bibID
 
