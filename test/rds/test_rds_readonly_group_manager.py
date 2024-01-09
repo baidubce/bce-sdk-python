@@ -211,7 +211,7 @@ class TestRdsReadOnlyGroupManager(unittest.TestCase):
         # 延迟阈值，取值为大于等于0的整数，默认为10（可选参数）
         delay_threshold = 10
         # 连接信息，address必填,其他参数选填
-        endpoint = request_param.Endpoint(None, "xxx.xxx.xxx.xxx", None, "dmxmk")
+        endpoint = request_param.Endpoint(None, "127.0.0.1", None, "dmxmk")
         # 调用接口
         self.rds_client1.update_endpoint(instance_id,
                                          ro_group_id,

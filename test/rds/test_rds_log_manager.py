@@ -56,7 +56,7 @@ class TestRdsLogManager(unittest.TestCase):
         # 数据库名称，数组
         db_name = []
         # IP地址，数组
-        host_ip = ["100.79.8.66"]
+        host_ip = ["127.0.0.1"]
         # 用户名，数组
         user_name = ["test_name1"]
         # SQL语句 ，模糊条件
