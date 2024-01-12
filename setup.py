@@ -67,6 +67,7 @@ setup(
               'baidubce.services.bcm',
               'baidubce.services.kms',
               'baidubce.services.cert',
+              'baidubce.services.lbdc',
               'baidubce.services.bes',
               'baidubce.services.scs',
               'baidubce.services.ddc',

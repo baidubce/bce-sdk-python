@@ -43,6 +43,8 @@ SK = b''
 blbId = b''
 bccId = ''
 certID = ''
+securitygroupids = ''
+enterprisesecuritygroupids = ''
 
 
 def generate_client_token_by_uuid():
@@ -103,6 +105,16 @@ class TestBlbClient(unittest.TestCase):
             type(self.the_client.update_loadbalancer(
                 blbId, name='blb_test_hzf_new',
                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_loadbalancer_acl(self):
+        """
+        test case for update_loadbalancer_acl
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_loadbalancer_acl(
+                blbId, client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
     def test_delete_loadbalancer(self):
@@ -202,6 +214,12 @@ class TestBlbClient(unittest.TestCase):
         test case for describe_ssl_listener
         """
         print(self.the_client.describe_ssl_listener(blbId))
+
+    def test_describe_all_listeners(self):
+        """
+        test case for describe_all_listener
+        """
+        print(self.the_client.describe_all_listeners(blbId))
 
     def test_update_tcp_listener(self):
         """
@@ -327,6 +345,83 @@ class TestBlbClient(unittest.TestCase):
                 blbId, backserver_list, client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_bind_security_groups(self):
+        """
+        test case for bind security groups
+        """
+        client_token = generate_client_token()
+
+        sggroupids = []
+        sggroupids.append(securitygroupids)
+
+        self.assertEqual(
+            type(self.the_client.bind_security_groups(
+                blbId, sggroupids, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_security_groups(self):
+        """
+        test case for unbind security groups
+        """
+        client_token = generate_client_token()
+
+        sggroupids = []
+        sggroupids.append(securitygroupids)
+
+        self.assertEqual(
+            type(self.the_client.unbind_security_groups(
+                blbId, sggroupids, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_bind_enterprise_security_groups(self):
+        """
+        test case for bind enterprise security groups
+        """
+        client_token = generate_client_token()
+
+        esggroupids = []
+        esggroupids.append(enterprisesecuritygroupids)
+
+        self.assertEqual(
+            type(self.the_client.bind_enterprise_security_groups(
+                blbId, esggroupids, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_enterprise_security_groups(self):
+        """
+        test case for unbind enterprise security groups
+        """
+        client_token = generate_client_token()
+
+        esggroupids = []
+        esggroupids.append(enterprisesecuritygroupids)
+
+        self.assertEqual(
+            type(self.the_client.unbind_enterprise_security_groups(
+                blbId, esggroupids, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_security_groups(self):
+        """
+        test case for describe security groups
+        """
+        client_token = generate_client_token()
+
+        self.assertEqual(
+            type(self.the_client.describe_security_groups(
+                blbId, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_enterprise_security_groups(self):
+        """
+        test case for describe enterprise security groups
+        """
+        client_token = generate_client_token()
+
+        self.assertEqual(
+            type(self.the_client.describe_enterprise_security_groups(
+                blbId, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -346,6 +441,7 @@ if __name__ == "__main__":
     #suite.addTest(TestBlbClient("test_describe_http_listener"))
     #suite.addTest(TestBlbClient("test_describe_https_listener"))
     #suite.addTest(TestBlbClient("test_describe_ssl_listener"))
+    #suite.addTest(TestBlbClient("test_describe_all_listeners"))
     #suite.addTest(TestBlbClient("test_update_tcp_listener"))
     #suite.addTest(TestBlbClient("test_update_udp_listener"))
     #suite.addTest(TestBlbClient("test_update_http_listener"))
@@ -357,6 +453,12 @@ if __name__ == "__main__":
     #suite.addTest(TestBlbClient("test_describe_backend_servers"))
     #suite.addTest(TestBlbClient("test_update_backend_servers"))
     #suite.addTest(TestBlbClient("test_remove_backend_servers"))
+    #suite.addTest(TestBlbClient("test_bind_security_groups"))
+    #suite.addTest(TestBlbClient("test_unbind_security_groups"))
+    #suite.addTest(TestBlbClient("test_bind_enterprise_security_groups"))
+    #suite.addTest(TestBlbClient("test_unbind_enterprise_security_groups"))
+    #suite.addTest(TestBlbClient("test_describe_security_groups"))
+    #suite.addTest(TestBlbClient("test_describe_enterprise_security_groups"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
