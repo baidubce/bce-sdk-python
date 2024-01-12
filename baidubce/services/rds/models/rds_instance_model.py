@@ -1,6 +1,4 @@
-#! usr/bin/python
-# -*-coding:utf-8 -*-
-# Copyright 2014 Baidu, Inc.
+# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -12,24 +10,24 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-
 """
 This module defines some Response classes for BTS
 """
-from baidubce.bce_response import BceResponse
+
 from json import JSONEncoder
+from baidubce.bce_response import BceResponse
 
 
 class Billing(object):
     """
-	This class define billing.
-	param: pay_method:
-		The pay time of the payment,
-	param: reservationLength:
-		The duration to buy in specified time unit,
-	param: reservationTimeUnit:
-		The time unit to specify the duration ,only "Month" can be used now.
-	"""
+    This class define billing.
+    param: pay_method:
+            The pay time of the payment,
+    param: reservationLength:
+            The duration to buy in specified time unit,
+    param: reservationTimeUnit:
+            The time unit to specify the duration ,only "Month" can be used now.
+    """
 
     def __init__(self, pay_method='Prepaid', reservationLength=1, reservationTimeUnit='Month'):
         self.paymentTiming = pay_method
@@ -40,12 +38,14 @@ class Billing(object):
 
     def get_pay_method(self):
         """
-            get instance current pay_method:Prepaid/Postpaid
+        get instance current pay_method:Prepaid/Postpaid
         """
+
         return self.paymentTiming
 
 
 class SubnetMap(object):
+
     """
     SubnetMap:contains zoneName and subnetId
     """
@@ -219,69 +219,16 @@ class OrderStatusResponse(BceResponse):
     """
     order status response.
     """
+
     def __init__(self, bce_response):
         super(OrderStatusResponse, self).__init__()
         self.orderId = bce_response.orderId
         self.status = bce_response.status
 
 
-class TaskResponse(BceResponse):
-    """
-    task response.
-    """
-    def __init__(self, bce_response):
-        super(TaskResponse, self).__init__()
-        self.tasks = bce_response.tasks
-
-
-class ForceChangeResponse(BceResponse):
-    """
-    ForceChange response.
-    """
-    def __init__(self, bce_response):
-        super(ForceChangeResponse, self).__init__()
-        self.behindMaster = bce_response.behindMaster
-
-class GroupResponse(BceResponse):
-    """
-    grop response.
-    """
-
-    def __init__(self, bce_response):
-        super(GroupResponse, self).__init__()
-        self.group_id = bce_response.group_id
-        self.name = bce_response.name
-        self.count = bce_response.count
-        self.leader = bce_response.leader
-
-
-class GroupDetailResponse(BceResponse):
-    """
-    grop detail response.
-    """
-
-    def __init__(self, bce_response):
-        super(GroupDetailResponse, self).__init__()
-        self.group_id = bce_response.group_id
-        self.name = bce_response.name
-        self.count = bce_response.count
-        self.leader = bce_response.leader
-        self.followers = bce_response.followers
-
-
-class GroupCheckGtidResponse(BceResponse):
-    """
-    grop checkGtid response.
-    """
-
-    def __init__(self, bce_response):
-        super(GroupCheckGtidResponse, self).__init__()
-        self.result = bce_response.result
-
-
 class JsonWrapper(JSONEncoder):
     """
-        custom json encoder for class
+    custom json encoder for class
     """
 
     def default(self, obj):  # pylint: disable=E0202
