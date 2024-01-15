@@ -38,6 +38,7 @@ setup(
               'baidubce.http',
               'baidubce.retry',
               'baidubce.services',
+              'baidubce.services.autoscaling',
               'baidubce.services.bos',
               'baidubce.services.bts',
               'baidubce.services.iam',
