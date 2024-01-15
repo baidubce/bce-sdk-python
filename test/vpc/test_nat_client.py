@@ -379,7 +379,7 @@ class TestNatClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.delete_dnat_rule(nat_id=NAT_ID, dnat_rule_id=DNAT_RULE_ID)),
             baidubce.bce_response.BceResponse)
-        
+
     def test_update_dnat_rule(self):
         """
         test case for updating snat rule

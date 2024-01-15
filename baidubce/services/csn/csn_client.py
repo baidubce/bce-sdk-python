@@ -102,11 +102,14 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "bind_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
+        self._add_query(api_config, "bind", '')
         self._add_query(api_config, "clientToken", client_token)
-        self._add_path_param(api_config, "csnId", csn_id)
+        body = {
+            "csnId": csn_id,
+        }
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"])
+                                  api_config["queries"], json.dumps(body))
 
     def create_association(self, csn_rt_id, attach_id, description=None, client_token=None):
         """
@@ -662,7 +665,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_csn_bp_limit_by_csn_id(self, csn_id=None):
+    def list_csn_bp_limit_by_csn_id(self, csn_id):
         """
         查询云智能网的地域带宽列表。
 
@@ -865,11 +868,14 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "resize_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
-        self._add_path_param(api_config, "bandwidth", bandwidth)
+        self._add_query(api_config, "resize", '')
         self._add_query(api_config, "clientToken", client_token)
+        body = {
+            'bandwidth': bandwidth,
+        }
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"])
+                                  api_config["queries"], json.dumps(body))
 
     def unbind_csn_bp(self, csn_bp_id, csn_id, client_token=None):
         """
@@ -893,11 +899,14 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         api_config = self._get_config(csn_apis, "unbind_csn_bp")
         self._add_path_param(api_config, "csnBpId", csn_bp_id)
-        self._add_path_param(api_config, "csnId", csn_id)
+        self._add_query(api_config, "unbind", '')
         self._add_query(api_config, "clientToken", client_token)
+        body = {
+            'csnId': csn_id,
+        }
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
-                                  api_config["queries"])
+                                  api_config["queries"], json.dumps(body))
 
     def update_csn(self, csn_id, name=None, description=None, client_token=None):
         """
