@@ -277,8 +277,8 @@ class EtClient(bce_base_client.BceBaseClient):
                     "apType": "SINGLE",
                     "apAddr": "WHGG",
                     "userName": "张三",
-                    "userPhone": "18218796578",
-                    "userEmail": "shihuijuan@baidu.com",
+                    "userPhone": "133*****333",
+                    "userEmail": "1***@123.com",
                     "userIdc": "北京|市辖区|东城区|百度科技园K2"
                 }
         """
