@@ -4095,6 +4095,55 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     @required(instance_id=(bytes, str))  # ***Unicode***
+    def release_prepaid_instance_with_related_resources(self, instance_id, related_release_flag=None,
+                                                        delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
+                                                        client_token=None, config=None):
+        """
+        Releasing the instance owned by the user.
+        Only the Prepaid instance and the instance has not expired can be released.
+        After releasing the instance,
+        all of the data will be deleted.
+        all of volumes attached will be auto detached, but the volume snapshots will be saved.
+        all of snapshots created from original instance system disk will be deleted,
+        all of customized images created from original instance system disk will be reserved.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param related_release_flag:
+            Release or not related resources.
+        :type related_release_flag: bool
+
+        :param delete_cds_snapshot_flag:
+            Delete or not cds snapshot.
+        :type delete_cds_snapshot_flag: bool
+
+        :param delete_related_enis_flag:
+            Delete or not related enis.
+        :type delete_related_enis_flag: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/delete'
+        body = {}
+        body['instanceId'] = instance_id
+        if related_release_flag is not None:
+            body['relatedReleaseFlag'] = related_release_flag
+        if delete_cds_snapshot_flag is not None:
+            body['deleteCdsSnapshotFlag'] = delete_cds_snapshot_flag
+        if delete_related_enis_flag is not None:
+            body['deleteRelatedEnisFlag'] = delete_related_enis_flag
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
     def get_instance_with_deploy_set(self, instance_id, contains_failed=None, config=None):
         """
         Get the detail information of specified instance.

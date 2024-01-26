@@ -1117,6 +1117,17 @@ class TestBccClient(unittest.TestCase):
                                                                    bcc_recycle_flag=True)
         # print(json.loads(resp.content.decode('utf-8')))
 
+    def test_delete_prepaid_instance_with_related_resources(self):
+        """
+        test case for delete prepaid instance with related resources
+        """
+        instance_id = "i-3OWgGtoG"
+        resp = self.client.release_prepaid_instance_with_related_resources(instance_id=instance_id,
+                                                                      related_release_flag=True,
+                                                                      delete_cds_snapshot_flag=True,
+                                                                      delete_related_enis_flag=True)
+        print(resp)
+
     def test_get_instance_with_deploy_set(self):
         """
         test case for get_instance
@@ -2077,7 +2088,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_update_instance_deploy"))
     # suite.addTest(TestBccClient("test_del_instance_deploy"))
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
-    suite.addTest(TestBccClient("test_get_available_images_by_spec"))
+    # suite.addTest(TestBccClient("test_get_available_images_by_spec"))
+    suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
 
     # 0.8.91 New Testcases
     # suite.addTest(TestBccClient("test_update_security_group_rule"))
