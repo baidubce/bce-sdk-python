@@ -111,3 +111,5 @@ BOS_TRAFFIC_LIMIT = b"x-bce-traffic-limit"
 # STS HTTP Headers
 
 STS_SECURITY_TOKEN = b"x-bce-security-token"
+
+BOS_TAGGING = b"x-bce-tagging"

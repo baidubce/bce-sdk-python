@@ -60,7 +60,8 @@ bccId = ''
 appServerGroupId = ''
 policyId = ''
 portId = ''
-
+securitygroupids = ''
+enterprisesecuritygroupids = ''
 
 def generate_client_token_by_uuid():
     """
@@ -269,6 +270,12 @@ class TestAppBlbClient(unittest.TestCase):
         test case for describe_app_ssl_listener
         """
         print(self.the_client.describe_app_ssl_listener(blbId))
+        
+    def test_describe_app_all_listener(self):
+        """
+        test case for describe_app_all_listener
+        """
+        print(self.the_client.describe_app_all_listener(blbId))
 
     def test_delete_app_listeners(self):
         """
@@ -480,6 +487,114 @@ class TestAppBlbClient(unittest.TestCase):
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_app_ip_group(self):
+        """
+        test case for create app ip group
+        """
+        client_token = generate_client_token()
+
+        name = "exmaple"
+        desc = "example"
+        member_list = [
+            {
+                "ip": "10.100.0.136",
+                "port": 80,
+                "weight": 100
+            }
+        ]
+
+        self.assertEqual(
+            type(self.the_client.create_app_ip_group(
+                 blbId, name, desc, member_list,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_app_ip_group(self):
+        """
+        test case for update app ip group
+        """
+        client_token = generate_client_token()
+        desc = "example2"
+        name = "example2"
+        ip_group_id = "ip_group-5a54691a"
+
+        self.assertEqual(
+            type(self.the_client.update_app_ip_group(
+                 blbId, ip_group_id, name, desc,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_ip_group(self):
+        """
+        test case for describe app ip group
+        """
+        print(self.the_client.describe_app_ip_group(blbId))
+
+    def test_delete_app_ip_group(self):
+        """
+        test case for delete app ip group
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-5a54691a"
+
+        self.assertEqual(
+            type(self.the_client.delete_app_ip_group(
+                 blbId, ip_group_id,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_app_ip_group_port(self):
+        """
+        test case for create app ip group port
+        """
+        client_token = generate_client_token()
+
+        ip_group_id = "ip_group-21475a51"
+        proto_type = "TCP"
+        health_check = "TCP"
+        health_check_down_retry = 4
+
+        self.assertEqual(
+            type(self.the_client.create_app_ip_group_port(
+                 blbId, ip_group_id, proto_type, health_check, health_check_down_retry=health_check_down_retry,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_app_ip_group_port(self):
+        """
+        test case for update ip group port
+        """
+        client_token = generate_client_token()
+
+        ip_group_id = "ip_group-21475a51"
+        port = "ip_group_policy-3361c4b5"
+        health_check_down_retry = 5
+
+        self.assertEqual(
+            type(self.the_client.update_app_ip_group_port(
+                 blbId, ip_group_id, port,
+                 health_check_down_retry=health_check_down_retry,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_delete_app_ip_group_port(self):
+        """
+        test case for delete app ip group port
+        """
+        client_token = generate_client_token()
+
+        blb_id = "lb-a889d7d4"
+        ip_group_id = "ip_group-21475a51"
+        port_list = [
+            "ip_group_policy-3361c4b5"
+        ]
+
+        self.assertEqual(
+            type(self.the_client.delete_app_ip_group_port(
+                 blb_id, ip_group_id, port_list,
+                 client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
     def test_describe_rs_mount(self):
         """
         test case for describe rs mount
@@ -492,6 +607,175 @@ class TestAppBlbClient(unittest.TestCase):
         """
         print(self.the_client.describe_rs_unmount(blbId, appServerGroupId))
 
+    def test_create_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = [
+            {
+                "ip": "10.100.0.136",
+                "weight": 100,
+                "port" : 80
+            }
+        ]
+
+        self.assertEqual(
+            type(self.the_client.create_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = [
+            {
+                "memberId": "ip_member-ed40258f",
+                "weight": 70,
+                "port" : 80
+            }
+        ]
+
+        self.assertEqual(
+            type(self.the_client.update_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_delete_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        client_token = generate_client_token()
+        ip_group_id = "ip_group-e49b4871"
+        memberList = ["ip_member-ed40258f"]
+
+        self.assertEqual(
+            type(self.the_client.delete_app_ip_group_rs(blbId, ip_group_id, memberList,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_ip_group_rs(self):
+        """
+        test case for app ip group rs
+        """
+        ip_group_id = "ip_group-e49b4871"
+
+        print(self.the_client.describe_app_ip_group_rs(blbId, ip_group_id))
+
+    def test_bind_app_security_groups(self):
+        """
+        test case for bind app blb security groups
+        """
+        client_token = generate_client_token()
+        sggroupids = []
+        sggroupids.append(securitygroupids)
+
+        self.assertEqual(
+            type(self.the_client.bind_app_security_groups(
+                blbId, sggroupids,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_app_security_groups(self):
+        """
+        test case for unbind app blb security groups
+        """
+        client_token = generate_client_token()
+        sggroupids = []
+        sggroupids.append(securitygroupids)
+
+        self.assertEqual(
+            type(self.the_client.unbind_app_security_groups(
+                blbId, sggroupids,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_security_groups(self):
+        """
+        test case for describe app blb enterprise security groups
+        """
+        client_token = generate_client_token()
+
+        self.assertEqual(
+            type(self.the_client.describe_app_security_groups(
+                blbId,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_bind_app_enterprise_security_groups(self):
+        """
+        test case for bind app blb enterprise security groups
+        """
+        client_token = generate_client_token()
+        esggroupids = []
+        esggroupids.append(enterprisesecuritygroupids)
+
+        self.assertEqual(
+            type(self.the_client.bind_app_enterprise_security_groups(
+                blbId, esggroupids,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_app_enterprise_security_groups(self):
+        """
+        test case for unbind app blb enterprise security groups
+        """
+        client_token = generate_client_token()
+        esggroupids = []
+        esggroupids.append(enterprisesecuritygroupids)
+
+        self.assertEqual(
+            type(self.the_client.unbind_app_enterprise_security_groups(
+                blbId, esggroupids,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_enterprise_security_groups(self):
+        """
+        test case for describe app blb enterprise security groups
+        """
+        client_token = generate_client_token()
+
+        self.assertEqual(
+            type(self.the_client.describe_app_enterprise_security_groups(
+                blbId,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_app_ipgroup_policys(self):
+        """
+        test case for create app blb ipgroup policys
+        """
+        client_token = generate_client_token()
+        listener_port = 80
+        type = 'TCP'
+        apppolicyvos = [{"appIpGroupId": "ip_group-b8xxxxxe",
+                    "priority": 110, "desc": "test",
+                    "ruleList": [{"key": "*", "value": "*"}]}]
+
+        self.assertEqual(
+            type(self.the_client.create_app_ipgroup_policys(
+                blbId, listener_port, apppolicyvos, type,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_app_ipgroup_policys(self):
+        """
+        test case for describe app blb ipgroup policys
+        """
+        client_token = generate_client_token()
+        listener_port = 80
+        type = 'TCP'
+
+        self.assertEqual(
+            type(self.the_client.describe_app_ipgroup_policys(
+                blbId, listener_port, type, None, None,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -516,6 +800,7 @@ if __name__ == "__main__":
     #suite.addTest(TestAppBlbClient("test_describe_app_http_listener"))
     #suite.addTest(TestAppBlbClient("test_describe_app_https_listener"))
     #suite.addTest(TestAppBlbClient("test_describe_app_ssl_listener"))
+    #suite.addTest(TestAppBlbClient("test_describe_app_all_listener"))
     #suite.addTest(TestAppBlbClient("test_delete_app_listeners"))
     #suite.addTest(TestAppBlbClient("test_create_policys"))
     #suite.addTest(TestAppBlbClient("test_describe_policys"))
@@ -534,6 +819,14 @@ if __name__ == "__main__":
     #suite.addTest(TestAppBlbClient("test_delete_app_blb_rs"))
     #suite.addTest(TestAppBlbClient("test_describe_rs_mount"))
     #suite.addTest(TestAppBlbClient("test_describe_rs_unmount"))
+    #suite.addTest(TestAppBlbClient("test_bind_app_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_unbind_app_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_describe_app_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_bind_app_enterprise_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_unbind_app_enterprise_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_describe_app_enterprise_security_groups"))
+    #suite.addTest(TestAppBlbClient("test_create_app_ipgroup_policys"))
+    #suite.addTest(TestAppBlbClient("test_describe_app_ipgroup_policys"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
