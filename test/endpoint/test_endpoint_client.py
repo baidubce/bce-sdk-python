@@ -6,11 +6,13 @@
 
 import sys
 import unittest
+import json
 
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.endpoint import endpoint_client
 from baidubce.services.endpoint.model import Billing
+from unittest.mock import MagicMock
 
 if sys.version < '3':
     reload(sys)
@@ -73,3 +75,39 @@ class TestEndpointClient(unittest.TestCase):
         test case for update_endpoint
         """
         print(self.the_client.update_endpoint('endpoint-643ee50d', name='sdk-123', description="test python sdk"))
+
+    def test_update_endpoint_sg(self):
+        endpoint_id = 'test-endpoint-id'
+        security_group_list = ['sg-123', 'sg-456']
+        expected_response = MagicMock()
+        expected_response.status_code = 200
+
+        self.client._send_request = MagicMock(return_value=expected_response)
+        self.client.update_endpoint_sg(endpoint_id, security_group_list)
+        self.client._send_request.assert_called_once_with(
+            http_method='PUT',
+            path='/v1/endpoint/test-endpoint-id',
+            body=json.dumps({"securityGroupIds": security_group_list}),
+            headers={'Accept': '*/*', 'Content-Type': 'application/json;charset=utf-8'},
+            params={b'bindSg': '', b'clientToken': self.client._generate_default_client_token()},
+            config=None,
+            body_parser=unittest.mock.ANY
+        )
+
+    def test_update_endpoint_enterprise_sg(self):
+        endpoint_id = 'test-endpoint-id'
+        enterprise_sg_list = ['sg-123', 'sg-456']
+        expected_response = MagicMock()
+        expected_response.status_code = 200
+
+        self.client._send_request = MagicMock(return_value=expected_response)
+        self.client.update_endpoint_enterprise_sg(endpoint_id, enterprise_sg_list)
+        self.client._send_request.assert_called_once_with(
+            http_method='PUT',
+            path='/v1/endpoint/test-endpoint-id',
+            body=json.dumps({"enterpriseSecurityGroupIds": enterprise_sg_list}),
+            headers={'Accept': '*/*', 'Content-Type': 'application/json;charset=utf-8'},
+            params={b'bindEsg': '', b'clientToken': self.client._generate_default_client_token()},
+            config=None,
+            body_parser=unittest.mock.ANY
+        )

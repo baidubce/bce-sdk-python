@@ -87,3 +87,23 @@ class IpsecConfig(object):
         self.ipsec_auth_alg = ipsec_auth_alg
         self.ipsec_pfs = ipsec_pfs
         self.ipsec_lifetime = ipsec_lifetime
+
+
+class SSLUser(object):
+    """
+    ssl user example
+    """
+    def __init__(self, user_name=None, password=None, description=None):
+        """
+        :type user_name: string
+        :param user_name: user_name
+
+        :type password: string
+        :param password: password
+
+        :type description: string
+        :param description: description
+        """
+        self.user_name = user_name
+        self.password = password
+        self.description = description

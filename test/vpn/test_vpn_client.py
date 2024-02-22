@@ -12,6 +12,7 @@ from baidubce.services.vpn import vpn_client
 from baidubce.services.vpn.vpn_model import Billing
 from baidubce.services.vpn.vpn_model import IkeConfig
 from baidubce.services.vpn.vpn_model import IpsecConfig
+from baidubce.services.vpn.vpn_model import Billing, IkeConfig, IpsecConfig, SSLUser
 
 if sys.version < '3':
     reload(sys)
@@ -115,6 +116,69 @@ class TestVpnClient(unittest.TestCase):
         """
         print(self.the_client.delete_vpn_conn('vpnconn-ss8gdgpkh00n'))
 
+    def test_create_sslvpn(self):
+        """
+        test case for create_vpn
+        """
+        billing = Billing('Postpaid', 'ByTraffic')
+        print(self.the_client.create_vpn('vpc-rif0euejenz7', 'test-ssl-vpn', \
+                                         billing, vpntype='SSL', max_connections=10))
+
+    def test_create_sslservice(self):
+        """
+        test case for create_sslservice
+        """
+        print(self.the_client.create_vpn_sslservice(vpn_id='vpn-bk1i8fsirenz', sslservice_name='test_name', \
+                                                    local_routes=['10.20.0.0/24', '10.20.1.0/24'], \
+                                                    address_pool='10.20.3.0/24', interface_type='tun'))
+
+    def test_update_sslservice(self):
+        """
+        test case for create_sslservice
+        """
+        print(self.the_client.update_vpn_sslservice(vpn_id='vpn-bk1i8fsirenz', sslservice_id='sslvpn-ymg18jxqcn0m', \
+                                                    sslservice_name='test_nam1111e', local_routes=['10.20.0.0/16'], \
+                                                    address_pool='10.20.3.0/24'))
+
+    def test_get_sslservice(self):
+        """
+        test case for get_sslservice
+        """
+        print(self.the_client.get_vpn_sslservice(vpn_id='vpn-bk1i8fsirenz'))
+
+    def test_delete_sslservice(self):
+        """
+        test case for delete_sslservice
+        """
+        print(self.the_client.delete_vpn_sslservice(vpn_id='vpn-bk1i8fsirenz', sslservice_id='sslvpn-ymg18jxqcn0m'))
+
+    def test_create_ssluser(self):
+        """
+        test case for create_ssluser
+        """
+        ssluser = SSLUser("zhangsan", "1234567abc!", "zhangsan test")
+        sslusers = [ssluser]
+        print(self.the_client.create_vpn_sslusers(vpn_id='vpn-bk1i8fsirenz', sslusers=sslusers))
+
+    def test_get_vpn_ssl_user(self):
+        """
+        test case for get_vpn_ssl_user
+        """
+        print(self.the_client.get_vpn_ssl_user(vpn_id='vpn-bk1i8fsirenz'))
+
+    def test_update_vpn_ssl_user(self):
+        """
+        test case for update_vpn_ssl_user
+        """
+        print(self.the_client.update_vpn_ssl_user(vpn_id='vpn-bk1i8fsirenz', \
+                                                  ssluser_id='vpn-ssl-user-8pdy9cbyh2et', \
+                                                  description='update desc'))
+
+    def test_delete_vpn_ssl_user(self):
+        """
+        test case for update_vpn_ssl_user
+        """
+        print(self.the_client.delete_vpn_ssl_user(vpn_id='vpn-bk1i8fsirenz', ssluser_id='vpn-ssl-user-8pdy9cbyh2et'))
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
