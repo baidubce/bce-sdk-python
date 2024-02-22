@@ -54,11 +54,11 @@ class VpnClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, VpnClient.prefix + path, body, headers, params)
 
-    def list_vpns(self, vpcId, eip=None, marker=None, max_Keys=None, config=None):
+    def list_vpns(self, vpc_id, eip=None, marker=None, max_Keys=None, config=None):
         """
         return all vpn about vpc
 
-        :param vpcId:
+        :param vpc_id:
             vpc id
         :type vpcId:string
 
@@ -84,7 +84,7 @@ class VpnClient(bce_base_client.BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        params = {b'vpcId': vpcId}
+        params = {b'vpcId': vpc_id}
 
         if marker is not None:
             params[b'marker'] = marker
@@ -95,7 +95,9 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.GET, VpnClient.path, params=params, config=config)
 
-    def create_vpn(self, vpc_id, vpn_name, billing, client_token=None, description=None, eip=None, config=None):
+    def create_vpn(self, vpc_id, vpn_name, billing,
+                   vpn_type=None, max_connections=None,
+                   client_token=None, description=None, eip=None, config=None):
         """
         The method of vpn to be created.
 
@@ -153,6 +155,10 @@ class VpnClient(bce_base_client.BceBaseClient):
             body['description'] = description
         if eip is not None:
             body['eip'] = eip
+        if vpn_type is not None:
+            body['type'] = vpn_type
+        if max_connections is not None:
+            body['maxConnection'] = max_connections
 
         return self._send_request(http_methods.POST, VpnClient.path, body=json.dumps(body), params=params,
                                   config=config)
@@ -162,7 +168,7 @@ class VpnClient(bce_base_client.BceBaseClient):
         The method of vpn to be update.
 
         :param vpn_id: vpn id
-        :type vpn_id: str
+        :type vpn_id: string
 
         :param vpn_name: vpn name
         :type vpn_name: str
@@ -365,7 +371,7 @@ class VpnClient(bce_base_client.BceBaseClient):
                         ike_config, ipsec_config, description=None, client_token=None, config=None):
 
         """
-        :param vpn_id:vpn id
+        :param vpn_id: vpn id
         :type vpn_id: string
 
         :param secret_key:shared  key,  8~17  characters,  english,  numbers  and  symbols  must  exist  at
@@ -383,7 +389,7 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         :param vpn_conn_name:vpn tunnel name, uppercase and lowercase letters, numbers and -_/. special
                             characters, must start with a letter, length 1-6
-        :type vpn_conn_name: list
+        :type vpn_conn_name: string
 
         :param ike_config:IKE config
         :type ike_config: IkeConfig
@@ -422,18 +428,18 @@ class VpnClient(bce_base_client.BceBaseClient):
             'remoteSubnets': remote_subnets,
             'vpnConnName': vpn_conn_name,
             'ikeConfig': {
-                'ike_version': ike_config.ike_version,
-                'ike_mode': ike_config.ike_mode,
-                'ike_enc_alg': ike_config.ike_enc_alg,
-                'ike_auth_alg': ike_config.ike_auth_alg,
-                'ike_pfs': ike_config.ike_pfs,
-                'ike_lifeTime': ike_config.ike_lifeTime
+                'ikeVersion': ike_config.ike_version,
+                'ikeMode': ike_config.ike_mode,
+                'ikeEncAlg': ike_config.ike_enc_alg,
+                'ikeAuthAlg': ike_config.ike_auth_alg,
+                'ikePfs': ike_config.ike_pfs,
+                'ikeLifeTime': ike_config.ike_lifeTime
             },
             'ipsecConfig': {
-                'ipsec_enc_alg': ipsec_config.ipsec_enc_alg,
-                'ipsec_auth_alg': ipsec_config.ipsec_auth_alg,
-                'ipsec_pfs': ipsec_config.ipsec_pfs,
-                'ipsec_lifetime': ipsec_config.ipsec_lifetime
+                'ipsecEncAlg': ipsec_config.ipsec_enc_alg,
+                'ipsecAuthAlg': ipsec_config.ipsec_auth_alg,
+                'ipsecPfs': ipsec_config.ipsec_pfs,
+                'ipsecLifetime': ipsec_config.ipsec_lifetime
             },
             'description': description,
         }
@@ -447,7 +453,7 @@ class VpnClient(bce_base_client.BceBaseClient):
         :param vpn_conn_id:vpnconn id
         :type vpn_conn_id: string
 
-        :param vpn_id:vpn id
+        :param vpn_id: vpn id
         :type vpn_id: string
 
         :param secret_key:shared  key,  8~17  characters,  english,  numbers  and  symbols  must  exist  at
@@ -525,7 +531,7 @@ class VpnClient(bce_base_client.BceBaseClient):
 
     def get_vpn_conn(self, vpn_id, client_token=None, config=None):
         """
-        :param vpn_id:vpn id
+        :param vpn_id: vpn id
         :type vpn_id: string
 
         :param client_token:
@@ -579,6 +585,243 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
+    def create_vpn_sslservice(self, vpn_id=None, sslservice_name=None, local_routes=None, address_pool=None,
+                              interface_type=None, client_dns=None, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param sslservice_name: ssl service name, uppercase and lowercase letters, numbers and -_/. special
+                            characters, must start with a letter, length 1-6
+        :type sslservice_name: string
+
+        :param local_routes: these cidrs will be configured on the client, and the next hop points to the SSL tunnel. Usually vpc cidrs
+        :type local_routes: list
+
+        :param address_pool: Client IP address pool. The VPN gateway will assign an IP address to the client on this cidr.
+        :type address_pool: string
+
+        :param interface_type: l2 or l3, default is l3, l2 is tap, l3 is tun
+        :type interface_type: string
+
+        :param client_dns: DNS server address
+        :type client_dns: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/sslVpnServer'
+
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        body = {
+            'sslVpnServerName': sslservice_name,
+            'localSubnets': local_routes,
+            'remoteSubnet': address_pool,
+        }
+        if interface_type is not None:
+            body[b'interfaceType'] = interface_type
+        else:
+            body[b'interfaceType'] = b'tun'
+
+        if client_dns is not None:
+            body[b'clientDns'] = client_dns
+
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), config=config)
+
+    def update_vpn_sslservice(self, vpn_id=None, sslservice_id=None, sslservice_name=None, local_routes=None,
+                              address_pool=None, client_dns=None, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param sslservice_id: id
+        :type sslservice_id: string
+
+        :param sslservice_name: ssl service name, uppercase and lowercase letters, numbers and -_/. special
+                            characters, must start with a letter, length 1-6
+        :type sslservice_name: string
+
+        :param local_routes: these cidrs will be configured on the client, and the next hop points to the SSL tunnel. Usually vpc cidrs
+        :type local_routes: list
+
+        :param address_pool: Client IP address pool. The VPN gateway will assign an IP address to the client on this cidr.
+        :type address_pool: string
+
+        :param client_dns: DNS server address
+        :type client_dns: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) \
+                              + b'/sslVpnServer' + b'/' + compat.convert_to_bytes(sslservice_id)
+
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        body = {}
+        if sslservice_name is not None:
+            body[b'sslVpnServerName'] = sslservice_name
+        if local_routes is not None:
+            body[b'localSubnets'] = local_routes
+        if address_pool is not None:
+            body[b'remoteSubnet'] = address_pool
+        if client_dns is not None:
+            body[b'clientDns'] = client_dns
+
+        return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
+
+    def get_vpn_sslservice(self, vpn_id, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) \
+                              + b'/sslVpnServer'
+
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+
+        return self._send_request(http_methods.GET, path, config=config)
+
+    def delete_vpn_sslservice(self, vpn_id, sslservice_id, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param sslservice_id: sslservice id
+        :type sslservice_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) \
+                              + b'/sslVpnServer' + b'/' + compat.convert_to_bytes(sslservice_id)
+
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+
+        return self._send_request(http_methods.DELETE, path, config=config)
+
+    def create_vpn_sslusers(self, vpn_id, sslusers, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param sslusers: User information list
+        :type sslusers: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/sslVpnUser'
+
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        body = {
+            'sslVpnUsers': []
+        }
+        for ssluser in sslusers:
+            body[b'sslVpnUsers'].append({
+                'userName': ssluser.user_name,
+                'password': ssluser.password,
+                'description': ssluser.description
+            })
+
+        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), config=config)
+
+    def update_vpn_ssl_user(self, vpn_id, ssluser_id, password=None, description=None, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param ssluser_id: ssluser id
+        :type ssluser_id: string
+
+        :param password: password id
+        :type password: string
+
+        :param description: description
+        :type description: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/sslVpnUser' \
+                              + b'/' + compat.convert_to_bytes(ssluser_id)
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        body = {}
+
+        if password is not None:
+            body[b'password'] = password
+
+        if description is not None:
+            body[b'description'] = description
+
+        return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
+
+    def get_vpn_ssl_user(self, vpn_id, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/sslVpnUser'
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def delete_vpn_ssl_user(self, vpn_id, ssluser_id, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/sslVpnUser' \
+                              + b'/' + compat.convert_to_bytes(ssluser_id)
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
 def generate_client_token_by_uuid():
     """
