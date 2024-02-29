@@ -2560,6 +2560,78 @@ class TestBceClientConfiguration(TestClient):
         self.assertEqual(conf.connection_timeout_in_mills, 5)
         self.assertEqual(conf.send_buf_size, 6)
         self.assertEqual(conf.recv_buf_size, 7)
+    
+    def test_merge_config(self):
+        """test merge_config"""
+        bucket_name = "test"
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com/')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com/')
+
+        conf = BceClientConfiguration(endpoint='test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='http://bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='http://test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='https://test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'https://test.bj.bcebos.com')
+
+        # check virtual-hosted endpoint's bucket_name is not query bucket_name
+        conf = BceClientConfiguration(endpoint='abc.bj.bcebos.com')
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='http://abc.bj.bcebos.com')
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='http://127.0.0.1')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://127.0.0.1')
+
+        conf = BceClientConfiguration(endpoint='http://127.0.0.1:8080')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://127.0.0.1:8080')
+
+        conf = BceClientConfiguration(endpoint='127.0.0.1')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'127.0.0.1')
+
+        conf = BceClientConfiguration(endpoint='127.0.0.1:8080')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'127.0.0.1:8080')
+
+        conf = BceClientConfiguration(endpoint='y001122.online')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'y001122.online')
+
+        # test path_style_enable
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com', path_style_enable=True)
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='test.bj.bcebos.com', path_style_enable=True)
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        # test cname_enabled
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com', cname_enabled=True)
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='y001122.online', cname_enabled=True)
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'y001122.online')
+
+
 
 
 class TestGetRangeHeaderDict(TestClient):
@@ -3333,6 +3405,7 @@ def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
     runner.run(unittest.makeSuite(TestClient))
+
     runner.run(unittest.makeSuite(TestSelectObject))
     runner.run(unittest.makeSuite(TestCopyObject))
     runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
@@ -3392,4 +3465,3 @@ run_test()
 cov.stop()
 cov.save()
 cov.html_report()
-
