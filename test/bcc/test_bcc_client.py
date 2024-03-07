@@ -821,6 +821,52 @@ class TestBccClient(unittest.TestCase):
                                                    tags=instance_tag_list)),
             baidubce.bce_response.BceResponse)
 
+    def test_bind_reserved_instance_to_tags(self):
+
+        reserved_instance_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.bind_reserved_instance_to_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_reserved_instance_from_tags(self):
+
+        reserved_instance_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.unbind_reserved_instance_from_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
+
+    def test_bind_tags_batch_by_resource_type(self):
+        resource_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+        self.client.bind_tags_batch_by_resource_type("bccri", resource_ids, instance_tags, False)
+
+    def test_unbind_tags_batch_by_resource_type(self):
+        resource_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+        self.client.unbind_tags_batch_by_resource_type("bccri", resource_ids, instance_tags, False)
+
     def test_unbind_instance_from_tags(self):
         instance_tag = bcc_model.TagModel(tagKey='TestKey',
                                           tagValue='TestValue')
