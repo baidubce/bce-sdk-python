@@ -74,6 +74,7 @@ if __name__ == "__main__":
     test_cds_list = [test_cds, test_cds2]
     res_group_id = 'RESG-UtT3P4x4KxF'
 
+    reserved_instance_ids = ['r-oFpMXKhv', 'r-HrztSVk0']
     ######################################################################################################
     #            bcc operation samples
     ######################################################################################################
@@ -1595,6 +1596,30 @@ if __name__ == "__main__":
     try:
         response = bcc_client.get_available_images_by_spec(spec='bcc.ic4.c1m1')
         print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # bind_reserved_instance_to_tags
+    try:
+        response = bcc_client.bind_reserved_instance_to_tags(reserved_instance_ids, test_tags)
+        print
+        response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # unbind_reserved_instance_from_tags
+    try:
+        response = bcc_client.unbind_reserved_instance_from_tags(reserved_instance_ids, test_tags)
+        print
+        response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
