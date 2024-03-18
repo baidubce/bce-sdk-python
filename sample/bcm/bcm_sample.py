@@ -2392,3 +2392,23 @@ if __name__ == '__main__':
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get multi dimension latest metrics
+    try:
+        res = bcm_client.get_multi_dimension_latest_metrics(user_id="a0d04d7c202140cb80155ff7********",
+                                                            scope="BCE_BLB",
+                                                            metric_names=["ActiveConnCount", "DropOutBytes"],
+                                                            statistics=[
+                                                                "average",
+                                                                "sum",
+                                                                "minimum"
+                                                            ],
+                                                            dimensions=[{"name": "BlbId", "value": "lb-****ed23"}],
+                                                            timestamp="2024-03-18T06:01:00Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
