@@ -1780,7 +1780,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                     description=None, renew_time_unit=None, renew_time=None,
                                     cluster_id=None, relation_tag=False,
                                     tags=None, auto_snapshot_policy=None,
-                                    client_token=None, config=None):
+                                    client_token=None, config=None, charge_type=None):
         """
         Create a volume with the specified options.
         You can use this method to create a new empty volume by specified options
@@ -1795,7 +1795,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :type cds_size_in_gb: int
 
         :param billing:
-            Billing information.
+            Billing information.Deprecated
         :type billing: bcc_model.Billing
 
         :param purchase_count:
@@ -1854,6 +1854,17 @@ class BccClient(bce_base_client.BceBaseClient):
         :param auto_snapshot_policy:
             The optional auto snapshot policy to be bonded.
         :type auto_snapshot_policy: bcc_model.AutoSnapshotPolicyModel
+
+        :param charge_type:
+            The optional parameter to specify the payment for the volume.
+            The billing type and payment method, including Prepaid and Postpaid,
+            need to be specified only when the instanceId is not empty and the corresponding instance type is prepaid.
+            If instanceId is empty:
+               create a post payment type CDS;
+            If the instanceId is not empty:
+              If the instance is prepaid, a chargeType needs to be specified;
+              If the instance is post paid, create a post paid CDS
+        :type charge_type: menu{'Prepaid', 'Postpaid'}
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -1897,6 +1908,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['encryptKey'] = encrypt_key
         if instance_id is not None:
             body['instanceId'] = instance_id
+        if charge_type is not None:
+            body['chargeType'] = charge_type
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -1907,7 +1920,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                        description=None, renew_time_unit=None, renew_time=None,
                                        cluster_id=None, relation_tag=False,
                                        tags=None, auto_snapshot_policy=None,
-                                       config=None):
+                                       config=None, charge_type=None):
         """
         Create a volume with the specified options.
         You can use this method to create a new empty volume by specified options
@@ -1915,14 +1928,14 @@ class BccClient(bce_base_client.BceBaseClient):
         By using the cdsSizeInGB parameter you can create a newly empty volume.
         By using snapshotId parameter to create a volume form specific snapshot.
 
-        :param snapshot_id:
+        :param snapshot_id:xx
             The id of snapshot.
             By specifying the snapshotId,
             it will create volume from the specified snapshot and the parameter cdsSizeInGB will be ignored.
         :type snapshot_id: string
 
         :param billing:
-            Billing information.
+            Billing information.Deprecated
         :type billing: bcc_model.Billing
 
         :param purchase_count:
@@ -1982,6 +1995,17 @@ class BccClient(bce_base_client.BceBaseClient):
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param charge_type:
+            The optional parameter to specify the payment for the volume.
+            The billing type and payment method, including Prepaid and Postpaid,
+            need to be specified only when the instanceId is not empty and the corresponding instance type is prepaid.
+            If instanceId is empty:
+               create a post payment type CDS;
+            If the instanceId is not empty:
+              If the instance is prepaid, a chargeType needs to be specified;
+              If the instance is post paid, create a post paid CDS
+        :type charge_type: menu{'Prepaid', 'Postpaid'}
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -2024,6 +2048,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['encryptKey'] = encrypt_key
         if instance_id is not None:
             body['instanceId'] = instance_id
+        if charge_type is not None:
+            body['chargeType'] = charge_type
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
