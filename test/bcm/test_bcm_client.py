@@ -1415,8 +1415,6 @@ class TestBcmClient(unittest.TestCase):
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
-
-
     def test_push_metric_data(self):
         """
         test push metric data
@@ -1893,21 +1891,21 @@ class TestBcmClient(unittest.TestCase):
         test get alarm policy detail
         """
         resp = self.client.get_alarm_config_detail(user_id, "5c09e9********************d62091", "BCE_BCC")
-        print resp
+        print(resp)
 
     def test_get_single_instance_alarm_configs(self):
         """
         test get single instance alarm configs
         """
         resp = self.client.get_single_instance_alarm_configs(user_id, "BCE_BCC", 1, 10)
-        print resp
+        print(resp)
 
     def test_get_alarm_metrics(self):
         """
         test get alarm metrics
         """
         resp = self.client.get_alarm_metrics(user_id, "BCE_BCC")
-        print resp
+        print(resp)
 
     def test_create_alarm_policy_v2(self):
         """
@@ -1951,7 +1949,7 @@ class TestBcmClient(unittest.TestCase):
         test get alarm policy detail v2
         """
         resp = self.client.get_alarm_config_detail_v2(user_id, "5c09e9********************d62091", "BCE_BCC")
-        print resp
+        print(resp)
 
     def test_create_custom_alarm_policy(self):
         """
@@ -2062,6 +2060,22 @@ class TestBcmClient(unittest.TestCase):
         get site agent
         """
         res = self.client.get_site_once_agent(user_id="a0d04d7c202140cb80155ff7********")
+        print(res)
+
+    def test_get_multi_dimension_latest_metrics(self):
+        """
+        get multi dimension latest metrics
+        """
+        res = self.client.get_multi_dimension_latest_metrics(user_id="a0d04d7c202140cb80155ff7********",
+                                                             scope="BCE_BLB",
+                                                             metric_names=["ActiveConnCount", "DropOutBytes"],
+                                                             statistics=[
+                                                                 "average",
+                                                                 "sum",
+                                                                 "minimum"
+                                                             ],
+                                                             dimensions=[{"name": "BlbId", "value": "lb-****ed23"}],
+                                                             timestamp="2024-03-18T06:01:00Z")
         print(res)
 
 if __name__ == '__main__':
