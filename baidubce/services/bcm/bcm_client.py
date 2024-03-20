@@ -5672,3 +5672,65 @@ class BcmClient(bce_base_client.BceBaseClient):
         scope = compat.convert_to_bytes(scope)
         path = b'/userId/%s/services/%s/data/metricData/latest/batch' % (user_id, scope)
         return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+
+    def get_metrics_by_partial_dimensions(self, user_id, scope, statistics, metric_name, start_time, end_time,
+                                          region=None, resource_type=None, dimensions=None, cycle=None,
+                                          pageNo=None, pageSize=None):
+        """
+        :param user_id: str
+        :param scope: str
+        :param statistics: list
+        :param metric_name: str
+        :param start_time: str
+        :param end_time: str
+        :param region: str
+        :param resource_type: str
+        :param dimensions: list
+        :param cycle: int
+        :param pageNo: int
+        :param pageSize: int
+
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(metric_name) <= 0:
+            raise ValueError("metric_name should not be null")
+        if len(start_time) <= 0:
+            raise ValueError("start_time should not be null")
+        if len(end_time) <= 0:
+            raise ValueError("end_time should not be null")
+        if len(statistics) <= 0:
+            raise ValueError("statistics should not be null")
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "startTime": start_time,
+            "endTime": end_time,
+            "statistics": statistics,
+            "metricName": metric_name
+        }
+        if region is not None:
+            body["region"] = region
+        if resource_type is not None:
+            body["resourceType"] = resource_type
+        if dimensions is not None:
+            dimensions_res = []
+            for res in dimensions:
+                dimensions_res.append(res)
+            body["dimensions"] = dimensions_res
+        if cycle is not None:
+            body["cycle"] = cycle
+        if pageNo is not None:
+            body["pageNo"] = pageNo
+        if pageSize is not None:
+            body["pageSize"] = pageSize
+        user_id = compat.convert_to_bytes(user_id)
+        scope = compat.convert_to_bytes(scope)
+        path = b'/userId/%s/services/%s/data/metricData/PartialDimension' % (user_id, scope)
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+
