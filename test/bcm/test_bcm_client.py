@@ -2078,10 +2078,49 @@ class TestBcmClient(unittest.TestCase):
                                                              timestamp="2024-03-18T06:01:00Z")
         print(res)
 
+    def test_get_all_data_metrics_v2(self):
+        """
+        get all data metrics v2
+        """
+
+        res = self.client.get_all_data_metrics_v2(user_id="a0d04d7c202140cb80155ff7********",
+                                                  scope="BCE_BCC", region="bj", type=None,
+                                                  dimensions=[[{"name": "InstanceId", "value": "i-DMx***xX"}],
+                                                              [{"name": "InstanceId", "value": "i-Y8N***md"}]],
+                                                  metric_names=["CPUUsagePercent", "MemUsedPercent"],
+                                                  statistics=[
+                                                      "average",
+                                                      "sum"
+                                                  ],
+                                                  cycle=60,
+                                                  start_time="2024-03-20T07:01:00Z",
+                                                  end_time="2024-03-20T07:05:00Z")
+        print(res)
+
+    def test_batch_get_all_data_metrics_v2(self):
+        """
+        batch get all data metrics v2
+        """
+        res = self.client.batch_get_all_data_metrics_v2(user_id="a0d04d7c2021******155ff7b6752ce4",
+                                                        scope="BCE_MQ_KAFKA", region="bj", type="Node",
+                                                        dimensions=[[
+                                                            {"name": "ClusterId", "value": "efe456d667c649******652c93812a79"},
+                                                            {"name": "NodeId", "value": "i-Um1V8Haq"}
+                                                        ]],
+                                                        metric_names=["CpuUsedPercent", "CpuIdlePercent"],
+                                                        statistics=[
+                                                            "average",
+                                                            "sum"
+                                                        ],
+                                                        cycle=60,
+                                                        start_time="2024-03-21T06:33:50Z",
+                                                        end_time="2024-03-21T07:33:50Z")
+        print(res)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
-    # suite.addTest(TestBcmClient("test_get_metric_data"))
+    # suite.addTest(TestBcmClient("test_get_all_data_metrics_v2"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
