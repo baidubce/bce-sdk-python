@@ -29,6 +29,8 @@ if sys.version_info[0] == 2:
 else:
     value_type = (str, bytes)
 
+MAX_INSTANCE_NUMBER = 100
+
 
 class BcmClient(bce_base_client.BceBaseClient):
     """
@@ -5644,6 +5646,8 @@ class BcmClient(bce_base_client.BceBaseClient):
             raise ValueError("scope should not be null")
         if metric_names is None:
             raise ValueError("metric_names should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
         if cycle is None:
             cycle = 60
         body = {
@@ -5705,6 +5709,8 @@ class BcmClient(bce_base_client.BceBaseClient):
             raise ValueError("end_time should not be null")
         if len(statistics) <= 0:
             raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
         body = {
             "userId": user_id,
             "scope": scope,
@@ -5731,6 +5737,138 @@ class BcmClient(bce_base_client.BceBaseClient):
         user_id = compat.convert_to_bytes(user_id)
         scope = compat.convert_to_bytes(scope)
         path = b'/userId/%s/services/%s/data/metricData/PartialDimension' % (user_id, scope)
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+    def get_all_data_metrics_v2(self, user_id, scope, region, dimensions, metric_names, statistics,
+                                start_time, end_time, type="Instance", cycle=60):
+
+        """
+        :param user_id: user_id
+        :type string
+
+        :param scope: scope
+        :type string
+
+        :param region: region
+        :type string
+
+        :param type: resource type
+        :type string
+
+        :param dimensions: dimensions
+        :type double string array
+
+        :param metric_names: metric names
+        :type  string array
+
+        :param statistics: statistics
+        :type  string array
+
+        :param cycle: cycle
+        :type  int
+
+        :param start_time: start time
+        :type  string
+
+        :param end_time: end time
+        :type  string
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if metric_names is None:
+            raise ValueError("metric_names should not be null")
+        if dimensions is None:
+            raise ValueError("dimensions should not be null")
+        if statistics is None:
+            raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "cycle": cycle,
+            "region": region,
+            "startTime": start_time,
+            "endTime": end_time,
+            "metricNames": metric_names,
+            "dimensions": dimensions,
+            "statistics": statistics
+        }
+        if type is not None:
+            body["type"] = type
+
+        path = b'/data/metricAllData'
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+    def batch_get_all_data_metrics_v2(self, user_id, scope, region, dimensions, metric_names, statistics,
+                                      start_time, end_time, type="Instance", cycle=60):
+
+        """
+        :param user_id: user_id
+        :type string
+
+        :param scope: scope
+        :type string
+
+        :param region: region
+        :type string
+
+        :param dimensions: dimensions
+        :type double dimensional dict array
+
+        :param metric_names: metric names
+        :type  string array
+
+        :param statistics: statistics
+        :type  string array
+
+        :param start_time: start time
+        :type  string
+
+        :param end_time: end time
+        :type  string
+
+        :param type: type
+        :type string
+
+        :param cycle: cycle
+        :type  int
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if len(metric_names) <= 0:
+            raise ValueError("metric_names should not be null")
+        if len(dimensions) <= 0:
+            raise ValueError("dimensions should not be null")
+        if len(statistics) <= 0:
+            raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "cycle": cycle,
+            "region": region,
+            "startTime": start_time,
+            "endTime": end_time,
+            "metricNames": metric_names,
+            "dimensions": dimensions,
+            "statistics": statistics
+        }
+        if type is not None:
+            body["type"] = type
+
+        path = b'/data/metricAllData/batch'
         return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
 
 
