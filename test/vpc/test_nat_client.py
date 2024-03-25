@@ -43,6 +43,9 @@ NEW_SHARED_EIP = ['']
 NAT_ID = b''
 NAME = b''
 IP = ''
+SNAT_RULE_ID = b''
+DNAT_RULE_ID = b''
+
 
 pre_paid_billing = nat_model.Billing('Prepaid')
 post_paid_billing = nat_model.Billing('Postpaid')
@@ -112,6 +115,16 @@ class TestNatClient(unittest.TestCase):
         self.client.create_nat(client_token=client_token, name=name,
                                vpc_id=VPC_ID, spec='small',
                                eips=EIP)
+    
+    def test_create_nat_with_dnat_eip(self):
+        """
+        test case for creating nat with dnat eips binding
+        """
+        client_token = generate_client_token()
+        name = 'with_dnat_eip_binded' + client_token
+        self.client.create_nat(client_token=client_token, name=name,
+                               vpc_id=VPC_ID, cu_num=10,
+                               dnat_eips=EIP)
 
     def test_create_nat_with_shared_eip(self):
         """
@@ -227,6 +240,166 @@ class TestNatClient(unittest.TestCase):
             type(self.client.purchase_reserved_nat(nat_id=NAT_ID,
                                                    billing=pre_paid_billing)),
             baidubce.bce_response.BceResponse)
+    
+    def test_bind_dnat_eip(self):
+        """
+        test case for binding dnat with EIP
+        """
+        self.assertEqual(
+            type(self.client.bind_dnat_eip(nat_id=NAT_ID, eips=EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_bind_dnat_shared_eip(self):
+        """
+        test case for binding dnat with shared EIP
+        """
+        self.assertEqual(
+            type(self.client.bind_dnat_eip(nat_id=NAT_ID, eips=SHARED_EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbond_dnat_eip(self):
+        """
+        test case for unbinding dnat EIP
+        """
+        self.assertEqual(
+            type(self.client.unbind_dnat_eip(nat_id=NAT_ID, eips=EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbond_shared_dnat_eip(self):
+        """
+        test case for unbinding dnat shared eips
+        """
+        self.assertEqual(
+            type(self.client.unbind_dnat_eip(nat_id=NAT_ID, eips=SHARED_EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_snat_rule(self):
+        """
+        test case for creating snat rule
+        """
+        rule_name = 'test_snat_rule'
+        source_cidr = '192.168.1.0/24'
+        self.assertEqual(
+            type(self.client.create_snat_rule(nat_id=NAT_ID, rule_name=rule_name, source_cidr=source_cidr, public_ip_address=EIP)),
+            baidubce.bce_response.BceResponse)
+    
+    def test_batch_create_snat_rule(self):
+        """
+        test case for batch creating snat rule
+        """
+        rules = [
+            {
+                'ruleName': 'test_snat_rule1',
+                'sourceCIDR': '192.168.1.0/24',
+                'publicIpsAddress': EIP
+            },
+            {
+                'ruleName': 'test_snat_rule2',
+                'sourceCIDR': '192.168.2.0/24',
+                'publicIpsAddress': EIP
+            }
+        ]
+        self.assertEqual(
+            type(self.client.batch_create_snat_rule(nat_id=NAT_ID, rules=rules)),
+            baidubce.bce_response.BceResponse)
+        
+    def test_delete_snat_rule(self):
+        """
+        test case for deleting snat rule
+        """
+        self.assertEqual(
+            type(self.client.delete_snat_rule(nat_id=NAT_ID, snat_rule_id=SNAT_RULE_ID)),
+            baidubce.bce_response.BceResponse)
+        
+    def test_update_snat_rule(self):
+        """
+        test case for updating snat rule
+        """
+        new_name = b'test_snat_rule_new'
+        source_cidr = '192.168.3.0/24'
+        self.assertEqual(
+            type(self.client.update_snat_rule(nat_id=NAT_ID, snat_rule_id=SNAT_RULE_ID, name=new_name, source_cidr=source_cidr, public_ip_address=EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_list_snat_rule(self):
+        """
+        test case for listing snat rule
+        """
+        self.assertEqual(
+            type(self.client.list_snat_rule(nat_id=NAT_ID, maxKeys=2)),
+            baidubce.bce_response.BceResponse)
+    
+    def test_create_dnat_rule(self):
+        """
+        test case for creating dnat rule
+        """
+        rule_name = 'test_dnat_rule'
+        private_ip_address = '192.168.1.0/24'
+        public_ip_address = EIP[0]
+        protocol = 'TCP'
+        public_port = '1212'
+        private_port = '1212'
+        self.assertEqual(
+            type(self.client.create_dnat_rule(
+            nat_id=NAT_ID, public_ip_address=public_ip_address,
+            private_ip_address=private_ip_address,rule_name=rule_name,
+            protocol=protocol, public_port=public_port, private_port=private_port)),
+            baidubce.bce_response.BceResponse)        
+    
+    def test_batch_create_dnat_rule(self):
+        """
+        test case for batch creating dnat rule
+        """
+        rules = [
+            {
+                'ruleName': 'test_dnat_rule1',
+                'publicIpAddress': EIP[0],
+                'privateIpAddress': "192.168.1.1",
+                'protocol': 'TCP'
+                'publicPort' '1212',
+                'privatePort': '1212',
+            },
+            {
+                'ruleName': 'test_dnat_rule1',
+                'publicIpAddress': EIP[1],
+                'privateIpAddress': "192.168.1.2",
+                'protocol': 'UDP'
+                'publicPort' '65535',
+                'privatePort': '65535',
+            }
+        ]
+        self.assertEqual(
+            type(self.client.batch_create_dnat_rule(nat_id=NAT_ID, rules=rules)),
+            baidubce.bce_response.BceResponse)
+        
+    def test_delete_dnat_rule(self):
+        """
+        test case for deleting dnat rule
+        """
+        self.assertEqual(
+            type(self.client.delete_dnat_rule(nat_id=NAT_ID, dnat_rule_id=DNAT_RULE_ID)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_dnat_rule(self):
+        """
+        test case for updating snat rule
+        """
+        new_name = b'test_dnat_rule_new'
+        private_ip_address = '192.168.1.3'
+        public_ip_address = EIP[0]
+        protocol = 'TCP'
+        self.assertEqual(
+            type(self.client.update_dnat_rule(
+            nat_id=NAT_ID, dnat_rule_id=DNAT_RULE_ID, rule_name=new_name, public_ip_address=public_ip_address, private_ip_address=private_ip_address, protocol=protocol)),
+            baidubce.bce_response.BceResponse)
+
+    def test_list_dnat_rule(self):
+        """
+        test case for listing snat rule
+        """
+        self.assertEqual(
+            type(self.client.list_dnat_rule(nat_id=NAT_ID, maxKeys=2)),
+            baidubce.bce_response.BceResponse)
 
 
 def generate_client_token_by_uuid():
@@ -259,6 +432,20 @@ if __name__ == '__main__':
     #suite.addTest(TestNatClient("test_list_nats_with_detailed_options"))
     #suite.addTest(TestNatClient("test_get_nat"))
     #suite.addTest(TestNatClient("test_purchase_reserved_nat"))
+    #suite.addTest(TestNatClient("test_bind_dnat_eip"))
+    #suite.addTest(TestNatClient("test_bind_dnat_shared_eip"))
+    #suite.addTest(TestNatClient("test_unbond_dnat"))
+    #suite.addTest(TestNatClient("test_unbond_shared_dnat_eip"))
+    #suite.addTest(TestNatClient("test_create_snat_rule"))
+    #suite.addTest(TestNatClient("test_batch_create_snat_rule"))
+    #suite.addTest(TestNatClient("test_delete_snat_rule"))
+    #suite.addTest(TestNatClient("test_update_snat_rule"))
+    #suite.addTest(TestNatClient("test_list_snat_rule"))
+    #suite.addTest(TestNatClient("test_create_dnat_rule"))
+    #suite.addTest(TestNatClient("test_batch_create_dnat_rule"))
+    #suite.addTest(TestNatClient("test_delete_dnat_rule"))
+    #suite.addTest(TestNatClient("test_update_dnat_rule"))
+    #suite.addTest(TestNatClient("test_list_dnat_rule"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

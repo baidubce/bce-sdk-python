@@ -72,43 +72,50 @@ class TestVpcClient(unittest.TestCase):
         vpc_name = 'test_vpc_name' + client_token
         vpc_cidr = '192.168.240.0/20'
         description = 'test_vpc_descrition' + client_token
-        self.assertEqual(
-            type(self.the_client.create_vpc(vpc_name,
+        res = self.the_client.create_vpc(vpc_name,
                                             vpc_cidr,
                                             description,
-                                            client_token=client_token)),
-            baidubce.bce_response.BceResponse)
+                                            client_token=client_token)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_list_vpcs(self):
         """
         test case for list_vpcs
         """
-        print(self.the_client.list_vpcs())
+        res = self.the_client.list_vpcs()
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_get_vpc(self):
         """
         test case for get_vpc
         """
-        self.assertEqual(
-            type(self.the_client.get_vpc(vpc_id)),
-            baidubce.bce_response.BceResponse)
+        res = self.the_client.get_vpc(vpc_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_delete_vpc(self):
         """
         test case for delete_vpc
         """
-        self.assertEqual(
-            type(self.the_client.delete_vpc(vpc_id)),
-            baidubce.bce_response.BceResponse)
+        res = self.the_client.delete_vpc(vpc_id)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_update_vpc(self):
         """
         test case for delete_vpc
         """
-        self.assertEqual(
-            type(self.the_client.update_vpc(vpc_id, 'test_update_name', 'test_update_description')),
-            baidubce.bce_response.BceResponse)
+        res = self.the_client.update_vpc(vpc_id, 'test_update_name', 'test_update_description')
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
+    def test_get_vpc_ip(self):
+        """
+        test case for get private ip address info
+        """
+        res1 = self.the_client.get_private_ip_address_info(vpc_id,
+                                                             private_ip_addresses=["192.168.240.3", "192.168.240.5"])
+        self.assertEqual(type(res1), baidubce.bce_response.BceResponse)
+        
+        res2 = self.the_client.get_private_ip_address_info(vpc_id, private_ip_addresses=["192.168.240.3"])
+        self.assertEqual(type(res2), baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

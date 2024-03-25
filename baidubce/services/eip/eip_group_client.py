@@ -422,6 +422,108 @@ class EipGroupClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
+    @required(id=(bytes, str))
+    def delete_eip_group(self, id, client_token=None, config=None):
+        """
+        Delete an EIP group.
+
+        :type id: string
+        :param id: The ID of the EIP group to delete.
+
+        :type client_token: string
+        :param client_token: A unique token for identifying the request.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config: None
+
+        :return: baidubce.bce_response.BceResponse
+        """
+        path = utils.append_uri(self._get_path(), id)
+        if client_token is None:
+            client_token = generate_client_token()
+        params = {
+            b'clientToken': client_token
+        }
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
+
+    @required(move_out_args=(list,)) 
+    def eip_group_move_out(self, id, move_out_args, client_token=None, config=None):
+        """
+        Move out an EIP from a group.
+
+        :type id: string
+        :param id: The ID of the EIP group.
+
+        :type move_out_args: List[dict]
+        :param move_out_args: List of dictionaries for moving out the EIPs, 
+                            each dict containing 'eip', 'bandwidth_in_mbps', 
+                            and 'billing' keys.
+
+        :type client_token: string
+        :param client_token: A unique token for identifying the request.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config: None
+
+        :return: baidubce.bce_response.BceResponse
+        """
+        path = utils.append_uri(self._get_path(), id)
+        if client_token is None:
+            client_token = generate_client_token()
+        params = {
+            b'move_out': None,
+            b'clientToken': client_token
+        }
+        move_out_eips = []
+
+        for arg in move_out_args:
+            move_out_eip = {}
+            move_out_eip['eip'] = arg['eip']
+            if arg.get('bandwidthInMbps') is not None:
+                move_out_eip['bandwidthInMbps'] = arg['bandwidthInMbps']
+            if arg.get('billing') is not None:
+                move_out_eip['billing'] = arg['billing'].__dict__
+            move_out_eips.append(move_out_eip)
+        body = {
+            "moveOutEips": move_out_eips
+        }
+        json_body = json.dumps(body)
+        
+        return self._send_request(http_methods.PUT, path, params=params, body=json_body, config=config)
+    
+    @required(eips=(list,)) 
+    def eip_group_move_in(self, id, eips, client_token=None, config=None):
+        """
+        Move in an EIP to a group.
+
+        :type id: string
+        :param id: The ID of the EIP group.
+
+        :type eips: List[]
+        :param eips: The list of EIPs to move in.
+
+        :type client_token: string
+        :param client_token: A unique token for identifying the request.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config: None
+
+        :return: baidubce.bce_response.BceResponse
+        """
+        path = utils.append_uri(self._get_path(), id)
+        if client_token is None:
+            client_token = generate_client_token()
+        params = {
+            b'move_in': None,
+            b'clientToken': client_token
+        }
+        body = {
+            "eips": eips
+        }
+        json_body = json.dumps(body)
+
+        return self._send_request(http_methods.PUT, path, params=params, body=json_body, config=config)
+
     @staticmethod
     def _get_path(prefix=None):
         """

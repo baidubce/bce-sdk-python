@@ -38,6 +38,7 @@ from baidubce.http import http_headers
 import codecs
 
 DEFAULT_CNAME_LIKE_LIST = [b".cdn.bcebos.com"]
+DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
 HTTP_PROTOCOL_HEAD = b'http'
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
@@ -558,14 +559,35 @@ def is_custom_host(host, bucket_name):
     """
     if host is None or bucket_name is None:
         return False
-    
+
+    host_split = host.split(b'.')
     # split http head
-    if host.lower().startswith(HTTP_PROTOCOL_HEAD):
-        host_split = host.split(b'//')
-        if len(host_split) == 2 :
-            return host_split[1].lower().startswith(compat.convert_to_bytes(bucket_name.lower()))
+    return host.lower().startswith(compat.convert_to_bytes(bucket_name.lower())) \
+                  and len(host_split) == 4 and is_bos_suffixed_host(host) 
+
+
+def is_bos_suffixed_host(host):
+    """
+    :param host: bos endpoint
+    :return: bos endpoint or not
+    """
+    if host is None:
         return False
-    return host.lower().startswith(compat.convert_to_bytes(bucket_name.lower()))
+    if host.endswith(b'/'):
+        check_host = host[:-1]
+    else:
+        check_host = host
+
+    return check_host.lower().endswith(DEFAULT_BOS_DOMAIN_SUFFIX)
+
+
+def check_ipv4(ipAddr):
+    """
+    :param ipAddr: ip address
+    :return: true or false
+    """
+    compile_ip=re.compile(b'((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}')
+    return compile_ip.match(ipAddr)
 
 def _get_data_size(data):
     if hasattr(data, '__len__'):

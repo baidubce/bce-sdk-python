@@ -44,6 +44,9 @@ class BceServerError(BceError):
 
 class BceHttpClientError(BceError):
     """Exception threw after retry"""
-    def __init__(self, message, last_error):
+    def __init__(self, message, last_error, status_code=None, code=None, request_id=None):
         BceError.__init__(self, message)
         self.last_error = last_error
+        self.status_code = status_code
+        self.code = code
+        self.request_id = request_id

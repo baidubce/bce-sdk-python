@@ -39,7 +39,9 @@ class BceClientConfiguration(object):
                  cname_enabled=False,
                  backup_endpoint=None,
                  proxy_host=None,
-                 proxy_port=None,):
+                 proxy_port=None,
+                 path_style_enable=False,
+                 ):
         self.credentials = credentials
         self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
@@ -55,6 +57,7 @@ class BceClientConfiguration(object):
             self.retry_policy = retry_policy
         self.security_token = security_token
         self.cname_enabled = cname_enabled
+        self.path_style_enable = path_style_enable
         self.backup_endpoint = compat.convert_to_bytes(backup_endpoint) if backup_endpoint is not None else backup_endpoint
 
     def merge_non_none_values(self, other):

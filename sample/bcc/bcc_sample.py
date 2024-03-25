@@ -939,6 +939,20 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # delete prepaid instance with related resource
+    try:
+        response = bcc_client.release_prepaid_instance_with_related_resources(instance_id='i-XS7Db00e',
+                                                                      related_release_flag=True,
+                                                                      delete_cds_snapshot_flag=True,
+                                                                      delete_related_enis_flag=True)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # get instance with deploy set
     try:
         response = bcc_client.get_instance_with_deploy_set(instance_id='i-XS7Db00e', contains_failed=True)
