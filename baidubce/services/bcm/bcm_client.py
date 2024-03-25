@@ -29,6 +29,8 @@ if sys.version_info[0] == 2:
 else:
     value_type = (str, bytes)
 
+MAX_INSTANCE_NUMBER = 100
+
 
 class BcmClient(bce_base_client.BceBaseClient):
     """
@@ -2924,7 +2926,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
         return self._send_csm_request(http_methods.GET, path, params=params)
 
-
     def push_metric_data(self, user_id=None, scope=None, metric_data=None, config=None):
 
         """
@@ -2944,7 +2945,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), config=config)
-
 
     def get_custom_metric_data(self, user_id=None, namespaces=None, metric_name=None,
                                dimensions=None, statistics=None, start_time=None,
@@ -3049,7 +3049,6 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         return self._send_csm_request(http_methods.POST, path, body=json.dumps(body), config=config)
 
-
     def create_site_http_task_config(self, user_id=None, task_name=None, address=None,
                                      method=None, post_content=None,
                                      advance_config=None, cycle=None, idc=None, timeout=None, config=None):
@@ -3079,7 +3078,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/http/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3124,7 +3123,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/http/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3188,7 +3187,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/https/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3233,7 +3232,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/https/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3295,7 +3294,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/ping/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3337,7 +3336,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/ping/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3400,7 +3399,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/tcp/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3456,7 +3455,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/tcp/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3523,7 +3522,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/udp/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3579,7 +3578,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/udp/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3650,7 +3649,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/ftp/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3700,7 +3699,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/ftp/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3767,7 +3766,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/dns/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskName": task_name,
             "address": address,
@@ -3814,7 +3813,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/dns/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "taskName": task_name,
@@ -3905,7 +3904,6 @@ class BcmClient(bce_base_client.BceBaseClient):
             b'taskId': task_id,
         }
 
-
         return self._send_csm_request(http_methods.DELETE, path, params=params, config=config)
 
     def get_site_task_config_info(self, user_id=None, task_id=None, config=None):
@@ -3923,7 +3921,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         user_id = compat.convert_to_bytes(user_id)
         task_id = compat.convert_to_bytes(task_id)
         path = b'/userId/%s/site/%s' % (user_id, task_id)
-
 
         return self._send_csm_request(http_methods.GET, path, config=config)
 
@@ -3969,7 +3966,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/alarm/config/create' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "comment": comment,
@@ -4007,7 +4004,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         body = {
             "alarmNames": alarm_names
         }
-
 
         return self._send_csm_request(http_methods.DELETE, path, body=json.dumps(body), config=config)
 
@@ -4055,7 +4051,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/alarm/config/update' % (user_id)
-        body =  {
+        body = {
             "userId": user_id,
             "taskId": task_id,
             "alarmName": alarm_name,
@@ -4095,7 +4091,6 @@ class BcmClient(bce_base_client.BceBaseClient):
             b'alarmName': alarm_name,
         }
 
-
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
 
     def get_site_alarm_config_list(self, user_id=None, task_id=None, alarm_name=None,
@@ -4121,7 +4116,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/alarm/config/list' % (user_id)
         params = {}
-
 
         if task_id is not None:
             params[b'taskId'] = task_id
@@ -4248,7 +4242,6 @@ class BcmClient(bce_base_client.BceBaseClient):
             "taskId": task_id
         }
 
-
         return self._send_csm_request(http_methods.GET, path, params=params,
                                       body_parser=bcm_handler.parse_json_list, config=config)
 
@@ -4273,7 +4266,6 @@ class BcmClient(bce_base_client.BceBaseClient):
             "isp": isp
         }
 
-
         return self._send_csm_request(http_methods.GET, path, params=params,
                                       body_parser=bcm_handler.parse_json_list, config=config)
 
@@ -4289,7 +4281,6 @@ class BcmClient(bce_base_client.BceBaseClient):
 
         user_id = compat.convert_to_bytes(user_id)
         path = b'/userId/%s/site/agent/list' % (user_id)
-
 
         return self._send_csm_request(http_methods.GET, path, body_parser=bcm_handler.parse_json_list, config=config)
 
@@ -4312,7 +4303,6 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
 
         return self._send_csm_request(http_methods.GET, path, params=params, config=config)
-
 
     def create_alarm_config(self, user_id, alias_name, scope, level, region, monitor_object, alarm_actions, rules,
                             src_type="INSTANCE", ok_actions=None, insufficient_actions=None, config_type="NORMAL",
@@ -5632,3 +5622,253 @@ class BcmClient(bce_base_client.BceBaseClient):
         }
         path = b'/site/once/siteAgent'
         return self._send_csm_request(http_methods.GET, path, params=params)
+
+    @required(user_id=str, scope=str, region=str, resource_type=str, dimensions=list,
+              metric_names=list, timestamp=str, statistics=list, cycle=int)
+    def get_multi_dimension_latest_metrics(self, user_id, scope, region=None, resource_type=None, dimensions=None,
+                                           metric_names=None, timestamp=None, statistics=None, cycle=None):
+        """
+        :param user_id: str
+        :param scope: str
+        :param region: str
+        :param resource_type: str
+        :param dimensions: list
+        :param metric_names: list
+        :param timestamp: str
+        :param statistics: list
+        :param cycle: int
+
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if metric_names is None:
+            raise ValueError("metric_names should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        if cycle is None:
+            cycle = 60
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "cycle": cycle
+        }
+        metric_names_req = []
+        for res in metric_names:
+            metric_names_req.append(res)
+        body["metricNames"] = metric_names_req
+        if region is not None:
+            body["region"] = region
+        if resource_type is not None:
+            body["resourceType"] = resource_type
+        if dimensions is not None:
+            dimensions_res = []
+            for res in dimensions:
+                dimensions_res.append(res)
+            body["dimensions"] = dimensions_res
+        if timestamp is not None:
+            body["timestamp"] = timestamp
+        if statistics is not None:
+            body["statistics"] = statistics
+        user_id = compat.convert_to_bytes(user_id)
+        scope = compat.convert_to_bytes(scope)
+        path = b'/userId/%s/services/%s/data/metricData/latest/batch' % (user_id, scope)
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+
+    def get_metrics_by_partial_dimensions(self, user_id, scope, statistics, metric_name, start_time, end_time,
+                                          region=None, resource_type=None, dimensions=None, cycle=None,
+                                          pageNo=None, pageSize=None):
+        """
+        :param user_id: str
+        :param scope: str
+        :param statistics: list
+        :param metric_name: str
+        :param start_time: str
+        :param end_time: str
+        :param region: str
+        :param resource_type: str
+        :param dimensions: list
+        :param cycle: int
+        :param pageNo: int
+        :param pageSize: int
+
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(metric_name) <= 0:
+            raise ValueError("metric_name should not be null")
+        if len(start_time) <= 0:
+            raise ValueError("start_time should not be null")
+        if len(end_time) <= 0:
+            raise ValueError("end_time should not be null")
+        if len(statistics) <= 0:
+            raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "startTime": start_time,
+            "endTime": end_time,
+            "statistics": statistics,
+            "metricName": metric_name
+        }
+        if region is not None:
+            body["region"] = region
+        if resource_type is not None:
+            body["resourceType"] = resource_type
+        if dimensions is not None:
+            dimensions_res = []
+            for res in dimensions:
+                dimensions_res.append(res)
+            body["dimensions"] = dimensions_res
+        if cycle is not None:
+            body["cycle"] = cycle
+        if pageNo is not None:
+            body["pageNo"] = pageNo
+        if pageSize is not None:
+            body["pageSize"] = pageSize
+        user_id = compat.convert_to_bytes(user_id)
+        scope = compat.convert_to_bytes(scope)
+        path = b'/userId/%s/services/%s/data/metricData/PartialDimension' % (user_id, scope)
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+    def get_all_data_metrics_v2(self, user_id, scope, region, dimensions, metric_names, statistics,
+                                start_time, end_time, type="Instance", cycle=60):
+
+        """
+        :param user_id: user_id
+        :type string
+
+        :param scope: scope
+        :type string
+
+        :param region: region
+        :type string
+
+        :param type: resource type
+        :type string
+
+        :param dimensions: dimensions
+        :type double string array
+
+        :param metric_names: metric names
+        :type  string array
+
+        :param statistics: statistics
+        :type  string array
+
+        :param cycle: cycle
+        :type  int
+
+        :param start_time: start time
+        :type  string
+
+        :param end_time: end time
+        :type  string
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if metric_names is None:
+            raise ValueError("metric_names should not be null")
+        if dimensions is None:
+            raise ValueError("dimensions should not be null")
+        if statistics is None:
+            raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "cycle": cycle,
+            "region": region,
+            "startTime": start_time,
+            "endTime": end_time,
+            "metricNames": metric_names,
+            "dimensions": dimensions,
+            "statistics": statistics
+        }
+        if type is not None:
+            body["type"] = type
+
+        path = b'/data/metricAllData'
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+    def batch_get_all_data_metrics_v2(self, user_id, scope, region, dimensions, metric_names, statistics,
+                                      start_time, end_time, type="Instance", cycle=60):
+
+        """
+        :param user_id: user_id
+        :type string
+
+        :param scope: scope
+        :type string
+
+        :param region: region
+        :type string
+
+        :param dimensions: dimensions
+        :type double dimensional dict array
+
+        :param metric_names: metric names
+        :type  string array
+
+        :param statistics: statistics
+        :type  string array
+
+        :param start_time: start time
+        :type  string
+
+        :param end_time: end time
+        :type  string
+
+        :param type: type
+        :type string
+
+        :param cycle: cycle
+        :type  int
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if len(metric_names) <= 0:
+            raise ValueError("metric_names should not be null")
+        if len(dimensions) <= 0:
+            raise ValueError("dimensions should not be null")
+        if len(statistics) <= 0:
+            raise ValueError("statistics should not be null")
+        if len(dimensions) > MAX_INSTANCE_NUMBER:
+            raise ValueError("dimensions size cannot more than " + MAX_INSTANCE_NUMBER)
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "cycle": cycle,
+            "region": region,
+            "startTime": start_time,
+            "endTime": end_time,
+            "metricNames": metric_names,
+            "dimensions": dimensions,
+            "statistics": statistics
+        }
+        if type is not None:
+            body["type"] = type
+
+        path = b'/data/metricAllData/batch'
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+

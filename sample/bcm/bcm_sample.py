@@ -2392,3 +2392,114 @@ if __name__ == '__main__':
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get multi dimension latest metrics
+    try:
+        res = bcm_client.get_multi_dimension_latest_metrics(user_id="a0d04d7c202140cb80155ff7********",
+                                                            scope="BCE_BLB",
+                                                            metric_names=["ActiveConnCount", "DropOutBytes"],
+                                                            statistics=[
+                                                                "average",
+                                                                "sum",
+                                                                "minimum"
+                                                            ],
+                                                            dimensions=[{"name": "BlbId", "value": "lb-****ed23"}],
+                                                            timestamp="2024-03-18T06:01:00Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+
+    # get metrics by partial dimension at fully param
+    try:
+        res = bcm_client.get_metrics_by_partial_dimensions(user_id="a0d04d7c202140cb80155ff7********",
+                                                           scope="BCE_BLB",
+                                                           resource_type="Blb",
+                                                           metric_name="ActiveConnCount",
+                                                           statistics=[
+                                                               "average",
+                                                               "sum",
+                                                               "minimum"
+                                                           ],
+                                                           dimensions=[{"name": "BlbPortType", "value": "TCP"}],
+                                                           region="bj",
+                                                           cycle=60,
+                                                           start_time="2024-03-20T02:21:17Z",
+                                                           end_time="2024-03-20T03:21:17Z",
+                                                           pageNo=2,
+                                                           pageSize=5)
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get metrics by partial dimension at least params
+    try:
+        res = bcm_client.get_metrics_by_partial_dimensions(user_id="a0d04d7c202140cb80155ff7********",
+                                                           scope="BCE_BCC",
+                                                           metric_name="CpuIdlePercent",
+                                                           statistics=[
+                                                               "average",
+                                                               "sum",
+                                                               "minimum"
+                                                           ],
+                                                           start_time="2024-03-20T02:21:17Z",
+                                                           end_time="2024-03-20T03:21:17Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get all data metrics v2 by partial dimension at fully param
+    try:
+        res = bcm_client.get_all_data_metrics_v2(user_id="a0d04d7c202140cb80155ff7********",
+                                                 scope="BCE_BCC", region="bj", type=None,
+                                                 dimensions=[[{"name": "InstanceId", "value": "i-DMx***xX"}],
+                                                             [{"name": "InstanceId", "value": "i-Y8N***md"}]],
+                                                 metric_names=["CPUUsagePercent", "MemUsedPercent"],
+                                                 statistics=[
+                                                     "average",
+                                                     "sum"
+                                                 ],
+                                                 cycle=60,
+                                                 start_time="2024-03-20T07:01:00Z",
+                                                 end_time="2024-03-20T07:05:00Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch get all data metrics v2 by partial dimension at fully param
+    try:
+        res = bcm_client.batch_get_all_data_metrics_v2(user_id="a0d04d7c202140cb80155ff7********",
+                                                       scope="BCE_BCC", region="bj",
+                                                       dimensions=[[{"name": "InstanceId", "value": "i-DMx***xX"}],
+                                                                   [{"name": "InstanceId", "value": "i-Y8N***md"}]],
+                                                       metric_names=["CPUUsagePercent", "MemUsedPercent"],
+                                                       statistics=[
+                                                           "average",
+                                                           "sum"
+                                                       ],
+                                                       cycle=60,
+                                                       start_time="2024-03-20T07:01:00Z",
+                                                       end_time="2024-03-20T07:05:00Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
