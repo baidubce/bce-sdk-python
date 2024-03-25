@@ -1219,6 +1219,15 @@ class TestBccClient(unittest.TestCase):
         resp = self.client.recovery_instances(instance_ids)
         # print(json.loads(resp.content.decode('utf-8')))
 
+    def test_batch_refund_resources(self):
+        """
+        test case for delete prepaid instance with related resources
+        """
+        instance_ids = ["i-oH4zX7NQ"]
+        resp = self.client.batch_refund_resources(instance_ids=instance_ids, related_release_flag=True,
+                                                  delete_cds_snapshot_flag=True, delete_related_enis_flag=True)
+        print(resp)
+
     def test_get_bid_instance_price(self):
         """
         test case for get_bid_instance_price
@@ -2144,7 +2153,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
     # suite.addTest(TestBccClient("test_get_available_images_by_spec"))
     # suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
-    suite.addTest(TestBccClient("test_list_instances_by_ipv6"))
+    # suite.addTest(TestBccClient("test_list_instances_by_ipv6"))
+    # suite.addTest(TestBccClient("test_batch_refund_resources"))
 
     # 0.8.91 New Testcases
     # suite.addTest(TestBccClient("test_update_security_group_rule"))

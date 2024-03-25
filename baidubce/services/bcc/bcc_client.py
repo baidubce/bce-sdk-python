@@ -4388,6 +4388,52 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
+    @required(instance_ids=(list))
+    def batch_refund_resources(self, instance_ids, related_release_flag=None,
+                               delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
+                               client_token=None, config=None):
+        """
+        Releasing the instance owned by the user.
+        Only the Prepaid instance and the instance has not expired can be released.
+        After releasing the instance, all of the data will be deleted.
+
+        :param instance_ids:
+             The id list of instances.
+        :type instance_ids: list of string
+
+
+        :param related_release_flag:
+            Release or not related resources.
+        :type related_release_flag: bool
+
+        :param delete_cds_snapshot_flag:
+            Delete or not cds snapshot.
+        :type delete_cds_snapshot_flag: bool
+
+        :param delete_related_enis_flag:
+            Delete or not related enis.
+        :type delete_related_enis_flag: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        path = b'/instance/batchRefundResource'
+        body = {
+            "instanceIds": instance_ids
+        }
+        if related_release_flag is not None:
+            body['relatedReleaseFlag'] = related_release_flag
+        if delete_cds_snapshot_flag is not None:
+            body['deleteCdsSnapshotFlag'] = delete_cds_snapshot_flag
+        if delete_related_enis_flag is not None:
+            body['deleteRelatedEnisFlag'] = delete_related_enis_flag
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
     @required(instance_type=str, cpu_count=int, memory_cap_in_gb=int)  # ***Unicode***
     def get_bid_instance_price(self, instance_type, cpu_count, memory_cap_in_gb,
                                root_disk_size_in_gb=None, root_disk_storage_type=None, create_cds_list=None,
