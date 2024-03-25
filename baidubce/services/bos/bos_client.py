@@ -56,8 +56,6 @@ FETCH_MODE_ASYNC = b"async"
 
 ENCRYPTION_ALGORITHM= "AES256"
 
-DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
-
 HTTP_PROTOCOL_HEAD = b'http'
 
 
@@ -1120,6 +1118,7 @@ class BosClient(BceBaseClient):
                      user_headers=None,
                      progress_callback=None,
                      traffic_limit=None,
+                     object_tagging=None,
                      config=None):
         """
         Put an appendable object to BOS or add content to an appendable object
@@ -1145,7 +1144,8 @@ class BosClient(BceBaseClient):
             user_metadata=user_metadata,
             storage_class=storage_class,
             user_headers=user_headers,
-            traffic_limit=traffic_limit)
+            traffic_limit=traffic_limit,
+            object_tagging=object_tagging)
 
         if content_length > bos.MAX_APPEND_OBJECT_LENGTH:
             raise ValueError('Object length should be less than %d. '
@@ -1232,6 +1232,7 @@ class BosClient(BceBaseClient):
                    customer_key_md5=None,
                    progress_callback=None,
                    traffic_limit=None,
+                   object_tagging=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -1261,7 +1262,8 @@ class BosClient(BceBaseClient):
             user_metadata=user_metadata,
             storage_class=storage_class,
             user_headers=user_headers,
-            traffic_limit=traffic_limit)
+            traffic_limit=traffic_limit,
+            object_tagging=object_tagging,)
 
         buf_size = self._get_config_parameter(config, 'recv_buf_size')
 
@@ -1293,6 +1295,7 @@ class BosClient(BceBaseClient):
                                customer_key_md5=None,
                                progress_callback=None,
                                traffic_limit=None,
+                               object_tagging=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -1334,6 +1337,7 @@ class BosClient(BceBaseClient):
                                    customer_key_md5=customer_key_md5,
                                    progress_callback = progress_callback,
                                    traffic_limit=traffic_limit,
+                                   object_tagging=object_tagging,
                                    config=config)
         finally:
             if fp is not None:
@@ -1353,6 +1357,7 @@ class BosClient(BceBaseClient):
                              customer_key_md5=None,
                              progress_callback=None,
                              traffic_limit=None,
+                             object_tagging=None,
                              config=None,
                              ):
 
@@ -1399,6 +1404,7 @@ class BosClient(BceBaseClient):
                                    customer_key_md5=customer_key_md5,
                                    progress_callback=progress_callback,
                                    traffic_limit=traffic_limit,
+                                   object_tagging=object_tagging,
                                    config=config)
         finally:
             fp.close()
@@ -1417,6 +1423,7 @@ class BosClient(BceBaseClient):
                     user_headers=None,
                     copy_object_user_headers=None,
                     traffic_limit=None,
+                    object_tagging=None,
                     config=None):
         """
         Copy one object to another object
@@ -1442,7 +1449,8 @@ class BosClient(BceBaseClient):
             user_metadata=user_metadata,
             storage_class=storage_class,
             user_headers=user_headers,
-            traffic_limit=traffic_limit)
+            traffic_limit=traffic_limit,
+            object_tagging=object_tagging)
         headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
             b'/%s/%s' % (
                 compat.convert_to_bytes(source_bucket_name), 
@@ -2434,6 +2442,74 @@ class BosClient(BceBaseClient):
             params={b'mirroring': b''},
             config=config,
             )
+
+    def put_object_tagging(self, bucket_name, key, obj_tag_args, config=None):
+        """
+        put object tagging
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :type obj_tag_args: dict
+        :param obj_tag_args: object tagging args
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT,
+            bucket_name=bucket_name,
+            key=key,
+            body=json.dumps(obj_tag_args, default=BosClient._dump_acl_object),
+            params={b'tagging': b''},
+            config=config,)
+
+    def put_object_tagging_canned(self, bucket_name, key, tag_header, config=None):
+        """
+        put object tagging
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :type obj_tag_args: dict
+        :param obj_tag_args: object tagging args
+
+        :return:
+        """
+        headers = {}
+        headers[http_headers.BOS_TAGGING] = compat.convert_to_bytes(tag_header)
+        return self._send_request(
+            http_methods.PUT,
+            bucket_name=bucket_name,
+            key=key,
+            headers=headers,
+            params={b'tagging': b''},
+            config=config,)
+
+    def get_object_tagging(self, bucket_name, key, config=None):
+        """
+        put object tagging
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type key: string
+        :param key: object name
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET,
+            bucket_name=bucket_name,
+            key=key,
+            params={b'tagging': b''},
+            config=config,)
+
         
 
     @staticmethod
@@ -2449,7 +2525,8 @@ class BosClient(BceBaseClient):
             encryption=None,
             customer_key=None,
             customer_key_md5=None,
-            traffic_limit=None):
+            traffic_limit=None,
+            object_tagging=None,):
         headers = {}
 
         if content_length is not None:
@@ -2509,6 +2586,8 @@ class BosClient(BceBaseClient):
         if traffic_limit is not None:
             headers[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
 
+        if object_tagging is not None:
+            headers[http_headers.BOS_TAGGING] = compat.convert_to_bytes(object_tagging)
         return headers
 
 
@@ -2548,38 +2627,71 @@ class BosClient(BceBaseClient):
         host = config.endpoint
         if use_backup_endpoint:
             host = config.backup_endpoint
-        if config.cname_enabled or utils.is_cname_like_host(host) or utils.is_custom_host(host, bucket_name):
+        endpoint_protocol, host_name, endpoint_port = \
+            utils.parse_host_port(config.endpoint, config.protocol)
+        if config.cname_enabled or utils.is_cname_like_host(host_name) or utils.is_custom_host(host_name, bucket_name):
             return utils.append_uri(bos.URL_PREFIX, key)
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
+    
 
     def _merge_config(self, config, bucket_name):
-        # if config is None:
-        #     return self.config
-        # else:
-        #     new_config = copy.copy(self.config)
-        #     new_config.merge_non_none_values(config)
-        #     return new_config
-        
         new_config = copy.copy(self.config)
         if config is not None:
             new_config.merge_non_none_values(config)
-        if bucket_name is not None and not utils.is_cname_like_host(self.config.endpoint):
-            user_endpoint = self.config.endpoint
-            user_endpoint_split = compat.convert_to_bytes(user_endpoint).split(b'.') 
-            if user_endpoint.endswith(DEFAULT_BOS_DOMAIN_SUFFIX) and len(user_endpoint_split) == 3:
+        
+        endpoint = self._change_user_endpoint(new_config, bucket_name)
+        new_config.endpoint = endpoint
+        return new_config
+        
+
+    def _change_user_endpoint(self, config, bucket_name):
+        endpoint_protocol, user_host_name, endpoint_port = \
+            utils.parse_host_port(config.endpoint, config.protocol)
+        user_endpoint_split = compat.convert_to_bytes(user_host_name).split(b'.')
+        user_endpoint = config.endpoint
+        is_bos_path_style_host = utils.is_bos_suffixed_host(user_host_name) and len(user_endpoint_split) == 3
+        # 1. check ipv4 or path style
+        if utils.check_ipv4(user_host_name):
+            return config.endpoint
+        
+        if  config.path_style_enable:
+            # check path style
+            if is_bos_path_style_host:
+                return config.endpoint
+            else:
+                raise ValueError(
+                    'endpoint is not path style, please set path_style_enable=False')
+        
+        # 2. check cname domain
+        if config.cname_enabled or utils.is_cname_like_host(user_host_name):
+            # cname domain
+            if is_bos_path_style_host:
+                raise ValueError(
+                    'endpoint is not cname domain, please set cname_enabled=False')
+            else:
+                return config.endpoint
+        
+        # default use virtual-hosted endpoint
+        if bucket_name is not None:
+            if is_bos_path_style_host:
                 # split http head
                 if user_endpoint.startswith(HTTP_PROTOCOL_HEAD):
                     http_head_split = user_endpoint.split(b'//') 
                     if len(http_head_split) < 2:
-                        return new_config 
+                        return config.endpoint
                     bucket_endpoint = http_head_split[0] + b'//' + compat.convert_to_bytes(bucket_name) +\
                         b'.' + http_head_split[1]
-                    new_config.endpoint = compat.convert_to_bytes(bucket_endpoint)
-                    return new_config
-                
-                new_config.endpoint = compat.convert_to_bytes(bucket_name)+b'.'+\
-                compat.convert_to_bytes(user_endpoint)
-        return new_config
+                    return compat.convert_to_bytes(bucket_endpoint)
+                else:
+                    return compat.convert_to_bytes(bucket_name)+b'.'+\
+                        compat.convert_to_bytes(user_endpoint)
+        
+        # check virtual-hosted endpoint's bucket_name is not query bucket_name
+        if len(user_endpoint_split) == 4 and bucket_name is not None:
+            if  user_endpoint_split[0] != compat.convert_to_bytes(bucket_name):
+                raise ValueError('your endpoint\'s bucket_name is not equal your query bucket_name!')
+
+        return config.endpoint
 
     @staticmethod
     def _need_retry_backup_endpoint(error):

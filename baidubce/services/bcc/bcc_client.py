@@ -90,7 +90,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         security_group_ids=None, enterprise_security_group_ids=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
                         deletion_protection=None, res_group_id=None,
-                        client_token=None, config=None):
+                        client_token=None, config=None, card_count=1, isomerism_card=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -175,18 +175,20 @@ class BccClient(bce_base_client.BceBaseClient):
         :type client_token: string
 
         :param fpgaCard:
-            specify the fpgaCard info of creating FPGA instance,
-            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
-        :type gpuCard: string
+            This parameter is obsolete. Use parameter isomerism_card instead.
+        :type fpgaCard: string
 
         :param gpuCard:
-            specify the gpuCard info of creating GPU instance,
-            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type gpuCard: string
 
         :param cardCount:
-            The parameter to specify the card count for creating GPU/FPGA instance
+            This parameter is obsolete. Use parameter card_count instead.
         :type cardCount: int
+
+        :param card_count:
+            The parameter to specify the card count for creating GPU/FPGA instance.
+        :type card_count: int
 
         :param root_disk_size_in_gb:
             The parameter to specify the root disk size in GB.
@@ -270,7 +272,18 @@ class BccClient(bce_base_client.BceBaseClient):
         :type eip_name: string
 
         :param hostname:
-            hostname
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
         :type hostname: string
 
         :param auto_seq_suffix:
@@ -302,14 +315,19 @@ class BccClient(bce_base_client.BceBaseClient):
         :type enterprise_security_group_ids: list<string>
 
         :param kunlunCard:
-            kunlunCard
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type kunlunCard: string
 
         :param isomerismCard:
             type of isomerismCard, including kunlunCard, fpgaCard, gpuCard
         :type isomerismCard: string
 
+        :param isomerism_card:
+            type of isomerismCard, including kunlunCard, fpgaCard, gpuCard.
+        :type isomerism_card: string
+
         :param file_systems:
+            This parameter is obsolete.
         :type file_systems:list<bcc_model.FileSystemModel>
 
         :param user_data:
@@ -336,6 +354,10 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         if billing is None:
             billing = default_billing_to_purchase_created
+        if card_count == 1 and cardCount > 1:
+            card_count = cardCount
+        if isomerism_card is None:
+            isomerism_card = isomerismCard
         body = {
             'cpuCount': cpu_count,
             'memoryCapacityInGB': memory_capacity_in_gb,
@@ -372,7 +394,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if network_capacity_in_mbps != 0:
             body['networkCapacityInMbps'] = network_capacity_in_mbps
         if purchase_count > 0:
@@ -397,16 +419,16 @@ class BccClient(bce_base_client.BceBaseClient):
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if fpgaCard is not None:
             body['fpgaCard'] = fpgaCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if kunlunCard is not None:
             body['kunlunCard'] = kunlunCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
-        if isomerismCard is not None:
-            body['isomerismCard'] = isomerismCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
+        if isomerism_card is not None:
+            body['isomerismCard'] = isomerism_card
+            body['cardCount'] = card_count if card_count > 1 else 1
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
@@ -414,7 +436,7 @@ class BccClient(bce_base_client.BceBaseClient):
         else:
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if ephemeral_disks is not None:
-            body['ephemeralDisks'] = ephemeral_disks
+            body['ephemeralDisks'] = [ephemeral_disk.__dict__ for ephemeral_disk in ephemeral_disks]
         if dedicate_host_id is not None:
             body['dedicatedHostId'] = dedicate_host_id
         if deploy_id is not None:
@@ -670,7 +692,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
                                enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
-                               enterprise_security_group_ids=None, isomerismCard=None, file_systems=None):
+                               enterprise_security_group_ids=None, isomerismCard=None, file_systems=None,
+                               card_count=1, isomerism_card=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -755,18 +778,20 @@ class BccClient(bce_base_client.BceBaseClient):
         :type client_token: string
 
         :param fpgaCard:
-            specify the fpgaCard info of creating FPGA instance,
-            see all of supported fpga card type at baidubce.services.bcc.fpga_card_type
-        :type gpuCard: string
+            This parameter is obsolete. Use parameter isomerism_card instead.
+        :type fpgaCard: string
 
         :param gpuCard:
-            specify the gpuCard info of creating GPU instance,
-            see all of supported gpu card type at baidubce.services.bcc.gpu_card_type
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type gpuCard: string
 
         :param cardCount:
-            The parameter to specify the card count for creating GPU/FPGA instance
+            This parameter is obsolete. Use parameter card_count instead.
         :type cardCount: int
+
+        :param card_count:
+            The parameter to specify the card count for creating GPU/FPGA instance.
+        :type card_count: int
 
         :param root_disk_size_in_gb:
             The parameter to specify the root disk size in GB.
@@ -782,99 +807,123 @@ class BccClient(bce_base_client.BceBaseClient):
             The optional list of ephemeral volume detail info to create.
         :type ephemeral_disks: list<bcc_model.EphemeralDisk>
 
-        :param dedicate_host_id
-            The parameter to specify the dedicate host id.
+        :param dedicate_host_id:
+            This parameter is obsolete.
         :type dedicate_host_id: string
 
-        :param auto_renew_time_unit
-            The parameter to specify the unit of the auto renew time.
-            The auto renew time unit can be "month" or "year".
-            The default value is "month".
+        :param auto_renew_time_unit:
+            This parameter is obsolete.
         :type auto_renew_time_unit: string
 
-        :param auto_renew_time
-            The parameter to specify the auto renew time, the default value is 0.
+        :param auto_renew_time:
+            This parameter is obsolete.
         :type auto_renew_time: string
 
-        :param tags
+        :param tags:
             The optional list of tag to be bonded.
         :type tags: list<bcc_model.TagModel>
 
-        :param deploy_id
-            The parameter to specify the id of the deploymentSet.
+        :param deploy_id:
+            This parameter is obsolete.
         :type deploy_id: string
 
-        :param bid_model
+        :param bid_model:
             The parameter to specify the bidding model.
             The bidding model can be "market" or "custom".
         :type bid_model: string
 
-        :param bid_price
+        :param bid_price:
             The parameter to specify the bidding price.
             When the bid_model is "custom", it works.
         :type bid_price: string
 
-        :param key_pair_id
+        :param key_pair_id:
             The parameter to specify id of the keypair.
         :type key_pair_id: string
 
-        :param asp_id
+        :param asp_id:
             The parameter to specify id of the asp.
         :type asp_id: string
 
-        :param request_token
+        :param request_token:
             The parameter to specify the request token which will make the request idempotent.
         :type request_token: string
 
-        :param internet_charge_type
+        :param internet_charge_type:
             The parameter to specify the internet charge type.
             See more detail on
             https://cloud.baidu.com/doc/BCC/API.html#InternetChargeType
         :type internet_charge_type: string
 
-        :param internal_ips
-            The parameter to specify the internal ips.
+        :param internal_ips:
+            This parameter is obsolete.
         :type internal_ips: list<string>
 
-        :param cds_auto_renew
-            The parameter to specify whether the cds is auto renew or not.
-            The default value is false.
+        :param cds_auto_renew:
+            This parameter is obsolete.
         :type cds_auto_renew: boolean
 
-        :param spec
+        :param spec:
             The parameter to specify Specification to create the instance.
         :type spec: string
 
-        :param user_data
+        :param user_data:
             The parameter to specify instance custom data.
-        :type spec: string
+        :type user_data string
 
         :param hostname:
-        :type spec: string
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
+        :type hostname: string
 
         :param auto_seq_suffix:
-        :type spec: boolean
+            The parameter to specify whether name and hostname order suffixes are automatically generated.
+        :type auto_seq_suffix: boolean
 
         :param is_open_hostname_domain:
-        :type spec: boolean
+            The parameter to specify whether hostname domain is automatically generated
+        :type is_open_hostname_domain: boolean
 
         :param spec_id:
-        :type spec: string
+            Identify of the spec.
+        :type spec_id: string
 
         :param relation_tag:
-        :type spec: boolean
+            The parameter to specify whether the instance related to existing tags
+        :type relation_tag: boolean
 
         :param is_open_ipv6:
-        :type spec: boolean
+            The parameter indicates whether the instance to be created is enabled for IPv6.
+            It can only be enabled when both the image and subnet support IPv6.
+            True indicates enabled, false indicates disabled,
+            and no transmission indicates automatic adaptation of the image and subnet's IPv6 support
+        :type is_open_ipv6: boolean
 
         :param deletion_protection:
-        :type spec: int
+            The status of instance deletion protection. 1:enable, 0:disable.
+        :type deletion_protection: int
 
         :param eip_name:
+            eip name
         :type eip_name: string
 
         :param isomerismCard:
+            This parameter is obsolete. Use parameter isomerism_card instead.
         :type isomerismCard: string
+
+        :param isomerism_card:
+            The parameter to specify the card type for creating GPU/FPGA instance.
+        :type isomerism_card: string
 
         :param enterprise_security_group_id:
         :type enterprise_security_group_id: string
@@ -892,6 +941,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :type enterprise_security_group_ids: list<string>
 
         :param file_systems:
+            This parameter is obsolete.
         :type file_systems: list<bcc_model.FileSystemModel>
 
         :return:
@@ -905,6 +955,10 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         if billing is None:
             billing = default_billing_to_purchase_created
+        if card_count == 1 and cardCount > 1:
+            card_count = cardCount
+        if isomerism_card is None:
+            isomerism_card = isomerismCard
         body = {
             'cpuCount': cpu_count,
             'memoryCapacityInGB': memory_capacity_in_gb,
@@ -929,8 +983,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['eipName'] = eip_name
         if enterprise_security_group_id is not None:
             body['enterpriseSecurityGroupId'] = enterprise_security_group_id
-        if isomerismCard is not None:
-            body['isomerismCard'] = isomerismCard
+        if isomerism_card is not None:
+            body['isomerismCard'] = isomerism_card
         if file_systems is not None:
             file_system_list = [file_system.__dict__ for file_system in file_systems]
             body['fileSystems'] = file_system_list
@@ -941,7 +995,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if root_disk_storage_type is not None:
             body['rootDiskStorageType'] = root_disk_storage_type
         if create_cds_list is not None:
-            body['createCdsList'] = create_cds_list
+            body['createCdsList'] = [create_cds.__dict__ for create_cds in create_cds_list]
         if network_capacity_in_mbps != 0:
             body['networkCapacityInMbps'] = network_capacity_in_mbps
         if purchase_count > 0:
@@ -964,10 +1018,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if fpgaCard is not None:
             body['fpgaCard'] = fpgaCard
-            body['cardCount'] = cardCount if cardCount > 1 else 1
+            body['cardCount'] = card_count if card_count > 1 else 1
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
@@ -975,7 +1029,7 @@ class BccClient(bce_base_client.BceBaseClient):
         else:
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if ephemeral_disks is not None:
-            body['ephemeralDisks'] = ephemeral_disks
+            body['ephemeralDisks'] = [ephemeral_disk.__dict__ for ephemeral_disk in ephemeral_disks]
         if dedicate_host_id is not None:
             body['dedicatedHostId'] = dedicate_host_id
         if deploy_id is not None:
@@ -1726,7 +1780,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                     description=None, renew_time_unit=None, renew_time=None,
                                     cluster_id=None, relation_tag=False,
                                     tags=None, auto_snapshot_policy=None,
-                                    client_token=None, config=None):
+                                    client_token=None, config=None, charge_type=None):
         """
         Create a volume with the specified options.
         You can use this method to create a new empty volume by specified options
@@ -1741,7 +1795,7 @@ class BccClient(bce_base_client.BceBaseClient):
         :type cds_size_in_gb: int
 
         :param billing:
-            Billing information.
+            Billing information.Deprecated
         :type billing: bcc_model.Billing
 
         :param purchase_count:
@@ -1800,6 +1854,17 @@ class BccClient(bce_base_client.BceBaseClient):
         :param auto_snapshot_policy:
             The optional auto snapshot policy to be bonded.
         :type auto_snapshot_policy: bcc_model.AutoSnapshotPolicyModel
+
+        :param charge_type:
+            The optional parameter to specify the payment for the volume.
+            The billing type and payment method, including Prepaid and Postpaid,
+            need to be specified only when the instanceId is not empty and the corresponding instance type is prepaid.
+            If instanceId is empty:
+               create a post payment type CDS;
+            If the instanceId is not empty:
+              If the instance is prepaid, a chargeType needs to be specified;
+              If the instance is post paid, create a post paid CDS
+        :type charge_type: menu{'Prepaid', 'Postpaid'}
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -1843,6 +1908,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['encryptKey'] = encrypt_key
         if instance_id is not None:
             body['instanceId'] = instance_id
+        if charge_type is not None:
+            body['chargeType'] = charge_type
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -1853,7 +1920,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                        description=None, renew_time_unit=None, renew_time=None,
                                        cluster_id=None, relation_tag=False,
                                        tags=None, auto_snapshot_policy=None,
-                                       config=None):
+                                       config=None, charge_type=None):
         """
         Create a volume with the specified options.
         You can use this method to create a new empty volume by specified options
@@ -1861,14 +1928,14 @@ class BccClient(bce_base_client.BceBaseClient):
         By using the cdsSizeInGB parameter you can create a newly empty volume.
         By using snapshotId parameter to create a volume form specific snapshot.
 
-        :param snapshot_id:
+        :param snapshot_id:xx
             The id of snapshot.
             By specifying the snapshotId,
             it will create volume from the specified snapshot and the parameter cdsSizeInGB will be ignored.
         :type snapshot_id: string
 
         :param billing:
-            Billing information.
+            Billing information.Deprecated
         :type billing: bcc_model.Billing
 
         :param purchase_count:
@@ -1928,6 +1995,17 @@ class BccClient(bce_base_client.BceBaseClient):
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param charge_type:
+            The optional parameter to specify the payment for the volume.
+            The billing type and payment method, including Prepaid and Postpaid,
+            need to be specified only when the instanceId is not empty and the corresponding instance type is prepaid.
+            If instanceId is empty:
+               create a post payment type CDS;
+            If the instanceId is not empty:
+              If the instance is prepaid, a chargeType needs to be specified;
+              If the instance is post paid, create a post paid CDS
+        :type charge_type: menu{'Prepaid', 'Postpaid'}
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1970,6 +2048,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['encryptKey'] = encrypt_key
         if instance_id is not None:
             body['instanceId'] = instance_id
+        if charge_type is not None:
+            body['chargeType'] = charge_type
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -2302,10 +2382,14 @@ class BccClient(bce_base_client.BceBaseClient):
                                   billing=None,
                                   config=None):
         """
-        :param volume_id:
-        :param billing:
+        :param volume_id: volume id
+        :type volume_id: string
+        :param billing: payment information
+        :type billing: bcc_model.Billing
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         volume_id = compat.convert_to_bytes(volume_id)
         path = b'/volume/%s' % volume_id
@@ -2571,13 +2655,21 @@ class BccClient(bce_base_client.BceBaseClient):
                     image_id,
                     account=None,
                     account_id=None,
+                    ucaccount=None,
                     config=None):
         """
-        :param image_id:
-        :param account:
-        :param account_id:
+        :param image_id: image id
+        :type image_id: string
+        :param account: share image to target account
+        :type account: string
+        :param account_id: share image to target account_id
+        :type account_id: string
+        :param ucaccount: share image to target ucaccount
+        :type ucaccount: string
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
@@ -2587,6 +2679,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['account'] = account
         if account_id is not None:
             body['accountId'] = account_id
+        if ucaccount is not None:
+            body['ucAccount'] = ucaccount
 
         params = {
             'share': None
@@ -2599,13 +2693,21 @@ class BccClient(bce_base_client.BceBaseClient):
                       image_id,
                       account=None,
                       account_id=None,
+                      ucaccount=None,
                       config=None):
         """
-        :param image_id:
-        :param account:
-        :param account_id:
+        :param image_id: image id
+        :type image_id: string
+        :param account: unshare image with target account
+        :type account: string
+        :param account_id: unshare image with target account_id
+        :type account_id: string
+        :param ucaccount: unshare image with target ucaccount
+        :type ucaccount: string
         :param config:
+
         :return:
+        :rtype baidubce.bce_response.BceResponse
         """
         image_id = compat.convert_to_bytes(image_id)
         path = b'/image/%s' % image_id
@@ -2615,6 +2717,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['account'] = account
         if account_id is not None:
             body['accountId'] = account_id
+        if ucaccount is not None:
+            body['ucAccount'] = ucaccount
 
         params = {
             'unshare': None
@@ -3000,6 +3104,78 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
+
+    def update_security_group_rule(self, security_group_rule_id,
+                                   remark=None,
+                                   direction=None,
+                                   protocol=None,
+                                   portrange=None,
+                                   source_ip=None,
+                                   sourcegroup_id=None,
+                                   dest_ip=None,
+                                   destgroup_id=None,
+                                   config=None):
+        """
+            uodate a security group rule from the specified security group
+            :param security_group_rule_id:
+                security group rule id.
+            :param: remark:
+                The remark for the rule.
+            :param: portrange:
+                The port range to specify the port which the rule will work on.
+                Available range is rang [0, 65535], the fault value is "" for all port.
+            :param: protocol:
+                The parameter specify which protocol will the rule work on, the fault value is "" for all protocol.
+                Available protocol are tcp, udp and icmp.
+            :param: source_ip:
+                The source ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
+                other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
+                Only works for  direction = "ingress".
+            :param: sourcegroup_id:
+                The source security group id. Cannot coexist with sourceIP.
+            :param: dest_ip:
+                The destination ip range with CIDR formats. The default value 0.0.0.0/0 (allow all ip address),
+                other supported formats such as {ip_addr}/12 or {ip_addr}. Only supports IPV4.
+                Only works for  direction = "egress".
+            :param: destgroup_id:
+                The destination security group id. Cannot coexist with destIP.
+            :param: priority:
+                The parameter specify the priority of the rule(range 1-1000).
+            :param config:
+                :type config: baidubce.BceClientConfiguration
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/securityGroup/rule/update'
+        body = {
+            'securityGroupRuleId': security_group_rule_id,
+            'remark': remark,
+            'direction': direction,
+            'protocol': protocol,
+            'portRange': portrange,
+            'sourceIp': source_ip,
+            'sourceGroupId': sourcegroup_id,
+            'destIp': dest_ip,
+            'destGroupId': destgroup_id
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=None, config=config)
+
+    @required(security_group_rule_id=(bytes, str))  # ***Unicode***
+    def delete_security_group_rule(self, security_group_rule_id, config=None):
+        """
+            delete a security group rule from the specified security group
+            :param security_group_rule_id:
+                The id of SecurityGroupRule that will be deleted.
+            :type security_group_id: string
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        security_group_rule_id = compat.convert_to_bytes(security_group_rule_id)
+        path = b'/securityGroup/rule/%s' % security_group_rule_id
+        return self._send_request(http_methods.DELETE, path, params=None, config=config)
 
     def list_zones(self, config=None):
         """
@@ -3598,6 +3774,10 @@ class BccClient(bce_base_client.BceBaseClient):
             If it's specified to 0, it will get the internal ip address only.
         :type network_capacity_in_mbps: int
 
+        :param eip_name:
+            eip name
+        :type eip_name: string
+
         :param purchase_count:
             The number of instance to buy, the default value is 1.
         :type purchase_count: int
@@ -3605,6 +3785,29 @@ class BccClient(bce_base_client.BceBaseClient):
         :param name:
             The optional parameter to desc the instance that will be created.
         :type name: string
+
+        :param hostname:
+            The optional parameter to specify the host name of the instance virtual machine.
+            By default, hostname is not specified.
+            If hostname is specified: hostname is used as the prefix of the name in batches.
+            The backend will add a suffix, and the suffix generation method is: name{-serial number}.
+            If name is not specified, it will be automatically generated using the following method:
+            {instance-eight-digit random string-serial number}.
+            Note: The random string is generated from the characters 0-9 and a-z;
+            the serial number increases sequentially according to the magnitude of count.
+            If count is 100, the serial number increases from 000~100, and if it is 10, it increases from 00~10.
+            Only lowercase letters, numbers and - . special characters are supported.
+            They must start with a letter. Special symbols cannot be used continuously.
+            Special symbols are not supported at the beginning or end. The length is 2-64.
+        :type hostname: string
+
+        :param auto_seq_suffix:
+            The parameter to specify whether name and hostname order suffixes are automatically generated.
+        :type auto_seq_suffix: boolean
+
+        :param is_open_hostname_domain:
+            The parameter to specify whether hostname domain is automatically generated
+        :type is_open_hostname_domain: boolean
 
         :param admin_pass:
             The optional parameter to specify the password for the instance.
@@ -3645,6 +3848,21 @@ class BccClient(bce_base_client.BceBaseClient):
         :param enterprise_security_group_ids:
             enterprise_security_group_ids
         :type enterprise_security_group_ids: list<string>
+
+        :param relation_tag:
+            The parameter to specify whether the instance related to existing tags
+        :type relation_tag: boolean
+
+        :param is_open_ipv6:
+            The parameter indicates whether the instance to be created is enabled for IPv6.
+            It can only be enabled when both the image and subnet support IPv6.
+            True indicates enabled, false indicates disabled,
+            and no transmission indicates automatic adaptation of the image and subnet's IPv6 support
+        :type is_open_ipv6: boolean
+
+        :param deploy_id_list:
+            This parameter is the list of deployment set IDs where the specified instance is located.
+        :type deploy_id_list: list<string>
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -3900,6 +4118,55 @@ class BccClient(bce_base_client.BceBaseClient):
             body['deleteRelatedEnisFlag'] = delete_related_enis_flag
         if bcc_recycle_flag is not None:
             body['bccRecycleFlag'] = bcc_recycle_flag
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    @required(instance_id=(bytes, str))  # ***Unicode***
+    def release_prepaid_instance_with_related_resources(self, instance_id, related_release_flag=None,
+                                                        delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
+                                                        client_token=None, config=None):
+        """
+        Releasing the instance owned by the user.
+        Only the Prepaid instance and the instance has not expired can be released.
+        After releasing the instance,
+        all of the data will be deleted.
+        all of volumes attached will be auto detached, but the volume snapshots will be saved.
+        all of snapshots created from original instance system disk will be deleted,
+        all of customized images created from original instance system disk will be reserved.
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param related_release_flag:
+            Release or not related resources.
+        :type related_release_flag: bool
+
+        :param delete_cds_snapshot_flag:
+            Delete or not cds snapshot.
+        :type delete_cds_snapshot_flag: bool
+
+        :param delete_related_enis_flag:
+            Delete or not related enis.
+        :type delete_related_enis_flag: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/delete'
+        body = {}
+        body['instanceId'] = instance_id
+        if related_release_flag is not None:
+            body['relatedReleaseFlag'] = related_release_flag
+        if delete_cds_snapshot_flag is not None:
+            body['deleteCdsSnapshotFlag'] = delete_cds_snapshot_flag
+        if delete_related_enis_flag is not None:
+            body['deleteRelatedEnisFlag'] = delete_related_enis_flag
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     @required(instance_id=(bytes, str))  # ***Unicode***
@@ -4253,7 +4520,8 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 
     @required(volume_id=(bytes, str))  # ***Unicode***
-    def release_volume_new(self, volume_id, auto_snapshot=None, manual_snapshot=None, client_token=None, config=None):
+    def release_volume_new(self, volume_id, auto_snapshot=None, manual_snapshot=None,
+                           recycle=None, client_token=None, config=None):
         """
         Releasing the specified volume owned by the user.
         You can release the specified volume only
@@ -4272,6 +4540,10 @@ class BccClient(bce_base_client.BceBaseClient):
             Snapshot volume manually. value: 'on'/'off'. Default value: 'off'.
         :type manual_snapshot: string
 
+        :param recycle:
+            where recycle volume or not, value: 'on'/'off'. Default value: 'on'.
+        :type recycle: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4287,6 +4559,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['autoSnapshot'] = auto_snapshot
         if manual_snapshot is not None:
             body['manualSnapshot'] = manual_snapshot
+        if recycle is not None:
+            body['recycle'] = recycle
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
@@ -4896,9 +5170,12 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = client_token
         body = {
             "imageId": image_id,
-            "adminPass": admin_pass,
             "instanceIds": instance_ids
         }
+        if admin_pass is not None:
+            secret_access_key = self.config.credentials.secret_access_key
+            cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
+            body['adminPass'] = cipher_admin_pass
         if keypair_id is not None:
             body['keypairId'] = keypair_id
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
@@ -5682,7 +5959,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         :param dest_region_infos:
             information of destination region
-        :type dest_region_infos: string
+        :type dest_region_infos: list of bcc_model.DestRegionInfoModel
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5699,7 +5976,7 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def create_deploy_set(self, name=None, strategy=None, desc=None, client_token=None, config=None):
+    def create_deploy_set(self, name=None, strategy=None, desc=None, concurrency=None, client_token=None, config=None):
         """
         create_deploy_set
 
@@ -5714,6 +5991,11 @@ class BccClient(bce_base_client.BceBaseClient):
         :param desc:
             description of deploy set
         :type desc: string
+
+        :param concurrency:
+            mark how many instances can created in one location
+            location means host for HOST_HA, rack for RACK_HA, tor for TOR_HA
+        :type concurrency: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5731,6 +6013,9 @@ class BccClient(bce_base_client.BceBaseClient):
             body['strategy'] = strategy
         if desc is not None:
             body['desc'] = desc
+        if concurrency is not None:
+            body['concurrency'] = concurrency
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def list_deploy_sets(self, client_token=None, config=None):
