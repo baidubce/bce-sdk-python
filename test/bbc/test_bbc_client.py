@@ -277,6 +277,33 @@ class TestBbcClient(unittest.TestCase):
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
+    def test_bind_reserved_instance_to_tags(self):
+
+        reserved_instance_ids = ['r-Aev4dfQV']
+        instance_tag1 = bbc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bbc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.bind_reserved_instance_to_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_reserved_instance_from_tags(self):
+
+        reserved_instance_ids = ['r-Aev4dfQV']
+        instance_tag1 = bbc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bbc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.unbind_reserved_instance_from_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
 
 
     def test_list_flavors(self):
