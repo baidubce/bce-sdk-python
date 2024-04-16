@@ -694,7 +694,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
                                enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
                                enterprise_security_group_ids=None, isomerismCard=None, file_systems=None,
-                               card_count=1, isomerism_card=None):
+                               card_count=1, isomerism_card=None, is_eip_auto_related_delete=False):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -945,6 +945,10 @@ class BccClient(bce_base_client.BceBaseClient):
             This parameter is obsolete.
         :type file_systems: list<bcc_model.FileSystemModel>
 
+        :param is_eip_auto_related_delete:
+            The parameter to specify whether to delete the relevant EIP after the bidding instance is automatically deleted.
+        :type is_eip_auto_related_delete: boolean
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1059,6 +1063,7 @@ class BccClient(bce_base_client.BceBaseClient):
             body['userData'] = user_data
         if res_group_id is not None:
             body['resGroupId'] = res_group_id
+        body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete 
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
@@ -4658,6 +4663,34 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/instance/%s/deletionProtection' % instance_id
         body = {
             "deletionProtection": deletion_protection
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
+
+    @required(instance_id=(bytes, str), is_eip_auto_related_delete=bool)
+    def modify_related_delete_policy(self, instance_id, is_eip_auto_related_delete, client_token=None, config=None): 
+        """
+        Set bid instance eip_auto_related_delete.
+
+        :param instance_id
+            The id of instance.
+        :type instance_id: string
+
+        :param is_eip_auto_related_delete
+            Enables the deletion of the related EIP of bid instance when the instance is being deleted.
+        :type is_eip_auto_related_delete: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        instance_id = instance_id.encode(encoding='utf-8')
+        path = b'/instance/%s/modifyRelatedDeletePolicy' % instance_id
+        body = {
+            "isEipAutoRelatedDelete": is_eip_auto_related_delete
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 

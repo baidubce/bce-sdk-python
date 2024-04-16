@@ -1268,6 +1268,25 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_modify_related_delete_policy(self):
+        """
+        test case for modify_related_delete_policy
+        """
+        resp = self.client.modify_related_delete_policy("i-ZMRzyU8f", True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+        res = self.client.get_instance("i-ZMRzyU8f")
+        print(res)
+        self.assertEqual(res.instance.is_eip_auto_related_delete, True)
+        self.client.modify_related_delete_policy("i-ZMRzyU8f", False)
+        res = self.client.get_instance("i-ZMRzyU8f")
+        self.assertEqual(res.instance.is_eip_auto_related_delete, False)
+
     def test_release_volume_new(self):
         """
         test case for release_volume_new
