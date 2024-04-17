@@ -1066,7 +1066,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
                        zone_name=None, instance_ids=None, instance_names=None, cds_ids=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
-                       vpc_id=None, private_ips=None, auto_renew=None, config=None):
+                       vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, config=None):
         """
         Return a list of instances owned by the authenticated user.
 
@@ -1136,6 +1136,11 @@ class BccClient(bce_base_client.BceBaseClient):
             vpc_id
         :type private_ips: string
 
+        :param ipv6_addresses:
+            filter instance list with multiple ipv6 private ips join by ',', the parameter should be used with
+            vpc_id
+        :type ipv6_addresses: string
+
         :param auto_renew:
         :type auto_renew: boolean
 
@@ -1175,6 +1180,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['vpcId'] = vpc_id
         if private_ips is not None:
             params['privateIps'] = private_ips
+        if ipv6_addresses is not None:
+            params['ipv6Addresses'] = ipv6_addresses
         if auto_renew is not None:
             params['autoRenew'] = auto_renew
         return self._send_request(http_methods.GET, path, params=params, config=config)

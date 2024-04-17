@@ -313,6 +313,14 @@ class TestBccClient(unittest.TestCase):
         #     auto_renew=True
         # ))
 
+    def test_list_instances_by_ipv6(self):
+        """
+        test case for list_instances
+        """
+        resp = self.client.list_instances(vpc_id="vpc-nvdxt9jmp9ns", ipv6_addresses="2400:da00:e003:0:28b:4400:0:4")
+        print(resp.instances)
+        self.assertEqual(len(resp.instances), 1)
+
     def test_get_instance(self):
         """
         test case for get_instance
@@ -2020,7 +2028,7 @@ if __name__ == '__main__':
     """
     Caesar Test
     """
-    suite.addTest(TestBccClient("test_stop_instance"))
+    # suite.addTest(TestBccClient("test_stop_instance"))
     # suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
     # suite.addTest(TestBccClient("test_start_instance"))
     # suite.addTest(TestBccClient("test_create_instance"))
@@ -2135,7 +2143,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_del_instance_deploy"))
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
     # suite.addTest(TestBccClient("test_get_available_images_by_spec"))
-    suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
+    # suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
+    suite.addTest(TestBccClient("test_list_instances_by_ipv6"))
 
     # 0.8.91 New Testcases
     # suite.addTest(TestBccClient("test_update_security_group_rule"))
