@@ -313,6 +313,14 @@ class TestBccClient(unittest.TestCase):
         #     auto_renew=True
         # ))
 
+    def test_list_instances_by_ipv6(self):
+        """
+        test case for list_instances
+        """
+        resp = self.client.list_instances(vpc_id="vpc-nvdxt9jmp9ns", ipv6_addresses="2400:da00:e003:0:28b:4400:0:4")
+        print(resp.instances)
+        self.assertEqual(len(resp.instances), 1)
+
     def test_get_instance(self):
         """
         test case for get_instance
@@ -820,6 +828,52 @@ class TestBccClient(unittest.TestCase):
             type(self.client.bind_instance_to_tags(instance_id=instance_id,
                                                    tags=instance_tag_list)),
             baidubce.bce_response.BceResponse)
+
+    def test_bind_reserved_instance_to_tags(self):
+
+        reserved_instance_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.bind_reserved_instance_to_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
+
+    def test_unbind_reserved_instance_from_tags(self):
+
+        reserved_instance_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+
+        self.assertEqual(
+            type(self.client.unbind_reserved_instance_from_tags(reserved_instance_ids=reserved_instance_ids,
+                                                            tags=instance_tags)),
+            baidubce.bce_response.BceResponse)
+
+    def test_bind_tags_batch_by_resource_type(self):
+        resource_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+        self.client.bind_tags_batch_by_resource_type("bccri", resource_ids, instance_tags, False)
+
+    def test_unbind_tags_batch_by_resource_type(self):
+        resource_ids = ['r-Qyycx1SX']
+        instance_tag1 = bcc_model.TagModel(tagKey='TestKey02',
+                                           tagValue='TestValue02')
+        instance_tag2 = bcc_model.TagModel(tagKey='TestKey03',
+                                           tagValue='TestValue03')
+        instance_tags = [instance_tag1, instance_tag2]
+        self.client.unbind_tags_batch_by_resource_type("bccri", resource_ids, instance_tags, False)
 
     def test_unbind_instance_from_tags(self):
         instance_tag = bcc_model.TagModel(tagKey='TestKey',
@@ -1974,7 +2028,7 @@ if __name__ == '__main__':
     """
     Caesar Test
     """
-    suite.addTest(TestBccClient("test_stop_instance"))
+    # suite.addTest(TestBccClient("test_stop_instance"))
     # suite.addTest(TestBccClient("test_batch_add_bcc_ip"))
     # suite.addTest(TestBccClient("test_start_instance"))
     # suite.addTest(TestBccClient("test_create_instance"))
@@ -2089,7 +2143,8 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_del_instance_deploy"))
     # suite.addTest(TestBccClient("test_rebuild_instance_with_keypair_id"))
     # suite.addTest(TestBccClient("test_get_available_images_by_spec"))
-    suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
+    # suite.addTest(TestBccClient("test_delete_prepaid_instance_with_related_resources"))
+    suite.addTest(TestBccClient("test_list_instances_by_ipv6"))
 
     # 0.8.91 New Testcases
     # suite.addTest(TestBccClient("test_update_security_group_rule"))
