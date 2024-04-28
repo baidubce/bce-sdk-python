@@ -5873,7 +5873,7 @@ class BcmClient(bce_base_client.BceBaseClient):
 
 
     def get_metric_dimension_top(self, user_id, scope, region, dimensions, metric_name, statistics, labels,
-                                      start_time, end_time, order="top", topNum=10):
+                                 start_time, end_time, order="top", topNum=10):
 
         """
         :param user_id: user_id
