@@ -5872,3 +5872,79 @@ class BcmClient(bce_base_client.BceBaseClient):
         return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
 
 
+    def get_metric_dimension_top(self, user_id, scope, region, dimensions, metric_name, statistics, labels,
+                                      start_time, end_time, order="top", topNum=10):
+
+        """
+        :param user_id: user_id
+        :type string
+
+        :param scope: scope
+        :type string
+
+        :param region: region
+        :type string
+
+        :param dimensions: dimensions
+        :type map
+
+        :param metric_name: metric_name
+        :type string
+
+        :param statistics: statistics
+        :type string
+
+        :param labels: labels
+        :type set
+
+        :param start_time: start_time
+        :type string
+
+        :param end_time: end_time
+        :type string
+
+        :param order: order default top
+        :type string
+
+        :param topNum: topNum default 10
+        :type int
+
+        :return:
+        """
+        if len(user_id) <= 0:
+            raise ValueError("user_id should not be null")
+        if len(scope) <= 0:
+            raise ValueError("scope should not be null")
+        if len(region) <= 0:
+            raise ValueError("region should not be null")
+        if len(metric_name) <= 0:
+            raise ValueError("metric_name should not be null")
+        if len(dimensions) <= 0:
+            raise ValueError("dimensions should not be null")
+        if len(labels) <= 0:
+            raise ValueError("lables should not be null")
+        if len(statistics) <= 0:
+            raise ValueError("statistics should not be null")
+        if len(start_time) <= 0:
+            raise ValueError("start_time should not be null")
+        if len(end_time) <= 0:
+            raise ValueError("end_time should not be null")
+
+        body = {
+            "userId": user_id,
+            "scope": scope,
+            "region": region,
+            "startTime": start_time,
+            "endTime": end_time,
+            "metricName": metric_name,
+            "dimensions": dimensions,
+            "statistics": statistics,
+            "labels": labels,
+            "order": order,
+            "topNum": topNum,
+        }
+
+        path = b'/dimensions/top'
+        return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
+
+

@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -2117,10 +2118,26 @@ class TestBcmClient(unittest.TestCase):
                                                         end_time="2024-03-21T07:33:50Z")
         print(res)
 
+    def test_get_metric_dimension_top(self):
+        """
+        get metric dimension top
+        """
+        res = self.client.get_metric_dimension_top(user_id="453bf9********************9090dc",
+                                                   scope="BCE_PFS", region="bj",
+                                                   dimensions= {"InstanceId": "pfs-1*****7"},
+                                                   metric_name="WriteIO",
+                                                   statistics="average",
+                                                   labels=[
+                                                       "FilesetId"
+                                                   ],
+                                                   start_time="2024-03-21T06:33:50Z",
+                                                   end_time="2024-03-21T07:33:50Z")
+        print(res)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 
-    # suite.addTest(TestBcmClient("test_get_all_data_metrics_v2"))
+    # suite.addTest(TestBcmClient("test_get_metric_dimension_top"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
