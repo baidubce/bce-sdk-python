@@ -50,6 +50,7 @@ class BccClient(bce_base_client.BceBaseClient):
     """
 
     prefix = b'/v2'
+    prefix_v3 = b'/v3'
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -1065,7 +1066,7 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
                        zone_name=None, instance_ids=None, instance_names=None, cds_ids=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
-                       vpc_id=None, private_ips=None, auto_renew=None, config=None):
+                       vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, config=None):
         """
         Return a list of instances owned by the authenticated user.
 
@@ -1135,6 +1136,11 @@ class BccClient(bce_base_client.BceBaseClient):
             vpc_id
         :type private_ips: string
 
+        :param ipv6_addresses:
+            filter instance list with multiple ipv6 private ips join by ',', the parameter should be used with
+            vpc_id
+        :type ipv6_addresses: string
+
         :param auto_renew:
         :type auto_renew: boolean
 
@@ -1174,6 +1180,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['vpcId'] = vpc_id
         if private_ips is not None:
             params['privateIps'] = private_ips
+        if ipv6_addresses is not None:
+            params['ipv6Addresses'] = ipv6_addresses
         if auto_renew is not None:
             params['autoRenew'] = auto_renew
         return self._send_request(http_methods.GET, path, params=params, config=config)
@@ -1639,6 +1647,94 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
+
+    @required(reserved_instance_ids=list,
+              tags=list)
+    def bind_reserved_instance_to_tags(self, reserved_instance_ids, tags, config=None):
+        """
+        :param reserved_instance_ids:
+        :param tags:
+        :param config:
+        :return:
+        """
+        path = b'/bcc/reserved/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list,
+            'reservedInstanceIds': reserved_instance_ids
+        }
+        params = {
+            'bind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(reserved_instance_ids=list,
+              tags=list)
+    def unbind_reserved_instance_from_tags(self, reserved_instance_ids, tags, config=None):
+        """
+        :param reserved_instance_ids:
+        :param tags:
+        :param config:
+        :return:
+        """
+        path = b'/bcc/reserved/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list,
+            'reservedInstanceIds': reserved_instance_ids
+        }
+        params = {
+            'unbind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def bind_tags_batch_by_resource_type(self, resource_type, resource_ids, tags, is_relation_tag, config=None):
+        """
+        :param resource_type:
+        :param resource_ids:
+        :param tags:
+        :param is_relation_tag:
+        :param config:
+        :return:
+        """
+        path = b'/bcc/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'resourceType': resource_type,
+            'resourceIds': resource_ids,
+            'tags': tag_list,
+            'isRelationTag': is_relation_tag
+        }
+        params = {
+            'action': 'AttachTags'
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config, prefix=self.prefix_v3)
+
+    def unbind_tags_batch_by_resource_type(self, resource_type, resource_ids, tags, is_relation_tag, config=None):
+        """
+        :param resource_type:
+        :param resource_ids:
+        :param tags:
+        :param is_relation_tag:
+        :param config:
+        :return:
+        """
+        path = b'/bcc/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'resourceType': resource_type,
+            'resourceIds': resource_ids,
+            'tags': tag_list,
+            'isRelationTag': is_relation_tag
+        }
+        params = {
+            'action': 'DetachTags'
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config, prefix=self.prefix_v3)
 
     @required(instance_id=(bytes, str),
               tags=list)
