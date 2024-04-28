@@ -2503,3 +2503,22 @@ if __name__ == '__main__':
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    try:
+        res = bcm_client.get_metric_dimension_top(user_id="453bf9********************9090dc",
+                                                  scope="BCE_PFS", region="bj",
+                                                  dimensions= {"InstanceId": "pfs-1*****7"},
+                                                  metric_name="WriteIO",
+                                                  statistics="average",
+                                                  labels=[
+                                                      "FilesetId"
+                                                  ],
+                                                  start_time="2024-03-21T06:33:50Z",
+                                                  end_time="2024-03-21T07:33:50Z")
+        print(res)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
