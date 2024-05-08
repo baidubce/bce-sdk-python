@@ -1158,6 +1158,7 @@ class TestBccClient(unittest.TestCase):
                                                    image_id,
                                                    name=instance_name,
                                                    admin_pass=admin_pass,
+                                                   enable_jumbo_frame=False,
                                                    client_token=client_token)
         self.assertEqual(
             type(resp),
@@ -1380,6 +1381,19 @@ class TestBccClient(unittest.TestCase):
         tags.append(tag1)
         tags.append(tag2)
         resp = self.client.untag_volume("v-0RMyIJRq", relation_tag=True, tags=tags)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_instance_attributes_for_jumbo_frame(self):
+        """
+        test case for modify_instance_attributes_for_jumbo_frame
+        """
+        resp = self.client.modify_instance_attributes("i-XS7Db00e", enable_jumbo_frame=True)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
