@@ -1306,13 +1306,28 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     @required(instance_id=str)
-    def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None, config=None):
+    def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None,
+                     allocate_multi_ipv6_addr=None, config=None):
         """
         batch_add_ip
+
         :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
         :param private_ips:
+            The IPV6/IPV4 address that needs to be added must exist with secondary_private_ip_address_count.
+        :type private_ips: list
+
         :param secondary_private_ip_address_count:
-        :param config:
+            The number of IPV6/IPV4 needs to be increased, and one with private_ips must exist.
+        :type secondary_private_ip_address_count: list
+
+        :param allocate_multi_ipv6_addr:
+            The parameter indicates whether to support multiple IPV6.
+            It must be true to create IPV6.
+        :type allocate_multi_ipv6_addr: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1324,6 +1339,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['privateIps'] = private_ips
         if secondary_private_ip_address_count is not None:
             body['secondaryPrivateIpAddressCount'] = secondary_private_ip_address_count
+        if allocate_multi_ipv6_addr is not None:
+            body['allocateMultiIpv6Addr'] = allocate_multi_ipv6_addr
         params = {
 
         }
@@ -1387,7 +1404,8 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               name=(bytes, str))  # ***Unicode***
-    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None, config=None):
+    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None,
+                                   enable_jumbo_frame=None, config=None):
         """
         Modifying the special attribute to new value of the instance.
         You can reboot the instance only when the instance is Running or Stopped ,
@@ -1405,6 +1423,13 @@ class BccClient(bce_base_client.BceBaseClient):
             The new value for instance's neteth_queuecount.
         :type neteth_queuecount: string
 
+        :param enable_jumbo_frame:
+            The parameter indicates whether the instance is enabled for JumboFrame.
+            It can only be enabled when the flavor support JumboFrame.
+            True indicates enabled, false indicates disabled,
+        :type enable_jumbo_frame: bool
+
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1414,6 +1439,8 @@ class BccClient(bce_base_client.BceBaseClient):
             'name': name,
             'netEthQueueCount': neteth_queuecount
         }
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
         params = {
             'modifyAttribute': None
         }
@@ -3866,7 +3893,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 enterprise_security_group_ids=None, relation_tag=None,
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
-                                dedicate_host_id=None, deploy_id=None, deploy_id_list=None,
+                                dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
                                 client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -4060,6 +4087,12 @@ class BccClient(bce_base_client.BceBaseClient):
             The default value is false.
         :type cds_auto_renew: boolean
 
+        :param enable_jumbo_frame:
+            The parameter indicates whether the instance is enabled for JumboFrame.
+            It can only be enabled when the flavor support JumboFrame.
+            True indicates enabled, false indicates disabled,
+        :type enable_jumbo_frame: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4143,6 +4176,8 @@ class BccClient(bce_base_client.BceBaseClient):
         if tags is not None:
             tag_list = [tag.__dict__ for tag in tags]
             body['tags'] = tag_list
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
         body['cdsAutoRenew'] = cds_auto_renew
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
