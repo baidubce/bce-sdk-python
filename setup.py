@@ -81,7 +81,10 @@ setup(
               'baidubce.services.ipv6gateway',
               'baidubce.services.et',
               'baidubce.services.csn',
-              'baidubce.services.havip'
+              'baidubce.services.havip',
+              'baidubce.services.esg',
+              'baidubce.services.probe',
+              'baidubce.services.etGateway'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
