@@ -18,7 +18,7 @@ from builtins import bytes
 from . import protocol
 
 
-SDK_VERSION = b'0.9.09'
+SDK_VERSION = b'0.9.10'
 DEFAULT_SERVICE_DOMAIN = b'bcebos.com'
 URL_PREFIX = b'/v1'
 DEFAULT_ENCODING = 'UTF-8'
