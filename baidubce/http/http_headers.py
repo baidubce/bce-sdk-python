@@ -113,3 +113,5 @@ BOS_TRAFFIC_LIMIT = b"x-bce-traffic-limit"
 STS_SECURITY_TOKEN = b"x-bce-security-token"
 
 BOS_TAGGING = b"x-bce-tagging"
+
+BOS_PROCESS = b"x-bce-process"

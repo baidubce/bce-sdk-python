@@ -2600,7 +2600,8 @@ class BosClient(BceBaseClient):
             user_headers_set = set([http_headers.CACHE_CONTROL,
                                     http_headers.CONTENT_ENCODING,
                                     http_headers.CONTENT_DISPOSITION,
-                                    http_headers.EXPIRES])
+                                    http_headers.EXPIRES,
+                                    http_headers.BOS_PROCESS])
         else:
             user_headers_set = set([http_headers.BCE_COPY_SOURCE_IF_NONE_MATCH,
                                     http_headers.BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE,
