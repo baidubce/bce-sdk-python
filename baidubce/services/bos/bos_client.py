@@ -2632,6 +2632,7 @@ class BosClient(BceBaseClient):
             utils.parse_host_port(config.endpoint, config.protocol)
         if config.cname_enabled or utils.is_cname_like_host(host_name) or utils.is_custom_host(host_name, bucket_name):
             return utils.append_uri(bos.URL_PREFIX, key)
+
         return utils.append_uri(bos.URL_PREFIX, bucket_name, key)
     
 
@@ -2656,12 +2657,7 @@ class BosClient(BceBaseClient):
             return config.endpoint
         
         if  config.path_style_enable:
-            # check path style
-            if is_bos_path_style_host:
-                return config.endpoint
-            else:
-                raise ValueError(
-                    'endpoint is not path style, please set path_style_enable=False')
+            return config.endpoint
         
         # 2. check cname domain
         if config.cname_enabled or utils.is_cname_like_host(user_host_name):
