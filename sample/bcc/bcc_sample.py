@@ -1638,3 +1638,15 @@ if __name__ == "__main__":
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_cds_price
+    try:
+        response = bcc_client.get_cds_price(purchase_length=1, payment_timing='Prepaid', storage_type='cloud_hp1', 
+                                            cds_size_in_gb=1000, purchase_count=1, zone_name='cn-bj-a')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
