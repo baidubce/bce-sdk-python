@@ -6400,4 +6400,29 @@ def generate_client_token_by_random():
     return client_token
 
 
+def get_cds_price(self, purchase_length, payment_timing, storage_type, cds_size_in_gb, purchase_count, zone_name,
+                  encrypt_key=None, client_token=None, config=None):
+    """
+    get_deploy_set
+    """
+    path = b'/volume/getPrice'
+    params = {}
+    if client_token is None:
+        params['clientToken'] = generate_client_token()
+    else:
+        params['clientToken'] = client_token
+    body = {
+        'purchaseLength': purchase_length,
+        'paymentTiming': payment_timing,
+        'storageType': storage_type,
+        'cdsSizeInGB': cds_size_in_gb,
+        'purchaseCount': purchase_count,
+        'zoneName': zone_name
+    }
+    if encrypt_key is not None:
+        body['encryptKey'] = encrypt_key
+    return self._send_request(http_methods.POST, path, json.dumps(body),
+                              params=params, config=config)
+
+
 generate_client_token = generate_client_token_by_uuid

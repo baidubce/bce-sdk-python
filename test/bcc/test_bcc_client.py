@@ -2010,6 +2010,13 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_get_cds_price(self):
+        """
+        test get cds price
+        """
+        print(self.client.get_cds_price(purchase_length=1, payment_timing='Prepaid', storage_type='cloud_hp1',
+                                        cds_size_in_gb=1000, purchase_count=1, zone_name='cn-bj-a'))
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
