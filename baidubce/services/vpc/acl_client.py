@@ -32,6 +32,7 @@ from baidubce.utils import required
 from baidubce import compat
 
 if sys.version < '3':
+    reload(sys)
     sys.setdefaultencoding('utf-8')
 
 _logger = logging.getLogger(__name__)
@@ -107,6 +108,10 @@ class AclClient(bce_base_client.BceBaseClient):
         :type rule_list: list
 
         AclRuleRequest{
+            :param subnetId:
+                The subnet id which the acl rule applied to
+            :type subnetId: string
+
             :param protocol:
                 The parameter specify which protocol will the acl rule work on
             :value: "all" or ""tcp" or "udp" or "icmp"

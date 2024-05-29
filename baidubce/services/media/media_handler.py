@@ -52,3 +52,23 @@ def parse_json(http_response, response):
         response.__dict__.update(json.loads(body, object_hook=dict_to_python_object).__dict__)
     http_response.close()
     return True
+
+
+def parse_secret_key_response(http_response, response):
+    """If the body is not empty, set body content as secretKey attribute of response
+
+    :param http_response: the http_response object returned by HTTPConnection.getresponse()
+    :type http_response: httplib.HTTPResponse
+
+    :param response: general response object which will be returned to the caller
+    :type response: baidubce.BceResponse
+
+    :return: always true
+    :rtype bool
+    """
+    body = http_response.read()
+    if body:
+        body = utils.compat.convert_to_string(body)
+        response.encryption_key = body
+    http_response.close()
+    return True

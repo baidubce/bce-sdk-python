@@ -68,10 +68,10 @@ class RouteClient(bce_base_client.BceBaseClient):
     @required(route_table_id=(bytes, str),
               source_address=(bytes, str),
               destination_address=(bytes, str),
-              next_hoop_type=(bytes, str),
               description=(bytes, str))
     def create_route(self, route_table_id, source_address, destination_address,
-                     next_hop_type, description, next_hop_id=None, client_token=None,
+                     next_hop_type=None, description="", next_hop_id=None, ip_version=None,
+                     next_hops=None, client_token=None,
                      config=None):
         """
         Create a route with the specified options.
@@ -93,6 +93,11 @@ class RouteClient(bce_base_client.BceBaseClient):
             the Bcc type is "custom";
             the VPN type is "vpn";
             the NAT type is "nat";
+            the dedicatedGateway type is "dcGateway"; Multi-line mode does not require
+            the PeerConn type is "peerConn";
+            the ENIC type is "enic";
+            the HaVip type is "havip";
+            the ipv6Gateway type is "ipv6gateway";
             the local gateway type is "defaultGateway"
         :type next_hop_type: string
 
@@ -104,6 +109,18 @@ class RouteClient(bce_base_client.BceBaseClient):
             The next hop id
             when the nexthopType is "defaultGateway",this field can be empty
         :type next_hop_id: string
+        :param next_hop_id:
+            The next hop id
+            when the nexthopType is "defaultGateway",this field can be empty
+        :type next_hop_id: string
+
+        :param next_hop_list:
+            The optional list of dcGateway Multi-line mode route to create.
+                - NextHop.nexthopId next hop dcGateway ID
+                - NextHop.nexthopType Route type. Currently only supports dedicatedGateway type: "dcGateway"
+                - NextHop.pathType Multiline mode. The value of load balancing is ecmp; the values of active and
+                standby modes are ha:active and ha:standby, which represent the active and standby routes respectively
+        :type next_hop_list: list<route_model.NextHop>
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -128,12 +145,18 @@ class RouteClient(bce_base_client.BceBaseClient):
             'routeTableId': compat.convert_to_string(route_table_id),
             'sourceAddress': compat.convert_to_string(source_address),
             'destinationAddress': compat.convert_to_string(destination_address),
-            'nexthopType': compat.convert_to_string(next_hop_type),
             'description': compat.convert_to_string(description)
         }
 
+        if next_hop_type is not None:
+            body['nexthopType'] = compat.convert_to_string(next_hop_type)
         if next_hop_id is not None:
             body['nexthopId'] = compat.convert_to_string(next_hop_id)
+        if ip_version is not None:
+            body['ipVersion'] = compat.convert_to_string(ip_version)
+        if next_hops is not None:
+            next_hop_list = [next_hop.__dict__ for next_hop in next_hops]
+            body['nextHopList'] = next_hop_list
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
@@ -168,6 +191,52 @@ class RouteClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
+    @required(version=(bytes, str), routeTableId=(bytes, str), vpcId=(bytes, str), marker=(bytes, str), maxKeys=int)
+    def get_route_rule(self, routeTableId=None, vpcId=None, marker=None, maxKeys=None, config=None):
+        """
+        Get the details of route rules in a specified route table or VPC.
+
+        :param version:
+            API version.
+        :type version: string
+
+        :param routeTableId:
+            The ID of the route table. Either `routeTableId` or `vpcId` must be provided.
+        :type routeTableId: string
+
+        :param vpcId:
+            The ID of the VPC. Either `routeTableId` or `vpcId` must be provided.
+        :type vpcId: string
+
+        :param marker:
+            The marker for the start position of batch retrieval.
+        :type marker: string
+
+        :param maxKeys:
+            The maximum number of entries per page (up to 1000).
+        :type maxKeys: int
+
+        :param config:
+            BceClientConfiguration object.
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+            A BceResponse object.
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/route/rule'
+        params = {}
+        if routeTableId is not None:
+            params[b'routeTableId'] = routeTableId
+        if vpcId is not None:
+            params[b'vpcId'] = vpcId
+        if marker is not None:
+            params[b'marker'] = marker
+        if maxKeys is not None:
+            params[b'maxKeys'] = maxKeys
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
     @required(route_rule_id=(bytes, str))
     def delete_route(self, route_rule_id, client_token=None, config=None):
         """
@@ -189,6 +258,36 @@ class RouteClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = b'/route/rule/%s' % compat.convert_to_bytes(route_rule_id)
+        params = {
+            'action': 'switchRouteHA'
+        }
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
+
+    @required(route_rule_id=(bytes, str))
+    def switch_route(self, route_rule_id, client_token=None, config=None):
+        """
+        In a multi-line master-slave routing mode, switching the main route to the backup route.
+
+        :param route_rule_id:
+            The id of the specified route table.
+        :type route_rule_id: string
+
+        :param client_token:
+            If the clientToken is not specified by the user, a random String
+            generated by default algorithm will be used.
+        :type client_token: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/route/rule/%s' % compat.convert_to_bytes(route_rule_id)
         params = {}
         if client_token is None:
             params[b'clientToken'] = generate_client_token()
@@ -196,6 +295,86 @@ class RouteClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = client_token
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
+    @required(route_rule_id=(bytes, str),
+              source_address=(bytes, str),
+              destination_address=(bytes, str),
+              description=(bytes, str))
+    def update_route(self, route_rule_id, source_address, destination_address,
+                     next_hop_type=None, description="", next_hop_id=None, ip_version=None,
+                     next_hops=None, client_token=None,
+                     config=None):
+        """
+        Update a route with the specified options.
+
+        :param route_rule_id:
+            The id of the route rule to be updated.
+        :type route_rule_id: string
+
+        :param source_address:
+            The source address of the route.
+        :type source_address: string
+
+        :param destination_address:
+            The destination address of the route.
+        :type destination_address: string
+
+        :param next_hop_type:
+            Route type.
+        :type next_hop_type: string
+
+        :param description:
+            The option param to describe the route rule.
+        :type description: string
+
+        :param next_hop_id:
+            The next hop id.
+        :type next_hop_id: string
+
+        :param ip_version:
+            IP version.
+        :type ip_version: string
+
+        :param next_hops:
+            The optional list of next hops.
+        :type next_hops: list<route_model.NextHop>
+
+        :param client_token:
+            If the clientToken is not specified by the user, a random String
+            generated by default algorithm will be used.
+        :type client_token: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/route/rule/%s' % compat.convert_to_bytes(route_rule_id)
+        params = {}
+
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+
+        body = {
+            'sourceAddress': compat.convert_to_string(source_address),
+            'destinationAddress': compat.convert_to_string(destination_address),
+            'description': compat.convert_to_string(description)
+        }
+
+        if next_hop_type is not None:
+            body['nexthopType'] = compat.convert_to_string(next_hop_type)
+        if next_hop_id is not None:
+            body['nexthopId'] = compat.convert_to_string(next_hop_id)
+        if ip_version is not None:
+            body['ipVersion'] = compat.convert_to_string(ip_version)
+        if next_hops is not None:
+            next_hop_list = [next_hop.__dict__ for next_hop in next_hops]
+            body['nextHopList'] = next_hop_list
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+ 
 
 def generate_client_token_by_uuid():
     """

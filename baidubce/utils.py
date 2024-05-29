@@ -14,6 +14,7 @@
 This module provide some tools for bce client.
 """
 # str() generator unicode,bytes() for ASCII
+from __future__ import print_function
 from __future__ import absolute_import
 from builtins import str, bytes
 from future.utils import iteritems, iterkeys, itervalues
@@ -25,6 +26,7 @@ import datetime
 import hashlib
 import base64
 import string
+import sys
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -36,6 +38,8 @@ from baidubce.http import http_headers
 import codecs
 
 DEFAULT_CNAME_LIKE_LIST = [b".cdn.bcebos.com"]
+DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
+HTTP_PROTOCOL_HEAD = b'http'
 
 def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     """
@@ -546,3 +550,163 @@ def is_cname_like_host(host):
         if host.lower().endswith(suffix):
             return True
     return False
+
+
+def is_custom_host(host, bucket_name):
+    """
+    custom host : xxx.region.bcebos.com
+    : return: custom, domain or not
+    """
+    if host is None or bucket_name is None:
+        return False
+
+    host_split = host.split(b'.')
+    # split http head
+    return host.lower().startswith(compat.convert_to_bytes(bucket_name.lower())) \
+                  and len(host_split) == 4 and is_bos_suffixed_host(host) 
+
+
+def is_bos_suffixed_host(host):
+    """
+    :param host: bos endpoint
+    :return: bos endpoint or not
+    """
+    if host is None:
+        return False
+    if host.endswith(b'/'):
+        check_host = host[:-1]
+    else:
+        check_host = host
+
+    return check_host.lower().endswith(DEFAULT_BOS_DOMAIN_SUFFIX)
+
+
+def check_ipv4(ipAddr):
+    """
+    :param ipAddr: ip address
+    :return: true or false
+    """
+    compile_ip=re.compile(b'((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}')
+    return compile_ip.match(ipAddr)
+
+def _get_data_size(data):
+    if hasattr(data, '__len__'):
+        return len(data)
+
+    if hasattr(data, 'len'):
+        return data.len
+
+    if hasattr(data, 'seek') and hasattr(data, 'tell'):
+        return file_object_remaining_bytes(data)
+
+    return None
+
+def file_object_remaining_bytes(fileobj):
+    current = fileobj.tell()
+
+    fileobj.seek(0, os.SEEK_END)
+    end = fileobj.tell()
+    fileobj.seek(current, os.SEEK_SET)
+
+    return end - current
+
+def _invoke_progress_callback(progress_callback, consumed_bytes, total_bytes):
+    if progress_callback:
+        progress_callback(consumed_bytes, total_bytes)
+
+def make_progress_adapter(data, progress_callback, size=None):
+    """return a adapter,when reading 'data', that is, calling read or iterating 
+    over it Call the progress callback function
+
+    :param data: bytes,file object or iterable
+    :param progress_callback: callback function, ref:`_default_progress_callback`
+    :param size: size of `data`
+
+    :return: callback function adapter
+    """
+
+    if size is None:
+        size = _get_data_size(data)
+    
+    if size is None:
+        raise ValueError('{0} is not a file object'.format(data.__class__.__name__)) 
+    
+    return _BytesAndFileAdapter(data, progress_callback, size)
+
+_CHUNK_SIZE = 8 * 1024
+
+class _BytesAndFileAdapter(object):
+    """With this adapter, you can add progress monitoring to 'data'.
+
+    :param data: bytes or file object
+    :param progress_callback: user-provided callback function. like callback(bytes_read, total_bytes)
+        bytes_read is readed bytes;total_bytes is total bytes
+    :param int size : data size 
+    """
+    def __init__(self, data, progress_callback=None, size=None):
+        self.data = data
+        self.progress_callback = progress_callback
+        self.size = size
+        self.offset = 0
+
+    @property
+    def len(self):
+        return self.size
+
+    # for python 2.x
+    def __bool__(self):
+        return True
+    # for python 3.x
+    __nonzero__=__bool__
+
+    # support iterable type
+    # def __iter__(self):
+    #     return self
+
+    # def __next__(self):
+    #     return self.next()
+
+    # def next(self):
+    #     content = self.read(_CHUNK_SIZE)
+
+    #     if content:
+    #         return content
+    #     else:
+    #         raise StopIteration
+
+    def read(self, amt=None):
+        if self.offset >= self.size:
+            return compat.convert_to_bytes('')
+
+        if amt is None or amt < 0:
+            bytes_to_read = self.size - self.offset
+        else:
+            bytes_to_read = min(amt, self.size - self.offset)
+
+        if isinstance(self.data, bytes):
+            content = self.data[self.offset:self.offset+bytes_to_read]
+        else:
+            content = self.data.read(bytes_to_read)
+
+        self.offset += bytes_to_read
+            
+        _invoke_progress_callback(self.progress_callback, min(self.offset, self.size), self.size)
+
+        return content
+
+def default_progress_callback(consumed_bytes, total_bytes):
+    """Progress bar callback function that calculates the percentage of current completion
+    
+    :param consumed_bytes: Amount of data that has been uploaded/downloaded
+    :param total_bytes: According to the total amount
+    """
+    if total_bytes:
+        rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
+        start_progress = '*' * rate
+        end_progress = '.' * (100 - rate)
+        if rate == 100:
+            print("\r{}%[{}->{}]\n".format(rate, start_progress, end_progress), end="")
+        else:
+            print("\r{}%[{}->{}]".format(rate, start_progress, end_progress), end="")
+        
+        sys.stdout.flush()

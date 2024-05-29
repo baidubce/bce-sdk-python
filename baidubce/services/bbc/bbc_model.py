@@ -32,10 +32,21 @@ class Billing(object):
 	param: reservationTimeUnit:
 		The time unit to specify the duration ,only "Month" can be used now.
 	"""
+
     def __init__(self, paymentTiming=None, reservationLength=1, reservationTimeUnit='Month'):
         if paymentTiming:
             self.paymentTiming = paymentTiming
         self.reservation = {
-			'reservationLength': reservationLength,
-			'reservationTimeUnit': reservationTimeUnit
-		}
+            'reservationLength': reservationLength,
+            'reservationTimeUnit': reservationTimeUnit
+        }
+
+
+class TagModel(object):
+    """
+    TAGModel
+    """
+
+    def __init__(self, tagKey=None, tagValue=None):
+        self.tagKey = tagKey
+        self.tagValue = tagValue

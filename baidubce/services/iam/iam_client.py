@@ -28,6 +28,7 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services import iam
+from baidubce.utils import required
 
 _logger = logging.getLogger(__name__)
 
@@ -194,6 +195,33 @@ class IamClient(BceBaseClient):
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             path=path,
             params=params
+        )
+
+    @required(policy_name=(bytes, str))
+    def update_policy(self, policy_name, update_policy_request):
+        """
+        :type update_policy_request: dict
+
+        :return:
+            **HttpResponse**
+        """
+        policy_name_bytes = policy_name
+        if isinstance(policy_name, str):
+            policy_name_bytes = policy_name.encode('utf-8')
+        if update_policy_request is None:
+            body = None
+        else:
+            if not isinstance(update_policy_request, dict):
+                raise TypeError(b'update_policy_request should be dict')
+            else:
+                body = json.dumps(update_policy_request)
+
+        path = b"/policy/" + policy_name_bytes
+        return self._send_iam_request(
+            http_methods.POST,
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            path=path,
+            body=body
         )
 
     def delete_policy(self, policy_name):
@@ -385,6 +413,32 @@ class IamClient(BceBaseClient):
             **HttpResponse**
         """
         path = b"/role/" + role_name + b"/policy"
+        return self._send_iam_request(
+            http_methods.GET,
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            path=path
+        )
+
+    @required(policy_id=(bytes, str), grant_type=(bytes, str))
+    def list_attached_entities_by_grant_type(self, policy_id, grant_type):
+        """
+        :type policy_id: bytes        :type grant_type:
+
+        : grant_type: UserPolicy, GroupPolicy
+
+        :return:
+            **HttpResponse**
+        """
+
+        policy_id_bytes = policy_id
+        if isinstance(policy_id, str):
+            policy_id_bytes = policy_id.encode('utf-8')
+
+        grant_type_bytes = grant_type
+        if isinstance(grant_type, str):
+            grant_type_bytes = grant_type.encode('utf-8')
+
+        path = b"/policy/" + policy_id_bytes + b"/grant/" + grant_type_bytes
         return self._send_iam_request(
             http_methods.GET,
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
@@ -605,6 +659,30 @@ class IamClient(BceBaseClient):
         path = b"/user/" + user_name + b"/accesskey"
         return self._send_iam_request(
             http_methods.GET,
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
+            path=path
+        )
+
+    @required(user_name=(bytes, str), mfa_type=(bytes, str))
+    def unbind_user_mfa_device(self, user_name, mfa_type):
+        """
+            :type user_name: bytes            :type mfa_type:
+            :mfa_type: TOTP
+
+            :return:
+                none
+            """
+        user_name_bytes = user_name
+        if isinstance(user_name, str):
+            user_name_bytes = user_name.encode('utf-8')
+
+        mfa_type_bytes = mfa_type
+        if isinstance(mfa_type, str):
+            mfa_type_bytes = mfa_type.encode('utf-8')
+
+        path = b"/user/" + user_name_bytes + b"/mfaType/" + mfa_type_bytes
+        return self._send_iam_request(
+            http_methods.DELETE,
             headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             path=path
         )
