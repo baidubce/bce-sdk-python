@@ -151,6 +151,20 @@ if __name__ == "__main__":
     except exception.BceError as e:
         __logger.debug(e)
 
+    # put row
+    row3 = Row()
+    row3.rowkey = "row2"
+    cell1 = Cell("p1", "v1_1")
+    cell2 = Cell("p2", "v2_1")
+    cells = [cell1, cell2]
+    row3.cells = cells
+
+    try:
+        response = bts_client.put_row(instance_name, table_name, row3)
+        print(response)
+    except exception.BceError as e:
+        __logger.debug(e)
+
     # batch put row
     batchPutRow1 = BatchPutRowArgs()
     for i in range(2, 15):
@@ -187,6 +201,23 @@ if __name__ == "__main__":
     except exception.BceError as e:
         __logger.debug(e)
     
+    batchPutRow3 = BatchPutRowArgs()
+    for i in range(1, 5):
+        row = Row()
+        row.rowkey = "row" + str(i)
+        for j in range(2):
+            col = "m" + str(j)
+            val = "n" + str(j)
+            cell = Cell(col, val)
+            row.cells.append(cell)
+        batchPutRow3.rows.append(row)
+
+    try:
+        response = bts_client.batch_put_row(instance_name, table_name, batchPutRow3)
+        print(response)
+    except exception.BceError as e:
+        __logger.debug(e)
+
     # delete row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row2"
@@ -209,6 +240,21 @@ if __name__ == "__main__":
 
     try:
         response = bts_client.delete_row(instance_name, table_name, queryRowArgs2)
+        print(response)
+    except exception.BceError as e:
+        __logger.debug(e)
+
+    queryRowArgs3 = QueryRowArgs()
+    queryRowArgs3.rowkey = "del"
+    cell1 = QueryCell()
+    cell1.column = "m0"
+    cell2 = QueryCell()
+    cell2.column = "m1"
+    queryRowArgs3.cells.append(cell1)
+    queryRowArgs3.cells.append(cell2)
+
+    try:
+        response = bts_client.delete_row(instance_name, table_name, queryRowArgs3)
         print(response)
     except exception.BceError as e:
         __logger.debug(e)
@@ -252,7 +298,26 @@ if __name__ == "__main__":
         print(response)
     except exception.BceError as e:
         __logger.debug(e)
-    
+
+    batchQueryRowArgs3 = BatchQueryRowArgs()
+    queryRowArgs1 = QueryRowArgs()
+    queryRowArgs1.rowkey = "b1"
+    queryRowArgs1.cells.append(QueryCell("m0"))
+    queryRowArgs1.cells.append(QueryCell("m1"))
+    batchQueryRowArgs3.rows.append(queryRowArgs1)
+
+    queryRowArgs2 = QueryRowArgs()
+    queryRowArgs2.rowkey = "b2"
+    queryRowArgs2.cells.append(QueryCell("m0"))
+    queryRowArgs2.cells.append(QueryCell("m1"))
+    batchQueryRowArgs3.rows.append(queryRowArgs2)
+
+    try:
+        response = bts_client.batch_delete_row(instance_name, table_name, batchQueryRowArgs3)
+        print(response)
+    except exception.BceError as e:
+        __logger.debug(e)
+
     # get row
     queryRowArgs1 = QueryRowArgs()
     queryRowArgs1.rowkey = "row4"
@@ -280,6 +345,24 @@ if __name__ == "__main__":
 
     try:
         response = bts_client.get_row(instance_name, table_name, queryRowArgs2)
+        if response.result is not None:
+            print("rowkey: " + response.result[0].rowkey)
+            for i in range(len(response.result[0].cells)):
+                print("  column: " + response.result[0].cells[i].column)
+                print("  value: " + response.result[0].cells[i].value)
+                print("  timestamp: " + str(response.result[0].cells[i].timestamp))
+    except exception.BceError as e:
+        __logger.debug(e)
+        
+    # get row
+    queryRowArgs3 = QueryRowArgs()
+    queryRowArgs3.rowkey = "g3"
+    queryRowArgs3.cells.append(QueryCell("m0"))
+    queryRowArgs3.cells.append(QueryCell("m1"))
+    queryRowArgs3.max_versions = 2
+
+    try:
+        response = bts_client.get_row(instance_name, table_name, queryRowArgs3)
         if response.result is not None:
             print("rowkey: " + response.result[0].rowkey)
             for i in range(len(response.result[0].cells)):
@@ -345,6 +428,32 @@ if __name__ == "__main__":
     except exception.BceError as e:
         __logger.debug(e)
 
+    # batch get row
+    batchQueryRowArgs1 = BatchQueryRowArgs()
+    batchQueryRowArgs1.max_versions = 2
+
+    queryRowArgs1 = QueryRowArgs()
+    queryRowArgs1.rowkey = "bg1"
+    queryRowArgs1.cells.append(QueryCell("m1"))
+    batchQueryRowArgs1.rows.append(queryRowArgs1)
+
+    queryRowArgs2 = QueryRowArgs()
+    queryRowArgs2.rowkey = "bg2"
+    queryRowArgs2.cells.append(QueryCell("m1"))
+    batchQueryRowArgs1.rows.append(queryRowArgs2)
+
+    try:
+        response = bts_client.batch_get_row(instance_name, table_name, batchQueryRowArgs1)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except exception.BceError as e:
+        __logger.debug(e)
+
     # scan
     scanArgs1 = ScanArgs()
     scanArgs1.start_rowkey = "row2"
@@ -393,5 +502,24 @@ if __name__ == "__main__":
     except exception.BceError as e:
         __logger.debug(e)
 
+    # scan
+    scanArgs3 = ScanArgs()
+    scanArgs3.start_rowkey = "start_row"
+    scanArgs3.include_start = True
+    scanArgs3.stop_rowkey = "end_row"
+    scanArgs3.include_stop = False
+    scanArgs3.selector.append(QueryCell("c0"))
+    scanArgs3.max_versions = 2
+    scanArgs3.limit = 4
 
-
+    try:
+        response = bts_client.scan(instance_name, table_name, scanArgs3)
+        if response.result is not None:
+            for i in range(len(response.result)):
+                print("rowkey: " + response.result[i].rowkey)
+                for j in range(len(response.result[i].cells)):
+                    print("  column: " + response.result[i].cells[j].column)
+                    print("  value: " + response.result[i].cells[j].value)
+                    print("  timestamp: " + str(response.result[i].cells[j].timestamp))
+    except exception.BceError as e:
+        __logger.debug(e)

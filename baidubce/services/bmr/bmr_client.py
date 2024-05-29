@@ -162,6 +162,32 @@ class BmrClient(bce_base_client.BceBaseClient):
         """
         path = '/cluster/%s' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.GET, path)
+    @required(cluster_id=value_type)
+    def list_cluster_hosts(self, cluster_id):
+        """
+        Get cluster hosts
+        :param cluster_id: cluster id
+        :type cluster_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = '/cluster/%s/hosts' % compat.convert_to_string(cluster_id)
+        return self._send_request(http_methods.GET, path)
+
+    @required(cluster_id=value_type)
+    def get_cluster_ambariPassword(self, cluster_id):
+        """
+        Get cluster ambari password
+
+        :param cluster_id: cluster id
+        :type cluster_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = '/cluster/%s/ambaripassword' % compat.convert_to_string(cluster_id)
+        return self._send_request(http_methods.GET, path)
 
     @required(cluster_id=value_type)
     def terminate_cluster(self, cluster_id):
@@ -181,7 +207,7 @@ class BmrClient(bce_base_client.BceBaseClient):
 
     @required(cluster_id=value_type,
               instance_group_config=list)
-    def scale_cluster(self, cluster_id, instance_group_config, deleteClientIds=None):
+    def scale_cluster(self, cluster_id, instance_group_config):
         """
         Scale cluster
         :param cluster_id: cluster id
@@ -201,8 +227,6 @@ class BmrClient(bce_base_client.BceBaseClient):
         body = {
             "instanceGroups": instance_group_config
         }
-        if deleteClientIds is not None:
-            body['instances'] = deleteClientIds
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body))
 
 
@@ -230,7 +254,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, params=params, body=body)
 
     @required(cluster_id=value_type)
-    def list_steps(self, cluster_id, marker=None, max_keys=None):
+    def list_steps(self, cluster_id, pageNo=None, pageSize=None):
         """
         List step
 
@@ -248,12 +272,12 @@ class BmrClient(bce_base_client.BceBaseClient):
         """
         path = '/cluster/%s/step' % compat.convert_to_string(cluster_id)
         params = None
-        if marker is not None or max_keys is not None:
+        if pageNo is not None or pageSize is not None:
             params = {}
-        if marker is not None:
-            params['marker'] = marker
-        if max_keys is not None:
-            params['maxKeys'] = max_keys
+        if pageNo is not None:
+            params['pageNo'] = pageNo
+        if pageSize is not None:
+            params['pageSize'] = pageSize
 
         return self._send_request(http_methods.GET, path, params=params)
 
@@ -320,34 +344,6 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/%s/instanceGroup' % compat.convert_to_string(cluster_id)
         return self._send_request(http_methods.GET, path)
 
-    @required(templateId=value_type,
-              adminPassword=value_type)
-    def creat_cluster_by_template(self, templateId, adminPassword, logUri=None, steps=None):
-        """
-        create cluster by template
-        :param templateId: templateid
-        :type  templateId: string
-        :param adminPassword: the adminPassword of cluster
-        :type  adminPassword: string  ,ep: bmrtest@123
-        :param logUri: start cluster's loguri
-        :type  logUri: string
-        :param steps: step of cluster
-        :type  steps: list
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'templateId': templateId
-        }
-        if adminPassword is not None:
-            secret_access_key = self.config.credentials.secret_access_key
-            body['adminPassword'] = aes128_encrypt_16char_key(adminPassword, secret_access_key)
-        if logUri is not None:
-            body['logUri'] = logUri
-        if steps is not None:
-            body['steps'] = steps
-        path = '/cluster/create'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
     @required(cluster_id=value_type)
     def describe_cluster(self, cluster_id):
@@ -374,6 +370,8 @@ class BmrClient(bce_base_client.BceBaseClient):
         :type  newName: string
         :return: baidubce.bce_response.BceResponse
         """
+        if newName is None or len(newName.strip(" ")) == 0:
+            raise ValueError("newName can not be empty.")
         params = None
         body = {
             'clusterId': clusterId,
@@ -382,379 +380,7 @@ class BmrClient(bce_base_client.BceBaseClient):
         path = '/cluster/rename'
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
 
-    @required(clusterId=value_type)
-    def save_template(self, clusterId):
-        """
-        save template by a cluster
-        :param clusterId: clusterID
-        :type  clusterId: string
-        :return: baidubce.bce_response.BceResponse
 
-        """
-        path = '/cluster/%s/save_template' % clusterId
-        return self._send_request(http_methods.GET, path)
-
-    @required(image_Type=value_type,
-              image_Version=value_type,
-              instance_Groups=list,
-              name=value_type)
-    def create_template(self, image_Type,
-                        image_Version,
-                        name,
-                        instance_Groups,
-                        logUri=None,
-                        autoTerminate=False,
-                        availabilityZone=None,
-                        vpcId=None,
-                        subnetId=None,
-                        systemSecurityGroup=None,
-                        serviceHaEnabled=False,
-                        safeModeEnabled=False,
-                        applications=None,
-                        templateType=None):
-        """
-        create a template
-        :param image_Type: image_Type
-        :type  image_Type: string
-        :param image_Version:image_Version
-        :type  image_Version: string
-        :param instance_Groups:instance_Groups
-        :type instance_Groups:list
-        :param logUri:logUri
-        :type logUri:string
-        :param steps:steps
-        :type steps:list
-        :param autoTerminate:autoTerminate
-        :type autoTerminate:bool
-        :param availabilityZone:availabilityZone
-        :type availabilityZone:string
-        :param vpcId:vpcId
-        :type vpcId:string
-        :param subnetId:subnetId
-        :type subnetId:string
-        :param systemSecurityGroup:systemSecurityGroup
-        :type systemSecurityGroup:string
-        :param serviceHaEnabled:serviceHaEnabled
-        :type serviceHaEnabled:bool
-        :param safeModeEnabled:safeModeEnabled
-        :type safeModeEnabled:bool
-        :param applications:applications
-        :type applications:list
-        :return:baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'imageType': image_Type,
-            'imageVersion': image_Version,
-            'instanceGroups': instance_Groups,
-            'payType': 'postpay',
-            'autoTerminate': autoTerminate,
-            'serviceHaEnabled': serviceHaEnabled,
-            'safeModeEnabled': safeModeEnabled,
-            'name':name
-        }
-        if logUri is not None:
-            body['logUri'] = logUri
-        if availabilityZone is not None:
-            body['availabilityZone'] = availabilityZone
-        if vpcId is not None:
-            body['vpcId'] = vpcId
-        if subnetId is not None:
-            body['subnetId'] = subnetId
-        if systemSecurityGroup is not None:
-            body['systemSecurityGroup'] = systemSecurityGroup
-        if applications is not None:
-            body['applications'] = applications
-        if templateType is not None:
-            body['templateType'] = templateType
-        path='/template/create'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-    @required(
-        templateId=value_type
-    )
-    def delete_template(self, templateId, adminPassword='bmrtest@123'):
-        """
-        delete a template
-        :param templateId: templateId
-        :type templateId:string
-        :param adminPassword: adminPassword
-        :type adminPassword:string
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'templateId': templateId,
-            'adminPassword': adminPassword
-        }
-        path = '/template/delete'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-    @required(
-        templateId=value_type
-    )
-    def describe_template(self, templateId, adminPassword='bmrtest@123'):
-        """
-        describe the template
-        :param templateId: templateId
-        :type templateId:string
-        :param adminPassword: adminPassword
-        :type adminPassword:string
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'templateId': templateId,
-            'adminPassword': adminPassword
-        }
-        path = '/template/get'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-
-    def list_template(self, username='default'):
-        """
-        list templates of a user
-        :param username: username
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'username': username
-        }
-        path = '/template/list'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-    @required(
-        clusterId=value_type,
-        instanceId=value_type
-    )
-    def add_eip(self, clusterId, instanceId):
-        """
-        add eip for master of cluseter
-        :param clusterId: clusterId
-        :param instanceId: instanceId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'clusterId': clusterId,
-            'instanceId': instanceId
-        }
-        path = '/eip/add'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-    @required(
-        clusterId=value_type,
-        instanceId=value_type
-    )
-    def delete_eip(self, clusterId, instanceId):
-        """
-        delete eip for master of cluseter
-        :param clusterId: clusterId
-        :param instanceId: instanceId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'clusterId': clusterId,
-            'instanceId': instanceId
-        }
-        path = '/eip/delete'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        clusterId=value_type,
-        instanceId=value_type,
-        eip=value_type
-    )
-    def bind_eip(self, clusterId, instanceId, eip):
-        """
-        bind eip for instance of cluseter
-        :param clusterId: clusterId
-        :param instanceId: instanceId
-        :param eip: eip
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'clusterId': clusterId,
-            'instanceId': instanceId,
-            'eip': eip
-        }
-        path = '/eip/bind'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        clusterId=value_type,
-        instanceId=value_type,
-        eip=value_type
-    )
-    def unbind_eip(self, clusterId, instanceId, eip):
-        """
-        unbind eip for instance of cluseter
-        :param clusterId: clusterId
-        :param instanceId: instanceId
-        :param eip: eip
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'clusterId': clusterId,
-            'instanceId': instanceId,
-            'eip': eip
-        }
-        path = '/eip/unbind'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        name=value_type,
-        templateId=value_type,
-        period=int,
-        timeUnit=value_type
-    )
-    def create_schedule(self, name,
-                        templateId,
-                        period,
-                        timeUnit,
-                        steps=None,
-                        startTime=None,
-                        endTime=None):
-        """
-        create a schedule
-        :param name: name
-        :param templateId: templateId
-        :param period: period
-        :param timeUnit: timeUnit
-        :param steps: steps
-        :param startTime: startTime
-        :param endTime: endTime
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'name': name,
-            'templateId': templateId,
-            'period': period,
-            'timeUnit': timeUnit
-        }
-        if steps is not None:
-            body['steps'] = steps
-        if startTime is not None:
-            body['startTime'] = startTime
-        if endTime is not None:
-            body['endTime'] = endTime
-        path = '/execute_plan/create'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        schedulePlanId=value_type
-    )
-    def delete_schedule(self, schedulePlanId):
-        """
-        delete a schedule
-        :param schedulePlanId: schedulePlanId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'schedulePlanId': schedulePlanId
-        }
-        path = '/execute_plan/delete'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        schedulePlanId=value_type
-    )
-    def detail_schedule(self, schedulePlanId):
-        """
-        detail of schedule
-        :param schedulePlanId:schedulePlanId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'schedulePlanId': schedulePlanId
-        }
-        path = '/execute_plan/detail'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    def list_schedule(self):
-        """
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-
-        }
-        path = '/execute_plan/list'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        schedulePlanId=value_type,
-        pageNo=int,
-        pageSize=int
-    )
-    def history_schedule(self, schedulePlanId, pageNo, pageSize):
-        """
-        list history steps of schedule
-        :param schedulePlanId:schedulePlanId
-        :param pageNo:pageNo
-        :param pageSize:pageSize
-        :return:baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'schedulePlanId': schedulePlanId,
-            'pageNo': pageNo,
-            'pageSize': pageSize
-        }
-        path = '/execute_plan/history'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        shcedulePlanId=value_type
-    )
-    def start_schedule(self, shcedulePlanId):
-        """
-        start schedulePlan
-        :param shcedulePlanId: shcedulePlanId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-           'schedulePlanId': shcedulePlanId
-        }
-        path = '/execute_plan/start'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-
-    @required(
-        shcedulePlanId=value_type
-    )
-    def stop_schedule(self, shcedulePlanId):
-        """
-        stop schedulePlan
-        :param shcedulePlanId: shcedulePlanId
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'schedulePlanId': shcedulePlanId
-        }
-        path = '/execute_plan/stop'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
-    @required(
-        schedulePlanId=value_type
-    )
-    def update_schedule(self, schedulePlanId, steps=None, schedule=None):
-        """
-        update schedule
-        :param schedulePlanId: schedulePlanId
-        :param steps: steps
-        :param schedule: schedule
-        :return: baidubce.bce_response.BceResponse
-        """
-        params = None
-        body = {
-            'schedulePlanId': schedulePlanId
-        }
-        if steps is not None:
-            body['steps'] = steps
-        if schedule is not None:
-            body['schedule'] = schedule
-        path = '/execute_plan/update'
-        return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body))
     def _merge_config(self, config=None):
         if config is None:
             return self.config

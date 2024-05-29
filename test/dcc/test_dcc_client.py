@@ -30,8 +30,8 @@ class TestDccClient(unittest.TestCase):
         set up
         """
         HOST = 'dcc.api-sandbox.baidu.com'
-        AK = '4f4b13eda66e42e29225bb02d9193a48'
-        SK = '507b4a729f6a44feab398a6a5984304d'
+        AK = ''
+        SK = ''
         config = BceClientConfiguration(credentials=BceCredentials(AK, SK), endpoint=HOST)
         self.the_client = dcc_client.DccClient(config)
 

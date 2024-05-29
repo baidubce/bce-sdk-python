@@ -37,7 +37,11 @@ class BceClientConfiguration(object):
                  retry_policy=None,
                  security_token=None,
                  cname_enabled=False,
-                 backup_endpoint=None):
+                 backup_endpoint=None,
+                 proxy_host=None,
+                 proxy_port=None,
+                 path_style_enable=False,
+                 ):
         self.credentials = credentials
         self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
         self.protocol = protocol
@@ -45,12 +49,15 @@ class BceClientConfiguration(object):
         self.connection_timeout_in_mills = connection_timeout_in_mills
         self.send_buf_size = send_buf_size
         self.recv_buf_size = recv_buf_size
+        self.proxy_host = proxy_host
+        self.proxy_port = proxy_port
         if retry_policy is None:
             self.retry_policy = BackOffRetryPolicy()
         else:
             self.retry_policy = retry_policy
         self.security_token = security_token
         self.cname_enabled = cname_enabled
+        self.path_style_enable = path_style_enable
         self.backup_endpoint = compat.convert_to_bytes(backup_endpoint) if backup_endpoint is not None else backup_endpoint
 
     def merge_non_none_values(self, other):

@@ -32,13 +32,14 @@ class Billing(object):
 	param: reservationTimeUnit: 
 		The time unit to specify the duration ,only "Month" can be used now.
 	"""
+
     def __init__(self, paymentTiming=None, reservationLength=1, reservationTimeUnit='Month'):
         if paymentTiming:
             self.paymentTiming = paymentTiming
         self.reservation = {
-			'reservationLength': reservationLength,
-			'reservationTimeUnit': reservationTimeUnit
-		}
+            'reservationLength': reservationLength,
+            'reservationTimeUnit': reservationTimeUnit
+        }
 
 
 class EphemeralDisk(object):
@@ -50,6 +51,7 @@ class EphemeralDisk(object):
 		The storage type of volume,
 		see more detail in https://bce.baidu.com/doc/BCC/API.html#StorageType
     """
+
     def __init__(self, sizeInGB, storageType='sata'):
         self.sizeInGB = sizeInGB
         self.storageType = storageType
@@ -65,11 +67,14 @@ class CreateCdsModel(object):
 		see more detail in https://bce.baidu.com/doc/BCC/API.html#StorageType
 	param: snapshotId: 
 		The id of snapshot.
+	param: encryptKey
 	"""
-    def __init__(self, cdsSizeInGB=None, storageType='hp1', snapshotId=None):
+
+    def __init__(self, cdsSizeInGB=None, storageType='hp1', snapshotId=None, encryptKey=None):
         self.cdsSizeInGB = cdsSizeInGB
         self.storageType = storageType
         self.snapshotId = snapshotId
+        self.encryptKey = encryptKey
 
 
 class SecurityGroupRuleModel(object):
@@ -104,9 +109,10 @@ class SecurityGroupRuleModel(object):
 	param: securityGroupId: 
 		The id of the securitygroup for the rule.
 	"""
-    def __init__(self, remark=None, direction=None, ethertype=None, portRange=None, 
-			     protocol=None, sourceGroupId=None, sourceIp=None, destGroupId=None, destIp=None, 
-			     securityGroupId=None):
+
+    def __init__(self, remark=None, direction=None, ethertype=None, portRange=None,
+                 protocol=None, sourceGroupId=None, sourceIp=None, destGroupId=None, destIp=None,
+                 securityGroupId=None):
         self.remark = remark
         self.direction = direction
         self.ethertype = ethertype
@@ -127,3 +133,50 @@ class TagModel(object):
     def __init__(self, tagKey=None, tagValue=None):
         self.tagKey = tagKey
         self.tagValue = tagValue
+
+
+class PayTimingChangeReqModel(object):
+    """
+    This class define detail of change pay timing.
+    """
+
+    def __init__(self, instanceId, relationCds=False, cdsList=None, duration=None, autoPay=True):
+        self.instanceId = instanceId
+        self.relationCds = relationCds
+        self.cdsList = cdsList
+        self.duration = duration
+        self.autoPay = autoPay
+
+
+class DestRegionInfoModel(object):
+    """
+    This class define for snapshot remote copy.
+    """
+
+    def __init__(self, destRegion, name):
+        self.destRegion = destRegion
+        self.name = name
+
+
+class AutoSnapshotPolicyModel(object):
+    """
+        This class define auto snapshot policy.
+    """
+
+    def __init__(self, name, timePoints, repeatWeekdays, retentionDays=None):
+        self.name = name
+        self.timePoints = timePoints
+        self.repeatWeekdays = repeatWeekdays
+        self.retentionDays = retentionDays
+
+
+class FileSystemModel(object):
+    """
+        This class define file system.
+    """
+
+    def __init__(self, fsId=None, mountAds=None, path=None, protocol=None):
+        self.fsId = fsId
+        self.mountAds = mountAds
+        self.path = path
+        self.protocol = protocol

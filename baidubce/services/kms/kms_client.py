@@ -60,9 +60,9 @@ class KmsClient(BceBaseClient):
                                             http_method, path, body, headers,
                                             params)
 
-    @required(protectedBy=(bytes, str), keySpec=(bytes, str), origin=(bytes, str))
+    @required(protectedBy=(bytes, str), keySpec=(bytes, str), origin=(bytes, str), rotateCycle=(int))
     def create_masterKey(self, description, protectedBy, keySpec,
-                        origin, keyUsage="ENCRYPT_DECRYPT", config=None):
+                        origin, keyUsage="ENCRYPT_DECRYPT", rotateCycle=0, config=None):
         """
         create a master key with the specified options.
         :type description: string
@@ -80,6 +80,9 @@ class KmsClient(BceBaseClient):
 
         :type origin: constants.Origin
         :param origin:  origin of the master key. you can choose BAIDU_KMS or EXTERNAL
+
+        :type rotateCycle: int
+        :param rotateCycle: rotateCycle of the master key.
         """
         path = b'/'
         params = {}
@@ -91,6 +94,7 @@ class KmsClient(BceBaseClient):
         body['keySpec'] = keySpec
         body['origin'] = origin
         body['keyUsage'] = keyUsage
+        body['rotateCycle'] = rotateCycle
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -181,6 +185,24 @@ class KmsClient(BceBaseClient):
             raise ValueError("only support AES_128 and AES_256")
         body['keySpec'] = keySpec
         body['numberOfBytes'] = numberOfBytes
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+    
+    @required(keyId=(str, bytes), rotateCycle=(int))
+    def updaterotation_masterKey(self, keyId, rotateCycle, config=None):
+        """
+        update your master key rptation
+        :type keyId: string
+        :type rotateCycle: int
+        :param keyId: the keyId of masterkey will be enable
+        :param rotateCycle: the rotatecycle of masterkey
+        """
+        path = b'/'
+        params = {}
+        params['action'] = b'EnableRotation'
+        body={}
+        body['keyId'] = keyId
+        body['rotateCycle'] = rotateCycle
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 

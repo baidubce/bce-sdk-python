@@ -35,6 +35,7 @@ import socket
 import threading
 import time
 import pprint
+import datetime
 
 import coverage
 import baidubce
@@ -217,7 +218,7 @@ class MockInputStream(object):
         pass
 
 
-def mock_get_connection(protocol, host, port, timeout):
+def mock_get_connection(protocol, host, port, timeout, proxy_host, proxe_port):
     """
     mock get_connection
     :param protocol:
@@ -1899,7 +1900,7 @@ class TestPutSuperObejctFromFile(TestClient):
 
     def test_cancel_put_super_obejct(self):
         """ test cancel after calling put_super_obejct_from_file() """
-        self.get_file(50)
+        self.get_file(300)
         uploadTaskHandle = UploadTaskHandle()
         t = threading.Thread(target=self.bos.put_super_obejct_from_file, args=(self.BUCKET, self.KEY, self.FILENAME),
                 kwargs={
@@ -1908,7 +1909,7 @@ class TestPutSuperObejctFromFile(TestClient):
                     "uploadTaskHandle": uploadTaskHandle
                     })
         t.start()
-        time.sleep(2)
+        time.sleep(1)
         uploadTaskHandle.cancel()
         t.join()
 
@@ -2384,6 +2385,18 @@ class TestBceHttpClient(TestClient):
         connection_timeout = 1000
         conn = bce_http_client._get_connection(test_protocol, host, port, connection_timeout)
 
+        # test proxy host and port
+        test_protocol = protocol.HTTPS
+        host = "1.2.3.4"
+        port = 8080
+        connection_timeout = 1000
+        proxy_host = "1.2.3.5"
+        proxy_port = 8081
+        conn = bce_http_client._get_connection(test_protocol, host, port, connection_timeout, proxy_host, proxy_port)
+        self.assertEqual(conn.host, proxy_host)
+        self.assertEqual(conn.port, proxy_port)
+
+
     def test_send_http_request_normal(self):
         """test abort send http request"""
         # test body is None
@@ -2547,6 +2560,78 @@ class TestBceClientConfiguration(TestClient):
         self.assertEqual(conf.connection_timeout_in_mills, 5)
         self.assertEqual(conf.send_buf_size, 6)
         self.assertEqual(conf.recv_buf_size, 7)
+    
+    def test_merge_config(self):
+        """test merge_config"""
+        bucket_name = "test"
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com/')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com/')
+
+        conf = BceClientConfiguration(endpoint='test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='http://bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='http://test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://test.bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='https://test.bj.bcebos.com')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'https://test.bj.bcebos.com')
+
+        # check virtual-hosted endpoint's bucket_name is not query bucket_name
+        conf = BceClientConfiguration(endpoint='abc.bj.bcebos.com')
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='http://abc.bj.bcebos.com')
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='http://127.0.0.1')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://127.0.0.1')
+
+        conf = BceClientConfiguration(endpoint='http://127.0.0.1:8080')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'http://127.0.0.1:8080')
+
+        conf = BceClientConfiguration(endpoint='127.0.0.1')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'127.0.0.1')
+
+        conf = BceClientConfiguration(endpoint='127.0.0.1:8080')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'127.0.0.1:8080')
+
+        conf = BceClientConfiguration(endpoint='y001122.online')
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'y001122.online')
+
+        # test path_style_enable
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com', path_style_enable=True)
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'bj.bcebos.com')
+
+        conf = BceClientConfiguration(endpoint='test.bj.bcebos.com', path_style_enable=True)
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        # test cname_enabled
+        conf = BceClientConfiguration(endpoint='bj.bcebos.com', cname_enabled=True)
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+
+        conf = BceClientConfiguration(endpoint='y001122.online', cname_enabled=True)
+        merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
+        self.assertEqual(merge_config.endpoint, b'y001122.online')
+
+
 
 
 class TestGetRangeHeaderDict(TestClient):
@@ -2911,14 +2996,27 @@ class TestRestoreObject(TestClient):
         err = None
         try:
             self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, storage_class=storage_class.ARCHIVE)
-            self.bos.restore_object(self.BUCKET, self.KEY, 1)
+            self.bos.restore_object(self.BUCKET, self.KEY, days=2, tier="Expedited")
             response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
         except BceServerError as e:
             err = e
         finally:
             self.assertIsNone(err)
         self.assertIsNotNone(response.metadata.bce_restore)
-        self.assertTrue(response.metadata.bce_restore.find("expiry-date") > 0)
+        self.assertTrue(response.metadata.bce_restore.find("expiry-date") < 0)
+        res = self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_restore_obejct_exception(self):
+        """test restore_obejct function exception"""
+        self.get_file(5)
+        err = None
+        try:
+            self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, storage_class=storage_class.ARCHIVE)
+            self.bos.restore_object(self.BUCKET, self.KEY, tier="invalid_value")
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
         res = self.bos.delete_object(self.BUCKET, self.KEY)
 
 class TestBucketStorageclass(TestClient):
@@ -2976,6 +3074,23 @@ class TestSymlink(TestClient):
             self.assertIsNotNone(err)
         # clear
         res = self.bos.delete_object(self.BUCKET, self.KEY)
+
+        # put symlink while symlink bucket
+        target_bucket = 'symlink-test-bucket'
+        self.bos.create_bucket(target_bucket)
+        err = None
+        self.bos.put_object_from_file(target_bucket, self.KEY, self.FILENAME)
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, symlink_key, target_bucket=target_bucket)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        # clear
+        self.bos.delete_object(target_bucket, self.KEY)
+        self.bos.delete_object(self.BUCKET, symlink_key)
+        self.bos.delete_bucket(target_bucket)
+
     
     def test_get_symlink(self):
         """ test get symlink """
@@ -3006,12 +3121,291 @@ class TestSymlink(TestClient):
         finally:
             self.assertIsNone(err)
         self.assertEqual(response, b"This is a string.")
+
+class TestQuota(TestClient):
+    """test put/get quota function"""
+    def test_get_quota(self):
+        """test get quota"""
+        err = None
+        self.bos.put_user_quota(100, 12334424)
+        try:
+            response = self.bos.get_user_quota()
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.max_bucket_count, 100)
+        self.assertEqual(response.max_capacity_mega_bytes, 12334424)
+        self.bos.delete_user_quota()
+    
+    def test_set_quota(self):
+        """test set quota"""
+        err = None
+        self.bos.delete_user_quota()
+        self.bos.put_user_quota(100, 12334424)
+        try:
+            response = self.bos.get_user_quota()
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.max_bucket_count, 100)
+        self.assertEqual(response.max_capacity_mega_bytes, 12334424)
+
+    def test_delete_quota(self):
+        """test delete quota"""
+        err = None
+        is_exception = False
+        self.bos.delete_user_quota()
+        try:
+            response = self.bos.get_user_quota()
+        except Exception as e:
+            is_exception = True
+        self.assertTrue(is_exception)
+
+class TestNotification(TestClient):
+    def test_get_notification(self):
+        """test get notification"""
+        err = None
+        notifications = list()
+        notifications.append(
+        {
+            "resources": [
+                "/"
+            ],
+            "encryption": {
+                "key": "06a62b70f47dc4a0a7da349609f1a1ac"
+            },
+            "status": "enabled",
+            "name": "name3",
+            "id": "r3",
+            "appId": "p3",
+            "events": [
+                "AppendObject",
+                "CompleteMultipartUpload",
+                "CopyObject",
+                "PutObject",
+                "PostObject",
+                "FetchObject",
+                "DeleteObject"
+            ],
+            "apps": [
+                {
+                    "eventUrl": "http://www.liujiang.com",
+                    "id": "ImageCensor",
+                    "xVars": "{\"saveUrl\": \"http://xxx.com/ocr\"}"
+                }
+            ]
+        })
+        self.bos.put_notification(self.BUCKET, notifications)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.notifications[0].id, "r3")
+    
+    def test_delete_notification(self):
+        err = None
+        is_exception = False
+        self.bos.delete_notification(self.BUCKET)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except Exception as e:
+            is_exception = True
+        self.assertTrue(is_exception)
+
+    def test_put_notification(self):
+        err = None
+        is_exception = False
+        self.bos.delete_notification(self.BUCKET)
+        notifications = list()
+        notifications.append(
+        {
+            "resources": [
+                "/"
+            ],
+            "encryption": {
+                "key": "06a62b70f47dc4a0a7da349609f1a1ac"
+            },
+            "status": "enabled",
+            "name": "name3",
+            "id": "r3",
+            "appId": "p3",
+            "events": [
+                "AppendObject",
+                "CompleteMultipartUpload",
+                "CopyObject",
+                "PutObject",
+                "PostObject",
+                "FetchObject",
+                "DeleteObject"
+            ],
+            "apps": [
+                {
+                    "eventUrl": "http://www.liujiang.com",
+                    "id": "ImageCensor",
+                    "xVars": "{\"saveUrl\": \"http://xxx.com/ocr\"}"
+                }
+            ]
+        })
+        self.bos.put_notification(self.BUCKET, notifications)
+        try:
+            response = self.bos.get_notification(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.notifications[0].id, "r3")
+
+
+class TestMirroringConf(TestClient):
+    """test put mirroring config"""
+    def test_mirroring(self):
+        err = None
+        mirror_args = list()
+        mirror_args.append({
+				    "mode": "fetch", 						
+				    "sourceUrl": "bos://bj.bcebos.com/" + self.BUCKET,  
+				    "backSourceUrl": "bos://bj.bcebos.com/bucket_name",   
+                    "resource": "*.jpeg",       
+
+				    "version": "v2", 								
+
+				    "passQueryString": False,					
+				    "storageClass": "STANDARD",
+	    })
+        try:
+            self.bos.put_bucket_mirroring(self.BUCKET, mirror_args= mirror_args)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
         
+        # test  get mirroring
+        try:
+            self.bos.get_bucket_mirroring(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        
+        # test delete mirroring
+        try:
+            self.bos.delete_bucket_mirroring(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+
+class TestTrafficLimit(TestClient):
+    """test put object"""
+    def test_put_object(self):
+        self.get_file(20)
+        traffic_limit_speed = 819200 * 5
+        start_time = datetime.datetime.now()
+        self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME, traffic_limit=traffic_limit_speed)
+        end_time = datetime.datetime.now()
+        time_interval = (end_time - start_time).seconds
+        speed = 20 * 1024 * 1024 * 8 / time_interval
+        self.assertTrue(speed <= traffic_limit_speed)
+    
+    def test_copy_object(self):
+        """test copy_object function normally"""
+        traffic_limit_speed = 81920
+        err = None
+        self.get_file(20)
+        try:
+            self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        try:
+            response = self.bos.copy_object(self.BUCKET,
+                                        self.KEY,
+                                        self.BUCKET,
+                                        compat.convert_to_bytes("test_target_key"),
+                                        traffic_limit=traffic_limit_speed)
+        except Exception as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+    
+    def test_get_object_to_file(self):
+        traffic_limit_speed = 819200 * 5
+        err = None
+        self.get_file(20)
+        try:
+            self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        start_time = datetime.datetime.now()
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME,
+                                        traffic_limit=traffic_limit_speed)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        end_time = datetime.datetime.now()
+        time_interval = (end_time - start_time).seconds
+        speed = 20 * 1024 * 1024 * 8 / time_interval
+        self.assertTrue(speed <= traffic_limit_speed)
+    
+    def test_upload_part(self):
+        traffic_limit_speed = 819200 * 5
+        response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "upload_id"))
+        self.assertTrue(hasattr(response, "bucket"))
+        self.assertTrue(hasattr(response, "key"))
+
+        upload_id = response.upload_id
+
+        self.get_file(20)
+        left_size = os.path.getsize(self.FILENAME)
+        done = 0
+        part_number = 1
+        part_list = []
+        while left_size > 0:
+            part_size = 5 * 1024 * 1024
+            if left_size < part_size:
+                part_size = left_size
+
+            response = self.bos.upload_part_from_file(self.BUCKET,
+                                                      self.KEY,
+                                                      upload_id,
+                                                      part_number=part_number,
+                                                      part_size=part_size,
+                                                      file_name = self.FILENAME,
+                                                      traffic_limit = traffic_limit_speed,
+                                                      offset=done)
+            left_size = left_size - part_size
+            done = done + part_size
+            part_list.append({
+                "partNumber": part_number,
+                "eTag": response.metadata.etag
+            })
+            part_number += 1
+
+        response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list)
+        self.check_headers(response)
+        self.assertTrue(hasattr(response, "etag"))
+        self.assertTrue(hasattr(response, "bucket"))
+        self.assertTrue(hasattr(response, "key"))
+        self.assertTrue(hasattr(response, "location"))
 
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
     runner.run(unittest.makeSuite(TestClient))
+
     runner.run(unittest.makeSuite(TestSelectObject))
     runner.run(unittest.makeSuite(TestCopyObject))
     runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
@@ -3057,10 +3451,17 @@ def run_test():
     runner.run(unittest.makeSuite(TestSymlink))
     runner.run(unittest.makeSuite(TestBucketStorageclass))
     runner.run(unittest.makeSuite(TestBucketInventory))
+    runner.run(unittest.makeSuite(TestNotification))
+    runner.run(unittest.makeSuite(TestMirroringConf))
+    
+    """test quota, the quota cache may exist causing the bucket to be created error"""
+    # runner.run(unittest.makeSuite(TestQuota))
+    """test speed limit, the case is skipped by default"""
+    # runner.run(unittest.makeSuite(TestTrafficLimit))
+    
 
 
 run_test()
 cov.stop()
 cov.save()
 cov.html_report()
-

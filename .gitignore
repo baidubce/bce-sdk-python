@@ -2,6 +2,7 @@
 output
 build_submitter*
 .idea
+.DS_Store
 bce_python_sdk.egg-info
 build
 dist

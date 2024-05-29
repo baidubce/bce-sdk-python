@@ -334,12 +334,24 @@ class TestBtsClient(unittest.TestCase):
 
         instance_name = b'ins01'
         table_name = b'tab01'
+        # First way: using dict value
         row = Row()
         row.rowkey = "row01"
         cell1 = TestCell("c1", "v1")
         cell2 = TestCell("c2", "v2")
         cells = [cell1.__dict__, cell2.__dict__]
         row.cells = cells
+        res = self.bts_client.put_row(instance_name, table_name, row)
+        self.assertEqual(res.status, 200)
+
+        row = Row()
+        row.rowkey = "row01"
+        cell1 = Cell("c1", "v1")
+        cell2 = Cell("c2", "v2")
+
+        # Second way: use object
+        row.cells.append(cell1)
+        row.cells.append(cell2)
         res = self.bts_client.put_row(instance_name, table_name, row)
         self.assertEqual(res.status, 200)
 
@@ -359,6 +371,7 @@ class TestBtsClient(unittest.TestCase):
 
         instance_name = b'ins01'
         table_name = b'tab01'
+        # First way: using dict value
         batch_put_row = BatchPutRowArgs()
         for i in range(2, 15):
             row = Row()
@@ -369,6 +382,20 @@ class TestBtsClient(unittest.TestCase):
                 cell = TestCell(col, val)
                 row.cells.append(cell.__dict__)
             batch_put_row.rows.append(row.__dict__)
+        res = self.bts_client.batch_put_row(instance_name, table_name, batch_put_row)
+        self.assertEqual(res.status, 200)
+
+        # Second way: use object
+        batch_put_row = BatchPutRowArgs()
+        for i in range(2, 15):
+            row = Row()
+            row.rowkey = "row" + str(i)
+            for j in range(3):
+                col = "c" + str(j)
+                val = "v" + str(j)
+                cell = Cell(col, val)
+                row.cells.append(cell)
+            batch_put_row.rows.append(row)
         res = self.bts_client.batch_put_row(instance_name, table_name, batch_put_row)
         self.assertEqual(res.status, 200)
 
@@ -392,7 +419,17 @@ class TestBtsClient(unittest.TestCase):
         query_row_args.rowkey = "row011"
         cell1 = QueryCell()
         cell1.column = "c1"
+
+        # First way: using dict value
         query_row_args.cells.append(cell1.__dict__)
+        res = self.bts_client.delete_row(instance_name, table_name, query_row_args)
+        self.assertEqual(res.status, 200)
+
+        # Reset cells for next test
+        query_row_args.cells = []
+
+        # Second way: use object
+        query_row_args.cells.append(cell1)
         res = self.bts_client.delete_row(instance_name, table_name, query_row_args)
         self.assertEqual(res.status, 200)
 
@@ -415,17 +452,21 @@ class TestBtsClient(unittest.TestCase):
         batch_query_row_args = BatchQueryRowArgs()
         batch_query_row_args.max_version = 2
 
+        # First way: using dict value
         query_row_args1 = QueryRowArgs()
         query_row_args1.rowkey = "row8"
         query_row_args1.cells.append(QueryCell("c0").__dict__)
         query_row_args1.cells.append(QueryCell("c1").__dict__)
-        batch_query_row_args.rows.append(query_row_args1.__dict__)
+        batch_query_row_args.rows.append(query_row_args1)
 
+        # Second way: use object
         query_row_args2 = QueryRowArgs()
         query_row_args2.rowkey = "row9"
-        query_row_args2.cells.append(QueryCell("c1").__dict__)
-        query_row_args2.cells.append(QueryCell("c2").__dict__)
-        batch_query_row_args.rows.append(query_row_args2.__dict__)
+        query_row_args2.cells.append(QueryCell("c1"))
+        query_row_args2.cells.append(QueryCell("c2"))
+        batch_query_row_args.rows.append(query_row_args2)
+
+        # Perform the batch delete operation
         res = self.bts_client.batch_delete_row(instance_name, table_name, batch_query_row_args)
         self.assertEqual(res.status, 200)
 
@@ -473,13 +514,23 @@ class TestBtsClient(unittest.TestCase):
 
         instance_name = b'ins01'
         table_name = b'tab01'
+        # First way: using dict value
         query_row_args = QueryRowArgs()
         query_row_args.rowkey = "row1"
         query_row_args.cells.append(QueryCell("c1").__dict__)
         query_row_args.cells.append(QueryCell("c2").__dict__)
         query_row_args.max_versions = 2
-        res = self.bts_client.get_row(instance_name, table_name, query_row_args)
-        self.assertEqual(res.status, 200)
+        res1 = self.bts_client.get_row(instance_name, table_name, query_row_args)
+        self.assertEqual(res1.status, 200)
+
+        # Second way: use object
+        query_row_args = QueryRowArgs()
+        query_row_args.rowkey = "row1"
+        query_row_args.cells.append(QueryCell("c1"))
+        query_row_args.cells.append(QueryCell("c2"))
+        query_row_args.max_versions = 2
+        res2 = self.bts_client.get_row(instance_name, table_name, query_row_args)
+        self.assertEqual(res2.status, 200)
 
     def test_batch_get_row(self):
         """
@@ -547,22 +598,34 @@ class TestBtsClient(unittest.TestCase):
 
         instance_name = b'ins01'
         table_name = b'tab01'
-        batch_query_row_args = BatchQueryRowArgs()
-        batch_query_row_args.max_versions = 2
-
+        batch_query_row_args1 = BatchQueryRowArgs()
+        batch_query_row_args1.max_versions = 2
+        # First way: using a dictionary
         query_row_args1 = QueryRowArgs()
         query_row_args1.rowkey = "row1"
         query_row_args1.cells.append(QueryCell("c1").__dict__)
         query_row_args1.cells.append(QueryCell("c2").__dict__)
-        batch_query_row_args.rows.append(query_row_args1.__dict__)
-
+        batch_query_row_args1.rows.append(query_row_args1.__dict__)
+        # Second way: use object
         query_row_args2 = QueryRowArgs()
         query_row_args2.rowkey = "row2"
         query_row_args2.cells.append(QueryCell("c1").__dict__)
         query_row_args2.cells.append(QueryCell("c2").__dict__)
-        batch_query_row_args.rows.append(query_row_args2.__dict__)
-        res = self.bts_client.batch_get_row(instance_name, table_name, batch_query_row_args)
-        self.assertEqual(res.status, 200)
+        batch_query_row_args1.rows.append(query_row_args2.__dict__)
+        res1 = self.bts_client.batch_get_row(instance_name, table_name, batch_query_row_args1)
+        self.assertEqual(res1.status, 200)
+
+        batch_query_row_args2 = BatchQueryRowArgs()
+        batch_query_row_args2.max_versions = 2
+        for row_key in ["row1", "row2"]:
+            query_row_args = QueryRowArgs()
+            query_row_args.rowkey = row_key
+            query_row_args.cells.append(QueryCell("c1"))
+            query_row_args.cells.append(QueryCell("c2"))
+            batch_query_row_args2.rows.append(query_row_args)
+
+        res2 = self.bts_client.batch_get_row(instance_name, table_name, batch_query_row_args2)
+        self.assertEqual(res2.status, 200)
 
     def test_scan(self,):
         """
@@ -624,6 +687,7 @@ class TestBtsClient(unittest.TestCase):
 
         instance_name = b"ins01"
         table_name = b"tab01"
+        # First way: using a dictionary
         scan_args = ScanArgs()
         scan_args.start_rowkey = "row1"
         scan_args.include_start = "true"
@@ -633,8 +697,21 @@ class TestBtsClient(unittest.TestCase):
         scan_args.selector.append(QueryCell("c2").__dict__)
         scan_args.max_versions = 1
         scan_args.limit = 20
-        res = self.bts_client.scan(instance_name, table_name, scan_args)
-        self.assertEqual(res.status, 200)
+        res1 = self.bts_client.scan(instance_name, table_name, scan_args)
+        self.assertEqual(res1.status, 200)
+
+        # Second way: using object
+        scan_args_obj = ScanArgs()
+        scan_args_obj.start_rowkey = "row1"
+        scan_args_obj.include_start = True  # This should be a boolean, not a string
+        scan_args_obj.stop_rowkey = "row2"
+        scan_args_obj.include_stop = True  # This should be a boolean, not a string
+        scan_args_obj.selector.append(QueryCell("c1"))  # Assuming QueryCell has a proper initializer
+        scan_args_obj.selector.append(QueryCell("c2"))  # Assuming QueryCell has a proper initializer
+        scan_args_obj.max_versions = 1
+        scan_args_obj.limit = 20
+        res2 = self.bts_client.scan(instance_name, table_name, scan_args_obj)
+        self.assertEqual(res2.status, 200)
 
 
 class TestCell(object):

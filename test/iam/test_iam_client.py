@@ -145,6 +145,15 @@ class TestIamClient(unittest.TestCase):
         self.assertEqual(type(self.client.list_user_accesskey(user_name=user_name)),
                          baidubce.bce_response.BceResponse)
 
+    def test_unbind_user_mfa_device(self):
+        """
+        test_list_user_accesskey case
+        """
+        user_name = b"test_user"
+        mfa_type = b"PHONE"
+        self.assertEqual(type(self.client.unbind_user_mfa_device(user_name=user_name, mfa_type=mfa_type)),
+                         baidubce.bce_response.BceResponse)
+
     def test_create_group(self):
         """
          test_create_group case
@@ -293,6 +302,18 @@ class TestIamClient(unittest.TestCase):
         self.assertEqual(type(self.client.get_policy(policy_name=policy_name, policy_type=policy_type)),
                          baidubce.bce_response.BceResponse)
 
+    def test_update_policy(self):
+        """
+        test case for update_policy
+        """
+        update_policy_request = {"name": "test_policy1", "description": "update policy: test_policy_1",
+                                 "document": '{ "accessControlList": [ { "region": "bj", "resource": [ "*" ], "effect":'
+                                             '"Allow", "service": "bce:bos", "permission": [ "OPERATE" ] } ] } '}
+
+        self.assertEqual(type(self.client.update_policy(b"test_policy",
+                                                        update_policy_request=update_policy_request)),
+                         baidubce.bce_response.BceResponse)
+
     def test_list_policy(self):
         """
         test case for list_policy
@@ -403,9 +424,20 @@ class TestIamClient(unittest.TestCase):
 
     def test_list_policies_from_role(self):
         """
-        test case for create_role
+        test case for list_policies_from_role
         """
         role_name = b"test_role"
 
         self.assertEqual(type(self.client.list_policies_from_role(role_name=role_name)),
                          baidubce.bce_response.BceResponse)
+
+    def test_list_attached_entities_by_grant_type(self):
+        """
+        test case for list_attached_entities_by_grant_type
+        """
+        policy_id = b"test_custom_bcepolicy_id"
+        grant_type = b"GroupPolicy"
+
+        self.assertEqual(type(self.client.list_attached_entities_by_grant_type(policy_id=policy_id,
+                                                                               grant_type=grant_type)),
+            baidubce.bce_response.BceResponse)

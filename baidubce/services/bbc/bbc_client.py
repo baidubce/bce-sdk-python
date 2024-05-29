@@ -41,6 +41,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     Bbc client sdk
     """
 
+    prefix_v2 = b'/v2'
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
 
@@ -685,6 +686,47 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, body=json.dumps(body),
                                   params=params, config=config)
 
+    @required(reserved_instance_ids=list,
+              tags=list)
+    def bind_reserved_instance_to_tags(self, reserved_instance_ids, tags, config=None):
+        """
+        :param reserved_instance_ids:
+        :param tags:
+        :param config:
+        :return:
+        """
+        path = b'/bbc/reserved/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list,
+            'reservedInstanceIds': reserved_instance_ids
+        }
+        params = {
+            'bind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config, api_version=self.prefix_v2)
+
+    @required(reserved_instance_ids=list,
+              tags=list)
+    def unbind_reserved_instance_from_tags(self, reserved_instance_ids, tags, config=None):
+        """
+        :param reserved_instance_ids:
+        :param tags:
+        :param config:
+        :return:
+        """
+        path = b'/bbc/reserved/tag'
+        tag_list = [tag.__dict__ for tag in tags]
+        body = {
+            'changeTags': tag_list,
+            'reservedInstanceIds': reserved_instance_ids
+        }
+        params = {
+            'unbind': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config, api_version=self.prefix_v2)
 
     def list_flavors(self, config=None):
         """
