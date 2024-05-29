@@ -75,6 +75,20 @@ class TestMedia(TestVcaClient):
         finally:
             self.assertIsNone(err)
 
+    def test_cancel(self):
+        """
+        A test case
+        """
+        err = None
+        try:
+            # send + cancel
+            self.the_client.put_media("bos://vca-test-bucket/video.mp4")
+            print(self.the_client.cancel("bos://vca-test-bucket/video.mp4"))
+        except Exception as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
 
 def run_test():
     """
