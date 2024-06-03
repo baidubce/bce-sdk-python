@@ -1172,7 +1172,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if cds_ids is not None:
             params['cdsIds'] = cds_ids
         if deployset_ids is not None:
-            params['deploysetIds'] = deployset_ids
+            params['deploySetIds'] = deployset_ids
         if security_group_ids is not None:
             params['securityGroupIds'] = security_group_ids
         if payment_timing is not None:
@@ -5197,7 +5197,8 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def instance_change_vpc(self, instance_id, subnet_id=None,
-                            internal_ip=None, reboot=None, client_token=None, config=None):
+                            internal_ip=None, reboot=None, security_group_ids=None, enterprise_security_group_ids=None,
+                            client_token=None, config=None):
         """
         Change instance vpc by id.
 
@@ -5236,6 +5237,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['internalIp'] = internal_ip
         if reboot is not None:
             body['reboot'] = reboot
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
@@ -5827,8 +5832,6 @@ class BccClient(bce_base_client.BceBaseClient):
             body['specId'] = spec_id
         if logical_zone is not None:
             body['zone'] = logical_zone
-        if spec is not None:
-            body['internalIpV4'] = spec
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_change_instance_to_prepay(self, change_pay_timing_req_list, client_token=None, config=None):

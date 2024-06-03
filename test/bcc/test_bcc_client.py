@@ -1493,7 +1493,8 @@ class TestBccClient(unittest.TestCase):
         test case for instance_change_vpc
         """
         resp = self.client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                               internal_ip="192.168.32.2", reboot=True)
+                                               internal_ip="192.168.32.2", reboot=True,
+                                               security_group_ids=["g-9yjq****"])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
