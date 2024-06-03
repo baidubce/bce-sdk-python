@@ -1179,7 +1179,8 @@ if __name__ == "__main__":
     # instance_change_vpc
     try:
         response = bcc_client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                                  internal_ip="192.168.32.2", reboot=True)
+                                                  internal_ip="192.168.32.2", reboot=True,
+                                                  security_group_ids=["g-9yjq****"])
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
