@@ -43,6 +43,7 @@ system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-1utufn3mtg1y'
 subnet_id = "f42b9393-e721-4693-a1ab-2d67fe2f4d65"
 zone = 'cn-bj-a'
+region = ''
 
 
 force_stop = False
@@ -206,6 +207,12 @@ class TestBbcClient(unittest.TestCase):
         test case for delete auto renew rules
         """
         print(self.client.delete_auto_renew_rules(instance_id))
+
+    def test_describe_regions(self):
+        """
+        test case for list all region's endpoint information with specific parameter
+        """
+        print(self.client.describe_regions(region))
 
     def test_modify_instance_name(self):
         """

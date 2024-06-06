@@ -50,6 +50,7 @@ image_id = 'm-AfH5u6IE'
 snapshot_id = 's-7mEwKt4F'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-dcrami1yg8u2'
+region = ''
 
 post_paid_billing = bcc_model.Billing('Postpaid', 1)
 pre_paid_billing = bcc_model.Billing('Prepaid', 2)
@@ -572,6 +573,14 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.detach_volume(volume_id,
                                            instance_id)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_regions(self):
+        """
+        test case for list all region's endpoint information with specific parameter
+        """
+        self.assertEqual(
+            type(self.client.describe_regions(region)),
             baidubce.bce_response.BceResponse)
 
     def test_release_volume(self):
