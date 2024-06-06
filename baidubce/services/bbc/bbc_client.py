@@ -457,6 +457,27 @@ class BbcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def describe_regions(self, region, config=None):
+        """
+        List all region's endpoint information with the specific parameters.
+        Use global endpoint bbc.baidubce.com to get BBC's endpoint.
+
+        :param region:
+            The id of region.
+        :type region: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+
+        path = b'/region/describeRegions'
+        body = {
+            'region': region
+        }
+        params = {}
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config, api_version=self.prefix_v2)
+
     @required(instance_id=(bytes, str),
               name=(bytes, str))
     def modify_instance_name(self, instance_id, name, config=None):

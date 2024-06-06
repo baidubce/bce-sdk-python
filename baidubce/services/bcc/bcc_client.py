@@ -2279,6 +2279,27 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    def describe_regions(self, region, config=None):
+        """
+        List all region's endpoint information with the specific parameters.
+        Use global endpoint bcc.baidubce.com to get BCC,CDS,ReservedInstance's endpoint.
+
+        :param region:
+            The id of region.
+        :type region: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+
+        path = b'/region/describeRegions'
+        body = {
+            'region': region
+        }
+        params = {}
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
     @required(volume_id=(bytes, str))  # ***Unicode***
     def release_volume(self, volume_id, config=None):
         """

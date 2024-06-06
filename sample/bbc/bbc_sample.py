@@ -53,6 +53,7 @@ if __name__ == "__main__":
     deploy_set_name = "test_deploy_set"
     deploy_set_id = "dset-8j5RpRsO"
     reserved_instance_ids = ['r-oFpMXKhv', 'r-HrztSVk0']
+    region = ""
 
     ######################################################################################################
     #            bcc operation samples
@@ -430,6 +431,22 @@ if __name__ == "__main__":
         response = bbc_client.unbind_reserved_instance_from_tags(reserved_instance_ids, change_tags)
         print
         response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    ######################################################################################################
+    #            region operation samples
+    ######################################################################################################
+
+    # list all region's endpoint information with specific parameters.
+    # bbc_client's endpoint must be bbc.baidubce.com
+    try:
+        response = bbc_client.describe_regions(region=region)
+        print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'

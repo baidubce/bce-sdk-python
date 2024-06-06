@@ -75,6 +75,7 @@ if __name__ == "__main__":
     res_group_id = 'RESG-UtT3P4x4KxF'
 
     reserved_instance_ids = ['r-oFpMXKhv', 'r-HrztSVk0']
+    region = ''
     ######################################################################################################
     #            bcc operation samples
     ######################################################################################################
@@ -1642,8 +1643,24 @@ if __name__ == "__main__":
 
     # get_cds_price
     try:
-        response = bcc_client.get_cds_price(purchase_length=1, payment_timing='Prepaid', storage_type='cloud_hp1', 
+        response = bcc_client.get_cds_price(purchase_length=1, payment_timing='Prepaid', storage_type='cloud_hp1',
                                             cds_size_in_gb=1000, purchase_count=1, zone_name='cn-bj-a')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    ######################################################################################################
+    #            region operation samples
+    ######################################################################################################
+
+    # list all region's endpoint information with specific parameters.
+    # bbc_client's endpoint must be bbc.baidubce.com
+    try:
+        response = bcc_client.describe_regions(region=region)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
