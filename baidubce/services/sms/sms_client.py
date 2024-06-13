@@ -549,11 +549,14 @@ class SmsClient(BceBaseClient):
                                             headers, params)
 
     @required(type=str, phone=str)
-    def create_mobile_black(self, type, phone, sms_type=None, signature_id_str=None, config=None):
+    def create_mobile_black(self, type, phone, country_type, sms_type=None, signature_id_str=None, config=None):
         """
 
         :param type: The value of type could be MerchantBlack or SignatureBlack
         :type type: str
+
+        :param country_type: The value of countryType could be DOMESTIC or INTERNATIONAL
+        :type country_type: str
 
         :param sms_type: Mobile of black, Support multiple mobile phone numbers, up to 200 maximum, separated by comma.
         :type sms_type: str
@@ -570,7 +573,8 @@ class SmsClient(BceBaseClient):
         """
         data = {
             "type": type,
-            "phone": phone
+            "phone": phone,
+            "countryType": country_type
         }
         if sms_type:
             data["smsType"] = sms_type
@@ -581,12 +585,15 @@ class SmsClient(BceBaseClient):
         return self._send_request(http_methods.POST, function_name="blacklist", body=json.dumps(data),
                                   config=config, api_version=2)
 
-    def get_mobile_black(self, phone=None, sms_type=None, signature_id_str=None, start_time=None, end_time=None,
-                         page_no=None, page_size=None, config=None):
+    def get_mobile_black(self, phone=None, country_type=None, sms_type=None, signature_id_str=None, start_time=None,
+                         end_time=None, page_no=None, page_size=None, config=None):
         """
         Get mobile black
         :param phone: Support multiple mobile phone numbers, up to 200 maximum, separated by comma.
         :type phone: str
+
+        :param country_type: The value of countryType could be DOMESTIC or INTERNATIONAL
+        :type  country_type: str
 
         :param sms_type: smsType
         :type  sms_type: str
@@ -629,6 +636,9 @@ class SmsClient(BceBaseClient):
         req_params = {}
         if phone:
             req_params["phone"] = phone
+
+        if country_type:
+            req_params["countryType"] = country_type
 
         if sms_type:
             req_params["smsType"] = sms_type
