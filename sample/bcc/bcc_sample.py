@@ -1606,6 +1606,51 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # create_ehc_cluster
+    try:
+        response = bcc_client.create_ehc_cluster(name='clusterName', zone_name='zone_name', description='description')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # modify_ehc_cluster
+    try:
+        response = bcc_client.modify_ehc_cluster(ehc_cluster_id='ecid', name='clusterName', description='description')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get_ehc_cluster_list
+    try:
+        response = bcc_client.get_ehc_cluster_list(ehc_cluster_id_list=['ecid1', 'ecid2'],
+                                                   name_list=['cname1', 'cname2'], zone_name='zone_name')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete_ehc_cluster
+    try:
+        response = bcc_client.delete_ehc_cluster(ehc_cluster_id_list=['ecid1', 'ecid2'])
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # get_available_images_by_spec
     try:
         response = bcc_client.get_available_images_by_spec(spec='bcc.ic4.c1m1')
