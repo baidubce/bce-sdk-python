@@ -322,6 +322,14 @@ class TestBccClient(unittest.TestCase):
         print(resp.instances)
         self.assertEqual(len(resp.instances), 1)
 
+    def test_list_instances_by_ehc_cluster_id(self):
+        """
+        test case for list_instances
+        """
+        resp = self.client.list_instances(ehc_cluster_id="ehc-bk4hM1N3")
+        print(resp.instances)
+        self.assertEqual(len(resp.instances), 1)
+
     def test_get_instance(self):
         """
         test case for get_instance
@@ -1159,6 +1167,7 @@ class TestBccClient(unittest.TestCase):
                                                    name=instance_name,
                                                    admin_pass=admin_pass,
                                                    enable_jumbo_frame=False,
+                                                   ehc_cluster_id='ehc-bk4hM1N3',
                                                    client_token=client_token)
         self.assertEqual(
             type(resp),
@@ -2013,6 +2022,62 @@ class TestBccClient(unittest.TestCase):
         test case for del_instance_deploy
         """
         resp = self.client.del_instance_deploy(instance_id_list=['iid1', 'iid2'], deploy_set_id='dsid')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_create_ehc_cluster(self):
+        """
+        test case for create_ehc_cluster
+        """
+        resp = self.client.create_ehc_cluster('test-pysdk', 'cn-bj-a', 'test-description')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_ehc_cluster_list(self):
+        """
+        test case for get_ehc_cluster_list
+        """
+        resp = self.client.get_ehc_cluster_list(ehc_cluster_id_list=['ehc-qFuANaBG'],
+                                                name_list=['test-pysdk'], zone_name='cn-bj-a')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_ehc_cluster(self):
+        """
+        test case for modify_ehc_cluster
+        """
+        resp = self.client.modify_ehc_cluster('ehc-v2RcFsAI', name='test-pysdk-modify', description='')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_delete_ehc_cluster(self):
+        """
+        test case for delete_ehc_cluster
+        """
+        ehc_cluster_id_list = []
+        ehc_cluster_id_list.append('ehc-v2RcFsAI')
+        ehc_cluster_id_list.append('ehc-zk7735uQ')
+        resp = self.client.delete_ehc_cluster(ehc_cluster_id_list=ehc_cluster_id_list)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)

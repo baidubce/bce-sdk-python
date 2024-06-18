@@ -88,7 +88,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
                         spec=None, eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                         relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
-                        security_group_ids=None, enterprise_security_group_ids=None,
+                        security_group_ids=None, enterprise_security_group_ids=None, ehc_cluster_id=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
                         deletion_protection=None, res_group_id=None,
                         client_token=None, config=None, card_count=1, isomerism_card=None):
@@ -315,6 +315,10 @@ class BccClient(bce_base_client.BceBaseClient):
             enterprise_security_group_ids
         :type enterprise_security_group_ids: list<string>
 
+        :param ehc_cluster_id:
+            The id of ehcCluster.
+        :type ehc_cluster_id: string
+
         :param kunlunCard:
             This parameter is obsolete. Use parameter isomerism_card instead.
         :type kunlunCard: string
@@ -418,6 +422,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['securityGroupIds'] = security_group_ids
         if enterprise_security_group_ids is not None:
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
             body['cardCount'] = card_count if card_count > 1 else 1
@@ -1069,7 +1075,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
-                       zone_name=None, instance_ids=None, instance_names=None, cds_ids=None,
+                       zone_name=None, instance_ids=None, instance_names=None, cds_ids=None, ehc_cluster_id=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
                        vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, config=None):
         """
@@ -1110,6 +1116,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param cds_ids:
             filter instance list with multiple cds ids join by ','
         :type cds_ids: string
+
+        :param ehc_cluster_id:
+            get instance list filtered by id of ehc cluster
+        :type ehc_cluster_id: string
 
         :param deployset_ids:
             filter instance list with multiple deployset ids join by ','
@@ -1171,6 +1181,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['instanceNames'] = instance_names
         if cds_ids is not None:
             params['cdsIds'] = cds_ids
+        if ehc_cluster_id is not None:
+            params['ehcClusterId'] = ehc_cluster_id
         if deployset_ids is not None:
             params['deploySetIds'] = deployset_ids
         if security_group_ids is not None:
@@ -3890,7 +3902,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 auto_seq_suffix=None, is_open_hostname_domain=None, admin_pass=None, billing=None,
                                 zone_name=None, subnet_id=None, security_group_id=None,
                                 enterprise_security_group_id=None, security_group_ids=None,
-                                enterprise_security_group_ids=None, relation_tag=None,
+                                enterprise_security_group_ids=None, relation_tag=None, ehc_cluster_id=None,
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
                                 dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
@@ -4001,6 +4013,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param relation_tag:
             The parameter to specify whether the instance related to existing tags
         :type relation_tag: boolean
+
+        :param ehc_cluster_id:
+            The id of ehcCluster.
+        :type ehc_cluster_id: string
 
         :param is_open_ipv6:
             The parameter indicates whether the instance to be created is enabled for IPv6.
@@ -4171,6 +4187,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['aspId'] = asp_id
         if relation_tag is not None:
             body['relationTag'] = relation_tag
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
         if is_open_ipv6 is not None:
             body['isOpenIpv6'] = is_open_ipv6
         if tags is not None:
@@ -6397,6 +6415,128 @@ class BccClient(bce_base_client.BceBaseClient):
             'instanceIdList': instance_id_list,
             'deployId': deploy_set_id
         }
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def create_ehc_cluster(self, name, zone_name, description=None, client_token=None, config=None):
+        """
+        create ehc cluster
+
+        :param name:
+            The name of the EHC cluster. This parameter is required.
+        :type name: string
+
+        :param zone_name:
+            The availability zone name where the EHC cluster will be created.
+        :type zone_name: string
+
+        :param description:
+            Optional. A brief description of the EHC cluster. Default is an empty string.
+        :type description: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/create'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'name': name,
+            'zoneName': zone_name
+        }
+        if description is not None:
+            body['description'] = description
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def modify_ehc_cluster(self, ehc_cluster_id, name=None, description=None, client_token=None, config=None):
+        """
+        Modifies the name and description of an EHC cluster.
+
+        :param ehc_cluster_id:
+            The ID of the EHC cluster to be modified. This parameter is required.
+        :type ehc_cluster_id: string
+
+        :param name:
+            Optional. The new name for the EHC cluster. If not specified, the name will not be changed.
+        :type name: string
+
+        :param description:
+            Optional. The new description for the EHC cluster. If not specified, the description will not be changed.
+        :type description: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/modify'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'ehcClusterId': ehc_cluster_id
+        }
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def get_ehc_cluster_list(self, ehc_cluster_id_list=None, name_list=None, zone_name=None, config=None):
+        """
+        get ehc cluster list
+
+        :param ehc_cluster_id_list:
+            Optional. List of EHC cluster IDs to filter the results. If not specified, retrieves all clusters.
+        :type ehc_cluster_id_list: list<string>
+
+        :param name_list:
+            Optional. List of EHC cluster names to filter the results. If not specified, retrieves all clusters.
+        :type name_list: list<string>
+
+        :param zone_name:
+            Optional. The name of the availability zone to filter the results.
+        :type zone_name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/list'
+        params = {}
+        body = {}
+        if ehc_cluster_id_list is not None:
+            body['ehcClusterIdList'] = ehc_cluster_id_list
+        if name_list is not None:
+            body['nameList'] = name_list
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def delete_ehc_cluster(self, ehc_cluster_id_list, client_token=None, config=None):
+        """
+        Modifies the name and description of an EHC cluster.
+
+        :param ehc_cluster_id_list:
+            A list of IDs of the EHC clusters to be deleted. This parameter is required.
+        :type ehc_cluster_id_list: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/delete'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'ehcClusterIdList': ehc_cluster_id_list
+        }
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def get_available_images_by_spec(self, marker=None, max_keys=None, spec=None, os_name=None, config=None):
