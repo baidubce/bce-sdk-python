@@ -1069,7 +1069,7 @@ class BccClient(bce_base_client.BceBaseClient):
             body['userData'] = user_data
         if res_group_id is not None:
             body['resGroupId'] = res_group_id
-        body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete 
+        body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
@@ -4741,7 +4741,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 
     @required(instance_id=(bytes, str), is_eip_auto_related_delete=bool)
-    def modify_related_delete_policy(self, instance_id, is_eip_auto_related_delete, client_token=None, config=None): 
+    def modify_related_delete_policy(self, instance_id, is_eip_auto_related_delete, client_token=None, config=None):
         """
         Set bid instance eip_auto_related_delete.
 
@@ -6576,6 +6576,153 @@ class BccClient(bce_base_client.BceBaseClient):
             params['osName'] = os_name
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def create_reserved_instances(self, reserved_instance_name=None, scope=None, zone_name=None, spec=None,
+                                  offering_type=None, instance_count=None, reserved_instance_count=None,
+                                  reserved_instance_time=None, reserved_instance_time_unit=None,
+                                  auto_renew_time_unit=None, auto_renew_time=None, auto_renew=None,
+                                  effective_time=None, ehc_cluster_id=None, ticket_id=None,
+                                  tags=None, client_token=None, config=None):
+
+        """
+        Create reserved instances.
+
+        :param reserved_instance_name:
+            The name of the reserved instance.
+        :type reserved_instance_name: string
+
+        :param scope:
+            The scope.
+        :type scope: string
+
+        :param zone_name:
+            The name of the availability zone.
+        :type zone_name: string
+
+        :param spec:
+            The instance specification.
+        :type spec: string
+
+        :param offering_type:
+            The offering type.
+        :type offering_type: string
+
+        :param instance_count:
+            The number of instances.
+        :type instance_count: int
+
+        :param reserved_instance_count:
+            The number of reserved instances.
+        :type reserved_instance_count: int
+
+        :param reserved_instance_time:
+            The duration of the reserved instance.
+        :type reserved_instance_time: int
+
+        :param reserved_instance_time_unit:
+            The time unit of the reserved instance.
+        :type reserved_instance_time_unit: string
+
+        :param auto_renew_time_unit:
+            The time unit for automatic renewal.
+        :type auto_renew_time_unit: string
+
+        :param auto_renew_time:
+            The duration for automatic renewal.
+        :type auto_renew_time: int
+
+        :param auto_renew:
+            Whether to enable automatic renewal, defaults to False.
+        :type auto_renew: bool
+
+        :param effective_time:
+            The effective time.
+            It is immediately effective by default.
+        :type effective_time: string
+
+        :param ehc_cluster_id:
+            The EHC cluster ID.
+        :type ehc_cluster_id: string
+
+        :param ticket_id:
+            The ticket ID.
+        :type ticket_id: string
+
+        :param tags:
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+
+        path = b'/instance/reserved/create'  # 请替换为实际的请求路径
+        params = {}
+        if client_token is not None:
+            params['clientToken'] = client_token
+
+        body = {}
+
+        if reserved_instance_name is not None:
+            body['reservedInstanceName'] = reserved_instance_name
+        if scope is not None:
+            body['scope'] = scope
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if spec is not None:
+            body['spec'] = spec
+        if offering_type is not None:
+            body['offeringType'] = offering_type
+        if instance_count is not None:
+            body['instanceCount'] = instance_count
+        if reserved_instance_count is not None:
+            body['reservedInstanceCount'] = reserved_instance_count
+        if reserved_instance_time is not None:
+            body['reservedInstanceTime'] = reserved_instance_time
+        if reserved_instance_time_unit is not None:
+            body['reservedInstanceTimeUnit'] = reserved_instance_time_unit
+        if auto_renew_time_unit is not None:
+            body['autoRenewTimeUnit'] = auto_renew_time_unit
+        if auto_renew_time is not None:
+            body['autoRenewTime'] = auto_renew_time
+        if auto_renew is not False:
+            body['autoRenew'] = str(auto_renew).lower()
+        if effective_time is not None:
+            body['effectiveTime'] = effective_time
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
+        if ticket_id is not None:
+            body['ticketId'] = ticket_id
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def modify_reserved_instances(self, reserved_instances=None, client_token=None, config=None):
+
+        """
+        Modify the information of reserved instances.
+
+        :param reserved_instances:
+            A list of dictionaries containing the information of reserved instances to be updated.
+        :type reserved_instances: list<bcc_model.ModifyReservedInstanceModel>
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/reserved/modify'
+        params = {}
+        if client_token is not None:
+            params['clientToken'] = client_token
+
+        body = {}
+
+        if reserved_instances is not None:
+            reserved_instances_list = [reserved_instance.__dict__ for reserved_instance in reserved_instances]
+            body['reservedInstances'] = reserved_instances_list
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
 
 def generate_client_token_by_uuid():
