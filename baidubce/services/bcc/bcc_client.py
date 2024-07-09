@@ -5228,7 +5228,9 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, prefix=b"/v1", params=params, config=config)
 
     def instance_change_subnet(self, instance_id, subnet_id=None,
-                               internal_ip=None, reboot=None, client_token=None, config=None):
+                               internal_ip=None, reboot=None,
+                               security_group_ids=None, enterprise_security_group_ids=None,
+                               client_token=None, config=None):
         """
         Change instance subnet by id.
 
@@ -5247,6 +5249,12 @@ class BccClient(bce_base_client.BceBaseClient):
         :param reboot:
         Reboot instance or not. Default value is False.
         :type reboot: bool
+
+        :param security_group_ids:
+        :type security_group_ids: list<string>
+
+        :param enterprise_security_group_ids:
+        :type enterprise_security_group_ids: list<string>
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5267,6 +5275,12 @@ class BccClient(bce_base_client.BceBaseClient):
             body['internalIp'] = internal_ip
         if reboot is not None:
             body['reboot'] = reboot
+
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
@@ -5542,7 +5556,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_create_auto_renew_rules(self, instance_id, renew_time_unit="month", renew_time=1,
-                                      client_token=None, config=None):
+                                      renew_cds=None, renew_eip=None, client_token=None, config=None):
         """
         create auto renew rules for instance
 
@@ -5557,6 +5571,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param renew_time:
             renew time of year, values: 1/2/3, default value: 1
         :type renew_time: int
+        :param renew_cds:
+            renew cds, values: True/False, default value: True
+        :param renew_eip:
+            renew eip, values: True/False, default value: True
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5572,16 +5590,25 @@ class BccClient(bce_base_client.BceBaseClient):
             "renewTimeUnit": renew_time_unit,
             "renewTime": renew_time
         }
+        if renew_cds is not None:
+            body["renewCds"] = renew_cds
+        if renew_eip is not None:
+            body["renewEip"] = renew_eip
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
-    def batch_delete_auto_renew_rules(self, instance_id, client_token=None, config=None):
+    def batch_delete_auto_renew_rules(self, instance_id, renew_cds=None, renew_eip=None,
+                                      client_token=None, config=None):
         """
         delete auto renew rules for instance
 
         :param instance_id:
             Identify of the instance to auto renew
         :type instance_id: string
-
+        :param renew_cds:
+            renew cds, values: True/False, default value: True
+        :param renew_eip:
+            renew eip, values: True/False, default value: True
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5594,6 +5621,12 @@ class BccClient(bce_base_client.BceBaseClient):
         body = {
             "instanceId": instance_id
         }
+
+        if renew_cds is not None:
+            body["renewCds"] = renew_cds
+        if renew_eip is not None:
+            body["renewEip"] = renew_eip
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def delete_recycled_instance(self, instance_id, client_token=None, config=None):

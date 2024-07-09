@@ -1510,8 +1510,9 @@ class TestBccClient(unittest.TestCase):
         """
         test case for instance_change_subnet
         """
-        resp = self.client.instance_change_subnet(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                                  internal_ip="192.168.32.2", reboot=True)
+        resp = self.client.instance_change_subnet(instance_id="i-pKq2Bnhf", subnet_id="sbn-wpea5ffqsu93",
+                                                  internal_ip="192.168.0.5", reboot=True,
+                                                  security_group_ids=["g-p8x028ept1c0"])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1631,7 +1632,9 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_create_auto_renew_rules
         """
-        resp = self.client.batch_create_auto_renew_rules(instance_id='i-45IP2Tn7', renew_time=2, renew_time_unit='year')
+        resp = self.client.batch_create_auto_renew_rules(instance_id='i-oizn4nCC',
+                                                         renew_eip=True, renew_cds=True,
+                                                         renew_time=2, renew_time_unit='year')
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1644,7 +1647,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_delete_auto_renew_rules
         """
-        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7')
+        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-oizn4nCC', renew_eip=True, renew_cds=True)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
