@@ -1283,7 +1283,7 @@ if __name__ == "__main__":
 
     # batch_delete_auto_renew_rules
     try:
-        response = bcc_client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7')
+        response = bcc_client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7', renew_cds=True, renew_eip=False)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
