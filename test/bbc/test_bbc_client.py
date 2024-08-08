@@ -96,7 +96,7 @@ class TestBbcClient(unittest.TestCase):
                                                client_token=client_token, name=name,
                                                admin_pass=admin_pass, security_group_id=security_group_id,
                                                auto_renew_time_unit='month', auto_renew_time=1,
-                                               billing=billing)
+                                               billing=billing, tags=change_tags)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -281,6 +281,15 @@ class TestBbcClient(unittest.TestCase):
         """
 
         response = self.client.unbind_tags(instance_id=instance_id, change_tags=change_tags)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_bind_tags(self):
+        """
+        test bind the existing labels of the instance
+        """
+
+        response = self.client.bind_tags(instance_id=instance_id, change_tags=change_tags)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 

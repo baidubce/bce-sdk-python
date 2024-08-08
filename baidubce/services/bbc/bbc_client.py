@@ -70,7 +70,7 @@ class BbcClient(bce_base_client.BceBaseClient):
     def create_instance(self, flavor_id, image_id, raid_id, root_disk_size_in_gb=20, purchase_count=1,
                         zone_name=None, subnet_id=None, billing=None, name=None, admin_pass=None,
                         auto_renew_time_unit=None, auto_renew_time=0, deploy_set_id=None, enable_ht=False,
-                        security_group_id=None, client_token=None, config=None):
+                        security_group_id=None, client_token=None, config=None, tags=None):
 
         """
         Create a bbc instance with the specified options.
@@ -159,6 +159,10 @@ class BbcClient(bce_base_client.BceBaseClient):
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param tags:
+            List of tags to be bind
+        :type tags: list
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -208,6 +212,8 @@ class BbcClient(bce_base_client.BceBaseClient):
             body['autoRenewTimeUnit'] = auto_renew_time_unit
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
+        if tags is not None:
+            body['tags'] = tags
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -706,6 +712,38 @@ class BbcClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body),
                                   params=params, config=config)
+
+    @required(instance_id=(bytes, str), change_tags = list)
+    def bind_tags(self, instance_id, change_tags, config=None):
+        """
+        bind the tags of existing instances
+
+        :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
+        :param change_tags:
+            List of tags to be bind
+        :type change_tags: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        """
+        instance_id = compat.convert_to_bytes(instance_id)
+        path = b'/instance/%s/tag' % instance_id
+
+        params = {
+            'bind': None
+        }
+
+        body = {
+            'changeTags': change_tags
+        }
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body),
+                                  params=params, config=config)
+
 
     @required(reserved_instance_ids=list,
               tags=list)
