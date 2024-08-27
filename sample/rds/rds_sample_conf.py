@@ -21,7 +21,7 @@ import logging
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 
-HOST = b''
+HOST = b'http://rds.bj.baidubce.com'
 AK = b''
 SK = b''
 
