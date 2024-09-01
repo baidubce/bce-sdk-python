@@ -27,7 +27,7 @@ with io.open(os.path.join("baidubce", "__init__.py"), "rt") as f:
     SDK_VERSION = re.search(r"SDK_VERSION = b'(.*?)'", f.read()).group(1)
 
 setup(
-    name='bce-python-sdk',
+    name='bce-python-sdk-next',
     version=SDK_VERSION,
     install_requires=['pycryptodome>=3.8.0',
                       'future>=0.6.0',
@@ -38,6 +38,7 @@ setup(
               'baidubce.http',
               'baidubce.retry',
               'baidubce.services',
+              'baidubce.services.aihc',
               'baidubce.services.autoscaling',
               'baidubce.services.bos',
               'baidubce.services.bts',
@@ -89,7 +90,7 @@ setup(
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
-    author='',
-    author_email='',
+    author='atorber',
+    author_email='atorber@163.com',
     description='BCE SDK for python'
 )

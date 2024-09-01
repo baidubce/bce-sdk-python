@@ -6,3 +6,5 @@ build_submitter*
 bce_python_sdk.egg-info
 build
 dist
+bce-python-sdk-**
+bce_python_sdk_*
