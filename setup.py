@@ -92,5 +92,6 @@ setup(
     license='Apache License 2.0',
     author='atorber',
     author_email='atorber@163.com',
-    description='BCE SDK for python'
+    description='BCE SDK for python',
+    long_description="""BCE SDK for python by atorber.""",
 )
