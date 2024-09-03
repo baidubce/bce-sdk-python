@@ -33,7 +33,7 @@ class AIHCClient(BceBaseClient):
             client_token,
             resourcePoolId,
             payload):
-        print('create_aijob is called')
+        # print('create_aijob is called')
         path = b"/api/v1/aijobs"
         params = {
             "clientToken": client_token,
