@@ -80,9 +80,12 @@ class AIHCClient(BceBaseClient):
         :return: aijob dict
         :rtype: baidubce.bce_response.BceResponse
         """
-
+        params = {
+            "resourcePoolId": resourcePoolId
+            }
         path = b'/api/v1/aijobs'
         return self._send_request(http_methods.GET, path,
+                                  params=params,
                                   body_parser=aihc_handler.parse_json)
 
     def _merge_config(self, config):
