@@ -953,7 +953,7 @@ class BosClient(BceBaseClient):
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object(self, bucket_name, key, range=None, traffic_limit=None, config=None):
+    def get_object(self, bucket_name, key, range=None, traffic_limit=None, version_id=None, config=None):
         """
 
         :param bucket_name:
@@ -962,6 +962,10 @@ class BosClient(BceBaseClient):
         :param config:
         :return:
         """
+        query_params = {}
+        if version_id is not None:
+            version_id = compat.convert_to_bytes(version_id)
+            query_params={b'versionId': version_id}
         key = compat.convert_to_bytes(key)
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
@@ -975,6 +979,7 @@ class BosClient(BceBaseClient):
             bucket_name,
             key,
             headers=range_header,
+            params=query_params,
             config=config,
             body_parser=BosClient._parse_bos_object)
 # restore object
@@ -1027,7 +1032,7 @@ class BosClient(BceBaseClient):
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object_as_string(self, bucket_name, key, range=None, config=None):
+    def get_object_as_string(self, bucket_name, key, range=None, version_id=None, config=None):
         """
 
         :param bucket_name:
@@ -1037,14 +1042,14 @@ class BosClient(BceBaseClient):
         :return:
         """
         key = compat.convert_to_bytes(key)
-        response = self.get_object(bucket_name, key, range=range, config=config)
+        response = self.get_object(bucket_name, key, range=range, version_id = version_id, config=config)
         s = response.data.read()
         response.data.close()
         return s
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
     def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None, 
-                            progress_callback=None, traffic_limit=None):
+                            progress_callback=None, traffic_limit=None, version_id=None):
         """
         Get Content of Object and Put Content to File
 
@@ -1062,6 +1067,10 @@ class BosClient(BceBaseClient):
         :return:
             **HTTP Response**
         """
+        query_params = {}
+        if version_id is not None:
+            version_id = compat.convert_to_bytes(version_id)
+            query_params={b'versionId': version_id}
         key = compat.convert_to_bytes(key)
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
@@ -1077,6 +1086,7 @@ class BosClient(BceBaseClient):
             bucket_name,
             key,
             headers=range_header,
+            params=query_params,
             config=config,
             body_parser=lambda http_response, response: BosClient._save_body_to_file(
                 http_response,
@@ -1087,7 +1097,7 @@ class BosClient(BceBaseClient):
 
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object_meta_data(self, bucket_name, key, config=None):
+    def get_object_meta_data(self, bucket_name, key, version_id=None, config=None):
         """
         Get head of object
 
@@ -1099,8 +1109,13 @@ class BosClient(BceBaseClient):
         :return:
             **_GetObjectMetaDataResponse Class**
         """
+        query_params = {}
+        if version_id is not None:
+            version_id = compat.convert_to_bytes(version_id)
+            query_params={b'versionId': version_id}
         key = compat.convert_to_bytes(key)
-        return self._send_request(http_methods.HEAD, bucket_name, key, config=config)
+        return self._send_request(http_methods.HEAD, bucket_name, key,
+        params=query_params, config=config)
 
     @required(bucket_name=(bytes, str),
               key=(bytes, str),
@@ -1477,7 +1492,7 @@ class BosClient(BceBaseClient):
             body_parser=bos_handler.parse_copy_object_response)
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def delete_object(self, bucket_name, key, config=None):
+    def delete_object(self, bucket_name, key, version_id=None, config=None):
         """
         Delete Object
 
@@ -1489,8 +1504,13 @@ class BosClient(BceBaseClient):
         :return:
             **HttpResponse Class**
         """
+        query_params = {}
+        if version_id is not None:
+            version_id = compat.convert_to_bytes(version_id)
+            query_params={b'versionId': version_id}
         key = compat.convert_to_bytes(key)
-        return self._send_request(http_methods.DELETE, bucket_name, key, config=config)
+        return self._send_request(http_methods.DELETE, bucket_name, key,
+            params=query_params, config=config)
 
     @required(bucket_name=(bytes, str), key_list=list)
     def delete_multiple_objects(self, bucket_name, key_list, config=None):
@@ -2509,6 +2529,79 @@ class BosClient(BceBaseClient):
             key=key,
             params={b'tagging': b''},
             config=config,)
+    
+    def put_bucket_versioning(self, bucket_name, status, config=None):
+        """
+        put bucket versioning
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :type status: string
+        :param key: version status:disable/enabled/suspended
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.PUT,
+            bucket_name=bucket_name,
+            body=json.dumps({'status': status}, default=BosClient._dump_acl_object),
+            params={b'versioning': b''},
+            config=config,)
+    
+    def get_bucket_versioning(self, bucket_name, config=None):
+        """
+        get bucket versioning
+
+        :type bucket_name: string
+        :param bucket_name: bucket name
+
+        :return:
+        """
+        return self._send_request(
+            http_methods.GET,
+            bucket_name=bucket_name,
+            params={b'versioning': b''},
+            config=config,)
+    
+    @required(bucket_name=(bytes, str))        
+    def list_objects_versions(self, bucket_name,
+                     max_keys=1000, prefix=None, marker=None, version_marker=None, 
+                     delimiter=None, config=None):
+        """
+        Get Object Information of bucket
+
+        :type bucket: string
+        :param bucket: None
+
+        :type delimiter: string
+        :param delimiter: None
+
+        :type marker: string
+        :param marker: None
+
+        :type max_keys: int
+        :param max_keys: value <= 1000
+
+        :type prefix: string
+        :param prefix: None
+
+        :return:
+            **_ListObjectsResponse Class**
+        """
+        params = {b'versions': b''}
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
+        if prefix is not None:
+            params[b'prefix'] = prefix
+        if marker is not None:
+            params[b'marker'] = marker
+        if delimiter is not None:
+            params[b'delimiter'] = delimiter
+        if version_marker is not None:
+            params[b'versionIdMarker'] = version_marker
+
+        return self._send_request(http_methods.GET, bucket_name, params=params, config=config)
 
         
 

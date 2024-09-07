@@ -27,6 +27,7 @@ from baidubce import exception
 from baidubce import compat
 from baidubce.services.bos import canned_acl
 from baidubce.services.bos import storage_class
+from baidubce.services.bos import common
 from baidubce.services.bos.bos_client import BosClient
 from baidubce.services.bos.bos_client import UploadTaskHandle
 from baidubce import utils
@@ -151,7 +152,7 @@ if __name__ == "__main__":
     response = bos_client.list_objects(bucket_name)
     for obj in response.contents:
         __logger.debug("[Sample] list objects key:%s", obj.key)
-
+        
     # delete an object
     bos_client.delete_object(bucket_name, key)
 
@@ -766,3 +767,27 @@ if __name__ == "__main__":
 
     # copy a object
     bos_client.copy_object(bucket_name, key, bucket_name, key + ".copy", traffic_limit=traffic_limit_speed)
+
+    #####################################################################################################
+    #            test bucket version samples
+    ######################################################################################################
+
+    # get bucket version
+    res = bos_client.get_bucket_versioning(bucket_name)
+    __logger.debug("[Sample] get bucket versioning status is %s", res.status)
+
+    # put bucket version
+    res = bos_client.put_bucket_versioning(bucket_name, common.ENABLED)
+    __logger.debug("[Sample] put bucket version res is %s", res)
+
+    res = bos_client.list_objects_versions(bucket_name)
+    __logger.debug("[Sample] list object versions res is %s", res)
+
+    res = bos_client.put_object_from_file(bucket_name, key, download)
+    __logger.debug("[Sample] put object into file, file size:%s", os.path.getsize(download))
+
+    res = bos_client.get_object_meta_data(bucket_name, key)
+    __logger.debug("[Sample] get object meta, meta response:%s", res)
+
+    res = bos_client.get_object_to_file(bucket_name, key, download)
+    __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
