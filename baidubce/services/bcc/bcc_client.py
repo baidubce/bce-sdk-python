@@ -5448,7 +5448,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['keypairId'] = keypair_id
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def change_to_prepaid(self, instance_id, duration, relation_cds=None, client_token=None, config=None):
+    def change_to_prepaid(self, instance_id, duration, relation_cds, auto_renew, auto_renew_period=None,
+                          client_token=None, config=None):
         """
         Change instance pay timing to prepaid.
 
@@ -5463,6 +5464,17 @@ class BccClient(bce_base_client.BceBaseClient):
         :param relation_cds:
             Set whether to chagne the associated data disk. True - change; False - no change. Default is False.
         :type relation_cds: bool
+
+        :param auto_renew:
+            Whether to enable automatic renewal, defaults to False.
+        :type auto_renew: bool
+
+
+        :param auto_renew_period:
+            Duration of each automatic renewal(Unit: months).
+            Value range: 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36. If not specified, the default is 1.
+            This parameter is effective only when auto_renew is set to true.
+        :type auto_renew_period: int
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5479,6 +5491,9 @@ class BccClient(bce_base_client.BceBaseClient):
         body = {
             "duration": duration
         }
+        if auto_renew is not None:
+            body['autoRenew'] = auto_renew
+            body['autoRenewPeriod'] = auto_renew_period
         if relation_cds is not None:
             body['relationCds'] = relation_cds
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
