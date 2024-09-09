@@ -140,12 +140,15 @@ class PayTimingChangeReqModel(object):
     This class define detail of change pay timing.
     """
 
-    def __init__(self, instanceId, relationCds=False, cdsList=None, duration=None, autoPay=True):
+    def __init__(self, instanceId, relationCds=False, cdsList=None, duration=None, autoPay=True,
+                 autoRenew=None, autoRenewPeriod=None):
         self.instanceId = instanceId
         self.relationCds = relationCds
         self.cdsList = cdsList
         self.duration = duration
         self.autoPay = autoPay
+        self.autoRenew = autoRenew
+        self.autoRenewPeriod = autoRenewPeriod
 
 
 class DestRegionInfoModel(object):

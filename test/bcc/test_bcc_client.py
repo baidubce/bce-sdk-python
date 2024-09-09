@@ -1593,7 +1593,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for change_to_prepaid
         """
-        resp = self.client.change_to_prepaid(instance_id="i-45IP2Tn7", duration=3, relation_cds=True)
+        resp = self.client.change_to_prepaid(instance_id="i-GREjIhjh", duration=3, relation_cds=True,
+                                            auto_renew=True, auto_renew_period=2)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1781,8 +1782,10 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_change_instance_to_prepay
         """
-        req1 = PayTimingChangeReqModel('i-FhvOuv4t', relationCds=True, cdsList=['cds1'], autoPay=False, duration=123)
-        req2 = PayTimingChangeReqModel('i-45IP2Tn7')
+        req1 = PayTimingChangeReqModel('i-Dzmlx7Fz', relationCds=True, cdsList=['all'],
+                                       autoPay=True, duration=1, autoRenew=True, autoRenewPeriod=2)
+        req2 = PayTimingChangeReqModel('i-kfnD7UQ7', relationCds=True, cdsList=['all'],
+                                       autoPay=True, duration=1)
         req = [req1, req2]
         resp = self.client.batch_change_instance_to_prepay(req)
         self.assertEqual(
