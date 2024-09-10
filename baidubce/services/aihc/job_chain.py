@@ -123,7 +123,3 @@ def create_job_chain(config_file=None, index=None):
         logging.error("Error: %s", e)
     except Exception as e:
         logging.error("An unexpected error occurred: %s", e)
-
-
-if __name__ == "__main__":
-    create_job_chain()

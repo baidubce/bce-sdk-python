@@ -333,7 +333,3 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
         chain_job_config: chain_job_config,
         run_command: run_command
     }
-
-
-if __name__ == '__main__':
-    generate_aiak_parameter()
