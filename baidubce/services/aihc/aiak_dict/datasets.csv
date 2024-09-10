@@ -1,0 +1,5 @@
+名称,原始格式,预处理后格式
+pile_llama_test,bos:/cce-ai-datasets/cce-ai-datasets.bj.bcebos.com/megatron_llama/pile_llama_test/pile_test_jsonl/test.jsonl,
+WuDaoCorpus2.0_base_sample,bos:/cce-ai-datasets/datasets/aiak/WuDaoCorpus2.0_base_sample.jsonl,
+alpaca_zh-llama3-train,bos:/cce-ai-datasets/datasets/aiak/alpaca_zh-llama3-train.json,
+alpaca_zh-llama3-valid,bos:/cce-ai-datasets/datasets/aiak/alpaca_zh-llama3-valid.json,

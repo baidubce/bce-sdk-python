@@ -15,6 +15,8 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services.aihc import aihc_handler
+from baidubce.services.aihc import job_chain
+from baidubce.services.aihc import generate_aiak_parameter
 
 
 # _logger = logging.getLogger(__name__)
@@ -28,6 +30,12 @@ class AIHCClient(BceBaseClient):
     def __init__(self, config=None):
         BceBaseClient.__init__(self, config)
 
+    def create_job_chain(self, config_file=None, index=None):
+        return job_chain.create_job_chain(config_file, index)
+
+    def generate_aiak_parameter(self, chain_job_config=None, aiak_job_config=None):
+        return generate_aiak_parameter.generate_aiak_parameter(chain_job_config, aiak_job_config)
+
     def create_aijob(
             self,
             client_token,
@@ -38,7 +46,8 @@ class AIHCClient(BceBaseClient):
         params = {
             "clientToken": client_token,
             "resourcePoolId": resourcePoolId
-            }
+        }
+
         body = json.dumps(payload).encode('utf-8')
         return self._send_request(http_methods.POST, path=path, body=body,
                                   params=params,
@@ -82,7 +91,7 @@ class AIHCClient(BceBaseClient):
         """
         params = {
             "resourcePoolId": resourcePoolId
-            }
+        }
         path = b'/api/v1/aijobs'
         return self._send_request(http_methods.GET, path,
                                   params=params,
