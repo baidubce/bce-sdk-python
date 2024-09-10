@@ -387,6 +387,7 @@ def build_command(job_info, config_dir, scrips_path, config_path,
             '\n' + 'pip install future'
             '\n' + 'pip install pycryptodome'
             '\n' + 'pip install bce-python-sdk-next'
+            '\n' + 'pip install python-dotenv'
             '\n' + 'echo "job_chain:Next job is to be continued..."'
         )
         next_command = f'python {scrips_path} {config_path} {index + 1}'
