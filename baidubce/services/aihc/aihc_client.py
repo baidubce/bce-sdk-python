@@ -452,8 +452,8 @@ class AIHCClient(BceBaseClient):
                                        payload=cur_job_info)
             tasks_url = 'https://console.bce.baidu.com/aihc/tasks'
             print('====================================\n')
-            logging.info('任务创建结果: %s', result)
-            logging.info('查看任务列表: https://console.bce.baidu.com/aihc/tasks')
+            print('任务创建结果: ', result)
+            print('查看任务列表: https://console.bce.baidu.com/aihc/tasks')
             print('\n====================================')
             return {
                 result: result,
