@@ -7,6 +7,7 @@ This module provides a client class for TSDB.
 import copy
 import json
 import os
+import time
 import logging
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
@@ -426,7 +427,6 @@ class AIHCClient(BceBaseClient):
         try:
             job_info = load_config(config_file)
             jobs = job_info['jobs']
-            api_config = job_info['api_config']
             resourcePoolId = job_info['resourcePoolId']
             scrips_path = job_info['scrips_path']
             config_path = job_info['config_path']
@@ -444,8 +444,12 @@ class AIHCClient(BceBaseClient):
             logging.info("Creating AI job using openapi...")
 
             cur_job_info = jobs[index]
+            client_token = 'test-aihc-' + str(int(time.time()))
+            logging.info('client_token: %s', client_token)
 
-            result = self.create_ai_job(api_config, resourcePoolId, cur_job_info)
+            result = self.create_aijob(client_token=client_token,
+                                       resourcePoolId=resourcePoolId,
+                                       payload=cur_job_info)
             tasks_url = 'https://console.bce.baidu.com/aihc/tasks'
             print('====================================\n')
             logging.info('任务创建结果: %s', result)
