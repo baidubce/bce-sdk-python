@@ -17,25 +17,15 @@ from baidubce.http import http_content_types
 from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services.aihc import aihc_handler
+from baidubce.services.aihc import chain_info_temp
 
 import csv
 import sys
-from dotenv import load_dotenv
 
-# 加载.env文件
-load_dotenv()
-
-# 获取配置信息, 从环境变量中获取,需要先在.env文件中设置环境变量
-ak = os.getenv("AK")
-sk = os.getenv("SK")
-host = os.getenv("HOST")
-
-# print(ak, sk, host)
-
+cur_path = os.path.dirname(os.path.realpath(__file__))
 # 指定文件路径
-models_file_path = './aiak_dict/models.csv'
-datasets_file_path = './aiak_dict/datasets.csv'
-chain_info_template_path = './aiak_dict/chain_info_template.json'
+models_file_path = f'{cur_path}/aiak_dict/models.csv'
+datasets_file_path = f'{cur_path}/aiak_dict/datasets.csv'
 
 # _logger = logging.getLogger(__name__)
 # 配置日志
@@ -72,9 +62,42 @@ def get_datasets_from_csv(file_path):
     return datasets
 
 
-def read_chain_info(file_path):
-    with open(file_path, mode='r', encoding='utf-8') as f:
-        return json.load(f)
+def get_command_from_sh(file_path):
+    with open(file_path, 'r') as f:
+        return f.read()
+
+
+def write_chain_info(ak, sk, host):
+    chain_info_temp.chain_info_temp['jobs'][0]['jobSpec']['envs'] = [
+        {
+            "key": "AK",
+            "value": ak
+        },
+        {
+            "key": "SK",
+            "value": sk
+        },
+        {
+            "key": "HOST",
+            "value": host
+        }]
+    chain_info_temp.chain_info_temp['jobs'][1]['jobSpec']['envs'] = [
+        {
+            "key": "AK",
+            "value": ak
+        },
+        {
+            "key": "SK",
+            "value": sk
+        },
+        {
+            "key": "HOST",
+            "value": host
+        }]
+
+
+def read_chain_info():
+    return chain_info_temp.chain_info_temp
 
 
 def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
@@ -156,19 +179,17 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
     DP_JOB_NAME = f'{TRAINING_PHASE}-{MODEL_NAME}-dp-{VERSION}'
     TRAIN_JOB_NAME = f'{TRAINING_PHASE}-{MODEL_NAME}-train-{VERSION}'
 
-    chain_info = read_chain_info(chain_info_template_path)
+    chain_info = read_chain_info()
     # print(json.dumps(chain_info, indent=4, ensure_ascii=False))
-
-    # chain_info['config_path'] = chain_job_config
-
-    chain_info['api_config']['ak'] = ak
-    chain_info['api_config']['sk'] = sk
-    chain_info['api_config']['host'] = host
 
     ck_job = chain_info['jobs'][0]
     ck_job['jobSpec']['image'] = IMAGE
     ck_job['name'] = CK_JOB_NAME
-    ck_job['jobSpec']['envs'] = [
+    sh_path = f'{cur_path}/aiak_dict/job1_convert_checkpoint.sh'
+
+    ck_job['jobSpec']['command'] = get_command_from_sh(sh_path)
+    envs = ck_job['jobSpec']['envs']
+    ck_job['jobSpec']['envs'] = envs + [
         {
             'name': 'MODEL_BOS_PATH',
             'value': MODEL_BOS_PATH
@@ -201,10 +222,12 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
     dp_job['jobSpec']['image'] = IMAGE
     dp_job['name'] = DP_JOB_NAME
 
-    dp_job['jobSpec']['command'] = f'job2_{TRAINING_PHASE}_data_preprocess.sh'
+    sh_path = f'{cur_path}/aiak_dict/job2_{TRAINING_PHASE}_data_preprocess.sh'
 
+    dp_job['jobSpec']['command'] = get_command_from_sh(sh_path)
+    envs = dp_job['jobSpec']['envs']
     if TRAINING_PHASE == 'sft':
-        dp_job['jobSpec']['envs'] = [
+        dp_job['jobSpec']['envs'] = envs + [
             {
                 'name': 'DATASET_BOS_PATH',
                 'value': DATASET_BOS_PATH
@@ -258,19 +281,6 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
     train_job['jobSpec']['image'] = IMAGE
     train_job['name'] = TRAIN_JOB_NAME
 
-
-# =${DATA_PATH:-"/mnt/cluster/aiak-training-llm/dataset/sft_aplaca_zh_data.json"}
-
-# =${DATA_CACHE_PATH:-"/mnt/cluster/aiak-training-llm/qwen2/sft_aplaca_zh_data_cache"}
-
-# DATASET_CONFIG_PATH=${DATASET_CONFIG_PATH:-"/workspace/AIAK-Training-LLM/configs/sft_dataset_config.json"}
-
-# =${TOKENIZER_PATH:-"/mnt/cluster/leoli/qwen/Qwen2-7B-HF"}
-
-# =${CHECKPOINT_PATH:-"/mnt/cluster/leoli/qwen/Qwen2_7B_mcore_tp1pp1"}
-
-# TENSORBOARD_PATH=${TENSORBOARD_PATH:-"/mnt/cluster/leoli/qwen/tensorboard-log/qwen2-7b-sft"}
-
     if TRAINING_PHASE == 'sft':
         train_job['jobSpec']['envs'] = [
             {
@@ -316,11 +326,7 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
         ]
 
     SH_PATH = (
-        '/workspace/AIAK-Training-LLM/examples/'
-        + MODEL_NAME.split("-")[0]
-        + '/pretrain/pretrain_'
-        + MODEL_NAME.replace("-", "_")
-        + '.sh'
+        f'/workspace/AIAK-Training-LLM/examples/{MODEL_NAME.split("-")[0]}/pretrain/pretrain_{MODEL_NAME.replace("-", "_")}.sh'
     )
     if TRAINING_PHASE == 'sft':
         SH_PATH = '/workspace/AIAK-Training-LLM/examples/' + \
@@ -337,6 +343,7 @@ def generate_aiak_parameter(chain_job_config=None, aiak_job_config=None):
     chain_info['jobs'][1] = dp_job
     chain_info['jobs'][2] = train_job
 
+    print(chain_info)
     # print(json.dumps(chain_info, indent=4, ensure_ascii=False))
 
     chain_job_config = f'{chain_job_config}/{TRAIN_JOB_NAME}.json'
@@ -368,8 +375,11 @@ def validate_index(index, jobs_count):
         raise IndexError(f"Index {index} is out of range.")
 
 
-def build_command(job_info, config_dir, scrips_path, config_path,
-                  index, jobs_count):
+# config_dir去掉，相应的看sh脚本如何传递参数
+def build_command(jobs, config_dir,
+                  index):
+    job_info = jobs[index]
+    jobs_count = len(jobs)
     command = job_info['jobSpec']['command']
     if (command.endswith('.sh') and
         len(command.split('.')) == 2 and
@@ -382,16 +392,27 @@ def build_command(job_info, config_dir, scrips_path, config_path,
             command = f.read()
 
     if index != jobs_count - 1:
-        command += (
-            '\n' + 'echo "job_chain:The previous task has been completed."'
-            '\n' + 'pip install future'
-            '\n' + 'pip install pycryptodome'
-            '\n' + 'pip install bce-python-sdk-next'
-            '\n' + 'pip install python-dotenv'
-            '\n' + 'echo "job_chain:Next job is to be continued..."'
-        )
-        next_command = f'python {scrips_path} {config_path} {index + 1}'
-        command += f'\n{next_command}'
+        jobs_str = json.dumps(jobs)
+
+        # 保存配置文件
+        command_save_chain_info = f"cat << 'EOF' > chain_info.json\n{jobs_str}\nEOF"
+
+        command_pip_install = r"""
+echo "job_chain:The previous task has been completed."
+pip install future
+pip install pycryptodome
+pip install bce-python-sdk-next
+pip install python-dotenv
+echo "job_chain:Next job is to be continued..."
+"""
+
+        with open(f'{cur_path}/job_chain.py', 'r') as f:
+            py_str = f.read()
+
+        command_save_py = f"cat << 'EOF' > job_chain.py\n{py_str}\nEOF"
+        command_call_py = f'python job_chain.py chain_info.json {index + 1}'
+
+        command += f'{command_save_chain_info}\n{command_pip_install}\n{command_save_py}\n{command_call_py}'
 
     return command
 
@@ -405,38 +426,25 @@ class AIHCClient(BceBaseClient):
         BceBaseClient.__init__(self, config)
 
     def generate_aiak_parameter(self, chain_job_config=None, aiak_job_config=None):
+        ak = self.config.credentials.access_key_id.decode('utf-8')
+        sk = self.config.credentials.secret_access_key.decode('utf-8')
+        host = self.config.endpoint.decode('utf-8')
+        write_chain_info(ak, sk, host)
+        # print(ak, sk, host)
         return generate_aiak_parameter(chain_job_config, aiak_job_config)
 
-    def create_aijob(
-            self,
-            client_token,
-            resourcePoolId,
-            payload):
-        # print('create_aijob is called')
-        path = b"/api/v1/aijobs"
-        params = {
-            "clientToken": client_token,
-            "resourcePoolId": resourcePoolId
-        }
-
-        body = json.dumps(payload).encode('utf-8')
-        return self._send_request(http_methods.POST, path=path, body=body,
-                                  params=params,
-                                  body_parser=aihc_handler.parse_json)
-
     def create_job_chain(self, config_file=None, index=None):
+        # 接收参数或配置文件路径
         try:
             job_info = load_config(config_file)
             jobs = job_info['jobs']
             resourcePoolId = job_info['resourcePoolId']
-            scrips_path = job_info['scrips_path']
-            config_path = job_info['config_path']
 
             validate_index(index, len(jobs))
 
             config_dir = os.path.dirname(config_file)
-            command = build_command(jobs[index], config_dir, scrips_path,
-                                    config_path, index, len(jobs))
+            command = build_command(jobs, config_dir,
+                                    index)
             jobs[index]['jobSpec']['command'] = command
 
             logging.info("Job info at index retrieved successfully.")
@@ -464,6 +472,23 @@ class AIHCClient(BceBaseClient):
             logging.error("Error: %s", e)
         except Exception as e:
             logging.error("An unexpected error occurred: %s", e)
+
+    def create_aijob(
+            self,
+            client_token,
+            resourcePoolId,
+            payload):
+        # print('create_aijob is called')
+        path = b"/api/v1/aijobs"
+        params = {
+            "clientToken": client_token,
+            "resourcePoolId": resourcePoolId
+        }
+
+        body = json.dumps(payload).encode('utf-8')
+        return self._send_request(http_methods.POST, path=path, body=body,
+                                  params=params,
+                                  body_parser=aihc_handler.parse_json)
 
     def delete_aijob(self, aijob_id):
         """

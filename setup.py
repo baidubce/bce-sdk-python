@@ -88,6 +88,14 @@ setup(
               'baidubce.services.etGateway',
               'baidubce.services.ca'
               ],
+    include_package_data=True,
+    package_data={
+        'baidubce': [
+            'services/aihc/aiak_dict/*.sh',
+            '/services/aihc/aiak_dict/*.csv',
+            '/services/aihc/aiak_dict/*.json'
+        ],  # 指定需要打包的CSV文件
+    },
     url='http://bce.baidu.com',
     license='Apache License 2.0',
     author='atorber',

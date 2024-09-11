@@ -1,0 +1,3 @@
+include baidubce/services/aihc/aiak_dict/*.csv
+include baidubce/services/aihc/aiak_dict/*.sh
+include baidubce/services/aihc/aiak_dict/*.json

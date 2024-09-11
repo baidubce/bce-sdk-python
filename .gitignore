@@ -9,3 +9,4 @@ dist
 bce-python-sdk-**
 bce_python_sdk_*
 sample/aihc/*-train-*.json
+sample.log

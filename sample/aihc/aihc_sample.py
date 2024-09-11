@@ -26,11 +26,23 @@ if __name__ == "__main__":
     client_token = "client_token"
 
     # create aijob
-    resourcePoolId = 'your resourcePoolId'
-    payload = {}
-    create_response = aihc_client.create_aijob(
-        client_token=client_token,
-        resourcePoolId=resourcePoolId,
-        payload=payload
-    )
-    __logger.debug("[Sample AIHC] create_response:%s", create_response)
+    resourcePoolId = 'cce-e0isdmib'
+    # payload = {}
+    # create_response = aihc_client.create_aijob(
+    #     client_token=client_token,
+    #     resourcePoolId=resourcePoolId,
+    #     payload=payload
+    # )
+    # __logger.debug("[Sample AIHC] create_response:%s", create_response)
+
+    # ai_jobs = aihc_client.get_all_aijobs(resourcePoolId=resourcePoolId)
+    # __logger.debug("[Sample AIHC] ai_jobs:%s", ai_jobs)
+    # print(ai_jobs)
+
+    chain_job_config = "/Users/zhangsan/Documents/GitHub/bce-sdk-python/sample/aihc"
+    aiak_job_config = "/Users/zhangsan/Documents/GitHub/bce-sdk-python/sample/aihc/aiak_pretrain_job_info.json"
+    job_chain_info = aihc_client.generate_aiak_parameter(chain_job_config, aiak_job_config)
+    print(job_chain_info)
+
+    # job_info_config = "/Users/zhangsan/Documents/GitHub/bce-sdk-python/sample/aihc/sft-qwen2-72b-train-v1.json"
+    # job_info = aihc_client.create_job_chain(job_info_config, 1)
