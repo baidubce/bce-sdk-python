@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Copyright 2014 Baidu, Inc.
+# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -11,22 +8,23 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+"""
+Configuration for ca samples.
+"""
 
-"""
-Sample for rds configuration.
-"""
+#!/usr/bin/env python
+#coding=utf-8
 
 import logging
-
-from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
+from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = b'http://rds.bj.baidubce.com'
-AK = b''
-SK = b''
+HOST = 'ca host'
+AK = 'your-access-key-id'
+SK = 'your-secret-access-key'
 
-logger = logging.getLogger('baidubce.services.rds.rds_client')
-fh = logging.FileHandler('rds_sample.log')
+logger = logging.getLogger('baidubce.http.bce_http_client')
+fh = logging.FileHandler('sample.log')
 fh.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

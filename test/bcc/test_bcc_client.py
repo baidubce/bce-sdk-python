@@ -50,6 +50,7 @@ image_id = 'm-AfH5u6IE'
 snapshot_id = 's-7mEwKt4F'
 system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-dcrami1yg8u2'
+region = ''
 
 post_paid_billing = bcc_model.Billing('Postpaid', 1)
 pre_paid_billing = bcc_model.Billing('Prepaid', 2)
@@ -321,6 +322,14 @@ class TestBccClient(unittest.TestCase):
         print(resp.instances)
         self.assertEqual(len(resp.instances), 1)
 
+    def test_list_instances_by_ehc_cluster_id(self):
+        """
+        test case for list_instances
+        """
+        resp = self.client.list_instances(ehc_cluster_id="ehc-bk4hM1N3")
+        print(resp.instances)
+        self.assertEqual(len(resp.instances), 1)
+
     def test_get_instance(self):
         """
         test case for get_instance
@@ -572,6 +581,14 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.detach_volume(volume_id,
                                            instance_id)),
+            baidubce.bce_response.BceResponse)
+
+    def test_describe_regions(self):
+        """
+        test case for list all region's endpoint information with specific parameter
+        """
+        self.assertEqual(
+            type(self.client.describe_regions(region)),
             baidubce.bce_response.BceResponse)
 
     def test_release_volume(self):
@@ -1149,6 +1166,8 @@ class TestBccClient(unittest.TestCase):
                                                    image_id,
                                                    name=instance_name,
                                                    admin_pass=admin_pass,
+                                                   enable_jumbo_frame=False,
+                                                   ehc_cluster_id='ehc-bk4hM1N3',
                                                    client_token=client_token)
         self.assertEqual(
             type(resp),
@@ -1379,6 +1398,19 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_modify_instance_attributes_for_jumbo_frame(self):
+        """
+        test case for modify_instance_attributes_for_jumbo_frame
+        """
+        resp = self.client.modify_instance_attributes("i-XS7Db00e", enable_jumbo_frame=True)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
     def test_list_snapshot_chain(self):
         """
         test case for get_available_disk_info
@@ -1478,8 +1510,9 @@ class TestBccClient(unittest.TestCase):
         """
         test case for instance_change_subnet
         """
-        resp = self.client.instance_change_subnet(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                                  internal_ip="192.168.32.2", reboot=True)
+        resp = self.client.instance_change_subnet(instance_id="i-pKq2Bnhf", subnet_id="sbn-wpea5ffqsu93",
+                                                  internal_ip="192.168.0.5", reboot=True,
+                                                  security_group_ids=["g-p8x028ept1c0"])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1493,7 +1526,8 @@ class TestBccClient(unittest.TestCase):
         test case for instance_change_vpc
         """
         resp = self.client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
-                                               internal_ip="192.168.32.2", reboot=True)
+                                               internal_ip="192.168.32.2", reboot=True,
+                                               security_group_ids=["g-9yjq****"])
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1598,7 +1632,9 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_create_auto_renew_rules
         """
-        resp = self.client.batch_create_auto_renew_rules(instance_id='i-45IP2Tn7', renew_time=2, renew_time_unit='year')
+        resp = self.client.batch_create_auto_renew_rules(instance_id='i-oizn4nCC',
+                                                         renew_eip=True, renew_cds=True,
+                                                         renew_time=2, renew_time_unit='year')
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1611,7 +1647,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for batch_delete_auto_renew_rules
         """
-        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7')
+        resp = self.client.batch_delete_auto_renew_rules(instance_id='i-oizn4nCC', renew_eip=True, renew_cds=True)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1989,6 +2025,62 @@ class TestBccClient(unittest.TestCase):
         test case for del_instance_deploy
         """
         resp = self.client.del_instance_deploy(instance_id_list=['iid1', 'iid2'], deploy_set_id='dsid')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_create_ehc_cluster(self):
+        """
+        test case for create_ehc_cluster
+        """
+        resp = self.client.create_ehc_cluster('test-pysdk', 'cn-bj-a', 'test-description')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_ehc_cluster_list(self):
+        """
+        test case for get_ehc_cluster_list
+        """
+        resp = self.client.get_ehc_cluster_list(ehc_cluster_id_list=['ehc-qFuANaBG'],
+                                                name_list=['test-pysdk'], zone_name='cn-bj-a')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_ehc_cluster(self):
+        """
+        test case for modify_ehc_cluster
+        """
+        resp = self.client.modify_ehc_cluster('ehc-v2RcFsAI', name='test-pysdk-modify', description='')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_delete_ehc_cluster(self):
+        """
+        test case for delete_ehc_cluster
+        """
+        ehc_cluster_id_list = []
+        ehc_cluster_id_list.append('ehc-v2RcFsAI')
+        ehc_cluster_id_list.append('ehc-zk7735uQ')
+        resp = self.client.delete_ehc_cluster(ehc_cluster_id_list=ehc_cluster_id_list)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)

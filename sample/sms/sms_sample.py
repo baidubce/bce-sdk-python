@@ -101,14 +101,15 @@ if __name__ == '__main__':
 
         # create mobile black
         LOG.debug('\n\n\nSample 11: Create Mobile Black\n\n\n')
-        response = sms_client.create_mobile_black(type="MerchantBlack", phone="12345678901", sms_type="CommonNotice",
-                                                  signature_id_str="1234")
+        response = sms_client.create_mobile_black(type="MerchantBlack", country_type="DOMESTIC", phone="12345678901",
+                                                  sms_type="CommonNotice", signature_id_str="1234")
         LOG.debug('\n%s', response)
 
         # get mobile black
         LOG.debug('\n\n\nSample 11: Get Mobile Black\n\n\n')
-        response = sms_client.get_mobile_black(phone="12345678901", sms_type="CommonNotice", signature_id_str="1234",
-                                               start_time="2023-07-18", end_time="2023-07-19", page_no=1, page_size=10)
+        response = sms_client.get_mobile_black(phone="12345678901", country_type="DOMESTIC", sms_type="CommonNotice",
+                                               signature_id_str="1234", start_time="2023-07-18",
+                                               end_time="2023-07-19", page_no=1, page_size=10)
         LOG.debug('\n%s', response)
 
         # delete mobile black

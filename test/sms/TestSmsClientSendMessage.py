@@ -138,12 +138,16 @@ class TestSmsClientSendMessageNorQa(unittest.TestCase):
 
     def test_black(self):
         # 创建手机号黑名单
-        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000", sms_type="CommonNotice")
-        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000")
+        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000",
+                                             "DOMESTIC", sms_type="CommonNotice")
+        self.sms_client2.create_mobile_black("MerchantBlack", "17600000000", "DOMESTIC")
+        self.sms_client2.create_mobile_black("MerchantBlack", "+610490353986", "INTERNATIONAL")
 
         # 手机号查询
-        blacklists = self.sms_client2.get_mobile_black(phone="17600000000")
+        blacklists = self.sms_client2.get_mobile_black(phone="17600000000", country_type="DOMESTIC")
         self.assertEqual(2, blacklists.total_count)
+        blacklists2 = self.sms_client2.get_mobile_black(phone="+610490353986", country_type="INTERNATIONAL")
+        self.assertEqual(1, blacklists2.total_count)
 
         # 手机号删除
         self.sms_client2.delete_mobile_black("17600000000")

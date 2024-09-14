@@ -29,6 +29,10 @@ from baidubce.exception import BceHttpClientError
 from baidubce.exception import BceServerError
 from baidubce.exception import BceClientError
 from baidubce.http import http_headers
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 _logger = logging.getLogger(__name__)
 
@@ -226,7 +230,24 @@ def send_request(
                 'request return: status=%d, headers=%s' % (http_response.status, headers_list))
             response = BceResponse()
             response.set_metadata_from_headers(dict(headers_list))
-
+            if config.auto_follow_redirect:
+                if http_method == b'GET' and  300 <= http_response.status < 400:
+                    headers_map = {k: v for k, v in headers_list}
+                    if 'location' in headers_map:
+                        location = headers_map.get('location')
+                        _logger.debug('request auto follow redirect location is %s', location)
+                        parsed_url = urlparse(location)
+                        if protocol.name == baidubce.protocol.HTTP.name:
+                            redirect_conn = http.client.HTTPConnection(parsed_url.netloc, 
+                            timeout=config.connection_timeout_in_mills / 1000)
+                        elif protocol.name == baidubce.protocol.HTTPS.name:
+                            redirect_conn = http.client.HTTPSConnection(parsed_url.netloc, 
+                            timeout=config.connection_timeout_in_mills / 1000)
+                        else:
+                            raise ValueError('Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
+                        redirect_conn.request("GET", parsed_url.path + "?" + parsed_url.query, 
+                            skip_host=True, skip_accept_encoding=True)
+                        http_response = redirect_conn.getresponse()
             for handler_function in response_handler_functions:
                 if handler_function(http_response, response):
                     break
