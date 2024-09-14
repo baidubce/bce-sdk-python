@@ -170,6 +170,18 @@ class AutoSnapshotPolicyModel(object):
         self.retentionDays = retentionDays
 
 
+class ModifyReservedInstanceModel(object):
+    """
+    ModifyReservedInstanceModel
+    """
+
+    def __init__(self, reservedInstanceId=None, zoneName=None, reservedInstanceName=None, ehcClusterId=None):
+        self.reservedInstanceId = reservedInstanceId
+        self.zoneName = zoneName
+        self.reservedInstanceName = reservedInstanceName
+        self.ehcClusterId = ehcClusterId
+
+
 class FileSystemModel(object):
     """
         This class define file system.

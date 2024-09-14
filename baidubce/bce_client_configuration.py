@@ -41,6 +41,7 @@ class BceClientConfiguration(object):
                  proxy_host=None,
                  proxy_port=None,
                  path_style_enable=False,
+                 auto_follow_redirect=False,
                  ):
         self.credentials = credentials
         self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
@@ -59,6 +60,7 @@ class BceClientConfiguration(object):
         self.cname_enabled = cname_enabled
         self.path_style_enable = path_style_enable
         self.backup_endpoint = compat.convert_to_bytes(backup_endpoint) if backup_endpoint is not None else backup_endpoint
+        self.auto_follow_redirect = auto_follow_redirect
 
     def merge_non_none_values(self, other):
         """

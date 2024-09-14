@@ -43,6 +43,7 @@ system_snapshot_id = 's-hnsVUGIw'
 security_group_id = 'g-1utufn3mtg1y'
 subnet_id = "f42b9393-e721-4693-a1ab-2d67fe2f4d65"
 zone = 'cn-bj-a'
+region = ''
 
 
 force_stop = False
@@ -95,7 +96,7 @@ class TestBbcClient(unittest.TestCase):
                                                client_token=client_token, name=name,
                                                admin_pass=admin_pass, security_group_id=security_group_id,
                                                auto_renew_time_unit='month', auto_renew_time=1,
-                                               billing=billing)
+                                               billing=billing, tags=change_tags)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -207,6 +208,12 @@ class TestBbcClient(unittest.TestCase):
         """
         print(self.client.delete_auto_renew_rules(instance_id))
 
+    def test_describe_regions(self):
+        """
+        test case for list all region's endpoint information with specific parameter
+        """
+        print(self.client.describe_regions(region))
+
     def test_modify_instance_name(self):
         """
         test modify the name of bbc instance
@@ -274,6 +281,15 @@ class TestBbcClient(unittest.TestCase):
         """
 
         response = self.client.unbind_tags(instance_id=instance_id, change_tags=change_tags)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_bind_tags(self):
+        """
+        test bind the existing labels of the instance
+        """
+
+        response = self.client.bind_tags(instance_id=instance_id, change_tags=change_tags)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 

@@ -88,7 +88,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         zone_name=None, subnet_id=None, security_group_id=None, gpuCard=None, fpgaCard=None,
                         spec=None, eip_name=None, hostname=None, auto_seq_suffix=False, is_open_hostname_domain=False,
                         relation_tag=None, is_open_ipv6=None, enterprise_security_group_id=None,
-                        security_group_ids=None, enterprise_security_group_ids=None,
+                        security_group_ids=None, enterprise_security_group_ids=None, ehc_cluster_id=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
                         deletion_protection=None, res_group_id=None,
                         client_token=None, config=None, card_count=1, isomerism_card=None):
@@ -315,6 +315,10 @@ class BccClient(bce_base_client.BceBaseClient):
             enterprise_security_group_ids
         :type enterprise_security_group_ids: list<string>
 
+        :param ehc_cluster_id:
+            The id of ehcCluster.
+        :type ehc_cluster_id: string
+
         :param kunlunCard:
             This parameter is obsolete. Use parameter isomerism_card instead.
         :type kunlunCard: string
@@ -418,6 +422,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['securityGroupIds'] = security_group_ids
         if enterprise_security_group_ids is not None:
             body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
         if gpuCard is not None:
             body['gpuCard'] = gpuCard
             body['cardCount'] = card_count if card_count > 1 else 1
@@ -1063,13 +1069,13 @@ class BccClient(bce_base_client.BceBaseClient):
             body['userData'] = user_data
         if res_group_id is not None:
             body['resGroupId'] = res_group_id
-        body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete 
+        body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
-                       zone_name=None, instance_ids=None, instance_names=None, cds_ids=None,
+                       zone_name=None, instance_ids=None, instance_names=None, cds_ids=None, ehc_cluster_id=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
                        vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, config=None):
         """
@@ -1110,6 +1116,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param cds_ids:
             filter instance list with multiple cds ids join by ','
         :type cds_ids: string
+
+        :param ehc_cluster_id:
+            get instance list filtered by id of ehc cluster
+        :type ehc_cluster_id: string
 
         :param deployset_ids:
             filter instance list with multiple deployset ids join by ','
@@ -1171,8 +1181,10 @@ class BccClient(bce_base_client.BceBaseClient):
             params['instanceNames'] = instance_names
         if cds_ids is not None:
             params['cdsIds'] = cds_ids
+        if ehc_cluster_id is not None:
+            params['ehcClusterId'] = ehc_cluster_id
         if deployset_ids is not None:
-            params['deploysetIds'] = deployset_ids
+            params['deploySetIds'] = deployset_ids
         if security_group_ids is not None:
             params['securityGroupIds'] = security_group_ids
         if payment_timing is not None:
@@ -1306,13 +1318,28 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     @required(instance_id=str)
-    def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None, config=None):
+    def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None,
+                     allocate_multi_ipv6_addr=None, config=None):
         """
         batch_add_ip
+
         :param instance_id:
+            The id of instance.
+        :type instance_id: string
+
         :param private_ips:
+            The IPV6/IPV4 address that needs to be added must exist with secondary_private_ip_address_count.
+        :type private_ips: list
+
         :param secondary_private_ip_address_count:
-        :param config:
+            The number of IPV6/IPV4 needs to be increased, and one with private_ips must exist.
+        :type secondary_private_ip_address_count: list
+
+        :param allocate_multi_ipv6_addr:
+            The parameter indicates whether to support multiple IPV6.
+            It must be true to create IPV6.
+        :type allocate_multi_ipv6_addr: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1324,6 +1351,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['privateIps'] = private_ips
         if secondary_private_ip_address_count is not None:
             body['secondaryPrivateIpAddressCount'] = secondary_private_ip_address_count
+        if allocate_multi_ipv6_addr is not None:
+            body['allocateMultiIpv6Addr'] = allocate_multi_ipv6_addr
         params = {
 
         }
@@ -1387,7 +1416,8 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               name=(bytes, str))  # ***Unicode***
-    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None, config=None):
+    def modify_instance_attributes(self, instance_id, name=None, neteth_queuecount=None,
+                                   enable_jumbo_frame=None, config=None):
         """
         Modifying the special attribute to new value of the instance.
         You can reboot the instance only when the instance is Running or Stopped ,
@@ -1405,6 +1435,13 @@ class BccClient(bce_base_client.BceBaseClient):
             The new value for instance's neteth_queuecount.
         :type neteth_queuecount: string
 
+        :param enable_jumbo_frame:
+            The parameter indicates whether the instance is enabled for JumboFrame.
+            It can only be enabled when the flavor support JumboFrame.
+            True indicates enabled, false indicates disabled,
+        :type enable_jumbo_frame: bool
+
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1414,6 +1451,8 @@ class BccClient(bce_base_client.BceBaseClient):
             'name': name,
             'netEthQueueCount': neteth_queuecount
         }
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
         params = {
             'modifyAttribute': None
         }
@@ -2277,6 +2316,27 @@ class BccClient(bce_base_client.BceBaseClient):
             'detach': None
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def describe_regions(self, region, config=None):
+        """
+        List all region's endpoint information with the specific parameters.
+        Use global endpoint bcc.baidubce.com to get BCC,CDS,ReservedInstance's endpoint.
+
+        :param region:
+            The id of region.
+        :type region: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+
+        path = b'/region/describeRegions'
+        body = {
+            'region': region
+        }
+        params = {}
+        return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
     @required(volume_id=(bytes, str))  # ***Unicode***
@@ -3842,10 +3902,10 @@ class BccClient(bce_base_client.BceBaseClient):
                                 auto_seq_suffix=None, is_open_hostname_domain=None, admin_pass=None, billing=None,
                                 zone_name=None, subnet_id=None, security_group_id=None,
                                 enterprise_security_group_id=None, security_group_ids=None,
-                                enterprise_security_group_ids=None, relation_tag=None,
+                                enterprise_security_group_ids=None, relation_tag=None, ehc_cluster_id=None,
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
-                                dedicate_host_id=None, deploy_id=None, deploy_id_list=None,
+                                dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
                                 client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -3954,6 +4014,10 @@ class BccClient(bce_base_client.BceBaseClient):
             The parameter to specify whether the instance related to existing tags
         :type relation_tag: boolean
 
+        :param ehc_cluster_id:
+            The id of ehcCluster.
+        :type ehc_cluster_id: string
+
         :param is_open_ipv6:
             The parameter indicates whether the instance to be created is enabled for IPv6.
             It can only be enabled when both the image and subnet support IPv6.
@@ -4039,6 +4103,12 @@ class BccClient(bce_base_client.BceBaseClient):
             The default value is false.
         :type cds_auto_renew: boolean
 
+        :param enable_jumbo_frame:
+            The parameter indicates whether the instance is enabled for JumboFrame.
+            It can only be enabled when the flavor support JumboFrame.
+            True indicates enabled, false indicates disabled,
+        :type enable_jumbo_frame: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4117,11 +4187,15 @@ class BccClient(bce_base_client.BceBaseClient):
             body['aspId'] = asp_id
         if relation_tag is not None:
             body['relationTag'] = relation_tag
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
         if is_open_ipv6 is not None:
             body['isOpenIpv6'] = is_open_ipv6
         if tags is not None:
             tag_list = [tag.__dict__ for tag in tags]
             body['tags'] = tag_list
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
         body['cdsAutoRenew'] = cds_auto_renew
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
@@ -4667,7 +4741,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 
     @required(instance_id=(bytes, str), is_eip_auto_related_delete=bool)
-    def modify_related_delete_policy(self, instance_id, is_eip_auto_related_delete, client_token=None, config=None): 
+    def modify_related_delete_policy(self, instance_id, is_eip_auto_related_delete, client_token=None, config=None):
         """
         Set bid instance eip_auto_related_delete.
 
@@ -5154,7 +5228,9 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, prefix=b"/v1", params=params, config=config)
 
     def instance_change_subnet(self, instance_id, subnet_id=None,
-                               internal_ip=None, reboot=None, client_token=None, config=None):
+                               internal_ip=None, reboot=None,
+                               security_group_ids=None, enterprise_security_group_ids=None,
+                               client_token=None, config=None):
         """
         Change instance subnet by id.
 
@@ -5173,6 +5249,12 @@ class BccClient(bce_base_client.BceBaseClient):
         :param reboot:
         Reboot instance or not. Default value is False.
         :type reboot: bool
+
+        :param security_group_ids:
+        :type security_group_ids: list<string>
+
+        :param enterprise_security_group_ids:
+        :type enterprise_security_group_ids: list<string>
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5194,10 +5276,17 @@ class BccClient(bce_base_client.BceBaseClient):
         if reboot is not None:
             body['reboot'] = reboot
 
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
+
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def instance_change_vpc(self, instance_id, subnet_id=None,
-                            internal_ip=None, reboot=None, client_token=None, config=None):
+                            internal_ip=None, reboot=None, security_group_ids=None, enterprise_security_group_ids=None,
+                            client_token=None, config=None):
         """
         Change instance vpc by id.
 
@@ -5236,6 +5325,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['internalIp'] = internal_ip
         if reboot is not None:
             body['reboot'] = reboot
+        if security_group_ids is not None:
+            body['securityGroupIds'] = security_group_ids
+        if enterprise_security_group_ids is not None:
+            body['enterpriseSecurityGroupIds'] = enterprise_security_group_ids
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
@@ -5463,7 +5556,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_create_auto_renew_rules(self, instance_id, renew_time_unit="month", renew_time=1,
-                                      client_token=None, config=None):
+                                      renew_cds=None, renew_eip=None, client_token=None, config=None):
         """
         create auto renew rules for instance
 
@@ -5478,6 +5571,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param renew_time:
             renew time of year, values: 1/2/3, default value: 1
         :type renew_time: int
+        :param renew_cds:
+            renew cds, values: True/False, default value: True
+        :param renew_eip:
+            renew eip, values: True/False, default value: True
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5493,16 +5590,25 @@ class BccClient(bce_base_client.BceBaseClient):
             "renewTimeUnit": renew_time_unit,
             "renewTime": renew_time
         }
+        if renew_cds is not None:
+            body["renewCds"] = renew_cds
+        if renew_eip is not None:
+            body["renewEip"] = renew_eip
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
-    def batch_delete_auto_renew_rules(self, instance_id, client_token=None, config=None):
+    def batch_delete_auto_renew_rules(self, instance_id, renew_cds=None, renew_eip=None,
+                                      client_token=None, config=None):
         """
         delete auto renew rules for instance
 
         :param instance_id:
             Identify of the instance to auto renew
         :type instance_id: string
-
+        :param renew_cds:
+            renew cds, values: True/False, default value: True
+        :param renew_eip:
+            renew eip, values: True/False, default value: True
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5515,6 +5621,12 @@ class BccClient(bce_base_client.BceBaseClient):
         body = {
             "instanceId": instance_id
         }
+
+        if renew_cds is not None:
+            body["renewCds"] = renew_cds
+        if renew_eip is not None:
+            body["renewEip"] = renew_eip
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def delete_recycled_instance(self, instance_id, client_token=None, config=None):
@@ -5827,8 +5939,6 @@ class BccClient(bce_base_client.BceBaseClient):
             body['specId'] = spec_id
         if logical_zone is not None:
             body['zone'] = logical_zone
-        if spec is not None:
-            body['internalIpV4'] = spec
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_change_instance_to_prepay(self, change_pay_timing_req_list, client_token=None, config=None):
@@ -6340,6 +6450,128 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
+    def create_ehc_cluster(self, name, zone_name, description=None, client_token=None, config=None):
+        """
+        create ehc cluster
+
+        :param name:
+            The name of the EHC cluster. This parameter is required.
+        :type name: string
+
+        :param zone_name:
+            The availability zone name where the EHC cluster will be created.
+        :type zone_name: string
+
+        :param description:
+            Optional. A brief description of the EHC cluster. Default is an empty string.
+        :type description: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/create'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'name': name,
+            'zoneName': zone_name
+        }
+        if description is not None:
+            body['description'] = description
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def modify_ehc_cluster(self, ehc_cluster_id, name=None, description=None, client_token=None, config=None):
+        """
+        Modifies the name and description of an EHC cluster.
+
+        :param ehc_cluster_id:
+            The ID of the EHC cluster to be modified. This parameter is required.
+        :type ehc_cluster_id: string
+
+        :param name:
+            Optional. The new name for the EHC cluster. If not specified, the name will not be changed.
+        :type name: string
+
+        :param description:
+            Optional. The new description for the EHC cluster. If not specified, the description will not be changed.
+        :type description: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/modify'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'ehcClusterId': ehc_cluster_id
+        }
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def get_ehc_cluster_list(self, ehc_cluster_id_list=None, name_list=None, zone_name=None, config=None):
+        """
+        get ehc cluster list
+
+        :param ehc_cluster_id_list:
+            Optional. List of EHC cluster IDs to filter the results. If not specified, retrieves all clusters.
+        :type ehc_cluster_id_list: list<string>
+
+        :param name_list:
+            Optional. List of EHC cluster names to filter the results. If not specified, retrieves all clusters.
+        :type name_list: list<string>
+
+        :param zone_name:
+            Optional. The name of the availability zone to filter the results.
+        :type zone_name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/list'
+        params = {}
+        body = {}
+        if ehc_cluster_id_list is not None:
+            body['ehcClusterIdList'] = ehc_cluster_id_list
+        if name_list is not None:
+            body['nameList'] = name_list
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def delete_ehc_cluster(self, ehc_cluster_id_list, client_token=None, config=None):
+        """
+        Modifies the name and description of an EHC cluster.
+
+        :param ehc_cluster_id_list:
+            A list of IDs of the EHC clusters to be deleted. This parameter is required.
+        :type ehc_cluster_id_list: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/ehc/cluster/delete'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'ehcClusterIdList': ehc_cluster_id_list
+        }
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
     def get_available_images_by_spec(self, marker=None, max_keys=None, spec=None, os_name=None, config=None):
         """
         :param marker:
@@ -6377,6 +6609,153 @@ class BccClient(bce_base_client.BceBaseClient):
             params['osName'] = os_name
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def create_reserved_instances(self, reserved_instance_name=None, scope=None, zone_name=None, spec=None,
+                                  offering_type=None, instance_count=None, reserved_instance_count=None,
+                                  reserved_instance_time=None, reserved_instance_time_unit=None,
+                                  auto_renew_time_unit=None, auto_renew_time=None, auto_renew=None,
+                                  effective_time=None, ehc_cluster_id=None, ticket_id=None,
+                                  tags=None, client_token=None, config=None):
+
+        """
+        Create reserved instances.
+
+        :param reserved_instance_name:
+            The name of the reserved instance.
+        :type reserved_instance_name: string
+
+        :param scope:
+            The scope.
+        :type scope: string
+
+        :param zone_name:
+            The name of the availability zone.
+        :type zone_name: string
+
+        :param spec:
+            The instance specification.
+        :type spec: string
+
+        :param offering_type:
+            The offering type.
+        :type offering_type: string
+
+        :param instance_count:
+            The number of instances.
+        :type instance_count: int
+
+        :param reserved_instance_count:
+            The number of reserved instances.
+        :type reserved_instance_count: int
+
+        :param reserved_instance_time:
+            The duration of the reserved instance.
+        :type reserved_instance_time: int
+
+        :param reserved_instance_time_unit:
+            The time unit of the reserved instance.
+        :type reserved_instance_time_unit: string
+
+        :param auto_renew_time_unit:
+            The time unit for automatic renewal.
+        :type auto_renew_time_unit: string
+
+        :param auto_renew_time:
+            The duration for automatic renewal.
+        :type auto_renew_time: int
+
+        :param auto_renew:
+            Whether to enable automatic renewal, defaults to False.
+        :type auto_renew: bool
+
+        :param effective_time:
+            The effective time.
+            It is immediately effective by default.
+        :type effective_time: string
+
+        :param ehc_cluster_id:
+            The EHC cluster ID.
+        :type ehc_cluster_id: string
+
+        :param ticket_id:
+            The ticket ID.
+        :type ticket_id: string
+
+        :param tags:
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+
+        path = b'/instance/reserved/create'  # 请替换为实际的请求路径
+        params = {}
+        if client_token is not None:
+            params['clientToken'] = client_token
+
+        body = {}
+
+        if reserved_instance_name is not None:
+            body['reservedInstanceName'] = reserved_instance_name
+        if scope is not None:
+            body['scope'] = scope
+        if zone_name is not None:
+            body['zoneName'] = zone_name
+        if spec is not None:
+            body['spec'] = spec
+        if offering_type is not None:
+            body['offeringType'] = offering_type
+        if instance_count is not None:
+            body['instanceCount'] = instance_count
+        if reserved_instance_count is not None:
+            body['reservedInstanceCount'] = reserved_instance_count
+        if reserved_instance_time is not None:
+            body['reservedInstanceTime'] = reserved_instance_time
+        if reserved_instance_time_unit is not None:
+            body['reservedInstanceTimeUnit'] = reserved_instance_time_unit
+        if auto_renew_time_unit is not None:
+            body['autoRenewTimeUnit'] = auto_renew_time_unit
+        if auto_renew_time is not None:
+            body['autoRenewTime'] = auto_renew_time
+        if auto_renew is not False:
+            body['autoRenew'] = str(auto_renew).lower()
+        if effective_time is not None:
+            body['effectiveTime'] = effective_time
+        if ehc_cluster_id is not None:
+            body['ehcClusterId'] = ehc_cluster_id
+        if ticket_id is not None:
+            body['ticketId'] = ticket_id
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+
+        return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
+
+    def modify_reserved_instances(self, reserved_instances=None, client_token=None, config=None):
+
+        """
+        Modify the information of reserved instances.
+
+        :param reserved_instances:
+            A list of dictionaries containing the information of reserved instances to be updated.
+        :type reserved_instances: list<bcc_model.ModifyReservedInstanceModel>
+
+        :return:
+        :rtype: baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/reserved/modify'
+        params = {}
+        if client_token is not None:
+            params['clientToken'] = client_token
+
+        body = {}
+
+        if reserved_instances is not None:
+            reserved_instances_list = [reserved_instance.__dict__ for reserved_instance in reserved_instances]
+            body['reservedInstances'] = reserved_instances_list
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
 
 def generate_client_token_by_uuid():

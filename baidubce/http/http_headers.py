@@ -108,6 +108,8 @@ BOS_FORBID_OVERWRITE = b"x-bce-forbid-overwrite"
 
 BOS_TRAFFIC_LIMIT = b"x-bce-traffic-limit"
 
+BOS_VERSIONING = b"x-bce-versioning"
+
 # STS HTTP Headers
 
 STS_SECURITY_TOKEN = b"x-bce-security-token"
