@@ -40,6 +40,32 @@ class VcaClient(BceBaseClient):
         BceBaseClient.__init__(self, config)
 
     @required(source=(bytes, str))
+    def get_image_abstract(self, source):
+        """
+        Get image abstract analyze result
+        :param source: image source
+        :type source: string or unicode
+        :return: **Http Response**
+        """
+        return self._send_request(http_methods.GET, b'/v1/abstract',
+                                  params={b'source': source})
+
+    @required(source=(bytes, str))
+    def put_image_abstract(self, source):
+        """
+        Analyze a image abstract sync.
+        :param source: image source
+        :type source: string or unicode
+        :param preset: analyze preset name
+        :type preset: string or unicode
+        :return: **Http Response**
+        """
+        body = {
+            'source': source
+        }
+        return self._send_request(http_methods.PUT, b'/v1/abstract', body=json.dumps(body))
+
+    @required(source=(bytes, str))
     def put_image(self, source, preset=None):
         """
         Analyze a image sync.
