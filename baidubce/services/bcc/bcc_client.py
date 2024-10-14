@@ -91,7 +91,7 @@ class BccClient(bce_base_client.BceBaseClient):
                         security_group_ids=None, enterprise_security_group_ids=None, ehc_cluster_id=None,
                         kunlunCard=None, isomerismCard=None, file_systems=None, user_data=None, is_open_hosteye=False,
                         deletion_protection=None, res_group_id=None,
-                        client_token=None, config=None, card_count=1, isomerism_card=None):
+                        client_token=None, config=None, card_count=1, isomerism_card=None, is_keep_image_login=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -436,6 +436,8 @@ class BccClient(bce_base_client.BceBaseClient):
         if isomerism_card is not None:
             body['isomerismCard'] = isomerism_card
             body['cardCount'] = card_count if card_count > 1 else 1
+        if is_keep_image_login is not None:
+            body['keepImageLogin'] = is_keep_image_login
         if auto_renew_time != 0:
             body['autoRenewTime'] = auto_renew_time
         if auto_renew_time_unit is None:
@@ -700,7 +702,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                spec_id=None, relation_tag=False, is_open_ipv6=False, deletion_protection=None,
                                enterprise_security_group_id=None, security_group_ids=None, res_group_id=None,
                                enterprise_security_group_ids=None, isomerismCard=None, file_systems=None,
-                               card_count=1, isomerism_card=None, is_eip_auto_related_delete=False):
+                               card_count=1, isomerism_card=None, is_eip_auto_related_delete=False
+                               , is_keep_image_login=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -1069,6 +1072,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['userData'] = user_data
         if res_group_id is not None:
             body['resGroupId'] = res_group_id
+        if is_keep_image_login is not None:
+            body['keepImageLogin'] = is_keep_image_login
         body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
