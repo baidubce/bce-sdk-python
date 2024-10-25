@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -6776,6 +6777,22 @@ class BccClient(bce_base_client.BceBaseClient):
             body['reservedInstances'] = reserved_instances_list
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
+
+    def get_instance_user_data(self, instance_id, client_token=None, config=None):
+        """
+        get_instance_user_data
+        """
+        path = b'/instance/attribute/getUserdata'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            "instanceId": instance_id
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
 
 
 def generate_client_token_by_uuid():
