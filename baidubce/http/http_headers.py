@@ -117,3 +117,6 @@ STS_SECURITY_TOKEN = b"x-bce-security-token"
 BOS_TAGGING = b"x-bce-tagging"
 
 BOS_PROCESS = b"x-bce-process"
+
+# BTS HTTP Headers
+BTS_METHOD_HEADER = b"x-bce-bts-method"
