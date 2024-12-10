@@ -427,9 +427,10 @@ class BtsClient(BceBaseClient):
 
         body = json.dumps(get_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
-        response = self._send_request(http_methods.GET, path=path, config=config,
+        response = self._send_request(http_methods.POST, path=path, config=config,
                                     body=body,
-                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON,
+                                             http_headers.BTS_METHOD_HEADER: http_methods.GET})
         try:
             if response.result is not None:
                 response.result[0].rowkey = _decode(str(response.result[0].rowkey))
@@ -483,9 +484,10 @@ class BtsClient(BceBaseClient):
 
         body = json.dumps(batch_get_row_data)
         path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
-        response = self._send_request(http_methods.GET, path=path, config=config,
+        response = self._send_request(http_methods.POST, path=path, config=config,
                                     body=body,
-                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
+                                    headers={http_headers.CONTENT_TYPE: http_content_types.JSON,
+                                             http_headers.BTS_METHOD_HEADER: http_methods.GET})
 
         try:
             if response.result is not None:
