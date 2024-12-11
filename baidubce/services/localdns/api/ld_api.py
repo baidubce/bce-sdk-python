@@ -107,6 +107,8 @@ ld_apis = {
         "method": http_methods.GET,
         "path": "/v1/privatezone/[zoneId]/record",
         "queries": {
+            "marker": None,
+            "max_keys": None
         },
         "headers": {
         }

@@ -244,7 +244,7 @@ class LdClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_record(self, zone_id=None):
+    def list_record(self, zone_id=None, marker=None, max_keys=None):
         """
         
 
@@ -252,12 +252,22 @@ class LdClient(bce_base_client.BceBaseClient):
         :desc Zone的ID
         :type zone_id: str
 
+        :param marker:
+        :desc 批量获取列表的查询的起始位置，是一个由系统生成的字符串
+        :type marker: str
+
+        :param max_keys:
+        :desc 每页包含的最大数量，最大数量通常不超过1000。缺省值为1000
+        :type max_keys: str
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
 
         api_config = self._get_config(ld_apis, "list_record")
         self._add_path_param(api_config, "zoneId", zone_id)
+        self._add_query(api_config, "marker", marker)
+        self._add_query(api_config, "maxKeys", max_keys)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
