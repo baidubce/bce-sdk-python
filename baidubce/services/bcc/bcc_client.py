@@ -2603,7 +2603,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                       encrypt_key=None,
                                       relate_cds=False,
                                       client_token=None,
-                                      config=None):
+                                      config=None,
+                                      detection=None):
         """
         Creating a customized image which can be used for creating instance.
         You can create an image from an instance with this method.
@@ -2658,6 +2659,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['encryptKey'] = encrypt_key
         if relate_cds is not None:
             body['relateCds'] = relate_cds
+        if detection:
+            body['detection'] = detection
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -2668,7 +2671,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                       snapshot_id,
                                       encrypt_key=None,
                                       client_token=None,
-                                      config=None):
+                                      config=None,
+                                      detection=None):
         """
         Creating a customized image which can be used for creating instance.
         You can create an image from an snapshot with tihs method.
@@ -2715,6 +2719,8 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         if encrypt_key is not None:
             body['encryptKey'] = encrypt_key
+        if detection:
+            body['detection'] = detection
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
@@ -6287,7 +6293,8 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def import_custom_image(self, os_name, os_arch, os_type, os_version, name, bos_url, client_token=None, config=None):
+    def import_custom_image(self, os_name, os_arch, os_type, os_version, name, bos_url, client_token=None, config=None,
+                            detection=None, generation_type=None):
         """
         import_custom_image
 
@@ -6332,6 +6339,10 @@ class BccClient(bce_base_client.BceBaseClient):
             'name': name,
             'bosUrl': bos_url
         }
+        if detection:
+            body['detection'] = detection
+        if generation_type is not None:
+            body['generationType'] = generation_type
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def create_remote_copy_snapshot(self, snapshot_id, dest_region_infos, client_token=None, config=None):
