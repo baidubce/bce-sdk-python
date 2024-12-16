@@ -19,7 +19,7 @@ class Billing(object):
     billing information
     """
 
-    def __init__(self, payment_timing=None, reservation_length=None, reservation_time_unit=None):
+    def __init__(self, payment_timing=None, reservation_length=None, reservation_time_unit=None, billing_method=None):
         """
         :type payment_timing: string
         :param payment_timing: The pay time of the payment
@@ -29,8 +29,14 @@ class Billing(object):
 
         :type reservation_time_unit: string
         :param reservation_time_unit: time unit of purchasing, default 'month'
+
+        :type billing_method: string
+        :param billing_method: The billing method of the payment, include ByTraffic, ByBandwidth,
+                               PeakBandwidth_Percent_95, Enhanced_Percent_95
         """
         self.paymentTiming = payment_timing
+        if billing_method:
+            self.billingMethod = billing_method
         self.reservation = {
             "reservationLength": reservation_length,
             "reservationTimeUnit": reservation_time_unit

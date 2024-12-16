@@ -146,7 +146,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
-    def create_csn(self, name, description=None, client_token=None):
+    def create_csn(self, name, description=None, tags=None, client_token=None):
         """
         ​创建云智能网。
 
@@ -157,6 +157,10 @@ class CsnClient(bce_base_client.BceBaseClient):
         :param description:
         :desc 云智能网的描述
         :type description: str
+
+        :param tags:
+        :desc 云智能网的标签列表
+        :type tags: list[Tag]
 
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串，详见ClientToken幂等性
@@ -172,11 +176,14 @@ class CsnClient(bce_base_client.BceBaseClient):
             'name': name,
             'description': description,
         }
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
     def create_csn_bp(self, name, bandwidth, geographic_a, geographic_b, billing,
-                      interwork_type=None, client_token=None):
+                      interwork_type=None, tags=None, client_token=None):
         """
         ​创建云智能网共享带宽包。
 
@@ -204,6 +211,10 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc 带宽包的计费信息
         :type billing: Billing
 
+        :param tags:
+        :desc 带宽包的标签列表
+        :type tags: list[Tag]
+
         :param client_token:
         :desc 幂等性Token，是一个长度不超过64位的ASCII字符串
         :type client_token: str
@@ -222,6 +233,9 @@ class CsnClient(bce_base_client.BceBaseClient):
             'geographicB': geographic_b,
             'billing': billing.__dict__,
         }
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
@@ -582,6 +596,45 @@ class CsnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
+    
+    def get_csn_bp_price(self, name, geographic_a, geographic_b, billing, bandwidth=None):
+        """
+        带宽包询价。
+
+        :param name:
+        :desc 带宽包名称
+        :type name: str
+
+        :param geographic_a:
+        :desc 网络实例所属的区域。取值 [ China | Asia-Pacific ]，分别表示中国大陆、亚太区域
+        :type geographic_a: str
+
+        :param geographic_b:
+        :desc 另一个网络实例所属的区域。取值 [ China | Asia-Pacific ]，分别表示中国大陆、亚太区域
+        :type geographic_b: str
+
+        :param billing:
+        :desc 计费信息
+        :type billing: Billing
+
+        :param bandwidth:
+        :desc 带宽包的带宽值，单位：Mbps，后付费按流量不需要该值
+        :type bandwidth: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        api_config = self._get_config(csn_apis, "get_csn_bp_price")
+        body = {
+            'name': name,
+            'geographicA': geographic_a,
+            'geographicB': geographic_b,
+            'billing': billing.__dict__,
+        }
+        if bandwidth is not None:
+            body['bandwidth'] = bandwidth
+        return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
+                                  api_config["queries"], json.dumps(body))
 
     def list_association(self, csn_rt_id=None):
         """

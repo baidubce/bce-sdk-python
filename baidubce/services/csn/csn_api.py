@@ -165,6 +165,14 @@ csn_apis = {
         "headers": {
         }
     },
+    "get_csn_bp_price": {
+        "method": http_methods.POST,
+        "path": "/v1/csn/bp/price",
+        "queries":{
+        },
+        "headers":{
+        }
+    },
     "list_association": {
         "method": http_methods.GET,
         "path": "/v1/csn/routeTable/[csnRtId]/association",

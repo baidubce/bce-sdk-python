@@ -3,6 +3,8 @@
 【版本：v0.9.26】
 涉及产品：DNS+ET
 修复python sdk DNS接口和新增关联/解关联专线通道
+涉及产品：CSN
+支持创建CSN以及创建CSN带宽包时绑定tag、支持Billing指定billing_method和新增CSN带宽包询价功能
 
 【版本：v0.9.25】
 涉及产品：BTS
