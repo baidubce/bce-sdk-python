@@ -8,6 +8,7 @@ import uuid
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
+from baidubce.services.bcc.bcc_model import TagModel
 from baidubce.services.csn import csn_client
 from baidubce.services.csn import csn_model
 
@@ -21,7 +22,9 @@ if __name__ == "__main__":
     billing= csn_model.Billing("Prepaid", 1, "month")
     try:
         resp = csn_client.create_csn_bp(name="csn_bp_test", bandwidth=10, geographic_a="China", geographic_b="China",
-                                        billing=billing, interwork_type="center", client_token=str(uuid.uuid4()))
+                                        billing=billing, interwork_type="center",
+                                        tags=[TagModel("tagKey1", "tagValue1")],
+                                        client_token=str(uuid.uuid4()))
         csn_bp_id = resp.csn_bp_id
         print("Create csn bp response: %s" % resp)
     except BceHttpClientError as e:
