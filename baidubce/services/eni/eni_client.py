@@ -73,6 +73,7 @@ class EniClient(bce_base_client.BceBaseClient):
               enterprise_security_group_ids=list, eni_ip_address_list=list, eni_ipv6_address_list=list)
     def create_eni(self, name, subnet_id, security_group_ids=None, enterprise_security_group_ids=None,
                    eni_ip_address_list=None, eni_ipv6_address_list=None, description=None, 
+                   network_interface_traffic_mode=None,
                    client_token=None, config=None):
         """
         :param name:
@@ -102,6 +103,10 @@ class EniClient(bce_base_client.BceBaseClient):
         :param description:
             The description of the eni.
         :type description: string
+
+        :param network_interface_traffic_mode:
+            The traffic mode of the eni.
+        :type network_interface_traffic_mode: string
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -144,6 +149,8 @@ class EniClient(bce_base_client.BceBaseClient):
             body['ipv6PrivateIpSet'] = pri_ipv6_set
         if description is not None:
             body['description'] = compat.convert_to_string(description)
+        if network_interface_traffic_mode is not None:
+            body['networkInterfaceTrafficMode'] = compat.convert_to_string(network_interface_traffic_mode)
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)

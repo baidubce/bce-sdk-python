@@ -3344,6 +3344,22 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/securityGroup/rule/%s' % security_group_rule_id
         return self._send_request(http_methods.DELETE, path, params=None, config=config)
 
+    @required(security_group_id=(bytes, str))  # ***Unicode***
+    def get_security_group_detail(self, security_group_id, config=None):
+        """
+            get a security group detail from the specified security group
+            :param security_group_id:
+                The id of security_group that will be deleted.
+            :type security_group_id: string
+            :param config:
+            :type config: baidubce.BceClientConfiguration
+            :return:
+            :rtype baidubce.bce_response.BceResponse
+        """
+        security_group_id = compat.convert_to_bytes(security_group_id)
+        path = b'/securityGroup/%s' % security_group_id
+        return self._send_request(http_methods.GET, path, params=None, config=config)
+
     def list_zones(self, config=None):
         """
         Get zone detail list within current region

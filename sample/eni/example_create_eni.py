@@ -18,11 +18,11 @@ if __name__ == '__main__':
     client = eni_client.EniClient(config)  # client 初始化
     
     try:
-        eni_ip_list = [eni_model.EniIPSet(public_ip="", private_ip="10.0.1.115", primary=True), 
+        eni_ip_list = [eni_model.EniIPSet(public_ip="", private_ip="192.168.0.42", primary=True), 
                        eni_model.EniIPSet()]    # IP地址列表, EniIPSet不指定private_ip默认分配可用的内网IP
-        resp = client.create_eni(name="eni-1", subnet_id="sbn-d63m7t0bbwt5", 
-                                 security_group_ids=["g-92600fd1grhr"],
-                                 eni_ip_address_list=eni_ip_list)  # 创建eni
+        resp = client.create_eni(name="eni-1", subnet_id="sbn-x1evbqf9vgxq", 
+                                 enterprise_security_group_ids=["esg-p9y1mmu5fqkx"],
+                                 eni_ip_address_list=eni_ip_list, network_interface_traffic_mode="standard")  # 创建eni
         eni_id = resp.eni_id    # 获取eni_id
         print("create eni response :%s" % resp)
     except BceHttpClientError as e:

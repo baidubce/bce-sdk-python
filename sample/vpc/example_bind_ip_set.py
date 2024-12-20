@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-example for update subnet.
+example for binding ip set to ip group.
 """
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
-from baidubce.services.subnet import subnet_client
+from baidubce.services.vpc import template_client
 
 if __name__ == '__main__':
     ak = "Your Ak"  # 账号的Ak
@@ -13,10 +13,14 @@ if __name__ == '__main__':
     endpoint = "bcc.bj.baidubce.com"  # 服务对应的Region域名
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
-    subnet_client = subnet_client.SubnetClient(config)  # client 初始化
-    subnet_id = "sbn-wmqndyxvuxdf" # 要更新的子网的id
+    template_client = template_client.TemplateClient(config)  # client 初始化
+
+    ip_set_ids = ["ips-3399p5ng4ga0"]
     try:
-        resp = subnet_client.update_subnet(subnet_id, name="subnet_name", enable_ipv6=True)  # 更新子网的名称和开启ipv6
-        print("[example] update subnet response: %s" % resp)
+        resp = template_client.bind_ip_set(
+            ip_group_id="ipg-9vd6xtyjz0in",
+            ip_set_ids=ip_set_ids
+        )  # 增加ip地址组到ip地址族
+        print("[example] add ip set to ip group response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

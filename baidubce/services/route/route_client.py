@@ -188,7 +188,6 @@ class RouteClient(bce_base_client.BceBaseClient):
             params[b'routeTableId'] = route_table_id
         if vpc_id is not None:
             params[b'vpcId'] = vpc_id
-
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(version=(bytes, str), routeTableId=(bytes, str), vpcId=(bytes, str), marker=(bytes, str), maxKeys=int)
@@ -296,10 +295,8 @@ class RouteClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
     @required(route_rule_id=(bytes, str),
-              source_address=(bytes, str),
-              destination_address=(bytes, str),
               description=(bytes, str))
-    def update_route(self, route_rule_id, source_address, destination_address,
+    def update_route(self, route_rule_id, source_address=None, destination_address=None,
                      next_hop_type=None, description="", next_hop_id=None, ip_version=None,
                      next_hops=None, client_token=None,
                      config=None):
@@ -358,8 +355,6 @@ class RouteClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = client_token
 
         body = {
-            'sourceAddress': compat.convert_to_string(source_address),
-            'destinationAddress': compat.convert_to_string(destination_address),
             'description': compat.convert_to_string(description)
         }
 
@@ -372,6 +367,10 @@ class RouteClient(bce_base_client.BceBaseClient):
         if next_hops is not None:
             next_hop_list = [next_hop.__dict__ for next_hop in next_hops]
             body['nextHopList'] = next_hop_list
+        if destination_address is not None:
+            body['destinationAddress'] = compat.convert_to_string(destination_address)
+        if source_address is not None:
+            body['sourceAddress'] = compat.convert_to_string(source_address)
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
  

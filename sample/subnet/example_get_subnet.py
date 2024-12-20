@@ -14,7 +14,7 @@ if __name__ == '__main__':
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     subnet_client = subnet_client.SubnetClient(config)  # client 初始化
-    subnet_id = "xxxxx" # 要查询的子网的id
+    subnet_id = "sbn-n1bv983qfh4e" # 要查询的子网的id
     try:
         resp = subnet_client.get_subnet(subnet_id)  # 查询子网信息
         print("[example] get subnet response: %s" % resp)

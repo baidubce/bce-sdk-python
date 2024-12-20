@@ -70,7 +70,7 @@ class SubnetClient(bce_base_client.BceBaseClient):
               cidr=(bytes, str),
               vpc_id=(bytes, str))
     def create_subnet(self, name, zone_name, cidr, vpc_id, subnet_type=None, description=None,
-                      client_token=None, config=None):
+                      client_token=None, config=None, tags=None):
         """
         Create a subnet with the specified options.
 
@@ -110,6 +110,10 @@ class SubnetClient(bce_base_client.BceBaseClient):
         :param config:
         :type config: baidubce.BceClientConfiguration
 
+        :param tags:
+            List of tags to be bind
+        :type tags: list
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -132,6 +136,9 @@ class SubnetClient(bce_base_client.BceBaseClient):
             body['subnetType'] = compat.convert_to_string(subnet_type)
         if description is not None:
             body['description'] = compat.convert_to_string(description)
+
+        if tags is not None:
+            body['tags'] = tags
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
@@ -244,7 +251,7 @@ class SubnetClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
     @required(subnet_id=(bytes, str), name=(bytes, str), description=(bytes, str))
-    def update_subnet(self, subnet_id, name, description=None, client_token=None, config=None):
+    def update_subnet(self, subnet_id, name, description=None, enable_ipv6=None, client_token=None, config=None):
         """
         Modify the special attribute to new value of the subnet owned by the user.
 
@@ -259,6 +266,10 @@ class SubnetClient(bce_base_client.BceBaseClient):
         :param description:
             The option param to describe the subnet
         :type description: string
+
+        :param enable_ipv6: 
+            The option param to enable or disable ipv6 for the subnet
+        :type enable_ipv6: boolean
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -288,6 +299,9 @@ class SubnetClient(bce_base_client.BceBaseClient):
 
         if description is not None:
             body['description'] = compat.convert_to_string(description)
+
+        if enable_ipv6 is not None:
+            body['enableIpv6'] = enable_ipv6
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
