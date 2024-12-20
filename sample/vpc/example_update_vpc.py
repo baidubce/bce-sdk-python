@@ -14,9 +14,9 @@ if __name__ == '__main__':
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     vpc_client = vpc_client.VpcClient(config)  # client 初始化
-    vpc_id = "xxxxx" # 要更新的vpc的id
+    vpc_id = "vpc-c46sdgpdkams" # 要更新的vpc的id
     try:
-        resp = vpc_client.update_vpc(vpc_id, name="vpc_name")  # 更新vpc的名称
+        resp = vpc_client.update_vpc(vpc_id, name="vpc_name", description="测试")  # 更新vpc的名称
         print("[example] update vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

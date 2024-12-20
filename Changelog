@@ -5,6 +5,13 @@
 修复python sdk DNS接口和新增关联/解关联专线通道
 涉及产品：CSN
 支持创建CSN以及创建CSN带宽包时绑定tag、支持Billing指定billing_method和新增CSN带宽包询价功能
+涉及产品：VPC
+新增VPC参数模板接口和示例
+创建子网接口补全tags参数
+更新子网接口补全enable_ipv6参数
+更新路由规则接口修改source_address/destination_address为非必填
+创建网卡接口补全network_interface_traffic_mode参数
+新增查看安全组详情接口
 
 【版本：v0.9.25】
 涉及产品：BTS

@@ -16,7 +16,7 @@ if __name__ == '__main__':
     esg_client = esg_client.EsgClient(config)  # client 初始化
     try:
         # 更新企业安全组规则
-        resp = esg_client.update_enterprise_security_group_rule(enterprise_security_group_rule_id='esg-dfp1pvmk2cqh', # 企业安全组id
+        resp = esg_client.update_enterprise_security_group_rule(enterprise_security_group_rule_id='esgr-yrrdy14n5zhn', # 企业安全组id
                                                                 remark='test',# 备注
                                                                 source_portrange='1-10', # 源端口范围
                                                                 protocol='udp', # 协议udp，tcp，icmp

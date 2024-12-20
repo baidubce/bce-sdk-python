@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     try:
         # Specify the ID of the reserved subnet to be deleted
-        ip_reserve_id = "sbn-a4cikyt7756r"  # Replace with the ID of the reserved subnet
+        ip_reserve_id = "ipr-6k6a056t3y7t"  # Replace with the ID of the reserved subnet
         client_token = str(uuid.uuid4())
 
         # Call the delete_subnet_ipreserve method
