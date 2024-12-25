@@ -12,6 +12,8 @@
 更新路由规则接口修改source_address/destination_address为非必填
 创建网卡接口补全network_interface_traffic_mode参数
 新增查看安全组详情接口
+涉及产品：BLB
+HTTPS类型监听器支持扩展域名
 
 【版本：v0.9.25】
 涉及产品：BTS
