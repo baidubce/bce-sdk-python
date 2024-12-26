@@ -17,7 +17,7 @@ class Billing(object):
         :param payment_timing: 'Prepaid'  'Postpaid'
 
         :type billing_method: string
-        :param billing_method: 'ByTraffic' 'ByBandwidt'
+        :param billing_method: 'ByTraffic' 'ByBandwidth'
 
         :type reservation_length: int
         :param reservation_length: purchase length

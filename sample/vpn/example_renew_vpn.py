@@ -7,7 +7,6 @@ Samples for vpn client.
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
-from baidubce.services.bcc.bcc_model import TagModel
 from baidubce.services.vpn.vpn_client import VpnClient
 from baidubce.services.vpn.vpn_model import Billing
 
@@ -24,14 +23,9 @@ if __name__ == "__main__":
     vpn_client = VpnClient(config)
 
     try:
-        billing = Billing('Postpaid')
-        resp = vpn_client.create_vpn(vpc_id='vpc-dffj71zaeijs', vpn_name='mpc-ipsec', billing=billing,
-                                     tags=[TagModel(tagKey='tagKey1', tagValue='tagValue1')],
-                                     resourceGroupId='RESG-XYGz2Stf9Wy')
-        # resp = vpn_client.create_vpn(vpc_id='vpc-kg01vdr7i7ar', vpn_name='mpc-ipsec',
-        #                              billing=billing, vpn_type='SSL', max_connections=10)
-        vpn_id = resp.vpn_id
+        billing = Billing(reservation_length=1, reservation_time_unit='Month')
+        resp = vpn_client.renew_vpn(vpn_id='vpn-bir8biqwr45e', billing=billing)
         request_id = resp.metadata.bce_request_id
-        print("create vpn gw response: %s" % resp)
+        print("renew vpn response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling: %s" % e)
