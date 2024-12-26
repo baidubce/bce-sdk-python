@@ -54,7 +54,7 @@ class VpnClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, VpnClient.prefix + path, body, headers, params)
 
-    def list_vpns(self, vpc_id, eip=None, marker=None, max_Keys=None, config=None):
+    def list_vpns(self, vpc_id, eip=None, marker=None, max_Keys=None, config=None, vpn_type=None):
         """
         return all vpn about vpc
 
@@ -81,6 +81,10 @@ class VpnClient(bce_base_client.BceBaseClient):
         :param config:
         :type config: baidubce.BceClientConfiguration
 
+        :param vpn_type:
+            type of vpn
+        :type vpn_type: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -92,12 +96,16 @@ class VpnClient(bce_base_client.BceBaseClient):
             params[b'maxKeys'] = max_Keys
         if eip is not None:
             params[b'eip'] = eip
+        if vpn_type is not None:
+            params[b'type'] = vpn_type
 
         return self._send_request(http_methods.GET, VpnClient.path, params=params, config=config)
 
     def create_vpn(self, vpc_id, vpn_name, billing,
                    vpn_type=None, max_connections=None,
-                   client_token=None, description=None, eip=None, config=None):
+                   client_token=None, description=None,
+                   eip=None, config=None, subnetId=None,
+                   tags=None, resourceGroupId=None, delete_protect=False):
         """
         The method of vpn to be created.
 
@@ -130,6 +138,22 @@ class VpnClient(bce_base_client.BceBaseClient):
         :param config:
         :type config: baidubce.BceClientConfiguration
 
+        :param subnetId:
+            subnetId
+        :type subnetId:str
+
+        :param tags:
+            The tags of the vpn.
+        :type tags: list
+
+        :param resourceGroupId:
+            The resource group ID of the vpn.
+        :type resourceGroupId: str
+
+        :param delete_protect:
+            Whether to enable deletion protection on the vpn.
+        :type delete_protect: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -149,7 +173,9 @@ class VpnClient(bce_base_client.BceBaseClient):
                         'reservationLength': billing.reservation_length,
                         'reservationTimeUnit': billing.reservation_time_unit
                     }
-                }}
+                },
+                'deleteProtect': delete_protect
+                }
 
         if description is not None:
             body['description'] = description
@@ -159,6 +185,13 @@ class VpnClient(bce_base_client.BceBaseClient):
             body['type'] = vpn_type
         if max_connections is not None:
             body['maxConnection'] = max_connections
+        if subnetId is not None:
+            body['subnetId'] = subnetId
+        if tags is not None:
+            tag_list = [tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+        if resourceGroupId is not None:
+            body['resourceGroupId'] = resourceGroupId
 
         return self._send_request(http_methods.POST, VpnClient.path, body=json.dumps(body), params=params,
                                   config=config)
@@ -788,11 +821,27 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
 
-    def get_vpn_ssl_user(self, vpn_id, client_token=None, config=None):
+    def get_vpn_ssl_user(self, vpn_id, client_token=None, config=None, marker=None, max_keys=None, user_name=None):
         """
         :param vpn_id: vpn id
         :type vpn_id: string
 
+        :param marker:
+                :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 1000.
+        :type max_keys: int
+
+        :param user_name: user name
+        :type user_name: string
+        
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -802,6 +851,12 @@ class VpnClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = generate_client_token()
         else:
             params[b'clientToken'] = client_token
+        if marker is not None:
+            params[b'marker'] = marker
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
+        if user_name is not None:
+            params[b'userName'] = user_name
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
@@ -822,6 +877,31 @@ class VpnClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = client_token
 
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
+    
+    def update_vpn_delete_protect(self, vpn_id, delete_protect=False, client_token=None, config=None):
+        """
+        :param vpn_id: vpn id
+        :type vpn_id: string
+
+        :param delete_protect:
+            Whether to enable deletion protection on the vpn.
+        :type delete_protect: bool
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = VpnClient.path + b'/' + compat.convert_to_bytes(vpn_id) + b'/deleteProtect'
+        params = {}
+        if client_token is None:
+            params[b'clientToken'] = generate_client_token()
+        else:
+            params[b'clientToken'] = client_token
+        body = {
+            "deleteProtect": delete_protect
+        }
+
+        return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
+
 
 def generate_client_token_by_uuid():
     """

@@ -14,6 +14,8 @@
 新增查看安全组详情接口
 涉及产品：BLB
 HTTPS类型监听器支持扩展域名
+涉及产品：VPN+PeerConn
+修复python sdk VPN接口，增加PeerConn删除保护接口
 
 【版本：v0.9.25】
 涉及产品：BTS

@@ -8,6 +8,7 @@ import uuid
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
+from baidubce.services.bcc.bcc_model import TagModel
 from baidubce.services.vpc import peerconn_client
 from baidubce.services.vpc import peerconn_model
 
@@ -27,7 +28,8 @@ if __name__ == "__main__":
                                                billing=peerconn_model.Billing('Postpaid'),
                                                description='peer_same_account',
                                                local_if_name='localIfName',
-                                               peer_if_name='peerIfName')
+                                               peer_if_name='peerIfName',
+                                               tags=[TagModel(tagKey='tagKey1', tagValue='tagValue1')])
         peer_conn_id = resp.peer_conn_id
         print("Create peerconn response: %s" % resp)
     except BceHttpClientError as e:
