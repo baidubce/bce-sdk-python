@@ -1574,6 +1574,7 @@ class BccClient(bce_base_client.BceBaseClient):
               memory_capacity_in_gb=int)
     def resize_instance(self, instance_id, cpu_count, memory_capacity_in_gb,
                         live_resize=None, gpu_card_count=None, ephemeral_disk_in_gb=None,
+                        enable_jumbo_frame=None,
                         client_token=None, config=None):
         """
         Resizing the instance owned by the user.
@@ -1594,6 +1595,18 @@ class BccClient(bce_base_client.BceBaseClient):
         :param memory_capacity_in_gb:
             The parameter of specified the capacity of memory in GB to resize the instance.
         :type memory_capacity_in_gb: int
+
+        :param enable_jumbo_frame:
+            The parameter of specified the instance enable/disable jumbo frame.
+            True means enable jumbo frame, false means disable jumbo frame.
+            enable_jumbo_frame default None which means:
+            When you change to the spec which doesn't support jumbo frame, the jumbo frame will be disabled.
+            When the original instance don't support jumbo frame and you change to the spec which support jumbo frame,
+            the jumbo frame will be disabled.
+            When the original spec of the instance support jumbo frame , then you change to the spec which support jumbo
+            frame, if the original instance enable jumbo frame, the jumbo frame will be enabled, if the original instance
+            disable jumbo frame, the jumbo frame will be disabled.
+        :type enable_jumbo_frame: bool
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -1628,6 +1641,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['gpuCardCount'] = gpu_card_count
         if ephemeral_disk_in_gb is not None:
             body['ephemeralDiskInGb'] = ephemeral_disk_in_gb
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
         params = None
         if client_token is None:
             params = {
@@ -5398,7 +5413,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
-    def resize_instance_by_spec(self, instance_id, spec, client_token=None, config=None):
+    def resize_instance_by_spec(self, instance_id, spec, enable_jumbo_frame=None, client_token=None, config=None):
         """
         Resize instance by spec.
 
@@ -5409,6 +5424,18 @@ class BccClient(bce_base_client.BceBaseClient):
         :param spec:
             The name of spec.
         :type spec: string
+
+        :param enable_jumbo_frame:
+            The parameter of specified the instance enable/disable jumbo frame.
+            True means enable jumbo frame, false means disable jumbo frame.
+            enable_jumbo_frame default None which means:
+            When you change to the spec which doesn't support jumbo frame, the jumbo frame will be disabled.
+            When the original instance don't support jumbo frame and you change to the spec which support jumbo frame,
+            the jumbo frame will be disabled.
+            When the original spec of the instance support jumbo frame , then you change to the spec which support jumbo
+            frame, if the original instance enable jumbo frame, the jumbo frame will be enabled, if the original instance
+            disable jumbo frame, the jumbo frame will be disabled.
+        :type enable_jumbo_frame: bool
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5425,6 +5452,8 @@ class BccClient(bce_base_client.BceBaseClient):
         body = {
             "spec": spec
         }
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
@@ -5889,7 +5918,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_resize_instance(self, instance_ids, spec, subnet_id=None, logical_zone=None, internal_ip_v4=None,
-                              client_token=None, config=None):
+                              enable_jumbo_frame=None, client_token=None, config=None):
         """
         batch resize instance
 
@@ -5913,6 +5942,18 @@ class BccClient(bce_base_client.BceBaseClient):
             internal ip for ipv4
         :type internal_ip_v4: string
 
+        :param enable_jumbo_frame:
+            The parameter of specified the instance enable/disable jumbo frame.
+            True means enable jumbo frame, false means disable jumbo frame.
+            enable_jumbo_frame default None which means:
+            When you change to the spec which doesn't support jumbo frame, the jumbo frame will be disabled.
+            When the original instance don't support jumbo frame and you change to the spec which support jumbo frame,
+            the jumbo frame will be disabled.
+            When the original spec of the instance support jumbo frame , then you change to the spec which support jumbo
+            frame, if the original instance enable jumbo frame, the jumbo frame will be enabled, if the original instance
+            disable jumbo frame, the jumbo frame will be disabled.
+        :type enable_jumbo_frame: bool
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5934,6 +5975,9 @@ class BccClient(bce_base_client.BceBaseClient):
             body['logicalZone'] = logical_zone
         if internal_ip_v4 is not None:
             body['internalIpV4'] = internal_ip_v4
+        if enable_jumbo_frame is not None:
+            body['enableJumboFrame'] = enable_jumbo_frame
+
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def list_available_resize_specs(self, instance_ids, spec=None, spec_id=None, logical_zone=None,

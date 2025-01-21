@@ -74,8 +74,9 @@ user_data = "#!/bin/sh\\necho 'Hello World' | tee /root/userdata_test.txt"
 deletion_protection = 1
 is_open_hosteye = False
 tags = [bcc_model.TagModel("test", "bcc")]
-auto_snapshot_policy = bcc_model.AutoSnapshotPolicyModel('asp-name', [1,2], [1,2])
+auto_snapshot_policy = bcc_model.AutoSnapshotPolicyModel('asp-name', [1, 2], [1, 2])
 res_group_id = 'RESG-UtT3P4x4KxF'
+
 
 def generate_client_token_by_random():
     """
@@ -448,9 +449,9 @@ class TestBccClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         self.assertEqual(
-            type(self.client.resize_instance(instance_id,
-                                             2, 4, False, 1, 40,
-                                             client_token)),
+            type(self.client.resize_instance("i-Z3rZB8WG",
+                                             2, 8, False, None, None, False,
+                                             client_token, None)),
             baidubce.bce_response.BceResponse)
 
     def test_bind_instance_to_security_group(self):
@@ -871,7 +872,7 @@ class TestBccClient(unittest.TestCase):
 
         self.assertEqual(
             type(self.client.unbind_reserved_instance_from_tags(reserved_instance_ids=reserved_instance_ids,
-                                                            tags=instance_tags)),
+                                                                tags=instance_tags)),
             baidubce.bce_response.BceResponse)
 
     def test_bind_tags_batch_by_resource_type(self):
@@ -1196,9 +1197,9 @@ class TestBccClient(unittest.TestCase):
         """
         instance_id = "i-3OWgGtoG"
         resp = self.client.release_prepaid_instance_with_related_resources(instance_id=instance_id,
-                                                                      related_release_flag=True,
-                                                                      delete_cds_snapshot_flag=True,
-                                                                      delete_related_enis_flag=True)
+                                                                           related_release_flag=True,
+                                                                           delete_cds_snapshot_flag=True,
+                                                                           delete_related_enis_flag=True)
         print(resp)
 
     def test_get_instance_with_deploy_set(self):
@@ -1566,7 +1567,8 @@ class TestBccClient(unittest.TestCase):
         """
         test case for resize_instance_by_spec
         """
-        resp = self.client.resize_instance_by_spec(instance_id="i-oUXBvdIx", spec='bcc.ic1.c1m1')
+        resp = self.client.resize_instance_by_spec(instance_id="i-Z3rZB8WG", spec='bcc.g5.c4m16',
+                                                   enable_jumbo_frame=False)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1594,7 +1596,7 @@ class TestBccClient(unittest.TestCase):
         test case for change_to_prepaid
         """
         resp = self.client.change_to_prepaid(instance_id="i-GREjIhjh", duration=3, relation_cds=True,
-                                            auto_renew=True, auto_renew_period=2)
+                                             auto_renew=True, auto_renew_period=2)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
@@ -1755,7 +1757,8 @@ class TestBccClient(unittest.TestCase):
         test case for batch_resize_instance
         """
         resp = self.client.batch_resize_instance(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
-                                                 subnet_id='subnet_id', logical_zone='zone_name', internal_ip_v4='ipv4')
+                                                 subnet_id='subnet_id', logical_zone='zone_name', internal_ip_v4='ipv4',
+                                                 enable_jumbo_frame=False)
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)
