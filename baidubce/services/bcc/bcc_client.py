@@ -3943,6 +3943,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
                                 dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
+                                cpu_thread_config=None, numa_config=None,
                                 client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -4146,6 +4147,14 @@ class BccClient(bce_base_client.BceBaseClient):
             True indicates enabled, false indicates disabled,
         :type enable_jumbo_frame: bool
 
+        :param cpu_thread_config:
+            Manage hyper - threading, which is the same on both Intel and AMD platforms.
+        :type cpu_thread_config: string
+
+        :param numa_config:
+            Manage NPS on AMD platforms. Manage NUMA on Intel platforms.
+        :type numa_config: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4233,6 +4242,10 @@ class BccClient(bce_base_client.BceBaseClient):
             body['tags'] = tag_list
         if enable_jumbo_frame is not None:
             body['enableJumboFrame'] = enable_jumbo_frame
+        if cpu_thread_config is not None:
+            body['cpuThreadConfig'] = cpu_thread_config
+        if numa_config is not None:
+            body['numaConfig'] = numa_config
         body['cdsAutoRenew'] = cds_auto_renew
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
