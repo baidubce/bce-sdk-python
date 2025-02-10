@@ -331,6 +331,14 @@ class TestBccClient(unittest.TestCase):
         print(resp.instances)
         self.assertEqual(len(resp.instances), 1)
 
+    def test_list_instances_by_fuzzy_instance_name(self):
+        """
+        test case for list_instances
+        """
+        resp = self.client.list_instances(fuzzy_instance_name="instance-name")
+        print(resp.instances)
+        self.assertEqual(len(resp.instances), 1)
+
     def test_get_instance(self):
         """
         test case for get_instance
