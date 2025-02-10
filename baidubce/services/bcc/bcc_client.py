@@ -4389,7 +4389,6 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = generate_client_token()
         else:
             params['clientToken'] = client_token
-        instance_id = compat.convert_to_bytes(instance_id)
         path = b'/instance/delete'
         body = {}
         body['instanceId'] = instance_id
