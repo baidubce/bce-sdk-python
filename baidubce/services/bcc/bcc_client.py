@@ -1083,7 +1083,8 @@ class BccClient(bce_base_client.BceBaseClient):
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
                        zone_name=None, instance_ids=None, instance_names=None, cds_ids=None, ehc_cluster_id=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
-                       vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, config=None):
+                       vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, fuzzy_instance_name=None,
+                       config=None):
         """
         Return a list of instances owned by the authenticated user.
 
@@ -1165,6 +1166,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param auto_renew:
         :type auto_renew: boolean
 
+        :param fuzzy_instance_name:
+            filter instance list with fuzzy instance name
+        :type fuzzy_instance_name: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1207,6 +1212,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['ipv6Addresses'] = ipv6_addresses
         if auto_renew is not None:
             params['autoRenew'] = auto_renew
+        if fuzzy_instance_name is not None:
+            params['fuzzyInstanceName'] = fuzzy_instance_name
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(instance_id=(bytes, str))  # ***Unicode***
