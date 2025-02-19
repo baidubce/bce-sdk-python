@@ -10,6 +10,7 @@ from baidubce.services.vpc import nat_model
 from baidubce.services.vpc.nat_client import NatClient
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
+from baidubce.services.bcc.bcc_model import TagModel
 
 
 def generate_client_token_by_uuid():
@@ -22,7 +23,8 @@ def generate_client_token_by_uuid():
     """
     return str(uuid.uuid4())
 
-def test_create_enhance_nat(nat_client, client_token, name, VPC_ID, billing, cu_num):
+def test_create_enhance_nat(nat_client, client_token, name, VPC_ID, billing, cu_num, bind_eips, tags, resource_group_id,
+                            delete_protect):
    """
     create enhance nat.
 
@@ -56,16 +58,16 @@ def test_create_enhance_nat(nat_client, client_token, name, VPC_ID, billing, cu_
         BceHttpClientError: http request error
     """
    try:
-        res = nat_client.create_nat(client_token=client_token, name=name,
-                                         vpc_id=VPC_ID,
-                                         billing=billing, cu_num=cu_num)
-        return res
+       res = nat_client.create_nat(client_token=client_token, name=name, vpc_id=VPC_ID, bind_eips=bind_eips,
+                                   billing=billing, cu_num=cu_num, tags=tags, resource_group_id=resource_group_id,
+                                   delete_protect=delete_protect)
+       return res
    except exception.BceHttpClientError as e:
-        #异常处理
-        print(e.last_error)
-        print(e.request_id)
-        print(e.code)
-        return None    
+       # 异常处理
+       print(e.last_error)
+       print(e.request_id)
+       print(e.code)
+       return None
 
 if __name__ == "__main__":
     post_paid_billing = nat_model.Billing('Postpaid')
@@ -80,8 +82,12 @@ if __name__ == "__main__":
     nat_client = NatClient(config)
     client_token = generate_client_token_by_uuid()
     name = 'enhance_nat_' + client_token
-    res = test_create_enhance_nat(nat_client, client_token, name, VPC_ID, post_paid_billing, cu_num=10)
+    cu_num = 10
+    bind_eips = ['xxxx']
+    tags = [TagModel(tagKey='tagKey1', tagValue='tagValue1')]
+    resource_group_id = 'RESG-xxx'
+    res = test_create_enhance_nat(nat_client, client_token, name, VPC_ID, post_paid_billing, cu_num,
+                                  bind_eips, tags, resource_group_id, True)
 
     print(res)
     print(res.nat_id)
-    
