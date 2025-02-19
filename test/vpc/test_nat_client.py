@@ -35,6 +35,7 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.vpc import nat_client
 from baidubce.services.vpc import nat_model
+from baidubce.services.bcc.bcc_model import TagModel
 
 VPC_ID = b''
 EIP = ['']
@@ -93,9 +94,10 @@ class TestNatClient(unittest.TestCase):
         """
         client_token = generate_client_token()
         name = 'enhance_nat_' + client_token
-        bce_response = self.client.create_nat(client_token=client_token, name=name,
-                               vpc_id=VPC_ID,
-                               billing=post_paid_billing, cu_num=10)
+        bce_response = self.client.create_nat(client_token=client_token, name=name, vpc_id='vpc-8gc432kidqqb',
+                                              billing=post_paid_billing, cu_num=10, bind_eips=['100.88.1.91'],
+                                              tags=[TagModel(tagKey='tagKey1', tagValue='tagValue1')],
+                                              resource_group_id='RESG-xyfmAVnHGzK', delete_protect=True)
         print (type(bce_response))
         print(bce_response)
         print(bce_response.nat_id)
@@ -125,6 +127,16 @@ class TestNatClient(unittest.TestCase):
         self.client.create_nat(client_token=client_token, name=name,
                                vpc_id=VPC_ID, cu_num=10,
                                dnat_eips=EIP)
+
+    def test_create_enhance_nat_with_bind_eip(self):
+        """
+        test case for creating enhance nat with bind eips
+        """
+        client_token = generate_client_token()
+        name = 'with_bind_eip' + client_token
+        self.client.create_nat(client_token=client_token, name=name,
+                               vpc_id=VPC_ID, cu_num=10,
+                               bind_eips=EIP)
 
     def test_create_nat_with_shared_eip(self):
         """
@@ -240,7 +252,25 @@ class TestNatClient(unittest.TestCase):
             type(self.client.purchase_reserved_nat(nat_id=NAT_ID,
                                                    billing=pre_paid_billing)),
             baidubce.bce_response.BceResponse)
-    
+
+    def test_resize_nat(self):
+        """
+        test case for resize nat
+        """
+        self.assertEqual(
+            type(self.client.resize_nat(nat_id=NAT_ID,
+                                        cu_num=10)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_delete_protect(self):
+        """
+        test case for update delete protect
+        """
+        self.assertEqual(
+            type(self.client.update_delete_protect(nat_id=NAT_ID,
+                                                   delete_protect=True)),
+            baidubce.bce_response.BceResponse)
+
     def test_bind_dnat_eip(self):
         """
         test case for binding dnat with EIP
@@ -263,6 +293,21 @@ class TestNatClient(unittest.TestCase):
         """
         self.assertEqual(
             type(self.client.unbind_dnat_eip(nat_id=NAT_ID, eips=EIP)),
+            baidubce.bce_response.BceResponse)
+    def test_enhance_nat_bind_eip(self):
+        """
+        test case for enhance nat bind EIP
+        """
+        self.assertEqual(
+            type(self.client.enhance_nat_bind_eip(nat_id=NAT_ID, bind_eips=EIP)),
+            baidubce.bce_response.BceResponse)
+
+    def test_enhance_nat_unbind_eip(self):
+        """
+        test case for enhance nat unbind EIP
+        """
+        self.assertEqual(
+            type(self.client.enhance_nat_unbind_eip(nat_id=NAT_ID, bind_eips=EIP)),
             baidubce.bce_response.BceResponse)
 
     def test_unbond_shared_dnat_eip(self):
