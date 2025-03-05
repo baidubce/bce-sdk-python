@@ -6935,7 +6935,6 @@ class BccClient(bce_base_client.BceBaseClient):
                 :param bind_sg:
                 :desc
                 :type bind_sg: json
-
                 :return:
                 :rtype baidubce.bce_response.BceResponse
         """
