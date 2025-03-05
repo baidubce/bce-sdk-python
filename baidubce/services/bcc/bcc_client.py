@@ -6873,6 +6873,146 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def enter_rescue_mode(self, instance_id, force_stop, password, client_token=None):
+        """
+                进入救援模式。
+
+                :param enter_rescue_mode_req:
+                :desc
+                :type enter_rescue_mode_req: json
+
+                :return:
+                :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/rescue/mode/enter'
+
+        params = {}
+
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'instanceId': instance_id,
+            'forceStop': force_stop,
+            'password': password
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def exit_rescue_mode(self, instance_id, client_token=None):
+        """
+                退出救援模式。
+
+                :param exit_rescue_mode_req:
+                :desc
+                :type exit_rescue_mode_req: json
+
+                :return:
+                :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/rescue/mode/exit'
+
+        params = {}
+
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'instanceId': instance_id
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+
+    def bind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+        """
+                绑定安全组。
+
+                :param bind_sg:
+                :desc
+                :type bind_sg: json
+
+                :return:
+                :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/securitygroup/bind'
+
+        params = {}
+
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'instanceIds': instance_ids,
+            'securityGroupIds': security_group_ids,
+            'securityGroupType': security_group_type
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+
+    def replace_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+        """
+                替换安全组。
+
+                :param replace_sg:
+                :desc
+                :type replace_sg: json
+
+                :return:
+                :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/securitygroup/replace'
+
+        params = {}
+
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'instanceIds': instance_ids,
+            'securityGroupIds': security_group_ids,
+            'securityGroupType': security_group_type
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def unbind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+        """
+                解绑安全组。
+
+                :param unbind_sg:
+                :desc
+                :type unbind_sg: json
+
+                :return:
+                :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/securitygroup/unbind'
+
+        params = {}
+
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'instanceIds': instance_ids,
+            'securityGroupIds': security_group_ids,
+            'securityGroupType': security_group_type
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
 
 def generate_client_token_by_uuid():
     """

@@ -2129,6 +2129,83 @@ class TestBccClient(unittest.TestCase):
         """
         print(self.client.get_instance_user_data(instance_id='i-b34ycow2'))
 
+    def test_enter_rescue_mode(self):
+        """
+        test get cds price
+        """
+        resp = self.client.enter_rescue_mode(instance_id="i-kotclGLf", force_stop=True,
+                                             password='14f60373ca5f5718a9d7bfa16250fe3a')
+
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_exit_rescue_mode(self):
+        """
+        test get cds price
+        """
+        resp = self.client.exit_rescue_mode(instance_id="i-kotclGLf")
+
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_bind_sg(self):
+        """
+        test get cds price
+        """
+        resp = self.client.bind_sg(instance_ids=["i-LO8XGmwh"],
+                                   security_group_ids=['esg-r8dz9yhm57kk'],
+                                   security_group_type='enterprise')
+
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_unbind_sg(self):
+        """
+        test get cds price
+        """
+        resp = self.client.unbind_sg(instance_ids=["i-LO8XGmwh"],
+                                     security_group_ids=['esg-r8dz9yhm57kk'],
+                                     security_group_type='enterprise')
+
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_replace_sg(self):
+        """
+        test get cds price
+        """
+        resp = self.client.replace_sg(instance_ids=["i-LO8XGmwh"],
+                                      security_group_ids=['esg-r8dz9yhm57kk'],
+                                      security_group_type='enterprise')
+
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()

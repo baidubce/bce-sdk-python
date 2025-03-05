@@ -1698,6 +1698,19 @@ if __name__ == "__main__":
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # enter_rescue_mode
+    try:
+        response = bcc_client.enter_rescue_mode(instance_id='i-FhvOuv4t',
+                                                force_stop=True,
+                                                password='14f60373ca5f5718a9d7bfa16250fe3a')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     ######################################################################################################
     #            region operation samples
     ######################################################################################################
