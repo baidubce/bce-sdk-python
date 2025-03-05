@@ -33,7 +33,8 @@ if __name__ == "__main__":
     instance_id = 'i-lxhfzmm5'
     volume_id = 'volume_id'
     image_id = 'm-lxhfzmm5'
-    admin_pass = '!QAZ2wsx'
+    admin_pass = '*******'
+    password = "********"
     new_cpu_count = 1
     new_memory_in_gb = 1
     network_capacity_in_mbps = 1
@@ -900,7 +901,8 @@ if __name__ == "__main__":
                                                       network_capacity_in_mbps=100, eip_name='eip_name',
                                                       internet_charge_type='charge_t1', purchase_count=2, name='n_name',
                                                       hostname='hostname-new', auto_seq_suffix=True,
-                                                      is_open_hostname_domain=True, admin_pass='1234', billing=billing,
+                                                      is_open_hostname_domain=True,
+                                                      admin_pass=admin_pass, billing=billing,
                                                       zone_name='szth', subnet_id='snet_id', security_group_id='sg_id',
                                                       relation_tag=True, is_open_ipv6=True, tags=test_tags,
                                                       key_pair_id='kp_id_test', auto_renew_time_unit='year',
@@ -1005,7 +1007,7 @@ if __name__ == "__main__":
         response = bcc_client.get_bid_instance_price(instance_type='N1', cpu_count=1, memory_cap_in_gb=2,
                                                      root_disk_size_in_gb=200, root_disk_storage_type='new_type',
                                                      create_cds_list=test_create_cds_model_list, purchase_count=1,
-                                                     name='new-name', admin_pass='admin-pass', key_pair_id='kp_id',
+                                                     name='new-name', admin_pass=admin_pass, key_pair_id='kp_id',
                                                      asp_id='asp_id', image_id='image_id', bid_model='bid_model',
                                                      bid_price='12345', network_cap_in_mbps=100, relation_tag=True,
                                                      tags=test_tags, security_group_id='sec_id', subnet_id='snet-id',
@@ -1225,7 +1227,7 @@ if __name__ == "__main__":
 
     # batch_rebuild_instances
     try:
-        response = bcc_client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='123456', keypair_id="123",
+        response = bcc_client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass=admin_pass, keypair_id="123",
                                                       instance_ids=["i-oUXBvdIx", "i_id2"])
         print response
     except BceHttpClientError as e:
@@ -1702,7 +1704,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.enter_rescue_mode(instance_id='i-FhvOuv4t',
                                                 force_stop=True,
-                                                password='14f60373ca5f5718a9d7bfa16250fe3a')
+                                                password=password)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):

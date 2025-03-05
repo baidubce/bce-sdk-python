@@ -6873,7 +6873,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
-    def enter_rescue_mode(self, instance_id, force_stop, password, client_token=None):
+    def enter_rescue_mode(self, instance_id, force_stop, password, client_token=None, config=None):
         """
                 进入救援模式。
 
@@ -6901,7 +6901,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    def exit_rescue_mode(self, instance_id, client_token=None):
+    def exit_rescue_mode(self, instance_id, client_token=None, config=None):
         """
                 退出救援模式。
 
@@ -6928,7 +6928,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
 
-    def bind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+    def bind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None, config=None):
         """
                 绑定安全组。
 
@@ -6956,7 +6956,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
 
-    def replace_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+    def replace_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None, config=None):
         """
                 替换安全组。
 
@@ -6984,7 +6984,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-    def unbind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None):
+    def unbind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None, config=None):
         """
                 解绑安全组。
 
