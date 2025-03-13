@@ -2134,7 +2134,7 @@ class TestBccClient(unittest.TestCase):
         test get cds price
         """
         resp = self.client.enter_rescue_mode(instance_id="i-kotclGLf", force_stop=True,
-                                             password='14f60373ca5f5718a9d7bfa16250fe3a')
+                                             password='*************')
 
         self.assertEqual(
             type(resp),
