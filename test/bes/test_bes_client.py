@@ -45,7 +45,7 @@ vpcId = 'vpcId'
 # operation params
 pre_name = 'test'
 name = 'reusetest'
-password = '123456aA'
+password = '*********'
 modules = [Module(type='es_node', instance_num=1), Module(type='kibana', instance_num=1)]
 version = '7.4.2'
 modules_resize = [
