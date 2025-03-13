@@ -56,7 +56,7 @@ post_paid_billing = bcc_model.Billing('Postpaid', 1)
 pre_paid_billing = bcc_model.Billing('Prepaid', 2)
 
 force_stop = False
-admin_pass = 'Caesar@test111'
+admin_pass = '**********'
 eip_name = 'test-eip-name'
 hostname = 'test-hostname'
 auto_seq_suffix = True

@@ -253,7 +253,7 @@ class TestBmrClient(unittest.TestCase):
         test case for get_cluster_ambariPassword
         """
         res_body = {
-            'password': '123'
+            'password': '******'
         }
         mock_http_response = MockHttpResponse(
             200,
@@ -266,7 +266,7 @@ class TestBmrClient(unittest.TestCase):
         send_http_request.return_value = mock_http_response
         res = self.bmr_client.get_cluster_ambariPassword('c002')
 
-        self.assertEqual(res.password, '123')
+        self.assertEqual(res.password, '******')
 
     @mock.patch('baidubce.http.bce_http_client._send_http_request')
     def test_add_steps(self, send_http_request):
