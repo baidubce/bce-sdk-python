@@ -64,6 +64,7 @@ class CreateInstanceResponse(BceResponse):
     def __init__(self, bce_response):
         super(CreateInstanceResponse, self).__init__()
         self.instance_ids = bce_response.instance_ids
+        self.order_id = bce_response.order_id
 
 
 class ListInstanceResponse(BceResponse):
