@@ -1,0 +1,22 @@
+[project]
+name = "bos-mcp-server"
+version = "0.1.0"
+description = "A MCP server project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+ "bce-python-sdk>=0.9.29",
+ "mcp>=1.0.0",
+ "pycrypto>=2.6.1",
+ "python-dotenv>=1.0.1",
+]
+[[project.authors]]
+name = "Jason"
+email = "liujiang10@baidu.com"
+
+[build-system]
+requires = [ "hatchling",]
+build-backend = "hatchling.build"
+
+[project.scripts]
+bos-mcp-server = "bos_mcp_server:main"
