@@ -2223,6 +2223,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     def list_volumes(self, instance_id=None, zone_name=None, marker=None, max_keys=None,
                      cluster_id=None,
+                     volume_ids=None,
                      config=None):
         """
         Listing volumes owned by the authenticated user.
@@ -2251,6 +2252,9 @@ class BccClient(bce_base_client.BceBaseClient):
         :param cluster_id:
         :type cluster_id: string
 
+        :param volume_ids:
+        :type volume_ids: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -2266,6 +2270,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['maxKeys'] = max_keys
         if cluster_id is not None:
             params['clusterId'] = cluster_id
+        if volume_ids is not None:
+            params['volumeIds'] = volume_ids
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(volume_id=(bytes, str))  # ***Unicode***
