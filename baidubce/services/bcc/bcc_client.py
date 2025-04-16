@@ -6420,9 +6420,12 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
-    def list_deploy_sets(self, client_token=None, config=None):
+    def list_deploy_sets(self, client_token=None, config=None, deployment_set_ids=None):
         """
         list_deploy_sets
+
+        :param deployment_set_ids:
+        :type deployment_set_ids: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -6433,6 +6436,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['clientToken'] = generate_client_token()
         else:
             params['clientToken'] = client_token
+        if deployment_set_ids is not None:
+            params['deploymentSetIds'] = deployment_set_ids
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     def delete_deploy_set(self, deploy_set_id, client_token=None, config=None):
