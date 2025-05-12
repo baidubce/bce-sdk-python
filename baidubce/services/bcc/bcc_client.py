@@ -1873,7 +1873,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                    billing=None,
                                    related_renew_flag=None,
                                    client_token=None,
-                                   config=None):
+                                   config=None,
+                                   cds_custom_period=None):
         """
         PurchaseReserved the instance with fixed duration.
         You can not purchaseReserved the instance which is resizing.
@@ -1892,6 +1893,10 @@ class BccClient(bce_base_client.BceBaseClient):
             Detailed information see: https://cloud.baidu.com/doc/BCC/s/6jwvyo0q2#relatedrenewflag
         :type related_renew_flag: string
 
+        :param cds_custom_period:
+            Custom renew period for CDS.
+        :type cds_custom_period: list
+
         :param client_token:
             An ASCII string whose length is less than 64.
             The request will be idempotent if client token is provided.
@@ -1908,8 +1913,12 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/instance/%s' % instance_id
         if billing is None:
             billing = default_billing_to_purchase_reserved
+        cds_custom_period_list = []
+        if cds_custom_period is not None:
+            cds_custom_period_list = [custom_period.__dict__ for custom_period in cds_custom_period]
         body = {
-            'billing': billing.__dict__
+            'billing': billing.__dict__,
+            "cdsCustomPeriod": cds_custom_period_list
         }
         params = None
         if client_token is None:
@@ -2489,7 +2498,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                  volume_id,
                                  billing=None,
                                  client_token=None,
-                                 config=None):
+                                 config=None,
+                                 instance_id=None):
         """
         PurchaseReserved the instance with fixed duration.
         You can not purchaseReserved the instance which is resizing.
@@ -2503,6 +2513,9 @@ class BccClient(bce_base_client.BceBaseClient):
         :param billing:
             Billing information.
         :type billing: bcc_model.Billing
+
+        :param instance_id:
+            The id of instance to align renew duarion.
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -2521,7 +2534,8 @@ class BccClient(bce_base_client.BceBaseClient):
         if billing is None:
             billing = default_billing_to_purchase_reserved
         body = {
-            'billing': billing.__dict__
+            'billing': billing.__dict__,
+            'instanceId': instance_id
         }
         params = None
         if client_token is None:
