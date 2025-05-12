@@ -185,6 +185,16 @@ class ModifyReservedInstanceModel(object):
         self.ehcClusterId = ehcClusterId
 
 
+class CdsCustomPeriod(object):
+    """
+    This class define custom period.
+    """
+
+    def __init__(self, period=None, volume_id=None):
+        self.period = period
+        self.volumeId = volume_id
+
+
 class FileSystemModel(object):
     """
         This class define file system.

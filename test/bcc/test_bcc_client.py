@@ -495,11 +495,14 @@ class TestBccClient(unittest.TestCase):
         billing = pre_paid_billing
         client_token = generate_client_token()
         related_renew_flag = 'CDS_EIP'
+        cds_custom_period = [bcc_model.CdsCustomPeriod(2, 'volumeId')]
         self.assertEqual(
             type(self.client.purchase_reserved_instance(instance_id,
                                                         billing,
                                                         related_renew_flag,
-                                                        client_token)),
+                                                        client_token,
+                                                        None,
+                                                        cds_custom_period)),
             baidubce.bce_response.BceResponse)
 
     def test_list_instance_specs(self):
@@ -640,7 +643,9 @@ class TestBccClient(unittest.TestCase):
         self.assertEqual(
             type(self.client.purchase_reserved_volume(volume_id,
                                                       billing,
-                                                      client_token)),
+                                                      client_token,
+                                                      None,
+                                                      instance_id)),
             baidubce.bce_response.BceResponse)
 
     def test_create_image_from_instance_id(self):
