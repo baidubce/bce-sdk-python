@@ -37,7 +37,7 @@ if __name__ == "__main__":
     __logger = logging.getLogger(__name__)
 
     name = 'test'
-    password = '******'
+    password = ''
     modules = [Module(type='es_node', instance_num=1), Module(type='es_node', instance_num=1)]
     version = '6.5.3'
     is_old_package = 'false'
