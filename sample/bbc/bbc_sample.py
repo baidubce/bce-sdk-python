@@ -35,7 +35,7 @@ if __name__ == "__main__":
     subnet_id = "f42b9393-e721-4693-a1ab-2d67fe2f4d65"
     zone_name = 'cn-bj-a'
     name = 'test_bbc_instance'
-    admin_pass = 'testbbc123@baidu'
+    admin_pass = ''
     billing = bbc_model.Billing('Prepaid')
     deploy_set_id = 'dset-Ut1FNWme'
     private_ips = ['192.168.1.53']
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     new_desc = 'example desc'
     rebuild_image_id = 'm-BPwwiJYh'
     is_preserve_data = False
-    new_admin_pass = "newpass@bbc123"
+    new_admin_pass = ""
     bbc_ids = [instance_id]
     change_tags = [{"tagKey": "test_key", "tagValue": "test_val"}]
     image_name = "test_create_image"

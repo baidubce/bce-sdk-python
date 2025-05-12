@@ -20,8 +20,8 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
 HOST = 'bts.bd.baidubce.com'
-AK = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-SK = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+AK = ''
+SK = ''
 
 logger = logging.getLogger('baidubce.services.bts.btsclient')
 fh = logging.FileHandler('sample.log')

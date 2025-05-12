@@ -33,8 +33,8 @@ if __name__ == "__main__":
     instance_id = 'i-lxhfzmm5'
     volume_id = 'volume_id'
     image_id = 'm-lxhfzmm5'
-    admin_pass = '*******'
-    password = "********"
+    admin_pass = ''
+    password = ""
     new_cpu_count = 1
     new_memory_in_gb = 1
     network_capacity_in_mbps = 1
