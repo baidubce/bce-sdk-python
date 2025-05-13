@@ -1182,6 +1182,26 @@ class TestBccClient(unittest.TestCase):
             type(resp),
             baidubce.bce_response.BceResponse)
 
+    def test_create_instance_by_spec_with_eni_ids(self):
+        """
+        test case for create_instance_by_spec with eni_ids
+        """
+        client_token = generate_client_token()
+        image_id = 'm-FBfg6s7W'
+        instance_name = 'Caesar_test_instance_' + client_token
+        eni_ids = ["eni-5pywhzspsar5"]
+        resp = self.client.create_instance_by_spec("bcc.g4.c1m1",
+                                                   image_id,
+                                                   name=instance_name,
+                                                   admin_pass=admin_pass,
+                                                   enable_jumbo_frame=False,
+                                                   ehc_cluster_id='ehc-bk4hM1N3',
+                                                   eni_ids=eni_ids,
+                                                   client_token=client_token)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+
     def test_auto_release_instance(self):
         """
         test case for auto_release_instance

@@ -3962,7 +3962,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
                                 dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
-                                cpu_thread_config=None, numa_config=None,
+                                cpu_thread_config=None, numa_config=None, eni_ids=None,
                                 client_token=None, config=None):
         """
         Create a bcc Instance with the specified options.
@@ -4174,6 +4174,12 @@ class BccClient(bce_base_client.BceBaseClient):
             Manage NPS on AMD platforms. Manage NUMA on Intel platforms.
         :type numa_config: string
 
+        :param eni_ids:
+            The optional list of eni short ids to attach.
+            The number of eniIds must be an integer multiple of the number of instances.
+            The enis must in the same vpc and available zone with instance.
+        :type eni_ids: list<string>
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4265,6 +4271,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['cpuThreadConfig'] = cpu_thread_config
         if numa_config is not None:
             body['numaConfig'] = numa_config
+        if eni_ids is not None:
+            body['eniIds'] = eni_ids
         body['cdsAutoRenew'] = cds_auto_renew
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
