@@ -908,7 +908,8 @@ if __name__ == "__main__":
                                                       key_pair_id='kp_id_test', auto_renew_time_unit='year',
                                                       auto_renew_time=3, cds_auto_renew=True, asp_id='asp_id',
                                                       bid_model='model_test', bid_price='3.14', dedicate_host_id='id1',
-                                                      deploy_id='did1', deploy_id_list=['did2', 'did3'])
+                                                      deploy_id='did1', deploy_id_list=['did2', 'did3'],
+                                                      eni_ids=['eni_short_id'])
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
