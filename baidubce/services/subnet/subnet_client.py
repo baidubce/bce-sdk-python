@@ -148,7 +148,7 @@ class SubnetClient(bce_base_client.BceBaseClient):
               vpc_id=(bytes, str),
               zone_name=(bytes, str),
               subnet_type=(bytes, str))
-    def list_subnets(self, marker=None, max_keys=None, vpc_id=None,
+    def list_subnets(self, marker=None, max_keys=None, vpc_id=None, subnet_ids=None,
                      zone_name=None, subnet_type=None, config=None):
         """
         Return a list of subnets owned by the authenticated user.
@@ -168,6 +168,9 @@ class SubnetClient(bce_base_client.BceBaseClient):
         :param vpc_id:
             The id of the vpc
         :type vpc_id: string
+
+        :param subnet_ids:
+            The ids of the subnet
 
         :param zone_name:
             The name of available zone which the subnet belong
@@ -193,6 +196,8 @@ class SubnetClient(bce_base_client.BceBaseClient):
             params[b'maxKeys'] = max_keys
         if vpc_id is not None:
             params[b'vpcId'] = vpc_id
+        if subnet_ids is not None:
+            params[b'subnetIds'] = subnet_ids
         if zone_name is not None:
             params[b'zoneName'] = zone_name
         if subnet_type is not None:

@@ -3182,7 +3182,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
-    def list_security_groups(self, instance_id=None, vpc_id=None, marker=None, max_keys=None,
+    def list_security_groups(self, instance_id=None, vpc_id=None, security_group_ids=None, marker=None, max_keys=None,
                              config=None):
         """
         Listing SecurityGroup owned by the authenticated user.
@@ -3195,6 +3195,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param vpc_id:
             filter by vpcId, optional parameter
         :type vpc_id: string
+
+        :param security_group_ids:
+            filter by securityGroupIds, optional parameter
+        :type security_group_ids: string
 
         :param marker:
             The optional parameter marker specified in the original request to specify
@@ -3217,6 +3221,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['instanceId'] = instance_id
         if vpc_id is not None:
             params['vpcId'] = vpc_id
+        if security_group_ids is not None:
+            params['securityGroupIds'] = security_group_ids
         if marker is not None:
             params['marker'] = marker
         if max_keys is not None:
