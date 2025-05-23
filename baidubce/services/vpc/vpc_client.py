@@ -113,7 +113,7 @@ class VpcClient(bce_base_client.BceBaseClient):
                                   config=config)
 
     @required(marker=(bytes, str), max_Keys=int, is_Default=bool)
-    def list_vpcs(self, marker=None, max_Keys=None, isDefault=None, config=None):
+    def list_vpcs(self, marker=None, max_Keys=None, vpc_ids=None, isDefault=None, config=None):
         """
         Return a list of vpcs owned by the authenticated user.
 
@@ -128,6 +128,10 @@ class VpcClient(bce_base_client.BceBaseClient):
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
         :type max_keys: int
+
+        :param vpc_ids:
+            filter by vpc_ids, optional parameter
+        :type vpc_ids: string
 
         :param isDefault:
             The option param demotes whether the vpc is default vpc.
@@ -146,6 +150,8 @@ class VpcClient(bce_base_client.BceBaseClient):
             params[b'marker'] = marker
         if max_Keys is not None:
             params[b'maxKeys'] = max_Keys
+        if vpc_ids is not None:
+            params[b'vpcIds'] = vpc_ids
         if isDefault is not None:
             params[b'isDefault'] = isDefault
 
