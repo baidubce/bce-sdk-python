@@ -77,6 +77,17 @@ class BccClient(bce_base_client.BceBaseClient):
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
             http_method, prefix + path, body, headers, params)
 
+    def _send_action_request(self, http_method, path,
+                             body=None, headers=None, params=None,
+                             config=None, body_parser=None):
+        config = self._merge_config(config)
+        if body_parser is None:
+            body_parser = handler.parse_json
+
+        return bce_http_client.send_request(
+            config, bce_v1_signer.sign, [handler.parse_error, body_parser],
+            http_method, path, body, headers, params)
+
     @required(cpu_count=int,
               memory_capacity_in_gb=int,
               image_id=(bytes, str))  # ***Unicode***
@@ -7062,6 +7073,542 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    def authorize_server_event(self, authorize_maintenance_operation, server_event_id=None, instance_id=None,
+                               execute_time=None, config=None, client_token=None):
+        """
+        authorize_server_event
+
+        :param authorize_maintenance_operation:
+            Authorized operation and maintenance operations
+        :type authorize_maintenance_operation: string
+
+        :param server_event_id:
+            event Id.
+        :type marker: string
+
+        :param instance_id:
+            Instance Id, server Event ID, instance ID must select one of the request options
+        :type max_keys: string
+
+        :param execute_time:
+            Authorized execution time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type execute_time: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        params['action'] = 'AuthorizeServerEvent'
+        body = {
+            'serverEventId': server_event_id,
+            'instanceId': instance_id,
+            'authorizeMaintenanceOperation': authorize_maintenance_operation,
+            'executeTime': execute_time
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def create_authorize_rule(self, server_event_category, authorize_maintenance_operations, rule_name,
+                              enable_rule=None, effective_scope=None, tags=None, config=None, client_token=None):
+        """
+        create_authorize_rule
+
+        :param server_event_category:
+            Server Event Category
+        :type server_event_category: string
+
+        :param authorize_maintenance_operations:
+            Authorized operation and maintenance operations
+        :type authorize_maintenance_operations: list
+
+        :param rule_name:
+            Rule Name
+        :type rule_name: string
+
+        :param enable_rule:
+            Whether to enable the rule
+        :type enable_rule: int
+
+        :param effective_scope:
+            Effective scope
+        :type effective_scope: String
+
+        :param tags:
+            Tag information
+        :type tags: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        params['action'] = 'CreateAuthorizeRule'
+        body = {
+            'enableRule': enable_rule,
+            'serverEventCategory': server_event_category,
+            'authorizeMaintenanceOperations': authorize_maintenance_operations,
+            'tags': tags,
+            'effectiveScope': effective_scope,
+            'ruleName': rule_name
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def modify_authorize_rule(self, rule_id, authorize_maintenance_operations=None, rule_name=None,
+                              enable_rule=None, effective_scope=None, tags=None, config=None, client_token=None):
+        """
+        modify_authorize_rule
+
+        :param rule_id:
+            rule_id to be modified
+        :type rule_id: string
+
+        :param authorize_maintenance_operations:
+            Authorized operation and maintenance operations
+        :type authorize_maintenance_operations: list
+
+        :param rule_name:
+            Rule Name
+        :type rule_name: string
+
+        :param enable_rule:
+            Whether to enable the rule
+        :type enable_rule: int
+
+        :param effective_scope:
+            Effective scope
+        :type effective_scope: String
+
+        :param tags:
+            Tag information
+        :type tags: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        params['action'] = 'ModifyInstUserOpAuthorizeRuleAttribute'
+        body = {
+            'enableRule': enable_rule,
+            'authorizeMaintenanceOperations': authorize_maintenance_operations,
+            'tags': tags,
+            'effectiveScope': effective_scope,
+            'ruleName': rule_name,
+            "ruleId": rule_id
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def delete_authorize_rule(self, rule_id, config=None, client_token=None):
+        """
+        delete_authorize_rule
+
+        :param rule_id:
+            rule_id to be deleted
+        :type rule_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        params['action'] = 'DeleteInstUserOpAuthorizeRule'
+        body = {
+            'ruleId': rule_id
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def describe_authorize_rules(self, max_keys, marker=None, rule_ids=None, rule_names=None, config=None):
+        """
+        describe_authorize_rules
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :type max_keys: int
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+       :param rule_ids:
+            filter rule list with multiple rule ids
+        :type rule_ids: string
+
+        :param rule_names:
+            filter rule list with multiple rule names
+        :type rule_names: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        params['action'] = 'DescribeAuthorizeRules'
+        body = {
+            "marker": marker,
+            "maxKeys": max_keys,
+            "ruleIds": rule_ids,
+            "ruleNames": rule_names
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def describe_planned_events(self, max_keys, marker=None, server_event_ids=None, instance_ids=None,
+                                product_category=None, server_event_type=None, server_event_log_time_filter=None,
+                                period_start_time=None, period_end_time=None, server_event_status=None, config=None):
+        """
+        describe_planned_events
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :type max_keys: int
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+       :param server_event_ids:
+            filter planned event list with multiple server event ids
+        :type server_event_ids: list of string
+
+        :param instance_ids:
+            filter planned event list with multiple instance ids
+        :type instance_ids: list of string
+
+        :param product_category:
+            filter planned event list with product_category
+        :type product_category: string
+
+        :param server_event_type:
+            filter planned event list with server_event_type
+        :type server_event_type: string
+
+        :param server_event_log_time_filter:
+            filter planned event list with server_event_log_time_filter,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type server_event_log_time_filter: string
+
+        :param period_start_time:
+            filter planned event list with period_start_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_start_time: string
+
+        :param period_end_time:
+            filter planned event list with period_end_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_end_time: string
+
+        :param server_event_status:
+            filter planned event list with server_event_status
+        :type server_event_status: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        params['action'] = 'DescribePlannedEvents'
+        body = {
+            "marker": marker,
+            "maxKeys": max_keys,
+            "serverEventIds": server_event_ids,
+            "instanceIds": instance_ids,
+            "productCategory": product_category,
+            "serverEventType": server_event_type,
+            "serverEventLogTimeFilter": server_event_log_time_filter,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time,
+            "serverEventStatus": server_event_status
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def describe_planned_recored_events(self, max_keys, marker=None, server_event_ids=None, instance_ids=None,
+                                        product_category=None, server_event_type=None,
+                                        server_event_log_time_filter=None, period_start_time=None,
+                                        period_end_time=None, config=None):
+        """
+        describe_planned_recored_events
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :type max_keys: int
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+       :param server_event_ids:
+            filter planned event list with multiple server event ids
+        :type server_event_ids: list of string
+
+        :param instance_ids:
+            filter planned event list with multiple instance ids
+        :type instance_ids: list of string
+
+        :param product_category:
+            filter planned event list with product_category
+        :type product_category: string
+
+        :param server_event_type:
+            filter planned event list with server_event_type
+        :type server_event_type: string
+
+        :param server_event_log_time_filter:
+            filter planned event list with server_event_log_time_filter,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type server_event_log_time_filter: string
+
+        :param period_start_time:
+            filter planned event list with period_start_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_start_time: string
+
+        :param period_end_time:
+            filter planned event list with period_end_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_end_time: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        params['action'] = 'DescribePlannedEventRecords'
+        body = {
+            "marker": marker,
+            "maxKeys": max_keys,
+            "serverEventIds": server_event_ids,
+            "instanceIds": instance_ids,
+            "productCategory": product_category,
+            "serverEventType": server_event_type,
+            "serverEventLogTimeFilter": server_event_log_time_filter,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def describe_unplanned_events(self, max_keys, marker=None, server_event_ids=None, instance_ids=None,
+                                  product_category=None, server_event_type=None, server_event_log_time_filter=None,
+                                  period_start_time=None, period_end_time=None, server_event_status=None, config=None):
+        """
+        describe_unplanned_events
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :type max_keys: int
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+       :param server_event_ids:
+            filter unplanned event list with multiple server event ids
+        :type server_event_ids: list of string
+
+        :param instance_ids:
+            filter unplanned event list with multiple instance ids
+        :type instance_ids: list of string
+
+        :param product_category:
+            filter unplanned event list with product_category
+        :type product_category: string
+
+        :param server_event_type:
+            filter unplanned event list with server_event_type
+        :type server_event_type: string
+
+        :param server_event_log_time_filter:
+            filter unplanned event list with server_event_log_time_filter,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type server_event_log_time_filter: string
+
+        :param period_start_time:
+            filter unplanned event list with period_start_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_start_time: string
+
+        :param period_end_time:
+            filter unplanned event list with period_end_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_end_time: string
+
+        :param server_event_status:
+            filter unplanned event list with server_event_status
+        :type server_event_status: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        params['action'] = 'DescribeUnplannedEvents'
+        body = {
+            "marker": marker,
+            "maxKeys": max_keys,
+            "serverEventIds": server_event_ids,
+            "instanceIds": instance_ids,
+            "productCategory": product_category,
+            "serverEventType": server_event_type,
+            "serverEventLogTimeFilter": server_event_log_time_filter,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time,
+            "serverEventStatus": server_event_status
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def describe_unplanned_recored_events(self, max_keys, marker=None, server_event_ids=None, instance_ids=None,
+                                          product_category=None, server_event_type=None,
+                                          server_event_log_time_filter=None, period_start_time=None,
+                                          period_end_time=None, config=None):
+        """
+        describe_unplanned_recored_events
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :type max_keys: int
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+       :param server_event_ids:
+            filter unplanned event list with multiple server event ids
+        :type server_event_ids: list of string
+
+        :param instance_ids:
+            filter unplanned event list with multiple instance ids
+        :type instance_ids: list of string
+
+        :param product_category:
+            filter unplanned event list with product_category
+        :type product_category: string
+
+        :param server_event_type:
+            filter unplanned event list with server_event_type
+        :type server_event_type: string
+
+        :param server_event_log_time_filter:
+            filter unplanned event list with server_event_log_time_filter,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type server_event_log_time_filter: string
+
+        :param period_start_time:
+            filter unplanned event list with period_start_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_start_time: string
+
+        :param period_end_time:
+            filter unplanned event list with period_end_time,
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :type period_end_time: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        params['action'] = 'DescribeUnplannedEventRecords'
+        body = {
+            "marker": marker,
+            "maxKeys": max_keys,
+            "serverEventIds": server_event_ids,
+            "instanceIds": instance_ids,
+            "productCategory": product_category,
+            "serverEventType": server_event_type,
+            "serverEventLogTimeFilter": server_event_log_time_filter,
+            "periodStartTime": period_start_time,
+            "periodEndTime": period_end_time
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
+
+    def check_unplanned_event(self, server_event_id, check_result, issue_effect=None, issue_description=None,
+                              authorize_maintenance_operation=None, config=None, client_token=None):
+        """
+        check_unplanned_event
+
+        :param server_event_id:
+            server_event_id to be check
+        :type server_event_id: string
+
+        :param check_result:
+            Whether unplanned events have passed the acceptance, supporting parameters Pass and Reject
+        :type check_result: string
+
+        :param issue_effect:
+            Fault effect must be passed when the fault acceptance is rejected
+        :type issue_effect: string
+
+        :param issue_description:
+            Fault description must be passed when the fault acceptance is rejected
+        :type issue_description: string
+
+        :param authorize_maintenance_operation:
+            Authorized operation and maintenance
+        :type authorize_maintenance_operation: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        params['action'] = 'CheckUnplannedEvent'
+        body = {
+            "serverEventId": server_event_id,
+            "checkResult": check_result,
+            "issueEffect": issue_effect,
+            "issueDescription": issue_description,
+            "authorizeMaintenanceOperation": authorize_maintenance_operation
+        }
+        return self._send_action_request(http_methods.POST, path, json.dumps(body),
+                                         params=params, config=config)
 
 def generate_client_token_by_uuid():
     """

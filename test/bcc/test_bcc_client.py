@@ -2231,6 +2231,120 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_authorize_server_event(self):
+        resp = self.client.authorize_server_event(server_event_id='event-kotclGLf',
+                                                  authorize_maintenance_operation='Repair',
+                                                  execute_time='2025-08-15T14:20:00Z')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_create_authorize_rule(self):
+        resp = self.client.create_authorize_rule(server_event_category='PlannedMaintenanceEvent',
+                                                 authorize_maintenance_operations=['Reboot'],
+                                                 rule_name='test-rule-name',
+                                                 enable_rule=0,
+                                                 effective_scope='AllInstance')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_modify_authorize_rule(self):
+        resp = self.client.modify_authorize_rule(rule_id='rule-dOJnTeWs',
+                                                 authorize_maintenance_operations=['FastRepair'],
+                                                 rule_name='test-rule-name1',
+                                                 enable_rule=0,
+                                                 effective_scope='AllInstance')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+
+    def test_delete_authorize_rule(self):
+        resp = self.client.delete_authorize_rule(rule_id='rule-dOJnTeWs')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_describe_authorize_rules(self) :
+        resp = self.client.describe_authorize_rules(max_keys=1, marker='rule-rzAGQNS6')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_describe_planned_events(self) :
+        resp = self.client.describe_planned_events(max_keys=100, server_event_status='Processing')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_describe_planned_recored_events(self) :
+        resp = self.client.describe_planned_recored_events(max_keys=100, server_event_type='CustomScheduleInstanceRebootEvent')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_describe_describe_unplanned_events(self) :
+        resp = self.client.describe_unplanned_events(max_keys=100, server_event_log_time_filter='EventCreate', period_end_time='2026-03-15T14:20:00Z')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_describe_unplanned_recored_events(self) :
+        resp = self.client.describe_unplanned_recored_events(max_keys=100, server_event_type='InstanceRepairOrFastRepairBySystemFailureEvent')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_check_unplanned_event(self) :
+        resp = self.client.check_unplanned_event(server_event_id='event-kotclGLf',
+                                                 check_result='Reject',
+                                                 issue_effect='TestIssue',
+                                                 issue_description='TestDescription',
+                                                 authorize_maintenance_operation='Reboot')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
