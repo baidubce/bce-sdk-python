@@ -1717,6 +1717,121 @@ if __name__ == "__main__":
     ######################################################################################################
     #            region operation samples
     ######################################################################################################
+    # authorize_server_event
+    try:
+        response = bcc_client.authorize_server_event(server_event_id='event-kotclGLf',
+                                                     authorize_maintenance_operation='Repair',
+                                                     execute_time='2025-08-15T14:20:00Z')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create_authorize_rule
+    try:
+        response = bcc_client.create_authorize_rule(server_event_category='PlannedMaintenanceEvent',
+                                                    authorize_maintenance_operations=['Reboot'],
+                                                    rule_name='test-rule-name',
+                                                    enable_rule=0,
+                                                    effective_scope='AllInstance')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # modify_authorize_rule
+    try:
+        response = bcc_client.modify_authorize_rule(rule_id='rule-dOJnTeWs',
+                                                    authorize_maintenance_operations=['FastRepair'],
+                                                    rule_name='test-rule-name1',
+                                                    enable_rule=0,
+                                                    effective_scope='AllInstance')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete_authorize_rule
+    try:
+        response = bcc_client.delete_authorize_rule(rule_id='rule-dOJnTeWs')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # describe_authorize_rules
+    try:
+        response = bcc_client.describe_authorize_rules(max_keys=1, marker='rule-rzAGQNS6')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # describe_planned_events
+    try:
+        response = bcc_client.describe_planned_events(max_keys=100, server_event_status='Processing')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # describe_planned_recored_events
+    try:
+        response = bcc_client.describe_planned_recored_events(max_keys=100,
+                                                              server_event_type='CustomScheduleInstanceRebootEvent')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # describe_unplanned_events
+    try:
+        response = bcc_client.describe_unplanned_events(max_keys=100,
+                                                        server_event_log_time_filter='EventCreate',
+                                                        period_end_time='2026-03-15T14:20:00Z')
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # describe_unplanned_recored_events
+    try:
+        response = bcc_client.describe_unplanned_recored_events(max_keys=100)
+        print response
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    ######################################################################################################
+    #            region operation samples
+    ######################################################################################################
 
     # list all region's endpoint information with specific parameters.
     # bbc_client's endpoint must be bbc.baidubce.com
