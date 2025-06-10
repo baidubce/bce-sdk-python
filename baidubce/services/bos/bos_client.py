@@ -1439,6 +1439,7 @@ class BosClient(BceBaseClient):
                     copy_object_user_headers=None,
                     traffic_limit=None,
                     object_tagging=None,
+                    source_version_id=None,
                     config=None):
         """
         Copy one object to another object
@@ -1466,10 +1467,14 @@ class BosClient(BceBaseClient):
             user_headers=user_headers,
             traffic_limit=traffic_limit,
             object_tagging=object_tagging)
-        headers[http_headers.BCE_COPY_SOURCE] = utils.normalize_string(
+        
+        merge_source_key = utils.normalize_string(
             b'/%s/%s' % (
                 compat.convert_to_bytes(source_bucket_name), 
                 source_key), False)
+        if source_version_id is not None:
+            merge_source_key = merge_source_key + b'?versionId=%s' % compat.convert_to_bytes(source_version_id)
+        headers[http_headers.BCE_COPY_SOURCE] = merge_source_key
         if etag is not None:
             headers[http_headers.BCE_COPY_SOURCE_IF_MATCH] = etag
         if user_metadata is not None or content_type is not None:
