@@ -32,6 +32,7 @@ if __name__ == '__main__':
     project = "BLS_Self"
     start_time = "2025-05-08T06:00:00Z"
     end_time = "2025-05-09T06:00:00Z"
+    query = "match *"
 
     # create a bls client
     bls_client = BlsClient(bls_sample_conf.config)
@@ -62,6 +63,32 @@ if __name__ == '__main__':
         ]
         response = bls_client.push_log_records(log_store_name=log_store_name, log_stream_name=log_stream_name,
                                                log_records=log_records, tags=tags, project=project)
+
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    try:
+        response = bls_client.query_log_records(log_store_name=log_store_name, log_stream_name=log_stream_name,
+                                                query=query, sort="asc", start_time=start_time,
+                                                end_time=end_time, project=project)
+
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    try:
+        response = bls_client.pull_log_records_v3(log_store_name=log_store_name, log_stream_name=log_stream_name,
+                                                  query=query, start_time=start_time, end_time=end_time,
+                                                  project=project)
 
         print(response)
     except BceHttpClientError as e:

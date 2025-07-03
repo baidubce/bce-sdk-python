@@ -30,6 +30,7 @@ else:
 
 MAX_BATCH_RECORD_NUMBER = 1000
 DEFAULT_BATCH_RECORD_NUMBER = 100
+DEFAULT_SORT = "desc"
 
 
 class BlsClient(bce_base_client.BceBaseClient):
@@ -40,6 +41,7 @@ class BlsClient(bce_base_client.BceBaseClient):
     log_prefix = b'/logstore'
     version = b'/v1'
     version_v2 = b'/v2'
+    version_v3 = b'/v3'
 
     content_type_header_key = b"content-type"
     content_type_header_value = b"application/json;charset=UTF-8"
@@ -165,3 +167,99 @@ class BlsClient(bce_base_client.BceBaseClient):
             "logRecords": records_payload
         }
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), config=config)
+
+    def query_log_records(self, log_store_name, start_time, end_time, log_stream_name, project=None, query=None,
+                          sort=None, limit=None, marker=None, config=None):
+        """
+        query log records from specified log store.
+
+        :param sort: desc or asc
+        :type sort: string
+        :param query: query statement, eg: match *
+        :type query: string
+        :param config:
+        :param marker:
+        :param limit:
+        :param project:
+        :param log_stream_name:
+        :param log_store_name: The name of log store which will be pulled.
+        :type log_store_name: string
+        :param start_time: Start time of pulling log records.
+        :type start_time: string
+        :param end_time: End time of pulling log records.
+        :type end_time: string
+        :return: A list of log records.
+        :rtype: list
+        """
+        log_store_name = compat.convert_to_bytes(log_store_name)
+        path = b'/%s/logrecord' % log_store_name
+        params = {b'startDateTime': start_time, b'endDateTime': end_time, b'logStreamName': log_stream_name}
+
+        if project is not None:
+            params[b'project'] = project
+        if limit is None:
+            params[b'limit'] = DEFAULT_BATCH_RECORD_NUMBER
+        if limit is not None:
+            if limit > MAX_BATCH_RECORD_NUMBER:
+                limit = MAX_BATCH_RECORD_NUMBER
+            params[b'limit'] = limit
+        if marker is not None:
+            params[b'marker'] = marker
+
+        if query is not None:
+            params[b'query'] = query
+
+        if sort is not None:
+            if sort == 'asc':
+                params[b'sort'] = sort
+            else:
+                params[b'sort'] = DEFAULT_SORT
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    def pull_log_records_v3(self, log_store_name, start_time, end_time, log_stream_name, project=None, query=None,
+                         limit=None, marker=None, sort=None, config=None):
+        """
+        Pull log records v3 from specified log store.
+
+        :param query: query statement, eg: match *
+        :type query: string
+        :param sort: desc or asc
+        :type: sort: string
+        :param config:
+        :param marker:
+        :param limit:
+        :param project:
+        :param log_stream_name:
+        :param log_store_name: The name of log store which will be pulled.
+        :type log_store_name: string
+        :param start_time: Start time of pulling log records.
+        :type start_time: string
+        :param end_time: End time of pulling log records.
+        :type end_time: string
+        :return: A list of log records.
+        :rtype: list
+        """
+        log_store_name = compat.convert_to_bytes(log_store_name)
+        path = b'/%s/logrecord/pull' % log_store_name
+        params = {b'startDateTime': start_time, b'endDateTime': end_time, b'logStreamName': log_stream_name}
+
+        if project is not None:
+            params[b'project'] = project
+        if limit is None:
+            params[b'limit'] = DEFAULT_BATCH_RECORD_NUMBER
+        if limit is not None:
+            if limit > MAX_BATCH_RECORD_NUMBER:
+                limit = MAX_BATCH_RECORD_NUMBER
+            params[b'limit'] = limit
+        if marker is not None:
+            params[b'marker'] = marker
+        if sort is not None:
+            if sort == 'asc':
+                params[b'sort'] = sort
+            else:
+                params[b'sort'] = DEFAULT_SORT
+        if query is not None:
+            params[b'query'] = query
+
+        return self._send_request(http_methods.GET, path, version=self.version_v3, params=params, config=config)

@@ -39,7 +39,8 @@ start_time = "2025-05-08T06:00:00Z"
 end_time = "2025-05-09T06:00:00Z"
 
 
-class TestBcmClient(unittest.TestCase):
+
+class TestBlsClient(unittest.TestCase):
     """
     Test class for bls sdk client
     """
@@ -75,5 +76,25 @@ class TestBcmClient(unittest.TestCase):
         ]
         response = self.client.push_log_records(log_store_name=log_store_name, log_stream_name=log_stream_name,
                                                 log_records=log_records, tags=tags, project=project)
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_query_log_records(self):
+        """
+        test query log record
+        """
+        response = self.client.query_log_records(log_store_name=log_store_name, log_stream_name=log_stream_name, query="match *",
+                                                   start_time=start_time, end_time=end_time, project=project)
+
+        self.assertEqual(type(response), baidubce.bce_response.BceResponse)
+        print(response)
+
+    def test_pull_log_records_v3(self):
+        """
+        test pull log data v3
+        """
+        response = self.client.pull_log_records_v3(log_store_name=log_store_name, log_stream_name=log_stream_name,query="match *",
+                                                start_time=start_time, end_time=end_time, project=project)
+
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
