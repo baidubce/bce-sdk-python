@@ -85,7 +85,8 @@ setup(
               'baidubce.services.esg',
               'baidubce.services.probe',
               'baidubce.services.etGateway',
-              'baidubce.services.ca'
+              'baidubce.services.ca',
+              'baidubce.services.bls'
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
