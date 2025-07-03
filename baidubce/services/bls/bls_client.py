@@ -218,7 +218,7 @@ class BlsClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     def pull_log_records_v3(self, log_store_name, start_time, end_time, log_stream_name, project=None, query=None,
-                         limit=None, marker=None, sort=None, config=None):
+                            limit=None, marker=None, sort=None, config=None):
         """
         Pull log records v3 from specified log store.
 

@@ -84,8 +84,7 @@ class TestBlsClient(unittest.TestCase):
         test query log record
         """
         response = self.client.query_log_records(log_store_name=log_store_name, log_stream_name=log_stream_name, query="match *",
-                                                   start_time=start_time, end_time=end_time, project=project)
-
+                                                 start_time=start_time, end_time=end_time, project=project)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
 
@@ -94,7 +93,6 @@ class TestBlsClient(unittest.TestCase):
         test pull log data v3
         """
         response = self.client.pull_log_records_v3(log_store_name=log_store_name, log_stream_name=log_stream_name,query="match *",
-                                                start_time=start_time, end_time=end_time, project=project)
-
+                                                   start_time=start_time, end_time=end_time, project=project)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
