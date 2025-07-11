@@ -553,6 +553,8 @@ class BlbClient(bce_base_client.BceBaseClient):
               health_check_string=(bytes, str))
     def create_udp_listener(self, blb_id, listener_port, backend_port,
                             scheduler, health_check_string,
+                            health_check_type=None,
+                            health_check_port=None,
                             health_check_timeout_in_second=None,
                             health_check_interval=None,
                             unhealthy_threshold=None,
@@ -584,6 +586,15 @@ class BlbClient(bce_base_client.BceBaseClient):
             The request string sent by the health,
             the backend server needs to respond after receiving it.
         :type health_check_string: string
+
+        :param health_check_type
+            Health check protocol
+        :value 'UDP' or 'ICMP'
+        :type health_check_type: string
+
+        :param health_check_port
+            Health check port, the default is the same as backend_port.
+        :type health_check_port: int
 
         :param health_check_timeout_in_second
             Health check timeout
@@ -635,6 +646,10 @@ class BlbClient(bce_base_client.BceBaseClient):
             'healthCheckString': compat.convert_to_string(health_check_string)
         }
 
+        if health_check_type is not None:
+            body['healthCheckType'] = health_check_type
+        if health_check_port is not None:
+            body['healthCheckPort'] = health_check_port
         if health_check_timeout_in_second is not None:
             body['healthCheckTimeoutInSecond'] = \
                 health_check_timeout_in_second
@@ -1515,7 +1530,10 @@ class BlbClient(bce_base_client.BceBaseClient):
               listener_port=int,
               backend_port=int)
     def update_udp_listener(self, blb_id, listener_port, backend_port=None,
-                            scheduler=None, health_check_string=None,
+                            scheduler=None, 
+                            health_check_type=None,
+                            health_check_port=None,
+                            health_check_string=None,
                             health_check_timeout_in_second=None,
                             health_check_interval=None,
                             unhealth_threshold=None,
@@ -1542,6 +1560,16 @@ class BlbClient(bce_base_client.BceBaseClient):
               balancing algorithm
         :value 'RoundRobin'or'LeastConnection'or'Hash'
         :type scheduler:string
+
+        :param health_check_type
+              Health check protocol
+        :value 'UDP' or 'ICMP'
+        :type health_check_type:string
+
+        :param health_check_port
+              Health check port, the default is the same as backend_port.
+              This field can only be updated if health_check_type is UDP.
+        :type health_check_port:int
 
         :param health_check_string
               The request string sent by the health,
@@ -1589,6 +1617,11 @@ class BlbClient(bce_base_client.BceBaseClient):
             body['backendPort'] = backend_port
         if scheduler is not None:
             body['scheduler'] = compat.convert_to_string(scheduler)
+        if health_check_type is not None:
+            body['healthCheckType'] = \
+                compat.convert_to_string(health_check_type)
+        if health_check_port is not None:
+            body['healthCheckPort'] = health_check_port
         if health_check_string is not None:
             body['healthCheckString'] = \
                 compat.convert_to_string(health_check_string)
