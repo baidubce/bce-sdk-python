@@ -2693,21 +2693,24 @@ class BosClient(BceBaseClient):
     def _get_user_header(headers, user_headers, is_copy=False):
         if not isinstance(user_headers, dict):
             raise TypeError('user_headers should be of type dict.')
+        
+        bos_headers = http_headers.BOS_BASE_ALLOW_HEADERS
 
         if not is_copy:
-            user_headers_set = set([http_headers.CACHE_CONTROL,
+            user_headers_set = bos_headers.union(set([http_headers.CACHE_CONTROL,
                                     http_headers.CONTENT_ENCODING,
                                     http_headers.CONTENT_DISPOSITION,
                                     http_headers.EXPIRES,
-                                    http_headers.BOS_PROCESS])
+                                    http_headers.BOS_PROCESS]))
         else:
-            user_headers_set = set([http_headers.BCE_COPY_SOURCE_IF_NONE_MATCH,
+            user_headers_set = bos_headers.union(set([http_headers.BCE_COPY_SOURCE_IF_NONE_MATCH,
                                     http_headers.BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE,
-                                    http_headers.BCE_COPY_SOURCE_IF_MODIFIED_SINCE])
+                                    http_headers.BCE_COPY_SOURCE_IF_MODIFIED_SINCE]))
 
         for k, v in iteritems(user_headers):
             k = utils.convert_to_standard_string(k)
-            v = utils.convert_to_standard_string(v)
+            if k != http_headers.BOS_OBJECT_EXPIRES :
+                v = utils.convert_to_standard_string(v)
             if k in user_headers_set:
                 headers[k] = v
         return headers
