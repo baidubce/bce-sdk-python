@@ -397,7 +397,7 @@ class EipClient(BceBaseClient):
 
 
     def list_eips(self, eip=None, instance_type=None, instance_id=None, status=None, marker=None, max_keys=1000,
-                  config=None):
+                  config=None, name=None):
         """
         get a list of eip owned by the authenticated user and specified
         conditions. we can Also get a single eip function  through this
@@ -477,6 +477,8 @@ class EipClient(BceBaseClient):
             params[b'marker'] = marker
         if max_keys is not None:
             params[b'maxKeys'] = max_keys
+        if name is not None:
+            params[b'name'] = name
         return self._send_request(http_methods.GET, path, params=params,
                                   config=config)
 
