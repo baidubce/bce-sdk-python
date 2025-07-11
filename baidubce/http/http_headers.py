@@ -76,7 +76,7 @@ BCE_USER_METADATA_PREFIX = b"x-bce-meta-"
 
 BCE_REQUEST_ID = b"x-bce-request-id"
 
-# BOS HTTP Headers
+# BOS HTTP Headers START
 
 BOS_DEBUG_ID = b"x-bce-bos-debug-id"
 
@@ -110,13 +110,19 @@ BOS_TRAFFIC_LIMIT = b"x-bce-traffic-limit"
 
 BOS_VERSIONING = b"x-bce-versioning"
 
-# STS HTTP Headers
-
-STS_SECURITY_TOKEN = b"x-bce-security-token"
+BOS_OBJECT_EXPIRES = b"x-bce-object-expires"
 
 BOS_TAGGING = b"x-bce-tagging"
 
 BOS_PROCESS = b"x-bce-process"
+
+BOS_BASE_ALLOW_HEADERS = set([BOS_TRAFFIC_LIMIT, BOS_VERSIONING, BOS_TAGGING, BOS_PROCESS, BOS_OBJECT_EXPIRES])
+
+# BOS HTTP Headers END 
+
+# STS HTTP Headers
+
+STS_SECURITY_TOKEN = b"x-bce-security-token"
 
 # BTS HTTP Headers
 BTS_METHOD_HEADER = b"x-bce-bts-method"
