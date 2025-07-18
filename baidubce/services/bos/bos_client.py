@@ -2709,7 +2709,7 @@ class BosClient(BceBaseClient):
 
         for k, v in iteritems(user_headers):
             k = utils.convert_to_standard_string(k)
-            if k != http_headers.BOS_OBJECT_EXPIRES :
+            if k != http_headers.BOS_OBJECT_EXPIRES:
                 v = utils.convert_to_standard_string(v)
             if k in user_headers_set:
                 headers[k] = v
