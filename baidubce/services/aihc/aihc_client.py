@@ -25,6 +25,7 @@ from baidubce.services.aihc import aihc_model
 from baidubce.services.aihc import aihc_handler
 from baidubce.utils import required
 
+
 class AIHCV2Client(bce_base_client.BceBaseClient):
     """
     AIHC V2 base sdk client
