@@ -12,6 +12,16 @@
 
 """
 This module provides general http handler functions for processing http responses from AIHC V2 services.
+
+This module contains utility functions for parsing HTTP responses from AIHC (AI Hosting Cloud) services,
+including JSON parsing, error handling, and response object conversion. The functions are designed
+to work with the BCE (Baidu Cloud Engine) SDK framework.
+
+Functions:
+    parse_json: Parse JSON response and convert to Python object
+    dict_to_python_object: Convert dictionary to Python object with Expando
+    parse_json_list: Parse JSON list response
+    parse_error: Handle error responses and raise appropriate exceptions
 """
 
 import http.client
@@ -21,7 +31,24 @@ from baidubce.utils import Expando
 from baidubce.exception import BceClientError
 from baidubce.exception import BceServerError
 
+
 def parse_json(http_response, response):
+    """
+    Parse JSON response and convert to Python object.
+    
+    If the response body is not empty, convert it to a Python object and update
+    the response object's attributes. The http_response is always closed if no error occurs.
+    
+    Args:
+        http_response: The http_response object returned by HTTPConnection.getresponse()
+        response: General response object which will be returned to the caller
+        
+    Returns:
+        bool: Always returns True
+        
+    Note:
+        This function removes the 'metadata' key from the response if it exists.
+    """
     body = http_response.read()
     if body:
         response.__dict__.update(json.loads(
@@ -36,9 +63,13 @@ def parse_json(http_response, response):
 
 def dict_to_python_object(d):
     """
-
-    :param d:
-    :return:
+    Convert dictionary to Python object with Expando.
+    
+    Args:
+        d: Dictionary to convert
+        
+    Returns:
+        Expando: Python object with dictionary attributes
     """
     attr = {}
     for k, v in list(d.items()):
@@ -48,17 +79,18 @@ def dict_to_python_object(d):
 
 
 def parse_json_list(http_response, response):
-    """If the body is not empty, convert it to a python object and set as the value of
-    response.body. http_response is always closed if no error occurs.
-
-    :param http_response: the http_response object returned by HTTPConnection.getresponse()
-    :type http_response: httplib.HTTPResponse
-
-    :param response: general response object which will be returned to the caller
-    :type response: baidubce.BceResponse
-
-    :return: always true
-    :rtype bool
+    """
+    Parse JSON list response and convert to Python object.
+    
+    If the body is not empty, convert it to a Python object and set as the value of
+    response.result. The http_response is always closed if no error occurs.
+    
+    Args:
+        http_response: The http_response object returned by HTTPConnection.getresponse()
+        response: General response object which will be returned to the caller
+        
+    Returns:
+        bool: Always returns True
     """
     body = http_response.read()
     if body:
@@ -70,19 +102,22 @@ def parse_json_list(http_response, response):
 
 
 def parse_error(http_response, response):
-    """If the body is not empty, convert it to a python object and set as the value of
-    response.body. http_response is always closed if no error occurs.
-
-    :param http_response: the http_response object returned by HTTPConnection.getresponse()
-    :type http_response: httplib.HTTPResponse
-
-    :param response: general response object which will be returned to the caller
-    :type response: baidubce.BceResponse
-
-    :return: false if http status code is 2xx, raise an error otherwise
-    :rtype bool
-
-    :raise baidubce.exception.BceClientError: if http status code is NOT 2xx
+    """
+    Handle error responses and raise appropriate exceptions.
+    
+    If the HTTP status code is not 2xx, parse the error response and raise
+    appropriate BCE exceptions. The http_response is always closed.
+    
+    Args:
+        http_response: The http_response object returned by HTTPConnection.getresponse()
+        response: General response object which will be returned to the caller
+        
+    Returns:
+        bool: False if HTTP status code is 2xx
+        
+    Raises:
+        BceClientError: If HTTP status code is 1xx (not handled)
+        BceServerError: If HTTP status code is not 2xx (error response)
     """
     if http_response.status // 100 == http.client.OK // 100:
         return False

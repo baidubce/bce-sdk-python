@@ -211,7 +211,7 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
             body['needDetail'] = needDetail
 
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
-    
+
     def DeleteJob(self, resourcePoolId, jobId):
         """
         删除训练任务。
@@ -285,7 +285,8 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
     @required(podName=str, logType=str, startTime=str, endTime=str, chunkSize=int, marker=str)
-    def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None, startTime=None, endTime=None, chunkSize=None, marker=None):
+    def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None, 
+                       startTime=None, endTime=None, chunkSize=None, marker=None):
         """
         查询训练任务日志。
 
@@ -498,7 +499,7 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
             body=json.dumps(body),
             params=params
         )
-    
+
 # ============数据集相关接口============
     def DescribeDatasets(
         self,
@@ -573,7 +574,8 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
             params=params
         )
 
-    def UpdateDataset(self, datasetId, name=None, description=None, visibilityScope=None, visibilityUser=None, visibilityGroup=None):
+    def UpdateDataset(self, datasetId, name=None, description=None, visibilityScope=None, 
+                    visibilityUser=None, visibilityGroup=None):
         """
         修改数据集。
 
@@ -639,7 +641,9 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
             params=params
         )
 
-    def CreateDataset(self, name, storageType, storageInstance, importFormat, description=None, owner=None, visibilityScope=None, visibilityUser=None, visibilityGroup=None, initVersionEntry=None):
+    def CreateDataset(self, name, storageType, storageInstance, importFormat, description=None, 
+                    owner=None, visibilityScope=None, visibilityUser=None, visibilityGroup=None, 
+                    initVersionEntry=None):
         """
         创建数据集。
 
@@ -808,7 +812,8 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
         )
 
 # ============模型相关接口============
-    def DescribeModels(self, keyword=None, modelFormat=None, owner=None, visibilityScope=None, pageNumber=1, pageSize=None):
+    def DescribeModels(self, keyword=None, modelFormat=None, owner=None, visibilityScope=None, 
+                     pageNumber=1, pageSize=None):
         """
         获取模型列表。
 
@@ -1085,8 +1090,7 @@ class AIHCV2Client(bce_base_client.BceBaseClient):
             path,
             params=params
         )
-    
-    
+
 # ============在线服务部署相关接口============
 
     def DescribeServices(self, resourcePoolId=None, queueName=None, name=None, region=None, pageNumber=1, pageSize=10):

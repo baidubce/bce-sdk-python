@@ -16,6 +16,7 @@ This module provides a model class for AIHC V2.
 
 from typing import List, Optional
 
+
 class Label(dict):
     """
     训练任务标签
@@ -24,6 +25,7 @@ class Label(dict):
         super(Label, self).__init__()
         self["key"] = key
         self["value"] = value
+
 
 class Datasource(dict):
     """
@@ -34,6 +36,7 @@ class Datasource(dict):
         self["type"] = type
         self["name"] = name
         self["mountPath"] = mountPath
+
 
 class TensorboardConfig(dict):
     """
@@ -47,6 +50,7 @@ class TensorboardConfig(dict):
         if resources is not None:
             self["resources"] = resources
 
+
 class AlertConfig(dict):
     """
     告警相关配置
@@ -55,6 +59,7 @@ class AlertConfig(dict):
         super(AlertConfig, self).__init__()
         self["alertType"] = alertType
         self["receivers"] = receivers
+
 
 class JobSpec(dict):
     """
@@ -84,13 +89,15 @@ class JobSpec(dict):
         if hostNetwork is not None:
             self["hostNetwork"] = hostNetwork
 
+
 class JobConfig(dict):
     """
     创建训练任务请求参数
 
     :param name: 名称（必填，Body参数）
     :type name: str
-    :param queue: 训练任务所属队列（必填，Body参数，通用资源池须填入队列名称，托管资源池须填入队列Id）
+    :param queue: 训练任务所属队列（必填，Body参数，通用资源池须填入队列名称，
+                 托管资源池须填入队列Id）
     :type queue: str
     :param jobSpec: 训练任务配置（必填，Body参数，JobSpec类型）
     :type jobSpec: JobSpec
@@ -158,6 +165,7 @@ class JobConfig(dict):
         if alertConfig is not None:
             self["alertConfig"] = alertConfig
 
+
 class ImageConfig(dict):
     """
     任务镜像配置，仅私有镜像时需要配置。
@@ -169,6 +177,7 @@ class ImageConfig(dict):
         super(ImageConfig, self).__init__()
         self["username"] = username
         self["password"] = password
+
 
 class Resource(dict):
     """
@@ -185,6 +194,7 @@ class Resource(dict):
         self["name"] = name
         self["quantity"] = quantity
 
+
 class Env(dict):
     """
     环境变量信息，被创建训练任务、查询训练任务详情接口引用。
@@ -198,6 +208,7 @@ class Env(dict):
         if value is not None:
             self["value"] = value
 
+
 class ModelVersion(dict):
     """
     模型版本信息结构体，对应模型管理相关接口。
@@ -209,7 +220,8 @@ class ModelVersion(dict):
     :param modelMetrics: 模型指标，JSON格式字符串（可选）
     :param description: 版本描述（可选）
     """
-    def __init__(self, source, storageBucket, storagePath, id=None, version=None, modelMetrics=None, description=None):
+    def __init__(self, source, storageBucket, storagePath, id=None, version=None, 
+                 modelMetrics=None, description=None):
         super(ModelVersion, self).__init__()
         if id is not None:
             self["id"] = id
@@ -222,6 +234,7 @@ class ModelVersion(dict):
             self["modelMetrics"] = modelMetrics
         if description is not None:
             self["description"] = description
+
 
 class Dataset(dict):
     """
@@ -241,7 +254,9 @@ class Dataset(dict):
     :param createdAt: 创建时间（ISO8601字符串）
     :param updatedAt: 更新时间（ISO8601字符串）
     """
-    def __init__(self, id, name, storageType, storageInstance, importFormat, owner, ownerName, visibilityScope, permission, latestVersionId, latestVersion, createdAt, updatedAt, latestVersionEntry=None):
+    def __init__(self, id, name, storageType, storageInstance, importFormat, owner, 
+                 ownerName, visibilityScope, permission, latestVersionId, latestVersion, 
+                 createdAt, updatedAt, latestVersionEntry=None):
         super(Dataset, self).__init__()
         self["id"] = id
         self["name"] = name
@@ -259,6 +274,7 @@ class Dataset(dict):
         if latestVersionEntry is not None:
             self["latestVersionEntry"] = latestVersionEntry
 
+
 class DatasetVersion(dict):
     """
     数据集版本信息结构体，对应数据集版本详情、版本列表接口。
@@ -272,7 +288,8 @@ class DatasetVersion(dict):
     :param createdAt: 创建时间（ISO8601字符串）
     :param updatedAt: 更新时间（ISO8601字符串）
     """
-    def __init__(self, id, version, description, storagePath, mountPath, createUser, createUserName, createdAt, updatedAt):
+    def __init__(self, id, version, description, storagePath, mountPath, createUser, 
+                 createUserName, createdAt, updatedAt):
         super(DatasetVersion, self).__init__()
         self["id"] = id
         self["version"] = version
