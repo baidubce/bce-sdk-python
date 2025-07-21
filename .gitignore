@@ -6,3 +6,4 @@ build_submitter*
 bce_python_sdk.egg-info
 build
 dist
+sample.log
