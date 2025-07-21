@@ -130,7 +130,7 @@ class JobConfig(dict):
         queue: str,
         jobSpec: JobSpec,
         command: str,
-        resourcePoolId: Optional[str] = None,
+        resourcePoolId: str,
         jobType: str = "PyTorchJob",
         labels: Optional[List['Label']] = None,
         priority: str = "normal",
@@ -142,8 +142,7 @@ class JobConfig(dict):
         alertConfig: Optional['AlertConfig'] = None
     ):
         super(JobConfig, self).__init__()
-        if resourcePoolId is not None:
-            self["resourcePoolId"] = resourcePoolId
+        self["resourcePoolId"] = resourcePoolId
         self["name"] = name
         self["queue"] = queue
         self["jobType"] = jobType
