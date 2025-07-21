@@ -19,7 +19,7 @@ import logging
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'bcm host'
+HOST = 'https://aihc.bj.baidubce.com'
 AK = 'your-access-key-id'
 SK = 'your-secret-access-key'
 
