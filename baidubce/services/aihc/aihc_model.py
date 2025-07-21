@@ -124,22 +124,11 @@ class JobConfig(dict):
     :param alertConfig: 告警相关配置（可选，Body参数，AlertConfig类型）
     :type alertConfig: AlertConfig
     """
-    def __init__(
-        self,
-        name: str,
-        queue: str,
-        jobSpec: JobSpec,
-        command: str,
-        resourcePoolId: str,
-        jobType: str = "PyTorchJob",
-        labels: Optional[List['Label']] = None,
-        priority: str = "normal",
-        dataSources: Optional[List['Datasource']] = None,
-        enableBccl: Optional[bool] = None,
-        faultTolerance: Optional[bool] = None,
-        faultToleranceArgs: Optional[str] = None,
-        tensorboardConfig: Optional['TensorboardConfig'] = None,
-        alertConfig: Optional['AlertConfig'] = None
+    def __init__(self, name: str, queue: str, jobSpec: JobSpec, command: str, resourcePoolId: str,
+        jobType: str = "PyTorchJob", labels: Optional[List['Label']] = None, priority: str = "normal",
+        dataSources: Optional[List['Datasource']] = None, enableBccl: Optional[bool] = None,
+        faultTolerance: Optional[bool] = None, faultToleranceArgs: Optional[str] = None,
+        tensorboardConfig: Optional['TensorboardConfig'] = None, alertConfig: Optional['AlertConfig'] = None
     ):
         super(JobConfig, self).__init__()
         self["resourcePoolId"] = resourcePoolId
