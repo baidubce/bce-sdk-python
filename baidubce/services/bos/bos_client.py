@@ -1803,6 +1803,7 @@ class BosClient(BceBaseClient):
     def complete_multipart_upload(self, bucket_name, key,
                                   upload_id, part_list,
                                   user_metadata=None,
+                                  user_headers=None,
                                   config=None):
         """
         After finish all the task, complete multi_upload_file.
@@ -1825,7 +1826,8 @@ class BosClient(BceBaseClient):
         key = compat.convert_to_bytes(key)
         headers = self._prepare_object_headers(
             content_type=http_content_types.JSON,
-            user_metadata=user_metadata)
+            user_metadata=user_metadata,
+            user_headers=user_headers)
 
         return self._send_request(
             http_methods.POST,
