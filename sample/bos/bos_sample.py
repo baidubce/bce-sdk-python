@@ -791,3 +791,22 @@ if __name__ == "__main__":
 
     res = bos_client.get_object_to_file(bucket_name, key, download)
     __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
+
+    #####################################################################################################
+    #            test object expire samples
+    ######################################################################################################
+    user_headers = {"x-bce-object-expires": 3}
+    res = bos_client.put_object_from_file(bucket_name, key, download, user_headers=user_headers)
+    __logger.debug("[Sample] put object into file, file size:%s", os.path.getsize(download))
+
+    res = bos_client.get_object_meta_data(bucket_name, key)
+    __logger.debug("[Sample] get object meta, meta response:%s", res)
+
+    res = bos_client.copy_object(bucket_name, key, bucket_name, key + ".copy", user_headers=user_headers)
+    __logger.debug("[Sample] copy object res is %s", res)
+
+    res = bos_client.get_object_meta_data(bucket_name, key + ".copy")
+    __logger.debug("[Sample] get object meta, meta response:%s", res)
+
+    # SuperFile step 3: complete multi-upload
+    bos_client.complete_multipart_upload(bucket_name, key, upload_id, part_list, user_headers=user_headers)
