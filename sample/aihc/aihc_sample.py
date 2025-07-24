@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-AIHC (AI High Computing) 客户端示例模块。
+AIHC客户端示例模块。
 
 本模块提供了百度云AIHC服务的完整使用示例，包括：
 - 任务管理：查询任务列表、任务详情、创建、更新、删除任务
