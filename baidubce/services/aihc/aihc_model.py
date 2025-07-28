@@ -25,5 +25,12 @@ class DemoModel(object):
     """
 
     def __init__(self, demo_name, demo_config):
+        """
+        初始化演示模型
+        
+        Args:
+            demo_name: 演示名称
+            demo_config: 演示配置
+        """
         self.demo_name = demo_name
         self.demo_config = demo_config

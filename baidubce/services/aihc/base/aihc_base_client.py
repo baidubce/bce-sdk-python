@@ -30,9 +30,24 @@ class AIHCBaseClient(bce_base_client.BceBaseClient):
     version = b'v2'
 
     def __init__(self, config=None):
+        """
+        初始化AIHC基础客户端
+        
+        Args:
+            config: 配置对象，baidubce.bce_client_configuration.BceClientConfiguration实例
+        """
         bce_base_client.BceBaseClient.__init__(self, config)
 
     def _merge_config(self, config=None):
+        """
+        合并配置对象
+        
+        Args:
+            config: 要合并的配置对象，如果为None则返回当前配置
+            
+        Returns:
+            baidubce.bce_client_configuration.BceClientConfiguration: 合并后的配置对象
+        """
         if config is None:
             return self.config
         else:
@@ -43,6 +58,21 @@ class AIHCBaseClient(bce_base_client.BceBaseClient):
     def _send_request(self, http_method, path,
                       body=None, headers=None, params=None,
                       config=None, body_parser=None):
+        """
+        发送HTTP请求
+        
+        Args:
+            http_method: HTTP方法
+            path: 请求路径
+            body: 请求体（可选）
+            headers: 请求头（可选）
+            params: 请求参数（可选）
+            config: 配置对象（可选）
+            body_parser: 响应体解析器（可选）
+            
+        Returns:
+            baidubce.bce_response.BceResponse: 响应对象
+        """
         config = self._merge_config(config)
         if body_parser is None:
             body_parser = aihc_handler.parse_json
@@ -61,6 +91,21 @@ class AIHCBaseClient(bce_base_client.BceBaseClient):
     def _send_job_request(self, http_method, path,
                       body=None, headers=None, params=None,
                       config=None, body_parser=None):
+        """
+        发送任务相关HTTP请求
+        
+        Args:
+            http_method: HTTP方法
+            path: 请求路径
+            body: 请求体（可选）
+            headers: 请求头（可选）
+            params: 请求参数（可选）
+            config: 配置对象（可选）
+            body_parser: 响应体解析器（可选）
+            
+        Returns:
+            baidubce.bce_response.BceResponse: 响应对象
+        """
         config = self._merge_config(config)
         if body_parser is None:
             body_parser = aihc_handler.parse_json

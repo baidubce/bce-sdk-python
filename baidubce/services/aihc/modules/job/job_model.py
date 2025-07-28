@@ -22,6 +22,13 @@ class Label(dict):
     训练任务标签
     """
     def __init__(self, key, value):
+        """
+        初始化训练任务标签
+        
+        Args:
+            key: 标签键
+            value: 标签值
+        """
         super(Label, self).__init__()
         self["key"] = key
         self["value"] = value
@@ -32,6 +39,14 @@ class Datasource(dict):
     数据源配置，当前支持PFS
     """
     def __init__(self, type, name, mountPath):
+        """
+        初始化数据源配置
+        
+        Args:
+            type: 数据源类型
+            name: 数据源名称
+            mountPath: 挂载路径
+        """
         super(Datasource, self).__init__()
         self["type"] = type
         self["name"] = name
@@ -43,6 +58,14 @@ class TensorboardConfig(dict):
     tensorboard相关配置
     """
     def __init__(self, logDir, image=None, resources=None):
+        """
+        初始化tensorboard配置
+        
+        Args:
+            logDir: 日志目录
+            image: 镜像配置（可选）
+            resources: 资源配置（可选）
+        """
         super(TensorboardConfig, self).__init__()
         self["logDir"] = logDir
         if image is not None:
@@ -56,6 +79,13 @@ class AlertConfig(dict):
     告警相关配置
     """
     def __init__(self, alertType, receivers):
+        """
+        初始化告警配置
+        
+        Args:
+            alertType: 告警类型
+            receivers: 接收者列表
+        """
         super(AlertConfig, self).__init__()
         self["alertType"] = alertType
         self["receivers"] = receivers
@@ -75,6 +105,18 @@ class JobSpec(dict):
         enableRDMA=None,
         hostNetwork=None
     ):
+        """
+        初始化训练任务配置
+        
+        Args:
+            image: 镜像名称
+            replicas: 副本数量
+            imageConfig: 镜像配置（可选）
+            resources: 资源配置（可选）
+            envs: 环境变量（可选）
+            enableRDMA: 是否启用RDMA（可选）
+            hostNetwork: 是否使用主机网络（可选）
+        """
         super(JobSpec, self).__init__()
         self["image"] = image
         self["replicas"] = replicas
@@ -130,6 +172,25 @@ class JobConfig(dict):
         faultTolerance: Optional[bool] = None, faultToleranceArgs: Optional[str] = None,
         tensorboardConfig: Optional['TensorboardConfig'] = None, alertConfig: Optional['AlertConfig'] = None
     ):
+        """
+        初始化训练任务配置
+        
+        Args:
+            name: 名称（必填，Body参数）
+            queue: 训练任务所属队列（必填，Body参数，通用资源池须填入队列名称，托管资源池须填入队列Id）
+            jobSpec: 训练任务配置（必填，Body参数，JobSpec类型）
+            command: 启动命令（必填，Body参数）
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobType: 分布式框架（可选，Body参数，只支持 PyTorchJob，默认值：PyTorchJob）
+            labels: 训练任务标签（可选，Body参数，List[Label]，默认包含系统标签）
+            priority: 调度优先级（可选，Body参数，支持high/normal/low，默认normal）
+            dataSources: 数据源配置（可选，Body参数，List[Datasource]，当前支持PFS）
+            enableBccl: 是否开启BCCL自动注入（可选，Body参数，bool，默认关闭）
+            faultTolerance: 是否开启容错（可选，Body参数，bool，默认关闭）
+            faultToleranceArgs: 容错配置（可选，Body参数，str）
+            tensorboardConfig: tensorboard相关配置（可选，Body参数，TensorboardConfig类型）
+            alertConfig: 告警相关配置（可选，Body参数，AlertConfig类型）
+        """
         super(JobConfig, self).__init__()
         self["resourcePoolId"] = resourcePoolId
         self["name"] = name
@@ -162,6 +223,13 @@ class ImageConfig(dict):
     :param password: 私有镜像仓库密码
     """
     def __init__(self, username, password):
+        """
+        初始化镜像配置
+        
+        Args:
+            username: 私有镜像仓库用户名
+            password: 私有镜像仓库密码
+        """
         super(ImageConfig, self).__init__()
         self["username"] = username
         self["password"] = password
@@ -178,6 +246,13 @@ class Resource(dict):
     :param quantity: 资源量，字符串类型
     """
     def __init__(self, name, quantity):
+        """
+        初始化资源配置
+        
+        Args:
+            name: 资源名称，支持GPU/CPU/内存/共享内存等
+            quantity: 资源量，字符串类型
+        """
         super(Resource, self).__init__()
         self["name"] = name
         self["quantity"] = quantity
@@ -190,6 +265,13 @@ class Env(dict):
     :param value: 标签值（可选）
     """
     def __init__(self, name=None, value=None):
+        """
+        初始化环境变量
+        
+        Args:
+            name: 环境变量名（可选）
+            value: 环境变量值（可选）
+        """
         super(Env, self).__init__()
         if name is not None:
             self["name"] = name

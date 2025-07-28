@@ -35,6 +35,25 @@ class Dataset(dict):
     def __init__(self, id, name, storageType, storageInstance, importFormat, owner, 
                  ownerName, visibilityScope, permission, latestVersionId, latestVersion, 
                  createdAt, updatedAt, latestVersionEntry=None):
+        """
+        初始化数据集信息
+        
+        Args:
+            id: 数据集ID
+            name: 数据集名称
+            storageType: 存储类型（如 PFS、BOS）
+            storageInstance: 存储实例ID
+            importFormat: 导入格式（如 FILE、FOLDER）
+            owner: 拥有者ID
+            ownerName: 拥有者名称
+            visibilityScope: 可见范围（如 ALL_PEOPLE）
+            permission: 权限（如 rw）
+            latestVersionId: 最新版本ID
+            latestVersion: 最新版本号
+            createdAt: 创建时间（ISO8601字符串）
+            updatedAt: 更新时间（ISO8601字符串）
+            latestVersionEntry: 最新版本详情（DatasetVersion 类型或 dict，可选）
+        """
         super(Dataset, self).__init__()
         self["id"] = id
         self["name"] = name
@@ -67,6 +86,20 @@ class DatasetVersion(dict):
     """
     def __init__(self, id, version, description, storagePath, mountPath, createUser, 
                  createUserName, createdAt, updatedAt):
+        """
+        初始化数据集版本信息
+        
+        Args:
+            id: 版本ID
+            version: 版本号
+            description: 版本描述
+            storagePath: 存储路径
+            mountPath: 挂载路径
+            createUser: 创建人ID
+            createUserName: 创建人名称
+            createdAt: 创建时间（ISO8601字符串）
+            updatedAt: 更新时间（ISO8601字符串）
+        """
         super(DatasetVersion, self).__init__()
         self["id"] = id
         self["version"] = version

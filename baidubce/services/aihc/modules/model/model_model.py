@@ -27,6 +27,18 @@ class ModelVersion(dict):
     """
     def __init__(self, source, storageBucket, storagePath, id=None, version=None, 
                  modelMetrics=None, description=None):
+        """
+        初始化模型版本信息
+        
+        Args:
+            source: 该版本模型的来源（必填，如 UserUpload）
+            storageBucket: 模型存储的BOS桶（必填）
+            storagePath: BOS桶中的存储路径（必填）
+            id: 模型版本ID（可选，新建时无需指定）
+            version: 版本号（可选，新建时无需指定）
+            modelMetrics: 模型指标，JSON格式字符串（可选）
+            description: 版本描述（可选）
+        """
         super(ModelVersion, self).__init__()
         if id is not None:
             self["id"] = id

@@ -41,6 +41,9 @@ def create_typed_proxy_method(target_client, method_name):
     # 创建代理方法
     @wraps(original_method)
     def proxy_method(*args, **kwargs):
+        """
+        代理方法，用于调用原始目标方法并保持类型信息
+        """
         return original_method(*args, **kwargs)
     
     # 设置完整的类型信息
@@ -97,7 +100,11 @@ class AihcClient:
         self._setup_proxy_methods()
 
     def _setup_proxy_methods(self):
-        """设置代理方法"""
+        """
+        设置代理方法
+        
+        为各个子模块的方法创建代理，使主客户端可以直接调用子模块的方法
+        """
         # 任务相关接口
         job_methods = [
             'DescribeJobs', 'DescribeJob', 'DeleteJob', 'ModifyJob', 
