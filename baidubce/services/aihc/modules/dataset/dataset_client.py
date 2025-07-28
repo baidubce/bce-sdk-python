@@ -16,13 +16,13 @@ AIHC dataset client module.
 import json
 from typing import Optional, List, Dict, Any
 
+from baidubce.bce_response import BceResponse
 from baidubce.http import http_methods
 from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 
 
 class DatasetClient(AIHCBaseClient):
     """数据集相关接口客户端"""
-
     def DescribeDatasets(
         self,
         keyword: Optional[str] = None,
@@ -31,7 +31,7 @@ class DatasetClient(AIHCBaseClient):
         importFormat: Optional[str] = None,
         pageNumber: int = 1,
         pageSize: Optional[int] = None
-    ):
+    ) -> 'BceResponse':
         """
         获取数据集列表。
 
@@ -70,7 +70,7 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeDataset(self, datasetId: str):
+    def DescribeDataset(self, datasetId: str) -> 'BceResponse':
         """
         获取数据集详情。
 
