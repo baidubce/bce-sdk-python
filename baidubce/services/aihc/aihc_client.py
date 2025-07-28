@@ -15,7 +15,7 @@ This module provides a client class for AIHC V2.
 """
 import inspect
 from functools import wraps
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union, List, get_type_hints
 
 from baidubce.services.aihc.modules.job.job_client import JobClient
 from baidubce.services.aihc.modules.dataset.dataset_client import DatasetClient
@@ -24,13 +24,44 @@ from baidubce.services.aihc.modules.service.service_client import ServiceClient
 from baidubce.services.aihc.modules.dev_instance.dev_instance_client import DevInstanceClient
 
 
-def _create_proxy_method(target_client, method_name):
-    """创建代理方法，保持原始文档字符串和签名"""
+def create_typed_proxy_method(target_client, method_name):
+    """
+    创建带有完整类型信息的代理方法
+    
+    这个函数会：
+    1. 获取原始方法的完整签名和类型注解
+    2. 创建一个新的代理方法，保持所有类型信息
+    3. 确保IDE能够正确识别类型提示
+    """
     original_method = getattr(target_client, method_name)
     
+    # 获取原始方法的完整信息
+    sig = inspect.signature(original_method)
+    
+    # 创建代理方法
     @wraps(original_method)
     def proxy_method(*args, **kwargs):
         return original_method(*args, **kwargs)
+    
+    # 设置完整的类型信息
+    proxy_method.__signature__ = sig
+    proxy_method.__annotations__ = original_method.__annotations__
+    
+    # 确保IDE能够识别类型信息
+    if hasattr(original_method, '__module__'):
+        proxy_method.__module__ = original_method.__module__
+    if hasattr(original_method, '__qualname__'):
+        proxy_method.__qualname__ = original_method.__qualname__
+    if hasattr(original_method, '__name__'):
+        proxy_method.__name__ = original_method.__name__
+    
+    # 使用 typing.get_type_hints 确保类型信息正确
+    try:
+        type_hints = get_type_hints(original_method)
+        proxy_method.__annotations__ = type_hints
+    except Exception:
+        # 如果获取类型提示失败，使用原始注解
+        proxy_method.__annotations__ = original_method.__annotations__
     
     return proxy_method
 
@@ -56,11 +87,11 @@ class AihcClient:
             config: 配置对象
                 baidubce.bce_client_configuration.BceClientConfiguration实例
         """
-        self.job_client = JobClient(config)
-        self.dataset_client = DatasetClient(config)
-        self.model_client = ModelClient(config)
-        self.service_client = ServiceClient(config)
-        self.dev_instance_client = DevInstanceClient(config)
+        self.job = JobClient(config)
+        self.dataset = DatasetClient(config)
+        self.model = ModelClient(config)
+        self.service = ServiceClient(config)
+        self.dev_instance = DevInstanceClient(config)
         
         # 动态创建代理方法
         self._setup_proxy_methods()
@@ -100,16 +131,16 @@ class AihcClient:
         
         # 为每个方法创建代理
         for method_name in job_methods:
-            setattr(self, method_name, _create_proxy_method(self.job_client, method_name))
+            setattr(self, method_name, create_typed_proxy_method(self.job, method_name))
         
         for method_name in dataset_methods:
-            setattr(self, method_name, _create_proxy_method(self.dataset_client, method_name))
+            setattr(self, method_name, create_typed_proxy_method(self.dataset, method_name))
         
         for method_name in model_methods:
-            setattr(self, method_name, _create_proxy_method(self.model_client, method_name))
+            setattr(self, method_name, create_typed_proxy_method(self.model, method_name))
         
         for method_name in service_methods:
-            setattr(self, method_name, _create_proxy_method(self.service_client, method_name))
+            setattr(self, method_name, create_typed_proxy_method(self.service, method_name))
         
         for method_name in dev_instance_methods:
-            setattr(self, method_name, _create_proxy_method(self.dev_instance_client, method_name)) 
+            setattr(self, method_name, create_typed_proxy_method(self.dev_instance, method_name)) 
