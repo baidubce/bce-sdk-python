@@ -106,7 +106,7 @@ def main():
     # 查询任务列表
     try:
         __logger.info('--------------------------------DescribeJobs start--------------------------------')
-        response = aihc_client.DescribeJobs(resourcePoolId=resourcePoolId)
+        response = aihc_client.job.DescribeJobs(resourcePoolId=resourcePoolId)
         # 将response转换为python对象
         print(json.dumps(to_dict(response), ensure_ascii=False))
 
@@ -125,7 +125,7 @@ def main():
     # 查询任务详情
     try:
         __logger.info('--------------------------------DescribeJob start...--------------------------------')
-        response = aihc_client.DescribeJob(resourcePoolId=resourcePoolId, jobId=jobId)
+        response = aihc_client.job.DescribeJob(resourcePoolId=resourcePoolId, jobId=jobId)
         print(json.dumps(to_dict(response), ensure_ascii=False))
 
         __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())

@@ -105,7 +105,7 @@ def main():
     # 查询任务列表
     try:
         __logger.info('--------------------------------DescribeJobs start--------------------------------')
-        response = aihc_client.DescribeJobs(resourcePoolId=resourcePoolId)
+        response = aihc_client.job.DescribeJobs(resourcePoolId=resourcePoolId)
         # 将response转换为python对象
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
 
@@ -124,7 +124,7 @@ def main():
     # 查询任务详情
     try:
         __logger.info('--------------------------------DescribeJob start...--------------------------------')
-        response = aihc_client.DescribeJob(resourcePoolId=resourcePoolId, jobId=jobId)
+        response = aihc_client.job.DescribeJob(resourcePoolId=resourcePoolId, jobId=jobId)
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
 
         __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
@@ -180,7 +180,7 @@ def main():
     # 查询数据集列表
     try:
         __logger.info('--------------------------------DescribeDatasets start--------------------------------')
-        response = aihc_client.DescribeDatasets()
+        response = aihc_client.dataset.DescribeDatasets()
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
         __logger.info('DescribeDatasets: %s', response.__dict__.keys())
     except BceHttpClientError as e:
@@ -193,7 +193,7 @@ def main():
     # 查询模型列表
     try:
         __logger.info('--------------------------------DescribeModels start...--------------------------------')
-        response = aihc_client.DescribeModels()
+        response = aihc_client.model.DescribeModels()
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
         __logger.info('DescribeModels: %s', response.__dict__.keys())
     except BceHttpClientError as e:
@@ -206,7 +206,7 @@ def main():
     # 查询服务列表
     try:
         __logger.info('--------------------------------DescribeServices start...--------------------------------')
-        response = aihc_client.DescribeServices()
+        response = aihc_client.service.DescribeServices()
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
         __logger.info('DescribeServices: %s', response.__dict__.keys())
     except BceHttpClientError as e:
@@ -219,7 +219,7 @@ def main():
     # 查询开发机列表
     try:
         __logger.info('--------------------------------DescribeDevInstances start...--------------------------------')
-        response = aihc_client.DescribeDevInstances()
+        response = aihc_client.dev_instance.DescribeDevInstances()
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
         __logger.info('DescribeDevInstances: %s', response.__dict__.keys())
     except BceHttpClientError as e:

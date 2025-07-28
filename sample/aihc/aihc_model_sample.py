@@ -103,7 +103,7 @@ def main():
     # 查询模型列表
     try:
         __logger.info('--------------------------------DescribeModels start...--------------------------------')
-        response = aihc_client.DescribeModels()
+        response = aihc_client.model.DescribeModels()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeModels: %s', response.__dict__.keys())
     except BceHttpClientError as e:

@@ -103,7 +103,7 @@ def main():
     # 查询服务列表
     try:
         __logger.info('--------------------------------DescribeServices start...--------------------------------')
-        response = aihc_client.DescribeServices()   
+        response = aihc_client.service.DescribeServices()   
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeServices: %s', response.__dict__.keys())
     except BceHttpClientError as e:

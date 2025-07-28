@@ -106,7 +106,7 @@ def main():
     # 查询数据集列表
     try:
         __logger.info('--------------------------------DescribeDatasets start--------------------------------')
-        response = aihc_client.DescribeDatasets()
+        response = aihc_client.dataset.DescribeDatasets()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeDatasets: %s', response.__dict__.keys())
         dataset_id = response.datasets[0].dataset_id
@@ -120,9 +120,7 @@ def main():
     # 查询数据集详情
     try:
         __logger.info('--------------------------------DescribeDatasetDetail start--------------------------------')
-        response = aihc_client.DescribeDataset(
-            datasetId=dataset_id
-        )
+        response = aihc_client.dataset.DescribeDataset(datasetId=dataset_id)
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeDataset: %s', response.__dict__.keys())
     except BceHttpClientError as e:

@@ -103,7 +103,7 @@ def main():
     # 查询开发机列表
     try:
         __logger.info('--------------------------------DescribeDevInstances start...--------------------------------')
-        response = aihc_client.DescribeDevInstances()
+        response = aihc_client.dev_instance.DescribeDevInstances()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeDevInstances: %s', response.__dict__.keys())
     except BceHttpClientError as e:
