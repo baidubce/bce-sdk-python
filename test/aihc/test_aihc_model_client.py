@@ -86,7 +86,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_models(self):
         """Test describe models functionality."""
         try:
-            response = self.client.DescribeModels(
+            response = self.client.model.DescribeModels(
                 keyword='test',
                 pageNumber=1,
                 pageSize=10
@@ -98,7 +98,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_create_model(self):
         """Test create model functionality."""
         try:
-            response = self.client.CreateModel(
+            response = self.client.model.CreateModel(
                 name='test-model-' + generate_client_token(),
                 modelFormat='pytorch',
                 description='Test model'
@@ -110,7 +110,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_delete_model(self):
         """Test delete model functionality."""
         try:
-            response = self.client.DeleteModel(
+            response = self.client.model.DeleteModel(
                 modelId=model_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -120,7 +120,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_create_model_version(self):
         """Test create model version functionality."""
         try:
-            response = self.client.CreateModelVersion(
+            response = self.client.model.CreateModelVersion(
                 modelId=model_id,
                 storageBucket='test-bucket',
                 storagePath='/test/model',
@@ -134,7 +134,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_delete_model_version(self):
         """Test delete model version functionality."""
         try:
-            response = self.client.DeleteModelVersion(
+            response = self.client.model.DeleteModelVersion(
                 modelId=model_id,
                 versionId='version-test123'
             )
@@ -145,7 +145,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_model_version(self):
         """Test describe model version functionality."""
         try:
-            response = self.client.DescribeModelVersion(
+            response = self.client.model.DescribeModelVersion(
                 versionId='version-test123'
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -155,7 +155,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_model_versions(self):
         """Test describe model versions functionality."""
         try:
-            response = self.client.DescribeModelVersions(
+            response = self.client.model.DescribeModelVersions(
                 modelId=model_id,
                 pageNumber=1,
                 pageSize=10
@@ -192,7 +192,7 @@ class TestAIHCClient(unittest.TestCase):
         # Test that required parameters are enforced
         with self.assertRaises(TypeError):
             # This should raise an error because required parameters are missing
-            self.client.DescribeModels()
+            self.client.model.DescribeModels()
 
     def test_version_header(self):
         """Test version header in requests."""
@@ -219,11 +219,11 @@ class TestAIHCClient(unittest.TestCase):
         """Test parameter validation."""
         # 测试必需参数缺失
         with self.assertRaises(TypeError):
-            self.client.DescribeModels()
+            self.client.model.DescribeModels()
         
         # 测试参数类型错误
         with self.assertRaises(TypeError):
-            self.client.DescribeModels(
+            self.client.model.DescribeModels(
                 keyword='test',
                 pageNumber="invalid_type",  # 应该是int
                 pageSize=10
@@ -233,7 +233,7 @@ class TestAIHCClient(unittest.TestCase):
         """Test error handling scenarios."""
         # 测试无效的模型ID
         try:
-            response = self.client.DescribeModelVersion(
+            response = self.client.model.DescribeModelVersion(
                 versionId='invalid-version-id'
             )
             # 如果成功，验证响应
@@ -246,7 +246,7 @@ class TestAIHCClient(unittest.TestCase):
         """Test boundary conditions."""
         # 测试边界值
         try:
-            response = self.client.DescribeModels(
+            response = self.client.model.DescribeModels(
                 keyword='test',
                 pageNumber=0,  # 边界值
                 pageSize=1     # 边界值
@@ -256,7 +256,7 @@ class TestAIHCClient(unittest.TestCase):
             self.assertIsInstance(e, Exception)
 
         try:
-            response = self.client.DescribeModels(
+            response = self.client.model.DescribeModels(
                 keyword='test',
                 pageNumber=1,
                 pageSize=1000  # 大数值

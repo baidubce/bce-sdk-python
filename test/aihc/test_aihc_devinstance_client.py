@@ -82,7 +82,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_dev_instances(self):
         """Test describe dev instances functionality."""
         try:
-            response = self.client.DescribeDevInstances(
+            response = self.client.dev_instance.DescribeDevInstances(
                 pageNumber=1,
                 pageSize=10
             )
@@ -93,7 +93,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_dev_instance(self):
         """Test describe dev instance functionality."""
         try:
-            response = self.client.DescribeDevInstance(
+            response = self.client.dev_instance.DescribeDevInstance(
                 devInstanceId=dev_instance_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -103,7 +103,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_start_dev_instance(self):
         """Test start dev instance functionality."""
         try:
-            response = self.client.StartDevInstance(
+            response = self.client.dev_instance.StartDevInstance(
                 devInstanceId=dev_instance_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -113,7 +113,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_stop_dev_instance(self):
         """Test stop dev instance functionality."""
         try:
-            response = self.client.StopDevInstance(
+            response = self.client.dev_instance.StopDevInstance(
                 devInstanceId=dev_instance_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)

@@ -81,7 +81,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_services(self):
         """Test describe services functionality."""
         try:
-            response = self.client.DescribeServices(
+            response = self.client.service.DescribeServices(
                 pageNumber=1,
                 pageSize=10
             )
@@ -96,7 +96,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_service(self):
         """Test describe service functionality."""
         try:
-            response = self.client.DescribeService(
+            response = self.client.service.DescribeService(
                 serviceId=self.service_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -106,7 +106,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_service_status(self):
         """Test describe service status functionality."""
         try:
-            response = self.client.DescribeServiceStatus(
+            response = self.client.service.DescribeServiceStatus(
                 serviceId=self.service_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)

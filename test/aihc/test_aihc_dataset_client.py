@@ -81,7 +81,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_datasets(self):
         """Test describe datasets functionality."""
         try:
-            response = self.client.DescribeDatasets(
+            response = self.client.dataset.DescribeDatasets(
                 keyword='test',
                 pageNumber=1,
                 pageSize=10
@@ -103,7 +103,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_create_dataset(self):
         """Test create dataset functionality."""
         try:
-            response = self.client.CreateDataset(
+            response = self.client.dataset.CreateDataset(
                 name='test-dataset-' + generate_client_token(),
                 storageType='bos',
                 storageInstance='bos-test',
@@ -117,7 +117,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_delete_dataset(self):
         """Test delete dataset functionality."""
         try:
-            response = self.client.DeleteDataset(
+            response = self.client.dataset.DeleteDataset(
                 datasetId=dataset_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -127,7 +127,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_create_dataset_version(self):
         """Test create dataset version functionality."""
         try:
-            response = self.client.CreateDatasetVersion(
+            response = self.client.dataset.CreateDatasetVersion(
                 datasetId=dataset_id,
                 storagePath='/test/path',
                 mountPath='/mnt/data',
@@ -140,7 +140,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_delete_dataset_version(self):
         """Test delete dataset version functionality."""
         try:
-            response = self.client.DeleteDatasetVersion(
+            response = self.client.dataset.DeleteDatasetVersion(
                 datasetId=dataset_id,
                 versionId='version-test123'
             )
@@ -151,7 +151,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_dataset_version(self):
         """Test describe dataset version functionality."""
         try:
-            response = self.client.DescribeDatasetVersion(
+            response = self.client.dataset.DescribeDatasetVersion(
                 versionId='version-test123'
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -161,7 +161,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_dataset_versions(self):
         """Test describe dataset versions functionality."""
         try:
-            response = self.client.DescribeDatasetVersions(
+            response = self.client.dataset.DescribeDatasetVersions(
                 datasetId=dataset_id,
                 pageNumber=1,
                 pageSize=10
@@ -173,7 +173,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_modify_dataset(self):
         """Test update dataset functionality."""
         try:
-            response = self.client.ModifyDataset(
+            response = self.client.dataset.ModifyDataset(
                 datasetId=dataset_id,
                 name='updated-dataset-name',
                 description='Updated dataset description',

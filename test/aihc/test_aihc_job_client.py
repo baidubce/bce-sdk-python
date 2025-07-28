@@ -89,7 +89,7 @@ class TestAIHCClient(unittest.TestCase):
         print("\n=== 严格验证测试: DescribeJobs ===")
         
         try:
-            response = self.client.DescribeJobs(
+            response = self.client.job.DescribeJobs(
                 resourcePoolId=self.resource_pool_id,
                 pageNumber=1,
                 pageSize=10
@@ -124,7 +124,7 @@ class TestAIHCClient(unittest.TestCase):
         print("\n=== 严格验证测试: DescribeJob (存在任务) ===")
         
         try:
-            response = self.client.DescribeJob(
+            response = self.client.job.DescribeJob(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id,
                 needDetail=True
@@ -172,7 +172,7 @@ class TestAIHCClient(unittest.TestCase):
         }
         
         try:
-            response = self.client.CreateJob(
+            response = self.client.job.CreateJob(
                 resourcePoolId=self.resource_pool_id,
                 jobConfig=job_config
             )
@@ -183,7 +183,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_delete_job(self):
         """Test delete job functionality."""
         try:
-            response = self.client.DeleteJob(
+            response = self.client.job.DeleteJob(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id
             )
@@ -194,7 +194,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_stop_job(self):
         """Test stop job functionality."""
         try:
-            response = self.client.StopJob(
+            response = self.client.job.StopJob(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id
             )
@@ -205,7 +205,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_job_events(self):
         """Test describe job events functionality."""
         try:
-            response = self.client.DescribeJobEvents(
+            response = self.client.job.DescribeJobEvents(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id
             )
@@ -216,7 +216,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_job_logs(self):
         """Test describe job logs functionality."""
         try:
-            response = self.client.DescribeJobLogs(
+            response = self.client.job.DescribeJobLogs(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id,
                 podName='test-pod',
@@ -233,7 +233,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_job_node_names(self):
         """Test describe job node names functionality."""
         try:
-            response = self.client.DescribeJobNodeNames(
+            response = self.client.job.DescribeJobNodeNames(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id
             )
@@ -244,7 +244,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_describe_job_pod_events(self):
         """Test describe job pod events functionality."""
         try:
-            response = self.client.DescribeJobPodEvents(
+            response = self.client.job.DescribeJobPodEvents(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id,
                 podName='test-pod',
@@ -258,7 +258,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_get_job_web_terminal_url(self):
         """Test get job web terminal URL functionality."""
         try:
-            response = self.client.GetJobWebTerminalUrl(
+            response = self.client.job.GetJobWebTerminalUrl(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id,
                 handshakeTimeoutSecond=30,
@@ -271,7 +271,7 @@ class TestAIHCClient(unittest.TestCase):
     def test_modify_job(self):
         """Test modify job functionality."""
         try:
-            response = self.client.ModifyJob(
+            response = self.client.job.ModifyJob(
                 resourcePoolId=self.resource_pool_id,
                 jobId=self.job_id,
                 priority='normal'
