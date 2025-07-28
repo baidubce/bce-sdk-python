@@ -158,6 +158,18 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # 修改数据集
+    try:
+        __logger.info('--------------------ModifyDataset start--------------------')
+        response = aihc_client.dataset.ModifyDataset(datasetId=dataset_id, name='test_dataset_2xxx')
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+        __logger.info('ModifyDataset: %s', response.__dict__.keys())
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
 
 if __name__ == '__main__':
     main()
