@@ -79,10 +79,12 @@ class AIHCBaseClient(bce_base_client.BceBaseClient):
         
         if headers is None:
             headers = {
-                b'version': AIHCBaseClient.version
+                b'version': AIHCBaseClient.version,
+                b'Content-Type': b'application/json'
             }
         else:
             headers[b'version'] = AIHCBaseClient.version
+            headers[b'Content-Type'] = b'application/json'
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
@@ -112,10 +114,12 @@ class AIHCBaseClient(bce_base_client.BceBaseClient):
         
         if headers is None:
             headers = {
-                b'X-API-Version': AIHCBaseClient.version
+                b'X-API-Version': AIHCBaseClient.version,
+                b'Content-Type': b'application/json'
             }
         else:
             headers[b'X-API-Version'] = AIHCBaseClient.version
+            headers[b'Content-Type'] = b'application/json'
 
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [handler.parse_error, body_parser],
