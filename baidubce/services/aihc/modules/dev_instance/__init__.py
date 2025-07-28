@@ -1,4 +1,4 @@
-# Copyright 2014 Baidu, Inc.
+# Copyright (c) 2014 Baidu.com, Inc. All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
@@ -11,8 +11,8 @@
 # and limitations under the License.
 
 """
-AIHC V2 service module.
+AIHC dev instance module.
 """
-from baidubce.services.aihc.aihc_client import AihcClient
+from baidubce.services.aihc.modules.dev_instance.dev_instance_client import DevInstanceClient
 
-__all__ = ['AihcClient'] 
+__all__ = ['DevInstanceClient'] 
