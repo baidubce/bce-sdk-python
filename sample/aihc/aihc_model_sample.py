@@ -97,6 +97,10 @@ def main():
         BceHttpClientError: 当API调用失败时抛出
         BceServerError: 当服务器返回错误时抛出
     """
+
+    model_id = None
+    version_id = None
+
     # create a aihc client
     aihc_client = AihcClient(aihc_sample_conf.config)
 
@@ -106,6 +110,7 @@ def main():
         response = aihc_client.model.DescribeModels()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeModels: %s', response.__dict__.keys())
+        model_id = response.models[0].id
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -113,6 +118,46 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # 查询模型详情
+    try:
+        __logger.info('--------------------DescribeModel start--------------------')
+        response = aihc_client.model.DescribeModel(modelId=model_id)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+        __logger.info('DescribeModel: %s', response.__dict__.keys())
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询模型版本列表
+    try:
+        __logger.info('--------------------DescribeModelVersions start--------------------')
+        response = aihc_client.model.DescribeModelVersions(modelId=model_id)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+        __logger.info('DescribeModelVersions: %s', response.__dict__.keys())
+        version_id = response.versions[0].id
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询模型版本详情
+    try:
+        __logger.info('--------------------DescribeModelVersion start--------------------')
+        response = aihc_client.model.DescribeModelVersion(modelId=model_id, versionId=version_id)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+        __logger.info('DescribeModelVersion: %s', response.__dict__.keys())
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+                        
 
 if __name__ == '__main__':
     main()

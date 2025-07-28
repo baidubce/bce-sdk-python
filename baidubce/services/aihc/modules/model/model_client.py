@@ -22,24 +22,17 @@ from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 class ModelClient(AIHCBaseClient):
     """模型相关接口客户端"""
 
-    def DescribeModels(self, keyword=None, modelFormat=None, owner=None, visibilityScope=None, 
-                     pageNumber=1, pageSize=None):
+    def DescribeModels(self, keyword=None, pageNumber=1, pageSize=10):
         """
         获取模型列表。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/amc1fmz95
 
-        :param keyword: 名称关键字（可选，Query参数）
+        :param keyword: 模型名称，用于筛选模糊匹配（可选，Query参数）
         :type keyword: str
-        :param modelFormat: 模型格式（可选，Query参数）
-        :type modelFormat: str
-        :param owner: 拥有者ID（可选，Query参数）
-        :type owner: str
-        :param visibilityScope: 可见范围（可选，Query参数）
-        :type visibilityScope: str
-        :param pageNumber: 页码，默认1（可选，Query参数）
+        :param pageNumber: 分页参数，没传默认1（可选，Query参数）
         :type pageNumber: int
-        :param pageSize: 每页数量，不传递该参数默认返回全部（可选，Query参数）
+        :param pageSize: 分页大小，没传默认返回全部（可选，Query参数）
         :type pageSize: int
         :return: 模型列表及总数
         :rtype: baidubce.bce_response.BceResponse
@@ -51,12 +44,6 @@ class ModelClient(AIHCBaseClient):
         }
         if keyword is not None:
             params['keyword'] = keyword
-        if modelFormat is not None:
-            params['modelFormat'] = modelFormat
-        if owner is not None:
-            params['owner'] = owner
-        if visibilityScope is not None:
-            params['visibilityScope'] = visibilityScope
         if pageSize is not None:
             params['pageSize'] = pageSize
         return self._send_request(
@@ -212,12 +199,14 @@ class ModelClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeModelVersion(self, versionId):
+    def DescribeModelVersion(self, modelId, versionId):
         """
         获取模型版本详情。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/wmc1focnv
 
+        :param modelId: 模型ID（必填，Query参数）
+        :type modelId: str
         :param versionId: 模型版本ID（必填，Query参数）
         :type versionId: str
         :return: 模型版本详情
@@ -226,6 +215,7 @@ class ModelClient(AIHCBaseClient):
         path = b'/'
         params = {
             'action': 'DescribeModelVersion',
+            'modelId': modelId,
             'versionId': versionId,
         }
         return self._send_request(

@@ -30,7 +30,7 @@ class DatasetClient(AIHCBaseClient):
         storageInstances: Optional[str] = None,
         importFormat: Optional[str] = None,
         pageNumber: int = 1,
-        pageSize: Optional[int] = None
+        pageSize: Optional[int] = 10
     ) -> 'BceResponse':
         """
         获取数据集列表。
@@ -248,20 +248,23 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeDatasetVersion(self, versionId):
+    def DescribeDatasetVersion(self, datasetId: str, versionId: str) -> 'BceResponse':
         """
         获取数据集版本详情。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Dmc09bpj1
 
-        :param versionId: 数据集版本ID（必填，Query参数）
-        :type versionId: str
-        :return: 数据集版本详情
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            datasetId: 数据集ID（必填，Query参数）
+            versionId: 数据集版本ID（必填，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 数据集版本详情
         """
         path = b'/'
         params = {
             'action': 'DescribeDatasetVersion',
+            'datasetId': datasetId,
             'versionId': versionId,
         }
         return self._send_request(
