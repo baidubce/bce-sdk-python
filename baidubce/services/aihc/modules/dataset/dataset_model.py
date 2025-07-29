@@ -14,6 +14,7 @@
 AIHC dataset model module: Dataset, DatasetVersion
 """
 
+
 class Dataset(dict):
     """
     数据集信息结构体，对应数据集详情、数据集列表接口。
@@ -70,6 +71,7 @@ class Dataset(dict):
         self["updatedAt"] = updatedAt
         if latestVersionEntry is not None:
             self["latestVersionEntry"] = latestVersionEntry
+
 
 class DatasetVersion(dict):
     """

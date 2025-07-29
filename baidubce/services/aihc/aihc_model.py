@@ -19,6 +19,7 @@
 This module provides common models for AIHC-SDK.
 """
 
+
 class DemoModel(object):
     """
     This class defines the configuration for a demo.

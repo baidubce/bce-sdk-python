@@ -14,6 +14,7 @@
 AIHC model module: ModelVersion
 """
 
+
 class ModelVersion(dict):
     """
     模型版本信息结构体，对应模型管理相关接口。
