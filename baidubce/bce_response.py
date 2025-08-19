@@ -41,6 +41,17 @@ class BceResponse(object):
             if k.lower() == compat.convert_to_string(http_headers.ETAG.lower()):
                 v = v.strip('"')
             setattr(self.metadata, k, v)
+    
+    def set_metadata_from_headers_no_underlined(self, headers):
+        """
+
+        :param headers:
+        :return:
+        """
+        for k, v in iteritems(headers):
+            if k.lower() == compat.convert_to_string(http_headers.ETAG.lower()):
+                v = v.strip('"')
+            setattr(self.metadata, k, v)
 
     def __getattr__(self, item):
         if item.startswith('__'):
