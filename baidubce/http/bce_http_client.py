@@ -120,7 +120,7 @@ def send_request(
         config,
         sign_function,
         response_handler_functions,
-        http_method, path, body, headers, params, use_backup_endpoint=False):
+        http_method, path, body, headers, params, use_backup_endpoint=False, return_underline_header=True):
     """
     Send request to BCE services.
 
@@ -134,6 +134,9 @@ def send_request(
 
     :param request:
     :type request: baidubce.internal.InternalRequest
+
+    :param return_underline_header, true return underline style headers, false return service api headers.
+    :type return_underline_header: bool
 
     :return:
     :rtype: baidubce.BceResponse
@@ -229,7 +232,10 @@ def send_request(
             _logger.debug(
                 'request return: status=%d, headers=%s' % (http_response.status, headers_list))
             response = BceResponse()
-            response.set_metadata_from_headers(dict(headers_list))
+            if return_underline_header:
+                response.set_metadata_from_headers(dict(headers_list))
+            else:
+                response.set_metadata_from_headers_no_underlined(dict(headers_list))
             if config.auto_follow_redirect:
                 if http_method == b'GET' and  300 <= http_response.status < 400:
                     headers_map = {k: v for k, v in headers_list}
