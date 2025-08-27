@@ -2831,7 +2831,7 @@ class BosClient(BceBaseClient):
         try:
             return bce_http_client.send_request(
                 config, bce_v1_signer.sign, [handler.parse_error, body_parser],
-                http_method, path, body, headers, params, return_underline_header=False)
+                http_method, path, body, headers, params)
         except BceHttpClientError as e:
             # retry backup endpoint
             if config.backup_endpoint is None:
