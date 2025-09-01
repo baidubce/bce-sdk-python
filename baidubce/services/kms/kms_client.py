@@ -187,19 +187,17 @@ class KmsClient(BceBaseClient):
         if messageType not in ('RAW', 'DIGEST'):
             raise ValueError("messageType must be either 'RAW' or 'DIGEST'")
 
-        try:
-            decoded = base64.b64decode(message)
-        except (binascii.Error, TypeError):
-            raise ValueError("message must be base64 encoded")
-
         # Validate message length based on type
         if messageType == 'RAW':
-            if len(message) > 4096:
+             if len(message) > 4096:
                 raise ValueError("Base64 encoded RAW message length must be <= 4096 bytes")
         elif messageType == 'DIGEST':
-            if len(decoded) != 32:
-                raise ValueError("Digest length must be 32 bytes after base64 decoding")
-
+            try:
+                decoded = base64.b64decode(message)
+                if len(decoded) != 32:
+                    raise ValueError("Digest length must be 32 bytes after base64 decoding")
+            except (binascii.Error, TypeError):
+                raise ValueError("message must be base64 encoded")
         path = b'/'
         params = {}
         params['action'] = b'Sign'
@@ -241,19 +239,24 @@ class KmsClient(BceBaseClient):
         if messageType not in ('RAW', 'DIGEST'):
             raise ValueError("messageType must be either 'RAW' or 'DIGEST'")
 
-        # Decode and validate message
-        try:
-            decoded = base64.b64decode(message)
-        except (binascii.Error, TypeError):
-            raise ValueError("message must be base64 encoded")
-
         # Validate message length based on type
         if messageType == 'RAW':
             if len(message) > 4096:
                 raise ValueError("Base64 encoded RAW message length must be <= 4096 bytes")
         elif messageType == 'DIGEST':
-            if len(decoded) != 32:
-                raise ValueError("Digest length must be 32 bytes after base64 decoding")
+            try:
+                decoded = base64.b64decode(message)
+                if len(decoded) != 32:
+                    raise ValueError("Digest length must be 32 bytes after base64 decoding")
+            except (binascii.Error, TypeError):
+                raise ValueError("message must be base64 encoded")
+
+        # Validate signature length
+        try:
+            base64.b64decode(signature)
+        except (binascii.Error, TypeError):
+            raise ValueError("signature must be base64 encoded")
+
         path = b'/'
         params = {}
         params['action'] = b'Verify'

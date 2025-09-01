@@ -90,7 +90,7 @@ class TestKmsClient(unittest.TestCase):
         """
         test case for encrypt
         """
-        keyId = "b4b7b6d2-2f55-eb3a-d601-54a8f2747062"
+        keyId = "<your Key Id>"
         plaintext = "testtest"
         result =  self.client.encrypt(keyId, plaintext)
         print self.client.decrypt(keyId, str(result.ciphertext))
