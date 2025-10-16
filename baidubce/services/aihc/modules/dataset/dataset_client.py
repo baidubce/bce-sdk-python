@@ -160,9 +160,8 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def CreateDataset(self, name, storageType, storageInstance, importFormat, description=None, 
-                    owner=None, visibilityScope=None, visibilityUser=None, visibilityGroup=None, 
-                    initVersionEntry=None):
+    def CreateDataset(self, name, storageType, storageInstance, importFormat, visibilityScope, initVersionEntry,
+                    description=None, owner=None, visibilityUser=None, visibilityGroup=None):
         """
         创建数据集。
 
@@ -176,18 +175,18 @@ class DatasetClient(AIHCBaseClient):
         :type storageInstance: str
         :param importFormat: 导入格式（必填，Body参数）
         :type importFormat: str
+        :param visibilityScope: 可见范围（必填，Body参数）
+        :type visibilityScope: str
+        :param initVersionEntry: 初始版本信息（必填，Body参数，dict）
+        :type initVersionEntry: dict
         :param description: 数据集描述（可选，Body参数）
         :type description: str
         :param owner: 拥有者ID（可选，Body参数）
         :type owner: str
-        :param visibilityScope: 可见范围（可选，Body参数）
-        :type visibilityScope: str
         :param visibilityUser: 用户权限列表（可选，Body参数，List[dict]）
         :type visibilityUser: list
         :param visibilityGroup: 用户组权限列表（可选，Body参数，List[dict]）
         :type visibilityGroup: list
-        :param initVersionEntry: 初始版本信息（可选，Body参数，dict）
-        :type initVersionEntry: dict
         :return: 创建结果
         :rtype: baidubce.bce_response.BceResponse
         """
@@ -200,19 +199,17 @@ class DatasetClient(AIHCBaseClient):
             'storageType': storageType,
             'storageInstance': storageInstance,
             'importFormat': importFormat,
+            'visibilityScope': visibilityScope,
+            'initVersionEntry': initVersionEntry,
         }
         if description is not None:
             body['description'] = description
         if owner is not None:
             body['owner'] = owner
-        if visibilityScope is not None:
-            body['visibilityScope'] = visibilityScope
         if visibilityUser is not None:
             body['visibilityUser'] = visibilityUser
         if visibilityGroup is not None:
             body['visibilityGroup'] = visibilityGroup
-        if initVersionEntry is not None:
-            body['initVersionEntry'] = initVersionEntry
         return self._send_request(
             http_methods.POST,
             path,
@@ -331,4 +328,5 @@ class DatasetClient(AIHCBaseClient):
             path,
             body=json.dumps(body),
             params=params
-        ) 
+        )
+

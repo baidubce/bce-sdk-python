@@ -13,6 +13,9 @@
 """
 AIHC service client module.
 """
+import json
+from typing import Optional
+
 from baidubce.http import http_methods
 from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 
@@ -103,4 +106,401 @@ class ServiceClient(AIHCBaseClient):
             http_methods.GET,
             path,
             params=params
-        ) 
+        )
+
+    def CreateService(
+        self,
+        serviceConf: dict
+    ):
+        """
+        创建在线服务。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Gmb4v1kcc
+
+        Args:
+            serviceConf: 服务配置（必填，Body参数，详见ServiceConf结构），包含：
+                - name: 服务名称（必填）
+                - acceleratorType: 加速芯片类型（必填）
+                - workloadType: 负载类型（必填）
+                - instanceCount: 部署实例数（必填）
+                - resourcePool: 资源池描述（必填，ResourcePoolConf结构）
+                - containers: 服务容器信息（必填，Array of ContainerConf）
+                - storage: 存储卷、共享内存配置（可选，StorageConf结构）
+                - access: 服务访问配置信息（可选，AccessConf结构）
+                - log: 日志配置（可选，LogConf结构）
+                - deploy: 部署配置（可选，DeployConf结构）
+                - misc: 实例label、annotations配置（可选，Misc结构）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 创建结果
+        """
+        path = b'/'
+        params = {
+            'action': 'CreateService',
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(serviceConf),
+            params=params
+        )
+
+    def DeleteService(
+        self,
+        serviceId: str
+    ):
+        """
+        删除在线服务。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            serviceId: 服务ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 删除结果
+        """
+        path = b'/'
+        params = {
+            'action': 'DeleteService',
+            'serviceId': serviceId,
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            params=params
+        )
+
+    def ModifyService(
+        self,
+        serviceId: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        instanceCount: Optional[int] = None
+    ):
+        """
+        修改在线服务。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            serviceId: 服务ID（必填）
+            name: 服务名称（可选）
+            description: 描述（可选）
+            instanceCount: 实例数量（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 修改结果
+        """
+        path = b'/'
+        params = {
+            'action': 'ModifyService',
+            'serviceId': serviceId,
+        }
+        
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if instanceCount is not None:
+            body['instanceCount'] = instanceCount
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def ModifyServiceReplicas(
+        self,
+        serviceId: str,
+        instanceCount: int
+    ):
+        """
+        扩缩容在线服务。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Omb4vbjhh
+
+        Args:
+            serviceId: 服务ID（必填）
+            instanceCount: 实例数量（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 扩缩容结果
+        """
+        path = b'/'
+        params = {
+            'action': 'ModifyServiceReplicas',
+            'serviceId': serviceId,
+        }
+        
+        body = {
+            'instanceCount': instanceCount,
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def UpgradeService(
+        self,
+        serviceId: str,
+        versionId: str,
+        **kwargs
+    ):
+        """
+        升级服务。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            serviceId: 服务ID（必填）
+            versionId: 版本ID（必填）
+            **kwargs: 其他升级参数
+
+        Returns:
+            baidubce.bce_response.BceResponse: 升级结果
+        """
+        path = b'/'
+        params = {
+            'action': 'UpgradeService',
+            'serviceId': serviceId,
+        }
+        
+        body = {
+            'versionId': versionId,
+            **kwargs
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def DescribeServicePods(
+        self,
+        serviceId: str
+    ):
+        """
+        拉取服务pod列表。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            serviceId: 服务ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务pod列表
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeServicePods',
+            'serviceId': serviceId,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )
+
+    def DeleteServicePod(
+        self,
+        serviceId: str,
+        instanceId: str
+    ):
+        """
+        删除Pod并重建。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Wmb4vdg53
+
+        Args:
+            serviceId: 服务ID（必填）
+            instanceId: Pod实例ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: Pod删除结果
+        """
+        path = b'/'
+        params = {
+            'action': 'DeleteServicePod',
+            'serviceId': serviceId,
+        }
+        
+        body = {
+            'instanceId': instanceId,
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def DisableServicePod(
+        self,
+        serviceId: str,
+        instanceId: str,
+        block: bool = True
+    ):
+        """
+        摘除Pod流量。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Jmb4vf5ew
+
+        Args:
+            serviceId: 服务ID（必填）
+            instanceId: Pod实例ID（必填）
+            block: 是否阻塞等待（可选，默认True）
+
+        Returns:
+            baidubce.bce_response.BceResponse: Pod流量摘除结果
+        """
+        path = b'/'
+        params = {
+            'action': 'DisableServicePod',
+            'serviceId': serviceId,
+        }
+        
+        body = {
+            'instanceId': instanceId,
+            'block': block,
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def ModifyServiceNetConfig(
+        self,
+        serviceId: str,
+        publicAccess: bool,
+        eip: str = None
+    ):
+        """
+        配置公网访问。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Gmb4vgurj
+
+        Args:
+            serviceId: 服务ID（必填）
+            publicAccess: 是否开启公网访问（必填）
+            eip: 弹性公网IP（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 公网访问配置结果
+        """
+        path = b'/'
+        params = {
+            'action': 'ModifyServiceNetConfig',
+            'serviceId': serviceId,
+            'publicAccess': publicAccess,
+        }
+        if eip is not None:
+            params['eip'] = eip
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            params=params
+        )
+
+    def DescribeServicePodGroups(
+        self,
+        serviceId: str
+    ):
+        """
+        获取实例组列表。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Emb4va9nm
+
+        Args:
+            serviceId: 服务ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 实例组列表
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeServicePodGroups',
+            'serviceId': serviceId,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )
+
+    def DescribeServiceChangelogs(
+        self,
+        serviceId: str,
+        pageNumber: int = 1,
+        pageSize: int = 10
+    ):
+        """
+        拉取服务变更记录。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Zmb4v9gvl
+
+        Args:
+            serviceId: 服务ID（必填）
+            pageNumber: 页码，默认1（可选）
+            pageSize: 每页数量，默认10（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务变更记录列表
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeServiceChangelogs',
+            'serviceId': serviceId,
+            'pageNumber': pageNumber,
+            'pageSize': pageSize,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )
+
+    def DescribeServiceChangelog(
+        self,
+        changeId: str
+    ):
+        """
+        查询服务变更详情。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/vmb4vam48
+
+        Args:
+            changeId: 变更记录ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务变更详情
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeServiceChangelog',
+            'changeId': changeId,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )

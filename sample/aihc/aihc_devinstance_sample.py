@@ -99,6 +99,9 @@ def main():
     """
     # create a aihc client
     aihc_client = AihcClient(aihc_sample_conf.config)
+    
+    # 初始化变量
+    dev_instance_id = None
 
     # 查询开发机列表
     try:
@@ -106,6 +109,11 @@ def main():
         response = aihc_client.dev_instance.DescribeDevInstances()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeDevInstances: %s', response.__dict__.keys())
+        
+        # 获取第一个开发机实例ID用于后续操作
+        if hasattr(response, 'devInstances') and response.devInstances is not None and len(response.devInstances) > 0:
+            dev_instance_id = response.devInstances[0].id
+            
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -113,6 +121,50 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # 查询开发机详情
+    if dev_instance_id:
+        try:
+            __logger.info('--------------------------------DescribeDevInstance start...--------------------------------')
+            response = aihc_client.dev_instance.DescribeDevInstance(devInstanceId=dev_instance_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeDevInstance: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询开发机事件
+    if dev_instance_id:
+        try:
+            __logger.info('--------------------------------DescribeDevInstanceEvents start...--------------------------------')
+            response = aihc_client.dev_instance.DescribeDevInstanceEvents(devInstanceId=dev_instance_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeDevInstanceEvents: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询镜像任务详情
+    # 注意：这里需要有效的devInstanceId和imagePackJobId
+    # try:
+    #     __logger.info('--------------------------------DescribeDevInstanceImagePackJob start...--------------------------------')
+    #     response = aihc_client.dev_instance.DescribeDevInstanceImagePackJob(
+    #         devInstanceId="dv-xxxxxx",
+    #         imagePackJobId="job-xxxxxx"
+    #     )
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('DescribeDevInstanceImagePackJob: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
 
 if __name__ == '__main__':
     main()

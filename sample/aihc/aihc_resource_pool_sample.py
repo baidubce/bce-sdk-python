@@ -12,7 +12,7 @@
 AIHC客户端示例模块。
 
 本模块提供了百度云AIHC服务的完整使用示例，包括：
-- 服务管理：查询服务列表、服务详情、创建、更新、删除服务
+- 资源池管理：查询资源池列表、资源池详情、资源池概览、资源池配置、队列列表、队列详情
 - 错误处理：演示如何处理BCE客户端和服务器错误
 
 主要功能：
@@ -27,15 +27,14 @@ AIHC客户端示例模块。
 - 网络连接正常
 
 示例：
-    python aihc_service_sample.py
+    python aihc_resource_pool_sample.py
 
-    python -m sample.aihc.aihc_service_sample -v
+    python -m sample.aihc.aihc_resource_pool_sample -v
 """
 
 # !/usr/bin/env python
 # coding=utf-8
 from baidubce.exception import BceHttpClientError, BceServerError
-# from baidubce.services.aihc.aihc_model import JobConfig
 from baidubce.services.aihc.aihc_client import AihcClient
 
 import sample.aihc.aihc_sample_conf as aihc_sample_conf
@@ -80,16 +79,16 @@ def to_dict(obj):
 
 def main():
     """
-    主函数，演示AIHC服务的各种操作。
+    主函数，演示AIHC服务的资源池相关操作。
     
-    本函数展示了AihcClient的完整使用流程，包括：
+    本函数展示了AihcClient的资源池相关接口使用流程，包括：
     1. 创建AIHC客户端实例
-    2. 查询任务列表和详情
-    3. 查询各种资源列表（数据集、模型、服务、开发机）
-    4. 完整的错误处理机制
+    2. 查询资源池列表和详情
+    3. 查询资源池概览和配置信息
+    4. 查询队列列表和详情
+    5. 完整的错误处理机制
     
     注意：
-    - 部分功能（如创建、更新、删除任务）被注释掉，避免误操作
     - 所有API调用都包含完整的异常处理
     - 响应数据会被转换为JSON格式输出
     
@@ -101,19 +100,21 @@ def main():
     aihc_client = AihcClient(aihc_sample_conf.config)
     
     # 初始化变量
-    service_id = None
+    resource_pool_id = None
+    queue_id = None
 
-    # 查询服务列表
+    # 查询资源池列表
     try:
-        __logger.info('--------------------------------DescribeServices start...--------------------------------')
-        response = aihc_client.service.DescribeServices()   
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeServices: %s', response.__dict__.keys())
+        __logger.info('--------------------------------DescribeResourcePools start--------------------------------')
+        response = aihc_client.resource_pool.DescribeResourcePools()
+        print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+        __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
         
-        # 获取第一个服务ID用于后续操作
-        if hasattr(response, 'services') and response.services is not None and len(response.services) > 0:
-            service_id = response.services[0].id
-            
+        # 如果有资源池，获取第一个资源池ID用于后续查询
+        if hasattr(response, 'resourcePools') and len(response.resourcePools) > 0:
+            resource_pool_id = response.resourcePools[0].id
+            __logger.info('resource_pool_id: %s', resource_pool_id)
+        
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -121,13 +122,14 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询服务详情
-    if service_id:
+    # 如果获取到资源池ID，继续查询详情
+    if resource_pool_id:
+        # 查询资源池详情
         try:
-            __logger.info('--------------------------------DescribeService start...--------------------------------')
-            response = aihc_client.service.DescribeService(serviceId=service_id)
-            print(json.dumps(to_dict(response), ensure_ascii=False))
-            __logger.info('DescribeService: %s', response.__dict__.keys())
+            __logger.info('--------------------------------DescribeResourcePool start--------------------------------')
+            response = aihc_client.resource_pool.DescribeResourcePool(resourcePoolId=resource_pool_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+            __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -135,13 +137,12 @@ def main():
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询服务状态
-    if service_id:
+        # 查询资源池概览
         try:
-            __logger.info('--------------------------------DescribeServiceStatus start...--------------------------------')
-            response = aihc_client.service.DescribeServiceStatus(serviceId=service_id)
-            print(json.dumps(to_dict(response), ensure_ascii=False))
-            __logger.info('DescribeServiceStatus: %s', response.__dict__.keys())
+            __logger.info('--------------------------------DescribeResourcePoolOverview start--------------------------------')
+            response = aihc_client.resource_pool.DescribeResourcePoolOverview(resourcePoolId=resource_pool_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+            __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -149,13 +150,12 @@ def main():
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询服务Pod列表
-    if service_id:
+        # 查询资源池配置
         try:
-            __logger.info('--------------------------------DescribeServicePods start...--------------------------------')
-            response = aihc_client.service.DescribeServicePods(serviceId=service_id)
-            print(json.dumps(to_dict(response), ensure_ascii=False))
-            __logger.info('DescribeServicePods: %s', response.__dict__.keys())
+            __logger.info('--------------------------------DescribeResourcePoolConfiguration start--------------------------------')
+            response = aihc_client.resource_pool.DescribeResourcePoolConfiguration(resourcePoolId=resource_pool_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+            __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -163,13 +163,18 @@ def main():
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 获取实例组列表
-    if service_id:
+        # 查询队列列表
         try:
-            __logger.info('--------------------------------DescribeServicePodGroups start...--------------------------------')
-            response = aihc_client.service.DescribeServicePodGroups(serviceId=service_id)
-            print(json.dumps(to_dict(response), ensure_ascii=False))
-            __logger.info('DescribeServicePodGroups: %s', response.__dict__.keys())
+            __logger.info('--------------------------------DescribeQueues start--------------------------------')
+            response = aihc_client.resource_pool.DescribeQueues(resourcePoolId=resource_pool_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+            __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
+            
+            # 如果有队列，获取第一个队列ID用于后续查询
+            if hasattr(response, 'queues') and len(response.queues) > 0:
+                queue_id = response.queues[0].id
+                __logger.info('queue_id: %s', queue_id)
+                
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -177,19 +182,20 @@ def main():
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询服务变更记录
-    if service_id:
-        try:
-            __logger.info('--------------------------------DescribeServiceChangelogs start...--------------------------------')
-            response = aihc_client.service.DescribeServiceChangelogs(serviceId=service_id)
-            print(json.dumps(to_dict(response), ensure_ascii=False))
-            __logger.info('DescribeServiceChangelogs: %s', response.__dict__.keys())
-        except BceHttpClientError as e:
-            if isinstance(e.last_error, BceServerError):
-                __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-            else:
-                __logger.error('send request failed. Unknown exception: %s' % e)
+        # 如果获取到队列ID，查询队列详情
+        if queue_id:
+            try:
+                __logger.info('--------------------------------DescribeQueue start--------------------------------')
+                response = aihc_client.resource_pool.DescribeQueue(resourcePoolId=resource_pool_id, queueId=queue_id)
+                print(json.dumps(to_dict(response), ensure_ascii=False, indent=2))
+                __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
+            except BceHttpClientError as e:
+                if isinstance(e.last_error, BceServerError):
+                    __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                                   % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+                else:
+                    __logger.error('send request failed. Unknown exception: %s' % e)
+
 
 if __name__ == '__main__':
     main()

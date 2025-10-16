@@ -22,6 +22,7 @@ from baidubce.services.aihc.modules.dataset.dataset_client import DatasetClient
 from baidubce.services.aihc.modules.model.model_client import ModelClient
 from baidubce.services.aihc.modules.service.service_client import ServiceClient
 from baidubce.services.aihc.modules.dev_instance.dev_instance_client import DevInstanceClient
+from baidubce.services.aihc.modules.resource_pool.resource_pool_client import ResourcePoolClient
 
 
 def create_typed_proxy_method(target_client, method_name):
@@ -95,6 +96,7 @@ class AihcClient:
         self.model = ModelClient(config)
         self.service = ServiceClient(config)
         self.dev_instance = DevInstanceClient(config)
+        self.resource_pool = ResourcePoolClient(config)
         
         # 动态创建代理方法
         self._setup_proxy_methods()
@@ -107,9 +109,10 @@ class AihcClient:
         """
         # 任务相关接口
         job_methods = [
-            'DescribeJobs', 'DescribeJob', 'DeleteJob', 'ModifyJob', 
+            'DescribeJobs', 'DescribeJob', 'DeleteJob', 'ModifyJob',
             'DescribeJobEvents', 'DescribeJobLogs', 'DescribeJobPodEvents',
-            'StopJob', 'DescribeJobNodeNames', 'GetJobWebTerminalUrl', 'CreateJob'
+            'StopJob', 'DescribeJobNodes', 'DescribeJobWebterminal', 'CreateJob',
+            'DescribeJobMetrics'
         ]
         
         # 数据集相关接口
@@ -128,12 +131,24 @@ class AihcClient:
         
         # 在线服务相关接口
         service_methods = [
-            'DescribeServices', 'DescribeService', 'DescribeServiceStatus'
+            'DescribeServices', 'DescribeService', 'DescribeServiceStatus',
+            'CreateService', 'DeleteService', 'ModifyService', 'ModifyServiceReplicas', 'UpgradeService',
+            'DescribeServicePods', 'DeleteServicePod', 'DisableServicePod', 'ModifyServiceNetConfig',
+            'DescribeServicePodGroups', 'DescribeServiceChangelogs', 'DescribeServiceChangelog'
         ]
         
         # 开发机相关接口
         dev_instance_methods = [
-            'DescribeDevInstances', 'DescribeDevInstance', 'StartDevInstance', 'StopDevInstance'
+            'DescribeDevInstances', 'DescribeDevInstance', 'StartDevInstance', 'StopDevInstance',
+            'CreateDevInstance', 'DeleteDevInstance', 'ModifyDevInstance',
+            'DescribeDevInstanceEvents', 'CreateDevInstanceImagePackJob', 
+            'DescribeDevInstanceImagePackJob', 'TimedStopDevInstance'
+        ]
+        
+        # 资源池相关接口
+        resource_pool_methods = [
+            'DescribeResourcePools', 'DescribeResourcePool', 'DescribeResourcePoolOverview',
+            'DescribeResourcePoolConfiguration', 'DescribeQueues', 'DescribeQueue'
         ]
         
         # 为每个方法创建代理
@@ -150,4 +165,7 @@ class AihcClient:
             setattr(self, method_name, create_typed_proxy_method(self.service, method_name))
         
         for method_name in dev_instance_methods:
-            setattr(self, method_name, create_typed_proxy_method(self.dev_instance, method_name)) 
+            setattr(self, method_name, create_typed_proxy_method(self.dev_instance, method_name))
+        
+        for method_name in resource_pool_methods:
+            setattr(self, method_name, create_typed_proxy_method(self.resource_pool, method_name))

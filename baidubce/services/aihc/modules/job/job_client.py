@@ -273,7 +273,7 @@ class JobClient(AIHCBaseClient):
         """
         path = b'/'
         params = {
-            'action': 'DescribeJobPodEvents',
+            'action': 'DescribePodEvents',
             'resourcePoolId': resourcePoolId,
         }
         body = {
@@ -320,7 +320,7 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJobNodeNames(self, resourcePoolId, jobId):
+    def DescribeJobNodes(self, resourcePoolId, jobId):
         """
         查询训练任务所在节点列表。
 
@@ -335,7 +335,7 @@ class JobClient(AIHCBaseClient):
         """
         path = b'/'
         params = {
-            'action': 'DescribeJobNodeNames',
+            'action': 'DescribeJobNodes',
             'resourcePoolId': resourcePoolId,
         }
         body = {
@@ -348,7 +348,7 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def GetJobWebTerminalUrl(self, resourcePoolId, jobId, handshakeTimeoutSecond=None, pingTimeoutSecond=None):
+    def DescribeJobWebterminal(self, resourcePoolId, jobId, podName, handshakeTimeoutSecond=None, pingTimeoutSecond=None):
         """
         获取训练任务WebTerminal地址。
 
@@ -358,6 +358,8 @@ class JobClient(AIHCBaseClient):
         :type resourcePoolId: string
         :param jobId: 训练任务ID（必填，Body参数）
         :type jobId: string
+        :param podName: 训练任务节点名称（必填，Body参数）
+        :type podName: string
         :param handshakeTimeoutSecond: 连接超时参数，单位秒（可选，Body参数）
         :type handshakeTimeoutSecond: int
         :param pingTimeoutSecond: 心跳超时参数，单位秒（可选，Body参数）
@@ -367,11 +369,12 @@ class JobClient(AIHCBaseClient):
         """
         path = b'/'
         params = {
-            'action': 'GetJobWebTerminalUrl',
+            'action': 'DescribeJobWebterminal',
             'resourcePoolId': resourcePoolId,
         }
         body = {
             'jobId': jobId,
+            'podName': podName,
         }
         if handshakeTimeoutSecond is not None:
             body['handshakeTimeoutSecond'] = handshakeTimeoutSecond
@@ -385,7 +388,7 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def CreateJob(self, resourcePoolId, jobConfig):
+    def CreateJob(self, resourcePoolId, queueID, jobConfig):
         """
         创建训练任务。
 
@@ -393,7 +396,9 @@ class JobClient(AIHCBaseClient):
 
         :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
         :type resourcePoolId: string
-        :param jobConfig: 训练任务配置（必填，Body参数，dict类型，需包含jobName、image、resources等）
+        :param queueID: 训练任务所属队列，通用资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
+        :type queueID: string
+        :param jobConfig: 训练任务配置（必填，Body参数，dict类型，需包含name、command、jobSpec等）
         :type jobConfig: dict
         :return: 创建任务结果
         :rtype: baidubce.bce_response.BceResponse
@@ -402,6 +407,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'CreateJob',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = jobConfig
         return self._send_job_request(
@@ -409,4 +415,50 @@ class JobClient(AIHCBaseClient):
             path,
             body=json.dumps(body),
             params=params
-        ) 
+        )
+
+    def DescribeJobMetrics(
+        self,
+        resourcePoolId: str,
+        jobId: str,
+        metricType: Optional[str] = None,
+        startTime: Optional[str] = None,
+        endTime: Optional[str] = None
+    ):
+        """
+        查询训练任务监控。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/fmayvjaeq
+
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填）
+            jobId: 任务ID（必填）
+            metricType: 指标类型（可选）
+            startTime: 开始时间（可选）
+            endTime: 结束时间（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 返回训练任务指标数据
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeJobMetrics',
+            'resourcePoolId': resourcePoolId,
+        }
+        
+        body = {
+            'jobId': jobId,
+        }
+        if metricType is not None:
+            body['metricType'] = metricType
+        if startTime is not None:
+            body['startTime'] = startTime
+        if endTime is not None:
+            body['endTime'] = endTime
+
+        return self._send_job_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )

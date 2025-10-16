@@ -17,7 +17,7 @@ AIHC客户端示例模块。
 - 错误处理：演示如何处理BCE客户端和服务器错误
 
 主要功能：
-1. 演示AIHCV2Client的基本使用方法
+1. 演示AihcClient的基本使用方法
 2. 展示各种API调用的正确方式
 3. 提供完整的错误处理示例
 4. 展示响应数据的处理方式
@@ -34,8 +34,8 @@ AIHC客户端示例模块。
 # !/usr/bin/env python
 # coding=utf-8
 from baidubce.exception import BceHttpClientError, BceServerError
-from baidubce.services.aihc.aihc_model import JobConfig
-from baidubce.services.aihc.aihc_client import AIHCV2Client, aihc_model
+from baidubce.services.aihc.modules.job.job_model import JobConfig, JobSpec
+from baidubce.services.aihc.aihc_client import AihcClient
 
 import sample.aihc.aihc_sample_conf as aihc_sample_conf
 import json
@@ -81,8 +81,8 @@ def main():
     """
     主函数，演示AIHC服务的各种操作。
     
-    本函数展示了AIHCV2Client的完整使用流程，包括：
-    1. 创建AIHC客户端实例
+    本函数展示了AihcClient的完整使用流程，包括：
+    1. 创建Aihc客户端实例
     2. 查询任务列表和详情
     3. 查询各种资源列表（数据集、模型、服务、开发机）
     4. 完整的错误处理机制
@@ -100,7 +100,7 @@ def main():
     jobId = "job-1234567890"
 
     # create a aihc client
-    aihc_client = AIHCV2Client(aihc_sample_conf.config)
+    aihc_client = AihcClient(aihc_sample_conf.config)
 
     # 查询任务列表
     try:
@@ -159,16 +159,16 @@ def main():
 
     # 创建任务
     # try:
-    #     jobConfig = aihc_model.JobConfig(
+    #     jobConfig = dict(
     #         name="test-job",
-    #         queue="test-queue",
-    #         jobSpec=aihc_model.JobSpec(
-    #             image="test-image",
-    #             replicas=1
-    #         ),
+    #         jobSpec={
+    #             "image": "test-image",
+    #             "replicas": 1
+    #         },
     #         command="python train.py"
     #     )
-    #     response = aihc_client.CreateJob(resourcePoolId=resourcePoolId, jobConfig=jobConfig)
+    #     queueID = "test-queue"  # 通用资源池填队列名称，托管资源池填队列Id
+    #     response = aihc_client.job.CreateJob(resourcePoolId=resourcePoolId, queueID=queueID, jobConfig=jobConfig)
     #     print(response)
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
@@ -222,6 +222,19 @@ def main():
         response = aihc_client.dev_instance.DescribeDevInstances()
         print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
         __logger.info('DescribeDevInstances: %s', response.__dict__.keys())
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询资源池列表
+    try:
+        __logger.info('--------------------------------DescribeResourcePools start...--------------------------------')
+        response = aihc_client.resource_pool.DescribeResourcePools()
+        print(json.dumps(to_dict(response), indent=4, ensure_ascii=False))
+        __logger.info('DescribeResourcePools: %s', response.__dict__.keys())
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'

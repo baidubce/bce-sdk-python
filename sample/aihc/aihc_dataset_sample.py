@@ -78,7 +78,7 @@ def to_dict(obj):
         return obj
 
 
-def main():
+def main(ModifyDataset=False, DeleteDataset=False):
     """
     主函数，演示AIHC服务的各种操作。
     
@@ -110,7 +110,8 @@ def main():
         response = aihc_client.dataset.DescribeDatasets()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeDatasets: %s', response.__dict__.keys())
-        dataset_id = response.datasets[0].id
+        if hasattr(response, 'datasets') and response.datasets is not None and len(response.datasets) > 0:
+            dataset_id = response.datasets[0].id
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -119,57 +120,77 @@ def main():
             __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 查询数据集详情
-    try:
-        __logger.info('--------------------DescribeDataset start--------------------')
-        response = aihc_client.dataset.DescribeDataset(datasetId=dataset_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeDataset: %s', response.__dict__.keys())
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if dataset_id:
+        try:
+            __logger.info('--------------------DescribeDataset start--------------------')
+            response = aihc_client.dataset.DescribeDataset(datasetId=dataset_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeDataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 获取数据集版本列表
-    try:
-        __logger.info('--------------------DescribeDatasetVersions start--------------------')
-        response = aihc_client.dataset.DescribeDatasetVersions(datasetId=dataset_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeDatasetVersions: %s', response.__dict__.keys())
-        version_id = response.versions[0].id
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if dataset_id:
+        try:
+            __logger.info('--------------------DescribeDatasetVersions start--------------------')
+            response = aihc_client.dataset.DescribeDatasetVersions(datasetId=dataset_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeDatasetVersions: %s', response.__dict__.keys())
+            if hasattr(response, 'versions') and response.versions is not None and len(response.versions) > 0:
+                version_id = response.versions[0].id
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 获取数据集版本详情
-    try:
-        __logger.info('--------------------DescribeDatasetVersion start--------------------')
-        response = aihc_client.dataset.DescribeDatasetVersion(datasetId=dataset_id, versionId=version_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeDatasetVersion: %s', response.__dict__.keys())
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if dataset_id and version_id:
+        try:
+            __logger.info('--------------------DescribeDatasetVersion start--------------------')
+            response = aihc_client.dataset.DescribeDatasetVersion(datasetId=dataset_id, versionId=version_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeDatasetVersion: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 修改数据集
-    try:
-        __logger.info('--------------------ModifyDataset start--------------------')
-        response = aihc_client.dataset.ModifyDataset(datasetId=dataset_id, name='test_dataset_2xxx')
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('ModifyDataset: %s', response.__dict__.keys())
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if dataset_id and ModifyDataset:
+        try:
+            __logger.info('--------------------ModifyDataset start--------------------')
+            response = aihc_client.dataset.ModifyDataset(datasetId=dataset_id, name='test_dataset_2xxx')
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('ModifyDataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 删除数据集
+    if dataset_id and DeleteDataset:
+        try:
+            __logger.info('--------------------DeleteDataset start--------------------')
+            response = aihc_client.dataset.DeleteDataset(datasetId=dataset_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DeleteDataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
 if __name__ == '__main__':
-    main()
+    # main(ModifyDataset=True, DeleteDataset=True)
+    main(ModifyDataset=False, DeleteDataset=False)

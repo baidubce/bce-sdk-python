@@ -97,11 +97,26 @@ def main():
         BceHttpClientError: 当API调用失败时抛出
         BceServerError: 当服务器返回错误时抛出
     """
-    resourcePoolId = "cce-hcuw9ybk"
-    jobId = "job-1234567890"
+    resourcePoolId = ''
+    jobId = ''
 
     # create a aihc client
     aihc_client = AihcClient(aihc_sample_conf.config)
+
+    # 查询资源池列表
+    try:
+        __logger.info('--------------------------------DescribeResourcePools start--------------------------------')
+        response = aihc_client.resource_pool.DescribeResourcePools()
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+        __logger.info('DescribeResourcePools: %s', response.__dict__.keys())
+        resourcePoolId = response.resourcePools[0].id
+        __logger.info('resourcePoolId: %s', resourcePoolId)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 查询任务列表
     try:
@@ -136,6 +151,20 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # 查询任务指标
+    try:
+        __logger.info('--------------------------------DescribeJobMetrics start...--------------------------------')
+        response = aihc_client.job.DescribeJobMetrics(resourcePoolId=resourcePoolId, jobId=jobId)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+
+        __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
     # 删除任务
     # try:
     #     response = aihc_client.DeleteJob(resourcePoolId=resourcePoolId, jobId=jobId)
@@ -160,16 +189,16 @@ def main():
 
     # 创建任务
     # try:
-    #     jobConfig = aihc_model.JobConfig(
+    #     jobConfig = dict(
     #         name="test-job",
-    #         queue="test-queue",
-    #         jobSpec=aihc_model.JobSpec(
-    #             image="test-image",
-    #             replicas=1
-    #         ),
+    #         jobSpec={
+    #             "image": "test-image",
+    #             "replicas": 1
+    #         },
     #         command="python train.py"
     #     )
-    #     response = aihc_client.CreateJob(resourcePoolId=resourcePoolId, jobConfig=jobConfig)
+    #     queueID = "test-queue"  # 通用资源池填队列名称，托管资源池填队列Id
+    #     response = aihc_client.job.CreateJob(resourcePoolId=resourcePoolId, queueID=queueID, jobConfig=jobConfig)
     #     print(response)
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):

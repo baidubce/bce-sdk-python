@@ -78,7 +78,7 @@ def to_dict(obj):
         return obj
 
 
-def main():
+def main(ModifyModel=False, DeleteModel=False):
     """
     主函数，演示AIHC服务的各种操作。
     
@@ -110,7 +110,8 @@ def main():
         response = aihc_client.model.DescribeModels()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeModels: %s', response.__dict__.keys())
-        model_id = response.models[0].id
+        if hasattr(response, 'models') and response.models is not None and len(response.models) > 0:
+            model_id = response.models[0].id
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -119,45 +120,47 @@ def main():
             __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 查询模型详情
-    try:
-        __logger.info('--------------------DescribeModel start--------------------')
-        response = aihc_client.model.DescribeModel(modelId=model_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeModel: %s', response.__dict__.keys())
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if model_id and ModifyModel:
+        try:
+            __logger.info('--------------------DescribeModel start--------------------')
+            response = aihc_client.model.DescribeModel(modelId=model_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DescribeModel: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 查询模型版本列表
-    try:
-        __logger.info('--------------------DescribeModelVersions start--------------------')
-        response = aihc_client.model.DescribeModelVersions(modelId=model_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeModelVersions: %s', response.__dict__.keys())
-        version_id = response.versions[0].id
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
+    if model_id and DeleteModel:
+        try:
+            __logger.info('--------------------DeleteModel start--------------------')
+            response = aihc_client.model.DeleteModel(modelId=model_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DeleteModel: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
     # 查询模型版本详情
-    try:
-        __logger.info('--------------------DescribeModelVersion start--------------------')
-        response = aihc_client.model.DescribeModelVersion(modelId=model_id, versionId=version_id)
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeModelVersion: %s', response.__dict__.keys())
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
-                        
+    if model_id and version_id and DeleteModel:
+        try:
+            __logger.info('--------------------DeleteModelVersion start--------------------')
+            response = aihc_client.model.DeleteModelVersion(modelId=model_id, versionId=version_id)
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('DeleteModelVersion: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
 
 if __name__ == '__main__':
-    main()
+    # main(ModifyModel=True, DeleteModel=True)
+    main(ModifyModel=False, DeleteModel=False)

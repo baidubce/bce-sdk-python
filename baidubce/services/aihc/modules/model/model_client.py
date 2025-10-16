@@ -14,6 +14,7 @@
 AIHC model client module.
 """
 import json
+from typing import Optional
 
 from baidubce.http import http_methods
 from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
@@ -289,4 +290,5 @@ class ModelClient(AIHCBaseClient):
             http_methods.POST,
             path,
             params=params
-        ) 
+        )
+

@@ -13,6 +13,8 @@
 """
 AIHC dev instance client module.
 """
+from typing import Optional
+
 from baidubce.http import http_methods
 from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 
@@ -143,4 +145,246 @@ class DevInstanceClient(AIHCBaseClient):
             http_methods.POST,
             path,
             params=params
-        ) 
+        )
+
+    def CreateDevInstance(
+        self,
+        name: str,
+        resourcePoolId: str,
+        instanceType: str,
+        image: str,
+        storageSize: int,
+        description: Optional[str] = None
+    ):
+        """
+        创建开发机实例。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            name: 实例名称（必填）
+            resourcePoolId: 资源池ID（必填）
+            instanceType: 实例类型（必填）
+            image: 镜像（必填）
+            storageSize: 存储大小（必填）
+            description: 描述（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 创建结果
+        """
+        path = b'/'
+        params = {
+            'action': 'CreateDevInstance',
+        }
+        
+        body = {
+            'name': name,
+            'resourcePoolId': resourcePoolId,
+            'instanceType': instanceType,
+            'image': image,
+            'storageSize': storageSize,
+        }
+        if description is not None:
+            body['description'] = description
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def DeleteDevInstance(
+        self,
+        devInstanceId: str
+    ):
+        """
+        删除开发机实例。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            devInstanceId: 开发机实例ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 删除结果
+        """
+        path = b'/'
+        params = {
+            'action': 'DeleteDevInstance',
+            'devInstanceId': devInstanceId,
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            params=params
+        )
+
+    def ModifyDevInstance(
+        self,
+        devInstanceId: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        instanceType: Optional[str] = None
+    ):
+        """
+        修改开发机实例。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            devInstanceId: 开发机实例ID（必填）
+            name: 实例名称（可选）
+            description: 描述（可选）
+            instanceType: 实例类型（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 修改结果
+        """
+        path = b'/'
+        params = {
+            'action': 'ModifyDevInstance',
+            'devInstanceId': devInstanceId,
+        }
+        
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if instanceType is not None:
+            body['instanceType'] = instanceType
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def DescribeDevInstanceEvents(
+        self,
+        devInstanceId: str,
+        pageNumber: int = 1,
+        pageSize: int = 10
+    ):
+        """
+        查询开发机事件。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+
+        Args:
+            devInstanceId: 开发机实例ID（必填）
+            pageNumber: 页码，默认1（可选）
+            pageSize: 每页数量，默认10（可选）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 开发机事件列表
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeDevInstanceEvents',
+            'devInstanceId': devInstanceId,
+            'pageNumber': pageNumber,
+            'pageSize': pageSize,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )
+
+    def CreateDevInstanceImagePackJob(
+        self,
+        devInstanceId: str,
+        **kwargs
+    ):
+        """
+        制作开发机镜像。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Pmbkpvfme
+
+        Args:
+            devInstanceId: 开发机实例ID（必填）
+            **kwargs: 镜像参数
+
+        Returns:
+            baidubce.bce_response.BceResponse: 镜像创建结果
+        """
+        path = b'/'
+        params = {
+            'action': 'CreateDevInstanceImagePackJob',
+        }
+        
+        body = {
+            'devInstanceId': devInstanceId,
+            **kwargs
+        }
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
+
+    def DescribeDevInstanceImagePackJob(
+        self,
+        devInstanceId: str,
+        imagePackJobId: str
+    ):
+        """
+        查询镜像任务详情。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/tmbkpxfhk
+
+        Args:
+            devInstanceId: 开发机实例ID（必填）
+            imagePackJobId: 镜像打包任务ID（必填）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 镜像任务详情
+        """
+        path = b'/'
+        params = {
+            'action': 'DescribeDevInstanceImagePackJob',
+            'devInstanceId': devInstanceId,
+            'imagePackJobId': imagePackJobId,
+        }
+
+        return self._send_request(
+            http_methods.GET,
+            path,
+            params=params
+        )
+
+    def TimedStopDevInstance(
+        self,
+        **kwargs
+    ):
+        """
+        定时停止实例。
+
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Nmbkpt9mr
+
+        Args:
+            **kwargs: 定时停止参数（包含devInstanceId等）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 定时停止配置结果
+        """
+        path = b'/'
+        params = {
+            'action': 'TimedStopDevInstance',
+        }
+        
+        body = kwargs
+
+        return self._send_request(
+            http_methods.POST,
+            path,
+            body=json.dumps(body),
+            params=params
+        )
