@@ -135,7 +135,7 @@ class AihcClient(bce_base_client.BceBaseClient):
         queue=None,
         status=None,
         keywordType=None,
-        keywork=None,
+        keyword=None,
         orderBy=None,
         order=None,
         pageNumber=1,
@@ -166,9 +166,9 @@ class AihcClient(bce_base_client.BceBaseClient):
             筛选关键字类型（可选，Body参数）
         :type keywordType: string
 
-        :param keywork:
+        :param keyword:
             关键字值，当前仅支持name/queueName（可选，Body参数）
-        :type keywork: string
+        :type keyword: string
 
         :param orderBy:
             排序字段，支持createdAt，finishedAt，默认为createdAt（可选，Body参数）
@@ -205,8 +205,8 @@ class AihcClient(bce_base_client.BceBaseClient):
             body['status'] = status
         if keywordType is not None:
             body['keywordType'] = keywordType
-        if keywork is not None:
-            body['keywork'] = keywork
+        if keyword is not None:
+            body['keyword'] = keyword
         if orderBy is not None:
             body['orderBy'] = orderBy
         if order is not None:

@@ -32,7 +32,7 @@ class JobClient(AIHCBaseClient):
         queue: Optional[str] = None,
         status: Optional[str] = None,
         keywordType: Optional[str] = None,
-        keywork: Optional[str] = None,
+        keyword: Optional[str] = None,
         orderBy: Optional[str] = None,
         order: Optional[str] = None,
         pageNumber: int = 1,
@@ -49,7 +49,7 @@ class JobClient(AIHCBaseClient):
             queue: 训练任务所属队列，通用资源池须填入队列名称，不填时返回所有。托管资源池须填入队列Id（可选，Body参数）
             status: 基于状态筛选任务（可选，Body参数）
             keywordType: 筛选关键字类型（可选，Body参数）
-            keywork: 关键字值，当前仅支持name/queueName（可选，Body参数）
+            keyword: 关键字值，当前仅支持name/queueName（可选，Body参数）
             orderBy: 排序字段，支持createdAt，finishedAt，默认为createdAt（可选，Body参数）
             order: 排序方式，可选 [asc, desc]，asc为升序，desc为降序，默认desc（可选，Body参数）
             pageNumber: 请求分页参数，表示第几页（可选，Body参数）
@@ -77,8 +77,8 @@ class JobClient(AIHCBaseClient):
             body['status'] = status
         if keywordType is not None:
             body['keywordType'] = keywordType
-        if keywork is not None:
-            body['keywork'] = keywork
+        if keyword is not None:
+            body['keyword'] = keyword
         if orderBy is not None:
             body['orderBy'] = orderBy
         if order is not None:
