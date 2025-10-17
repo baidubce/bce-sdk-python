@@ -104,19 +104,19 @@ class TestAIHCClient(unittest.TestCase):
                 self.assertIsInstance(response.requestId, str)
                 self.assertIsInstance(response.totalCount, int)
             else:
-                self.fail("⚠️  响应结果为空")
+                self.fail("WARNING: 响应结果为空")
                 
         except BceServerError as e:
-            print(f"❌ 服务器错误: {e}")
+            print(f"[ERROR] 服务器错误: {e}")
             # 服务器错误说明请求到达了服务器，这是好的
             self.assertIn("ResourcePool", str(e))
             
         except BceHttpClientError as e:
-            print(f"❌ HTTP客户端错误: {e}")
+            print(f"[ERROR] HTTP客户端错误: {e}")
             # HTTP错误也说明进行了网络请求
             
         except Exception as e:
-            print(f"❌ 其他错误: {type(e).__name__}: {e}")
+            print(f"[ERROR] 其他错误: {type(e).__name__}: {e}")
             self.fail(f"意外的错误类型: {type(e).__name__}")
 
     def test_describe_job(self):
@@ -133,28 +133,28 @@ class TestAIHCClient(unittest.TestCase):
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
             
             if hasattr(response, 'requestId') and hasattr(response, 'jobId'):
-                print(f"✅ 响应包含数据: jobId={response.jobId}, requestId={response.requestId}")
+                print(f"[SUCCESS] 响应包含数据: jobId={response.jobId}, requestId={response.requestId}")
                 self.assertIsInstance(response.jobId, str)
                 self.assertIsInstance(response.requestId, str)
             else:
-                print("⚠️  响应结果为空或缺少必要字段")
-                self.fail("⚠️  响应结果为空或缺少必要字段")
+                print("[WARNING] 响应结果为空或缺少必要字段")
+                self.fail("[WARNING] 响应结果为空或缺少必要字段")
                 
         except BceServerError as e:
-            print(f"❌ 服务器错误: {e}")
+            print(f"[ERROR] 服务器错误: {e}")
             # 如果任务不存在，这是预期的
             if "not found" in str(e).lower():
-                print("⚠️  任务不存在，可能需要更新job_id")
-                self.fail("⚠️  任务不存在，可能需要更新job_id")
+                print("[WARNING] 任务不存在，可能需要更新job_id")
+                self.fail("[WARNING] 任务不存在，可能需要更新job_id")
                 
         except BceHttpClientError as e:
-            print(f"❌ HTTP客户端错误: {e}")
+            print(f"[ERROR] HTTP客户端错误: {e}")
             # 检查是否是包装的服务器错误
             if "not found" in str(e).lower():
-                print("⚠️  任务不存在 (通过HTTP客户端错误)")
-                self.fail("⚠️  任务不存在 (通过HTTP客户端错误)")
+                print("[WARNING] 任务不存在 (通过HTTP客户端错误)")
+                self.fail("[WARNING] 任务不存在 (通过HTTP客户端错误)")
         except Exception as e:
-            print(f"❌ 其他错误: {type(e).__name__}: {e}")
+            print(f"[ERROR] 其他错误: {type(e).__name__}: {e}")
             self.fail(f"意外的错误类型: {type(e).__name__}")
 
     def test_create_job(self):
