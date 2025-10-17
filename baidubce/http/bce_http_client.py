@@ -229,7 +229,10 @@ def send_request(
             _logger.debug(
                 'request return: status=%d, headers=%s' % (http_response.status, headers_list))
             response = BceResponse()
-            response.set_metadata_from_headers(dict(headers_list))
+            if config.under_line_headers:
+                response.set_metadata_from_headers(dict(headers_list))
+            else:
+                response.set_metadata_from_headers_no_underlined(dict(headers_list))
             if config.auto_follow_redirect:
                 if http_method == b'GET' and  300 <= http_response.status < 400:
                     headers_map = {k: v for k, v in headers_list}

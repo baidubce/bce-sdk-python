@@ -2346,6 +2346,28 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_list_task(self) :
+        start_time = "2025-08-02T14:20:00Z"
+        resp = self.client.list_task(start_time=start_time)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_get_task(self) :
+        task_ids = ["t-taskId"]
+        resp = self.client.get_task(task_ids)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 

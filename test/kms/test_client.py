@@ -22,6 +22,7 @@ import uuid
 import importlib
 import base64
 import json
+import hashlib
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Cipher import AES
@@ -102,6 +103,94 @@ class TestKmsClient(unittest.TestCase):
         keyId = "<your Key Id>"
         ciphertext = "CAESJDUxMWU3OWY2LTI2ZTktYjAzNy0xNTE0LTk4ZDVjMmEyOGE2MxogPIgjk/0r3ZIHFdikZbuoo6NBTgP8lkMp+V3eaXqQ22ggAP/2QYj73LZz/G2LKZhJM74="
         print self.client.decrypt(keyId, ciphertext)
+
+    def test_sign(self):
+        """
+        test case for sign
+        """
+        keyId = "<your Key Id>"
+        keyVersion = "MjEzNTk0MTc4OA=="
+
+        # Test RAW message type
+        raw_message = base64.b64encode(b"aGVsbG8gd29ybGQh")
+
+        # Test without keyVersion
+        result = self.client.sign(
+            keyId=keyId,
+            algorithm="RSA_PKCS1_SHA_256",
+            message=raw_message,
+            messageType="RAW"
+        )
+        print "RAW signature:", str(result.signature)
+
+        # Test with keyVersion
+        result_with_version = self.client.sign(
+            keyId=keyId,
+            algorithm="RSA_PKCS1_SHA_256",
+            message=raw_message,
+            keyVersion=keyVersion,
+            messageType="RAW"
+        )
+        print "RAW signature with version:", str(result_with_version.signature)
+
+        # Test DIGEST message type (32 bytes)
+        digest = hashlib.sha256(b"aGVsbG8gd29ybGQh").digest()
+        digest_message = base64.b64encode(digest)
+
+        digest_result = self.client.sign(
+            keyId=keyId,
+            algorithm="RSA_PKCS1_SHA_256",
+            message=digest_message,
+            messageType="DIGEST"
+        )
+        print "DIGEST signature:", str(digest_result.signature)
+
+        # Test DIGEST with keyVersion
+        digest_result_with_version = self.client.sign(
+            keyId=keyId,
+            algorithm="RSA_PKCS1_SHA_256",
+            message=digest_message,
+            keyVersion=keyVersion,
+            messageType="DIGEST"
+        )
+        print "DIGEST signature with version:", str(digest_result_with_version.signature)
+
+    def test_verify(self):
+        """
+        test case for verify
+        """
+        keyId = "<your Key Id>"
+        message = base64.b64encode(b"aGVsbG8gd29ybGQh")
+        keyVersion = "MjEzNTk0MTc4OA=="
+
+        # First sign a message to get signature
+        sign_result = self.client.sign(
+            keyId=keyId,
+            algorithm="RSA_PKCS1_SHA_256",
+            message=message
+        )
+
+        # Ensure signature is str type (not unicode)
+        signature = str(sign_result.signature)
+
+        # Test verify without keyVersion
+        verify_result = self.client.verify(
+            keyId=str(keyId),
+            algorithm=str("RSA_PKCS1_SHA_256"),
+            signature=signature,
+            message=str(message)
+        )
+        print str(verify_result.signature_valid)
+
+        # Test verify with keyVersion
+        verify_result_with_version = self.client.verify(
+            keyId=str(keyId),
+            algorithm=str("RSA_PKCS1_SHA_256"),
+            signature=signature,
+            message=str(message),
+            keyVersion=str(keyVersion) if keyVersion else None
+        )
+        print str(verify_result_with_version.signature_valid)
 
     def test_generate_dataKey(self):
         """

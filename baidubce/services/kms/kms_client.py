@@ -20,6 +20,7 @@ import logging
 import random
 import string
 import uuid
+import binascii
 
 from baidubce.bce_base_client import BceBaseClient
 from baidubce.utils import required
@@ -160,6 +161,121 @@ class KmsClient(BceBaseClient):
             base64.b64decode(ciphertext)
         except TypeError:
             raise TypeError("please input base64 string")
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keyId=(str, bytes), algorithm=(str, bytes), message=(str, bytes))
+    def sign(self, keyId, algorithm, message, keyVersion=None, messageType='RAW', config=None):
+        """
+        Sign the message using asymmetric key
+        :type keyId: string
+        :param keyId: indicate which masterkey to use for signing
+
+        :type algorithm: string
+        :param algorithm: signing algorithm (RSA_PKCS1_SHA_256/SM2DSA)
+
+        :type message: string
+        :param message: message to sign (Base64 encoded)
+
+        :type keyVersion: string
+        :param keyVersion: key version (optional)
+
+        :type messageType: string
+        :param messageType: message type (RAW/DIGEST, default RAW)
+        :raises: ValueError if message length or format is invalid
+        """
+        if messageType not in ('RAW', 'DIGEST'):
+            raise ValueError("messageType must be either 'RAW' or 'DIGEST'")
+
+        # Validate message length based on type
+        if messageType == 'RAW':
+             if len(message) > 4096:
+                raise ValueError("Base64 encoded RAW message length must be <= 4096 bytes")
+        elif messageType == 'DIGEST':
+            try:
+                decoded = base64.b64decode(message)
+                if len(decoded) != 32:
+                    raise ValueError("Digest length must be 32 bytes after base64 decoding")
+            except (binascii.Error, TypeError):
+                raise ValueError("message must be base64 encoded")
+        path = b'/'
+        params = {}
+        params['action'] = b'Sign'
+        body = {
+            'keyId': keyId,
+            'algorithm': algorithm,
+            'message': message,
+            'messageType': messageType
+        }
+        if keyVersion:
+            body['keyVersion'] = keyVersion
+
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    @required(keyId=(str, bytes), algorithm=(str, bytes), signature=(str, bytes), message=(str, bytes))
+    def verify(self, keyId, algorithm, signature, message, keyVersion=None, messageType='RAW', config=None):
+        """
+        Verify the signature using asymmetric key
+        :type keyId: string
+        :param keyId: indicate which masterkey to use for verification
+
+        :type algorithm: string
+        :param algorithm: signing algorithm (RSA_PKCS1_SHA_256/SM2DSA)
+
+        :type signature: string
+        :param signature: signature to verify (Base64 encoded)
+
+        :type message: string
+        :param message: original message (Base64 encoded)
+
+        :type keyVersion: string
+        :param keyVersion: key version (optional)
+
+        :type messageType: string
+        :param messageType: message type (RAW/DIGEST, default RAW)
+        """
+        # Validate message type
+        if messageType not in ('RAW', 'DIGEST'):
+            raise ValueError("messageType must be either 'RAW' or 'DIGEST'")
+
+        # Validate message length based on type
+        if messageType == 'RAW':
+            if len(message) > 4096:
+                raise ValueError("Base64 encoded RAW message length must be <= 4096 bytes")
+        elif messageType == 'DIGEST':
+            try:
+                decoded = base64.b64decode(message)
+                if len(decoded) != 32:
+                    raise ValueError("Digest length must be 32 bytes after base64 decoding")
+            except (binascii.Error, TypeError):
+                raise ValueError("message must be base64 encoded")
+
+        # Validate signature length
+        try:
+            base64.b64decode(signature)
+        except (binascii.Error, TypeError):
+            raise ValueError("signature must be base64 encoded")
+
+        path = b'/'
+        params = {}
+        params['action'] = b'Verify'
+        body = {
+            'keyId': keyId,
+            'algorithm': algorithm,
+            'signature': signature,
+            'message': message,
+            'messageType': messageType
+        }
+        if keyVersion:
+            body['keyVersion'] = keyVersion
+
+        try:
+            base64.b64decode(message)
+            base64.b64decode(signature)
+        except (binascii.Error, TypeError):
+            raise ValueError("message and signature must be base64 encoded")
+
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 

@@ -25,6 +25,7 @@ import string
 import uuid
 
 from baidubce import bce_base_client
+from baidubce import compat
 from baidubce.auth import bce_v1_signer
 from baidubce.http import bce_http_client
 from baidubce.http import handler
@@ -32,7 +33,6 @@ from baidubce.http import http_methods
 from baidubce.services.bcc import bcc_model
 from baidubce.utils import aes128_encrypt_16char_key
 from baidubce.utils import required
-from baidubce import compat
 
 _logger = logging.getLogger(__name__)
 
@@ -6988,7 +6988,6 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
-
     def bind_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None, config=None):
         """
                 绑定安全组。
@@ -7015,7 +7014,6 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
-
 
     def replace_sg(self, instance_ids, security_group_ids, security_group_type, client_token=None, config=None):
         """
@@ -7609,6 +7607,70 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         return self._send_action_request(http_methods.POST, path, json.dumps(body),
                                          params=params, config=config)
+
+    def get_task(self, task_ids, max_keys=100, config=None):
+        """
+        get_task
+
+        :param task_ids:
+            task_ids to be used to query the task
+        :type task_ids: list of string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 100.
+        :type max_keys: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/task/detail'
+        params = {}
+
+        body = {
+            "taskIds": task_ids,
+            "maxKeys": max_keys
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def list_task(self, max_keys=10, task_ids=None, task_action=None, task_status=None, resource_ids=None,
+                  start_time=None, end_time=None, config=None):
+        """
+        list_task
+
+        :param task_ids:
+            task_ids to be used to query the task
+        :param task_action:
+            task_action to be used to query the task
+        :param task_status:
+            task_status to be used to query the task
+        :param start_time:
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :param end_time:
+            The format is yyyy-MM-dd'T'HH: mm: ss'Z ', if it is empty, query the operation log of the day
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+            The default value is 10.
+        :param config:
+        :return:
+
+        """
+        path = b'/task/list'
+        params = {}
+
+        body = {
+            "taskIds": task_ids,
+            "taskAction": task_action,
+            "taskStatus": task_status,
+            "startTime": start_time,
+            "endTime": end_time,
+            "resourceIds": resource_ids,
+            "maxKeys": max_keys,
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
 
 def generate_client_token_by_uuid():
     """

@@ -2650,9 +2650,11 @@ class BosClient(BceBaseClient):
 
         if user_metadata is not None:
             meta_size = 0
+            meta_data_set = set()
             if not isinstance(user_metadata, dict):
                 raise TypeError('user_metadata should be of type dict.')
             for k, v in iteritems(user_metadata):
+                meta_data_set.add(k.lower())
                 k = utils.convert_to_standard_string(k)
                 v = utils.convert_to_standard_string(v)
                 normalized_key = http_headers.BCE_USER_METADATA_PREFIX + k
@@ -2662,6 +2664,8 @@ class BosClient(BceBaseClient):
             if meta_size > bos.MAX_USER_METADATA_SIZE:
                 raise ValueError(
                     'Metadata size should not be greater than %d.' % bos.MAX_USER_METADATA_SIZE)
+            if len(meta_data_set) != len(user_metadata):
+                raise ValueError('user_metadata has duplicate elements.')
 
         if storage_class is not None:
             headers[http_headers.BOS_STORAGE_CLASS] = storage_class
@@ -2835,7 +2839,7 @@ class BosClient(BceBaseClient):
             if BosClient._need_retry_backup_endpoint(e.last_error):
                 _logger.debug(b'Retry for backup endpoint.')
                 path = BosClient._get_path(config, bucket_name, key, True)
-                return bce_http_client.send_request(
+                return bce_http_client.send_request_no_underlined(
                     config, bce_v1_signer.sign, [handler.parse_error, body_parser],
                     http_method, path, body, headers, params, True)
             else:
