@@ -186,18 +186,30 @@ class JobClient(AIHCBaseClient):
         }
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def DescribeJobEvents(self, resourcePoolId, jobId):
+    def DescribeJobEvents(
+        self,
+        resourcePoolId: str,
+        jobId: str,
+        startTime: Optional[str] = None,
+        endTime: Optional[str] = None
+    ):
         """
         查询训练任务事件。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/fmayvjaeq
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :return: 事件列表
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+            startTime: 获取任务事件的起始时间（可选，Body参数）
+            endTime: 获取任务事件的结束时间（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 训练任务事件结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -207,6 +219,10 @@ class JobClient(AIHCBaseClient):
         body = {
             'jobId': jobId,
         }
+        if startTime is not None:
+            body['startTime'] = startTime
+        if endTime is not None:
+            body['endTime'] = endTime
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
     def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None,
