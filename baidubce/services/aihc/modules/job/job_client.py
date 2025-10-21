@@ -160,20 +160,23 @@ class JobClient(AIHCBaseClient):
         }
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def ModifyJob(self, resourcePoolId, jobId, priority):
+    def ModifyJob(self, resourcePoolId: str, jobId: str, priority: str):
         """
         更新训练任务。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Smayvhq0w
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :param priority: 优先级（必填，Body参数），如 "normal"
-        :type priority: string
-        :return: 更新结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+            priority: 优先级（必填，Body参数），如 "normal"
+
+        Returns:
+            baidubce.bce_response.BceResponse: 更新任务结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -564,6 +567,7 @@ class JobClient(AIHCBaseClient):
             'action': 'DescribeJobMetrics',
             'resourcePoolId': resourcePoolId,
         }
+
         body = {
             'jobId': jobId,
             'metricType': metricType,
