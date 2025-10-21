@@ -225,31 +225,40 @@ class JobClient(AIHCBaseClient):
             body['endTime'] = endTime
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None,
-                        startTime=None, endTime=None, chunkSize=None, marker=None):
+    def DescribeJobLogs(
+        self,
+        resourcePoolId: str,
+        jobId: str,
+        podName: str,
+        keywords: Optional[str] = None,
+        startTime: Optional[str] = None,
+        endTime: Optional[str] = None,
+        maxLines: Optional[str] = None,
+        chunkSize: Optional[str] = None,
+        marker: Optional[str] = None
+    ):
         """
         查询训练任务日志。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Hmayvkw26
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :param podName: Pod名称（可选，Body参数）
-        :type podName: string
-        :param logType: 日志类型，如"stdout"、"stderr"（可选，Body参数）
-        :type logType: string
-        :param startTime: 日志起始时间，格式"yyyy-MM-dd HH:mm:ss"（可选，Body参数）
-        :type startTime: string
-        :param endTime: 日志结束时间，格式"yyyy-MM-dd HH:mm:ss"（可选，Body参数）
-        :type endTime: string
-        :param chunkSize: 日志聚合条数，默认1（可选，Body参数）
-        :type chunkSize: int
-        :param marker: 日志查询标识符（可选，Body参数）
-        :type marker: string
-        :return: 日志查询结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+            podName: Pod名称（必填，Body参数）
+            keywords: 日志查询关键字（可选，Body参数）
+            startTime: 日志起始时间，Unix时间格式（可选，Body参数）
+            endTime: 日志结束时间，Unix时间格式（可选，Body参数）
+            maxLines：日志的最大行数（可选，Body参数）
+            chunkSize: 日志聚合条数，默认1（可选，Body参数）
+            marker: 日志查询标识符（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 日志查询结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -261,12 +270,14 @@ class JobClient(AIHCBaseClient):
         }
         if podName is not None:
             body['podName'] = podName
-        if logType is not None:
-            body['logType'] = logType
+        if keywords is not None:
+            body['keywords'] = keywords
         if startTime is not None:
             body['startTime'] = startTime
         if endTime is not None:
             body['endTime'] = endTime
+        if maxLines is not None:
+            body['maxLines'] = maxLines
         if chunkSize is not None:
             body['chunkSize'] = chunkSize
         if marker is not None:
