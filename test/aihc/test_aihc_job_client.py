@@ -41,7 +41,7 @@ import baidubce.services.aihc.aihc_client as aihc_client
 from baidubce.exception import BceServerError, BceHttpClientError
 from baidubce import compat
 
-import aihc_test_conf
+from test.aihc import aihc_test_conf
 
 # Use importlib.reload instead of imp.reload for Python 3.4+
 try:

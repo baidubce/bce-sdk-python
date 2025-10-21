@@ -92,7 +92,7 @@ class JobClient(AIHCBaseClient):
             body=json.dumps(body),
             params=params
         )
-    
+
     def DescribeJob(self, resourcePoolId: str, jobId: str, needDetail: Optional[bool] = None):
         """
         查询训练任务详情。
@@ -124,18 +124,24 @@ class JobClient(AIHCBaseClient):
 
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def DeleteJob(self, resourcePoolId, jobId):
+    def DeleteJob(self, resourcePoolId: str, jobId: str):
         """
         删除训练任务。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/rmayvfzxj
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :return: 删除结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: string
+            jobId: 训练任务ID（必填，Body参数）
+            jobId: string
+
+        Returns:
+            baidubce.bce_response.BceResponse: 删除任务结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -196,8 +202,8 @@ class JobClient(AIHCBaseClient):
         }
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None, 
-                       startTime=None, endTime=None, chunkSize=None, marker=None):
+    def DescribeJobLogs(self, resourcePoolId, jobId, podName=None, logType=None,
+                        startTime=None, endTime=None, chunkSize=None, marker=None):
         """
         查询训练任务日志。
 
@@ -497,7 +503,7 @@ class JobClient(AIHCBaseClient):
             'action': 'DescribeJobMetrics',
             'resourcePoolId': resourcePoolId,
         }
-        
+
         body = {
             'jobId': jobId,
         }

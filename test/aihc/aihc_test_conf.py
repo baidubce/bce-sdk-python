@@ -12,16 +12,22 @@
 Configuration for bcm samples.
 """
 
-#!/usr/bin/env python
-#coding=utf-8
+# !/usr/bin/env python
+# coding=utf-8
 
 import logging
+import os
+
+import dotenv
+
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
 
-HOST = 'https://aihc.bj.baidubce.com'
-AK = 'your-access-key-id'
-SK = 'your-secret-access-key'
+dotenv.load_dotenv()
+
+HOST = os.getenv('HOST') or 'https://aihc.bj.baidubce.com'
+AK = os.getenv('AK') or 'your-access-key-id'
+SK = os.getenv('SK') or 'your-secret-access-key'
 
 logger = logging.getLogger('baidubce.http.bce_http_client')
 fh = logging.FileHandler('sample.log')
