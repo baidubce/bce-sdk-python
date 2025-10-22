@@ -34,13 +34,16 @@ AIHC客户端示例模块。
 
 # !/usr/bin/env python
 # coding=utf-8
-from baidubce.exception import BceHttpClientError, BceServerError
-# from baidubce.services.aihc.aihc_model import JobConfig
-from baidubce.services.aihc.aihc_client import AihcClient
 
-import sample.aihc.aihc_sample_conf as aihc_sample_conf
 import json
 import logging
+
+from baidubce.exception import BceHttpClientError, BceServerError
+from baidubce.services.aihc.aihc_client import AihcClient
+from baidubce.services.aihc.modules.job.job_model import Datasource, Env, JobSpec
+
+from sample.aihc import aihc_sample_conf
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("baidubce").setLevel(logging.INFO)
@@ -51,16 +54,16 @@ __logger.setLevel(logging.INFO)
 def to_dict(obj):
     """
     将对象转换为字典格式。
-    
+
     递归地将Python对象（包括自定义对象、字典、列表）转换为纯字典格式，
     便于JSON序列化和调试输出。
-    
+
     Args:
         obj: 要转换的对象，可以是字典、列表、自定义对象或基本类型
-        
+
     Returns:
         dict/list/基本类型: 转换后的字典、列表或基本类型值
-        
+
     Examples:
         >>> obj = SomeClass()
         >>> obj.name = "test"
@@ -81,55 +84,33 @@ def to_dict(obj):
 def main():
     """
     主函数，演示AIHC服务的各种操作。
-    
+
     本函数展示了AihcClient的完整使用流程，包括：
     1. 创建AIHC客户端实例
     2. 查询任务列表和详情
     3. 查询各种资源列表（数据集、模型、服务、开发机）
     4. 完整的错误处理机制
-    
+
     注意：
     - 部分功能（如创建、更新、删除任务）被注释掉，避免误操作
     - 所有API调用都包含完整的异常处理
     - 响应数据会被转换为JSON格式输出
-    
+
     Raises:
         BceHttpClientError: 当API调用失败时抛出
         BceServerError: 当服务器返回错误时抛出
     """
-    resourcePoolId = ''
-    jobId = ''
 
-    # create a aihc client
+    # 创建 aihc client
     aihc_client = AihcClient(aihc_sample_conf.config)
 
-    # 查询资源池列表
-    try:
-        __logger.info('--------------------------------DescribeResourcePools start--------------------------------')
-        response = aihc_client.resource_pool.DescribeResourcePools()
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-        __logger.info('DescribeResourcePools: %s', response.__dict__.keys())
-        resourcePoolId = response.resourcePools[0].id
-        __logger.info('resourcePoolId: %s', resourcePoolId)
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
-
-    # 查询任务列表
+    # 查询训练任务列表
     try:
         __logger.info('--------------------------------DescribeJobs start--------------------------------')
-        response = aihc_client.job.DescribeJobs(resourcePoolId=resourcePoolId)
-        # 将response转换为python对象
+        resource_pool_id = "cce-xxx"
+        keyword = ""
+        response = aihc_client.job.DescribeJobs(resourcePoolId=resource_pool_id, keyword=keyword)
         print(json.dumps(to_dict(response), ensure_ascii=False))
-
-        # response对象的全部key
-        __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
-        jobId = response.jobs[0].jobId
-        __logger.info('jobId: %s', jobId)
-        
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -137,13 +118,16 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询任务详情
+    # 查询训练任务详情
     try:
-        __logger.info('--------------------------------DescribeJob start...--------------------------------')
-        response = aihc_client.job.DescribeJob(resourcePoolId=resourcePoolId, jobId=jobId)
+        __logger.info('--------------------------------DescribeJob start--------------------------------')
+        resource_pool_id = "cce-xxx"
+        queue_id = "default"
+        job_id = "job-xxx"
+        need_detail = True
+        response = aihc_client.job.DescribeJob(resourcePoolId=resource_pool_id, queueID=queue_id, jobId=job_id,
+                                               needDetail=need_detail)
         print(json.dumps(to_dict(response), ensure_ascii=False))
-
-        __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -151,13 +135,23 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询任务指标
+    # 查询训练任务监控
     try:
-        __logger.info('--------------------------------DescribeJobMetrics start...--------------------------------')
-        response = aihc_client.job.DescribeJobMetrics(resourcePoolId=resourcePoolId, jobId=jobId)
+        __logger.info('--------------------------------DescribeJobMetrics start--------------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        start_time = "1758359060"
+        end_time = "1758445563"
+        time_step = "5m"
+        metric_type = "GpuUsage"
+        rate_interval = "5m"
+        response = aihc_client.job.DescribeJobMetrics(
+                                        resourcePoolId=resource_pool_id, jobId=job_id,
+                                        metricType=metric_type, startTime=start_time,
+                                        endTime=end_time, timeStep=time_step,
+                                        rateInterval=rate_interval
+        )
         print(json.dumps(to_dict(response), ensure_ascii=False))
-
-        __logger.info('response.__dict__.keys(): %s', response.__dict__.keys())
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -165,45 +159,214 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 删除任务
+    # 查询训练任务事件
+    try:
+        __logger.info('--------------------------DescribeJobEvents start-----------------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        start_time = "1758532230"
+        end_time = "1758618650"
+        response = aihc_client.job.DescribeJobEvents(resourcePoolId=resource_pool_id, jobId=job_id,
+                                                     startTime=start_time, endTime=end_time)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询训练任务日志
+    try:
+        __logger.info('--------------------------DescribeJobLogs start---------------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        pod_name = "xxx-test-copy2-master-0"
+        keywords = "xxx"
+        response = aihc_client.job.DescribeJobLogs(resourcePoolId=resource_pool_id,
+                                                   jobId=job_id,
+                                                   keywords=keywords,
+                                                   podName=pod_name)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询训练任务Pod事件
+    try:
+        __logger.info('---------------DescribeJobPodEvents start---------------------------')
+        resource_pool_id = "cce-xxx"
+        pod_name = "job-xxx-master-0"
+        job_id = "job-xxx"
+        response = aihc_client.job.DescribeJobPodEvents(resourcePoolId=resource_pool_id,
+                                                        jobId=job_id,
+                                                        podName=pod_name,
+                                                        )
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询训练任务监控
+    try:
+        __logger.info('--------------------DescribeJobMetrics start------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        start_time = "1758359060"
+        end_time = "1758445563"
+        time_step = "5m"
+        metric_type = "GpuUsage"
+        rate_interval = "5m"
+        response = aihc_client.job.DescribeJobMetrics(resourcePoolId=resource_pool_id,
+                                                      jobId=job_id,
+                                                      metricType=metric_type,
+                                                      startTime=start_time,
+                                                      endTime=end_time,
+                                                      timeStep=time_step,
+                                                      rateInterval=rate_interval)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 查询训练任务所在节点列表
+    try:
+        __logger.info('-------------------DescribeJobNodes start--------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        response = aihc_client.job.DescribeJobNodes(resourcePoolId=resource_pool_id, jobId=job_id)
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 获取训练任务WebTerminal地址
+    try:
+        __logger.info('-------------------DescribeJobWebterminal start--------------------------')
+        resource_pool_id = "cce-xxx"
+        job_id = "job-xxx"
+        podName = "xxx-test-bb1-rerun1-master-0"
+        handshake_timeout_second = "30"
+        ping_timeout_second = "900"
+        response = aihc_client.job.DescribeJobWebterminal(
+            resourcePoolId=resource_pool_id,
+            jobId=job_id,
+            podName=podName,
+            pingTimeoutSecond=ping_timeout_second,
+            handshakeTimeoutSecond=handshake_timeout_second,
+        )
+        print(json.dumps(to_dict(response), ensure_ascii=False))
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # # 删除训练任务
     # try:
-    #     response = aihc_client.DeleteJob(resourcePoolId=resourcePoolId, jobId=jobId)
-    #     print(response)
+    #     __logger.info('----------------------------------DeleteJob start-----------------------------------')
+    #     resource_pool_id = "cce-xxx"
+    #     job_id = "job-xxx"
+    #     response = aihc_client.job.DeleteJob(resourcePoolId=resource_pool_id, jobId=job_id)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
     #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
-    #                        % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
-
-    # 更新任务
+    #
+    # # 更新训练任务
     # try:
-    #     response = aihc_client.ModifyJob(resourcePoolId=resourcePoolId, jobId=jobId, priority="normal")
-    #     print(response)
+    #     __logger.info('---------------------------------ModifyJob start----------------------------------')
+    #     resource_pool_id = ("cce-xxx")
+    #     job_id = "job-xxx"
+    #     priority = "high"
+    #     response = aihc_client.job.ModifyJob(resourcePoolId=resource_pool_id, jobId=job_id, priority=priority)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
     #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
-    #                        % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
-
-    # 创建任务
+    #
+    # # 创建训练任务
     # try:
-    #     jobConfig = dict(
-    #         name="test-job",
-    #         jobSpec={
-    #             "image": "test-image",
-    #             "replicas": 1
-    #         },
-    #         command="python train.py"
+    #     __logger.info('---------------------------------CreateJob start------------------------------')
+    #     resource_pool_id = "cce-xxx"
+    #     queue_id = "default"
+    #     name = ("python-sdk-test-xxx")
+    #     command = "sleep 5m"
+    #     envs = [Env(name="NCCL_DEBUG", value="DEBUG"), Env(name="NCCL_IB_DISABLE", value="0")]
+    #     data_source = Datasource(type="pfs", name="pfs-pxE6jz", mountPath="/mnt/cluster")
+    #     job_spec = JobSpec(
+    #         image="registry.baidubce.com/aihc-aiak/aiak-megatron:ubuntu20.04"
+    #               "-cu11.8-torch1.14.0-py38_v1.2.7.12_release",
+    #         replicas=1,
+    #         resources=[],
+    #         envs=envs,
+    #         enableRDMA=False
     #     )
-    #     queueID = "test-queue"  # 通用资源池填队列名称，托管资源池填队列Id
-    #     response = aihc_client.job.CreateJob(resourcePoolId=resourcePoolId, queueID=queueID, jobConfig=jobConfig)
-    #     print(response)
+    #     job_type = "PyTorchJob"
+    #     labels = []
+    #     priority = "normal"
+    #     dataSources = [
+    #         data_source,
+    #     ]
+    #     enable_bccl = False
+    #     fault_tolerance = False
+    #     fault_tolerance_args = {}
+    #     tensorboard_config = {}
+    #     retention_period = "5m"
+    #     response = aihc_client.job.CreateJob(
+    #         resourcePoolId=resource_pool_id,
+    #         queueID=queue_id,
+    #         name=name,
+    #         command=command,
+    #         jobSpec=job_spec,
+    #         jobType=job_type,
+    #         labels=labels,
+    #         priority=priority,
+    #         dataSources=dataSources,
+    #         enableBccl=enable_bccl,
+    #         faultTolerance=fault_tolerance,
+    #         faultToleranceArgs=fault_tolerance_args,
+    #         tensorboardConfig=tensorboard_config,
+    #         retentionPeriod=retention_period,
+    #     )
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
     #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
-    #                        % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+    #
+    # # 停止训练任务
+    # try:
+    #     __logger.info('stop job')
+    #     resource_pool_id = "cce-xxx"
+    #     job_id = "job-xxx"
+    #     response = aihc_client.job.StopJob(resourcePoolId=resource_pool_id, jobId=job_id)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
 

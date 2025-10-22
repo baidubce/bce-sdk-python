@@ -93,15 +93,22 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJob(self, resourcePoolId: str, jobId: str, needDetail: Optional[bool] = None):
+    def DescribeJob(
+        self,
+        resourcePoolId: str,
+        queueID: str,
+        jobId: str,
+        needDetail: Optional[bool] = None
+    ):
         """
         查询训练任务详情。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Kmayvejf0
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填）
-            jobId: 任务ID（必填）
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
+            jobId: 任务ID（必填，Body参数）
             needDetail: 是否需要详细信息（可选）
 
         Returns:
@@ -115,13 +122,13 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJob',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
         }
         if needDetail is not None:
             body['needDetail'] = needDetail
-
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
     def DeleteJob(self, resourcePoolId: str, jobId: str):

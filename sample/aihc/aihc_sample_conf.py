@@ -12,14 +12,16 @@
 Configuration for bcm samples.
 """
 
-#!/usr/bin/env python
-#coding=utf-8
+# !/usr/bin/env python
+# coding=utf-8
 
 import logging
+import os
+
+import dotenv
+
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.auth.bce_credentials import BceCredentials
-import os
-import dotenv
 
 dotenv.load_dotenv()
 
