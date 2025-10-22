@@ -398,24 +398,32 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJobWebterminal(self, resourcePoolId, jobId, podName, handshakeTimeoutSecond=None, pingTimeoutSecond=None):
+    def DescribeJobWebterminal(
+        self,
+        resourcePoolId: str,
+        jobId: str,
+        podName: str,
+        handshakeTimeoutSecond: Optional[str] = None,
+        pingTimeoutSecond: Optional[str] = None
+    ):
         """
         获取训练任务WebTerminal地址。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/9mayvri1t
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :param podName: 训练任务节点名称（必填，Body参数）
-        :type podName: string
-        :param handshakeTimeoutSecond: 连接超时参数，单位秒（可选，Body参数）
-        :type handshakeTimeoutSecond: int
-        :param pingTimeoutSecond: 心跳超时参数，单位秒（可选，Body参数）
-        :type pingTimeoutSecond: int
-        :return: WebTerminal地址
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+            podName: 训练任务节点名称（必填，Body参数）
+            handshakeTimeoutSecond: 连接超时参数，单位秒（可选，Body参数）
+            pingTimeoutSecond: 心跳超时参数，单位秒（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: WebTerminal地址
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -430,7 +438,6 @@ class JobClient(AIHCBaseClient):
             body['handshakeTimeoutSecond'] = handshakeTimeoutSecond
         if pingTimeoutSecond is not None:
             body['pingTimeoutSecond'] = pingTimeoutSecond
-
         return self._send_job_request(
             http_methods.POST,
             path,
