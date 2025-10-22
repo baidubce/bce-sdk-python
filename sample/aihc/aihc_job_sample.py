@@ -135,30 +135,6 @@ def main():
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询训练任务监控
-    try:
-        __logger.info('--------------------------------DescribeJobMetrics start--------------------------------')
-        resource_pool_id = "cce-xxx"
-        job_id = "job-xxx"
-        start_time = "1758359060"
-        end_time = "1758445563"
-        time_step = "5m"
-        metric_type = "GpuUsage"
-        rate_interval = "5m"
-        response = aihc_client.job.DescribeJobMetrics(
-                                        resourcePoolId=resource_pool_id, jobId=job_id,
-                                        metricType=metric_type, startTime=start_time,
-                                        endTime=end_time, timeStep=time_step,
-                                        rateInterval=rate_interval
-        )
-        print(json.dumps(to_dict(response), ensure_ascii=False))
-    except BceHttpClientError as e:
-        if isinstance(e.last_error, BceServerError):
-            __logger.error('send request failed. Response %s, code: %s, msg: %s'
-                           % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
-        else:
-            __logger.error('send request failed. Unknown exception: %s' % e)
-
     # 查询训练任务事件
     try:
         __logger.info('--------------------------DescribeJobEvents start-----------------------------------')

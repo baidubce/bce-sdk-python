@@ -341,18 +341,22 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def StopJob(self, resourcePoolId, jobId):
+    def StopJob(self, resourcePoolId: str, jobId: str):
         """
         停止训练任务。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/0mayvnkik
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :return: 停止任务结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 停止任务结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
