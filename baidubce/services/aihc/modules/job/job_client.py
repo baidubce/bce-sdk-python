@@ -358,18 +358,22 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJobNodes(self, resourcePoolId, jobId):
+    def DescribeJobNodes(self, resourcePoolId: str, jobId: str):
         """
         查询训练任务所在节点列表。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/2mayvq994
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :return: 节点名称列表
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 节点名称列表
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
