@@ -290,24 +290,32 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJobPodEvents(self, resourcePoolId, jobId, podName, startTime=None, endTime=None):
+    def DescribeJobPodEvents(
+        self,
+        resourcePoolId: str,
+        jobId: str,
+        podName: str,
+        startTime: Optional[str] = None,
+        endTime: Optional[str] = None,
+    ):
         """
         查询训练任务Pod事件。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/mmayvm8tb
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param jobId: 训练任务ID（必填，Body参数）
-        :type jobId: string
-        :param podName: 训练任务节点名称（必填，Body参数）
-        :type podName: string
-        :param startTime: 事件起始时间（可选，Body参数）
-        :type startTime: string
-        :param endTime: 事件结束时间（可选，Body参数）
-        :type endTime: string
-        :return: Pod事件查询结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 训练任务ID（必填，Body参数）
+            podName: 训练任务节点名称（必填，Body参数）
+            startTime: 事件起始时间，Unix时间格式（可选，Body参数）
+            endTime: 事件结束时间，Unix时间格式（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: Pod事件查询结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
