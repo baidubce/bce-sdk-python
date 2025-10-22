@@ -513,9 +513,11 @@ class JobClient(AIHCBaseClient):
         self,
         resourcePoolId: str,
         jobId: str,
-        metricType: Optional[str] = None,
+        metricType: str,
         startTime: Optional[str] = None,
-        endTime: Optional[str] = None
+        endTime: Optional[str] = None,
+        timeStep: Optional[str] = None,
+        rateInterval: Optional[str] = None
     ):
         """
         查询训练任务监控。
@@ -523,31 +525,37 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/fmayvjaeq
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填）
-            jobId: 任务ID（必填）
-            metricType: 指标类型（可选）
-            startTime: 开始时间（可选）
-            endTime: 结束时间（可选）
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            jobId: 任务ID（必填，Body参数）
+            metricType: 查询监控数据的指标类型（必填，Body参数）
+            startTime: 开始时间，Unix时间格式（可选，Body参数）
+            endTime: 结束时间，Unix时间格式（可选，Body参数）
+            timeStep: 返回监控数据的时间间隔（可选，Body参数）
+            rateInterval: 指标变化周期频率，默认为5分钟（可选，Body参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 返回训练任务指标数据
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'DescribeJobMetrics',
             'resourcePoolId': resourcePoolId,
         }
-
         body = {
             'jobId': jobId,
+            'metricType': metricType,
         }
-        if metricType is not None:
-            body['metricType'] = metricType
-        if startTime is not None:
-            body['startTime'] = startTime
-        if endTime is not None:
-            body['endTime'] = endTime
-
+        optional_boy_params = {
+            'startTime': startTime,
+            'endTime': endTime,
+            'timeStep': timeStep,
+            'rateInterval': rateInterval
+        }
+        body.update({k: v for k, v in optional_boy_params.items() if v is not None})
         return self._send_job_request(
             http_methods.POST,
             path,
