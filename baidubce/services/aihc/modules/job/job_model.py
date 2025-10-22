@@ -14,17 +14,17 @@
 AIHC job model module.
 """
 
-from typing import List, Optional
+from typing import Optional
 
 
 class Label(dict):
     """
     训练任务标签
     """
-    def __init__(self, key, value):
+    def __init__(self, key: str, value: str):
         """
         初始化训练任务标签
-        
+
         Args:
             key: 标签键
             value: 标签值
@@ -34,61 +34,111 @@ class Label(dict):
         self["value"] = value
 
 
+class Option(dict):
+    """
+    数据卷挂载选项信息
+    """
+
+    def __init__(self, readOnly: str):
+        """
+        初始化数据卷挂载选项
+
+        Args:
+            readOnly: 是否以只读模式挂载到容器中
+        """
+        super(Option, self).__init__()
+        self["readOnly"] = readOnly
+
+
 class Datasource(dict):
     """
-    数据源配置，当前支持PFS
+    训练任务数据源配置
+    支持类型：pfs/hostPath/dataset/bos
     """
-    def __init__(self, type, name, mountPath):
+
+    def __init__(
+        self,
+        type: str,
+        name: str,
+        mountPath: str,
+        sourcePath: Optional[str] = None,
+        options: Optional[dict] = None
+    ):
         """
         初始化数据源配置
-        
+
         Args:
-            type: 数据源类型
-            name: 数据源名称
-            mountPath: 挂载路径
+            type: 数据源类型，枚举值：pfs/hostPath/dataset/bos
+            name: 数据源名称（pfs类型时为实例id，bos类型可为空）
+            mountPath: 容器内挂载路径
+            sourcePath: 源路径（pfs时为存储路径，hostpath时为宿主机路径）(可选)
+            options: 数据源参数（可选）
         """
         super(Datasource, self).__init__()
         self["type"] = type
         self["name"] = name
         self["mountPath"] = mountPath
+        if sourcePath is not None:
+            self["sourcePath"] = sourcePath
+        if options is not None:
+            self["options"] = options
 
 
 class TensorboardConfig(dict):
     """
     tensorboard相关配置
     """
-    def __init__(self, logDir, image=None, resources=None):
+    def __init__(self, enable: Optional[bool] = None, logPqth: Optional[str] = None):
         """
         初始化tensorboard配置
-        
+
         Args:
-            logDir: 日志目录
-            image: 镜像配置（可选）
-            resources: 资源配置（可选）
+            enable: 是否开启Tensorboard（可选）
+            logPqth: 训练任务Tensorboard日志（可选）
         """
         super(TensorboardConfig, self).__init__()
-        self["logDir"] = logDir
-        if image is not None:
-            self["image"] = image
-        if resources is not None:
-            self["resources"] = resources
+        if enable is not None:
+            self["enable"] = enable
+        if logPqth is not None:
+            self["logPath"] = logPqth
 
 
 class AlertConfig(dict):
     """
     告警相关配置
     """
-    def __init__(self, alertType, receivers):
+
+    def __init__(
+        self,
+        alertIds: Optional[str] = None,
+        instanceId: Optional[str] = None,
+        alertName: Optional[str] = None,
+        alertItems: Optional[str] = None,
+        for_: Optional[str] = None,  # 使用for_避免关键字冲突
+        description: Optional[str] = None,
+        notifyRuleId: Optional[str] = None,
+        severity: Optional[str] = None,
+    ):
         """
         初始化告警配置
-        
-        Args:
-            alertType: 告警类型
-            receivers: 接收者列表
         """
-        super(AlertConfig, self).__init__()
-        self["alertType"] = alertType
-        self["receivers"] = receivers
+        super().__init__()
+        if alertIds is not None:
+            self["alertIds"] = alertIds
+        if instanceId is not None:
+            self["instanceId"] = instanceId
+        if alertName is not None:
+            self["alertName"] = alertName
+        if alertItems is not None:
+            self["alertItems"] = alertItems
+        if for_ is not None:
+            self["for"] = for_  # 映射到保留字"for"
+        if description is not None:
+            self["description"] = description
+        if notifyRuleId is not None:
+            self["notifyRuleId"] = notifyRuleId
+        if severity is not None:
+            self["severity"] = severity
 
 
 class JobSpec(dict):
@@ -99,15 +149,15 @@ class JobSpec(dict):
         self,
         image,
         replicas,
-        imageConfig=None,
-        resources=None,
-        envs=None,
-        enableRDMA=None,
-        hostNetwork=None
+        imageConfig: Optional[dict] = None,
+        resources: Optional[list] = None,
+        envs: Optional[list] = None,
+        enableRDMA: Optional[bool] = None,
+        hostNetwork: Optional[bool] = None
     ):
         """
         初始化训练任务配置
-        
+
         Args:
             image: 镜像名称
             replicas: 副本数量
@@ -132,89 +182,6 @@ class JobSpec(dict):
             self["hostNetwork"] = hostNetwork
 
 
-class JobConfig(dict):
-    """
-    创建训练任务请求参数
-
-    :param name: 名称（必填，Body参数）
-    :type name: str
-    :param queue: 训练任务所属队列（必填，Body参数，通用资源池须填入队列名称，
-                 托管资源池须填入队列Id）
-    :type queue: str
-    :param jobSpec: 训练任务配置（必填，Body参数，JobSpec类型）
-    :type jobSpec: JobSpec
-    :param command: 启动命令（必填，Body参数）
-    :type command: str
-    :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-    :type resourcePoolId: str
-    :param jobType: 分布式框架（可选，Body参数，只支持 PyTorchJob，默认值：PyTorchJob）
-    :type jobType: str
-    :param labels: 训练任务标签（可选，Body参数，List[Label]，默认包含系统标签）
-    :type labels: List[Label]
-    :param priority: 调度优先级（可选，Body参数，支持high/normal/low，默认normal）
-    :type priority: str
-    :param dataSources: 数据源配置（可选，Body参数，List[Datasource]，当前支持PFS）
-    :type dataSources: List[Datasource]
-    :param enableBccl: 是否开启BCCL自动注入（可选，Body参数，bool，默认关闭）
-    :type enableBccl: bool
-    :param faultTolerance: 是否开启容错（可选，Body参数，bool，默认关闭）
-    :type faultTolerance: bool
-    :param faultToleranceArgs: 容错配置（可选，Body参数，str）
-    :type faultToleranceArgs: str
-    :param tensorboardConfig: tensorboard相关配置（可选，Body参数，TensorboardConfig类型）
-    :type tensorboardConfig: TensorboardConfig
-    :param alertConfig: 告警相关配置（可选，Body参数，AlertConfig类型）
-    :type alertConfig: AlertConfig
-    """
-    def __init__(self, name: str, queue: str, jobSpec: JobSpec, command: str, resourcePoolId: str,
-        jobType: str = "PyTorchJob", labels: Optional[List['Label']] = None, priority: str = "normal",
-        dataSources: Optional[List['Datasource']] = None, enableBccl: Optional[bool] = None,
-        faultTolerance: Optional[bool] = None, faultToleranceArgs: Optional[str] = None,
-        tensorboardConfig: Optional['TensorboardConfig'] = None, alertConfig: Optional['AlertConfig'] = None
-    ):
-        """
-        初始化训练任务配置
-        
-        Args:
-            name: 名称（必填，Body参数）
-            queue: 训练任务所属队列（必填，Body参数，通用资源池须填入队列名称，托管资源池须填入队列Id）
-            jobSpec: 训练任务配置（必填，Body参数，JobSpec类型）
-            command: 启动命令（必填，Body参数）
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
-            jobType: 分布式框架（可选，Body参数，只支持 PyTorchJob，默认值：PyTorchJob）
-            labels: 训练任务标签（可选，Body参数，List[Label]，默认包含系统标签）
-            priority: 调度优先级（可选，Body参数，支持high/normal/low，默认normal）
-            dataSources: 数据源配置（可选，Body参数，List[Datasource]，当前支持PFS）
-            enableBccl: 是否开启BCCL自动注入（可选，Body参数，bool，默认关闭）
-            faultTolerance: 是否开启容错（可选，Body参数，bool，默认关闭）
-            faultToleranceArgs: 容错配置（可选，Body参数，str）
-            tensorboardConfig: tensorboard相关配置（可选，Body参数，TensorboardConfig类型）
-            alertConfig: 告警相关配置（可选，Body参数，AlertConfig类型）
-        """
-        super(JobConfig, self).__init__()
-        self["resourcePoolId"] = resourcePoolId
-        self["name"] = name
-        self["queue"] = queue
-        self["jobType"] = jobType
-        self["jobSpec"] = jobSpec
-        self["command"] = command
-        if labels is not None:
-            self["labels"] = labels
-        self["priority"] = priority
-        if dataSources is not None:
-            self["dataSources"] = dataSources
-        if enableBccl is not None:
-            self["enableBccl"] = enableBccl
-        if faultTolerance is not None:
-            self["faultTolerance"] = faultTolerance
-        if faultToleranceArgs is not None:
-            self["faultToleranceArgs"] = faultToleranceArgs
-        if tensorboardConfig is not None:
-            self["tensorboardConfig"] = tensorboardConfig
-        if alertConfig is not None:
-            self["alertConfig"] = alertConfig
-
-
 class ImageConfig(dict):
     """
     任务镜像配置，仅私有镜像时需要配置。
@@ -225,7 +192,7 @@ class ImageConfig(dict):
     def __init__(self, username, password):
         """
         初始化镜像配置
-        
+
         Args:
             username: 私有镜像仓库用户名
             password: 私有镜像仓库密码
@@ -237,21 +204,28 @@ class ImageConfig(dict):
 
 class Resource(dict):
     """
-    任务资源配置，被创建训练任务接口引用。
-    :param name: 资源名称，支持GPU/CPU/内存/共享内存等，枚举值：
-        - baidu.com/a800_80g_cgpu：gpu型号（需按百度资源描述符填写）
-        - cpu：cpu配额，单位核
-        - memory：内存配额，单位GB
-        - sharedMemory：共享内存配额，单位GB
-    :param quantity: 资源量，字符串类型
+    任务资源配置
+    被如下接口引用：创建训练任务
+
+    资源名称示例（具体以平台最新文档为准）：
+    - baidu.com/a800_80g_cgpu：GPU型号（需按百度资源描述符填写）
+    - cpu：CPU配额，单位核
+    - memory：内存配额，单位GB
+    - sharedMemory：共享内存配额，单位GB
     """
-    def __init__(self, name, quantity):
+
+    def __init__(self, name: str, quantity: str):
         """
         初始化资源配置
-        
+
         Args:
-            name: 资源名称，支持GPU/CPU/内存/共享内存等
+            name: 资源名称，示例值：
+                - baidu.com/a800_80g_cgpu：GPU型号
+                - cpu：CPU配额
+                - memory：内存配额
+                - sharedMemory：共享内存配额
             quantity: 资源量，字符串类型
+                示例："8"（表示8核CPU/8GB内存等）
         """
         super(Resource, self).__init__()
         self["name"] = name
@@ -261,13 +235,14 @@ class Resource(dict):
 class Env(dict):
     """
     环境变量信息，被创建训练任务、查询训练任务详情接口引用。
-    :param name: 标签名（可选）
-    :param value: 标签值（可选）
+    Attributes:
+        name: 标签名（可选）
+        value: 标签值（可选）
     """
     def __init__(self, name=None, value=None):
         """
         初始化环境变量
-        
+
         Args:
             name: 环境变量名（可选）
             value: 环境变量值（可选）
@@ -276,4 +251,4 @@ class Env(dict):
         if name is not None:
             self["name"] = name
         if value is not None:
-            self["value"] = value 
+            self["value"] = value

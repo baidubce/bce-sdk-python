@@ -17,8 +17,6 @@ import json
 from typing import Optional
 
 from baidubce.http import http_methods
-from baidubce.utils import required
-from baidubce.services.aihc.modules.job.job_model import JobConfig
 from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 
 
@@ -388,20 +386,52 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def CreateJob(self, resourcePoolId, queueID, jobConfig):
+    def CreateJob(
+            self,
+            resourcePoolId: str,
+            queueID: str,
+            name: str,
+            command: str,
+            jobSpec: dict,
+            jobType: str = None,
+            labels: list = None,
+            priority: str = None,
+            dataSources: list = None,
+            enableBccl: bool = None,
+            faultTolerance: bool = None,
+            faultToleranceArgs: str = None,
+            tensorboardConfig: dict = None,
+            alertConfig: dict = None,
+            retentionPeriod: str = None,
+    ):
         """
         创建训练任务。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Hmayv96tj
 
-        :param resourcePoolId: 资源池唯一标识符（必填，Query参数）
-        :type resourcePoolId: string
-        :param queueID: 训练任务所属队列，通用资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
-        :type queueID: string
-        :param jobConfig: 训练任务配置（必填，Body参数，dict类型，需包含name、command、jobSpec等）
-        :type jobConfig: dict
-        :return: 创建任务结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            queueID: 训练任务所属队列，通用资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
+            name: 训练任务名称（必填，Body参数）
+            command: 启动命令（必填，Body参数）
+            jobSpec: 训练任务配置（必填，Body参数）
+            jobType: 分布式框架，只支持 PyTorchJob（可选，Body参数，默认："PyTorchJob"）
+            labels: 训练任务标签（可选，Body参数）
+            priority: 调度优先级，支持高（high）、中（normal）、低（low）（可选，Body参数，默认："normal"）
+            dataSources: 数据源配置，当前支持PFS（可选，Body参数）
+            enableBccl: 是否开启BCCL自动注入（可选，Body参数，默认：False）
+            faultTolerance: 是否开启容错（可选，Body参数，默认：False）
+            faultToleranceArgs: 容错配置（可选，Body参数）
+            tensorboardConfig: tensorboard相关配置（可选，Body参数）
+            alertConfig: 告警相关配置（可选，Body参数）
+            retentionPeriod: 任务保留时间，格式1m、1h、1d，分别代表一分钟、一小时、一天（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 创建任务结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -409,7 +439,29 @@ class JobClient(AIHCBaseClient):
             'resourcePoolId': resourcePoolId,
             'queueID': queueID,
         }
-        body = jobConfig
+        body = {
+            'name': name,
+            'command': command,
+            'jobSpec': jobSpec,
+            'enableBccl': enableBccl,
+            'faultTolerance': faultTolerance,
+        }
+        if jobType is not None:
+            body['jobType'] = jobType
+        if priority is not None:
+            body['priority'] = priority
+        if labels is not None:
+            body['labels'] = labels
+        if dataSources is not None:
+            body['datasources'] = dataSources
+        if faultToleranceArgs is not None:
+            body['faultToleranceArgs'] = faultToleranceArgs
+        if tensorboardConfig is not None:
+            body['tensorboardConfig'] = tensorboardConfig
+        if alertConfig is not None:
+            body['alertConfig'] = alertConfig
+        if retentionPeriod is not None:
+            body['retentionPeriod'] = retentionPeriod
         return self._send_job_request(
             http_methods.POST,
             path,
