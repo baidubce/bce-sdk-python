@@ -64,16 +64,20 @@ class ServiceClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeService(self, serviceId):
+    def DescribeService(self, serviceId: str):
         """
         查询服务详情。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/4mb4v7wn5
 
-        :param serviceId: 服务ID（必填，Query参数）
-        :type serviceId: str
-        :return: 服务详情
-        :rtype: baidubce.bce_response.BceResponse
+        serviceId: 服务ID（必填，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务详情
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
