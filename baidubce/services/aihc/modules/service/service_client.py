@@ -90,16 +90,21 @@ class ServiceClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeServiceStatus(self, serviceId):
+    def DescribeServiceStatus(self, serviceId: str):
         """
         获取服务状态。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/dmb4v6oh0
 
-        :param serviceId: 服务ID（必填，Query参数）
-        :type serviceId: str
-        :return: 服务状态信息
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            serviceId: 服务ID（必填，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务状态信息
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {

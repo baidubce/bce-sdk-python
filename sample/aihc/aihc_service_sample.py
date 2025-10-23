@@ -148,10 +148,10 @@ def main():
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
-    # 查询服务状态
+    # 获取服务状态
     if service_id:
         try:
-            __logger.info('--------------------------------DescribeServiceStatus start...--------------------------------')
+            __logger.info('-------------------------DescribeServiceStatus start...--------------------------------')
             response = aihc_client.service.DescribeServiceStatus(serviceId=service_id)
             print(json.dumps(to_dict(response), ensure_ascii=False))
             __logger.info('DescribeServiceStatus: %s', response.__dict__.keys())
