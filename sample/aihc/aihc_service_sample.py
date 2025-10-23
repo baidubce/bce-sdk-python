@@ -106,16 +106,26 @@ def main():
     # 初始化变量
     service_id = None
 
-    # 查询服务列表
+    # 拉取服务列表
     try:
         __logger.info('--------------------------------DescribeServices start...--------------------------------')
-        response = aihc_client.service.DescribeServices()
+        page_number = 1
+        page_size = 2
+        order_by = "createdAt"
+        order = "asc"
+        response = aihc_client.service.DescribeServices(
+            pageNumber=page_number,
+            pageSize=page_size,
+            orderBy=order_by,
+            order=order
+        )
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeServices: %s', response.__dict__.keys())
 
         # 获取第一个服务ID用于后续操作
         if hasattr(response, 'services') and response.services is not None and len(response.services) > 0:
             service_id = response.services[0].id
+            print("service_id: %s" % service_id)
 
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):

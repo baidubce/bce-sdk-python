@@ -23,26 +23,30 @@ from baidubce.services.aihc.base.aihc_base_client import AIHCBaseClient
 class ServiceClient(AIHCBaseClient):
     """在线服务相关接口客户端"""
 
-    def DescribeServices(self, resourcePoolId=None, queueName=None, name=None, region=None, pageNumber=1, pageSize=10):
+    def DescribeServices(
+        self,
+        pageNumber: Optional[int] = None,
+        pageSize: Optional[int] = None,
+        orderBy: Optional[str] = None,
+        order: Optional[str] = None
+    ):
         """
         拉取服务列表。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Imb4v5905
 
-        :param resourcePoolId: 资源池ID（可选，Query参数）
-        :type resourcePoolId: str
-        :param queueName: 队列名称（可选，Query参数）
-        :type queueName: str
-        :param name: 服务名称（可选，Query参数）
-        :type name: str
-        :param region: 区域（可选，Query参数）
-        :type region: str
-        :param pageNumber: 页码，默认1（可选，Query参数）
-        :type pageNumber: int
-        :param pageSize: 每页数量，默认10（可选，Query参数）
-        :type pageSize: int
-        :return: 服务列表及总数
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            pageNumber: 页码，从1开始（可选，Query参数）
+            pageSize: 分页大小，默认为10（可选，Query参数）
+            orderBy: 排序字段，暂时只支持创建时间createdAt（可选，Query参数）
+            order: 排序方式，asc或desc，默认desc（可选，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 服务列表及总数
+
+        Raises:
+            BceHttpClientError: 当API调用失败时抛出
+            BceServerError: 当服务器返回错误时抛出
         """
         path = b'/'
         params = {
@@ -50,14 +54,10 @@ class ServiceClient(AIHCBaseClient):
             'pageNumber': pageNumber,
             'pageSize': pageSize,
         }
-        if resourcePoolId is not None:
-            params['resourcePoolId'] = resourcePoolId
-        if queueName is not None:
-            params['queueName'] = queueName
-        if name is not None:
-            params['name'] = name
-        if region is not None:
-            params['region'] = region
+        if orderBy is not None:
+            params['orderBy'] = orderBy
+        if order is not None:
+            params['order'] = order
         return self._send_request(
             http_methods.GET,
             path,
