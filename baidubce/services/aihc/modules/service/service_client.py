@@ -467,21 +467,31 @@ class ServiceClient(AIHCBaseClient):
     def DescribeServiceChangelogs(
         self,
         serviceId: str,
-        pageNumber: int = 1,
-        pageSize: int = 10
+        changeType: Optional[int] = None,
+        order: Optional[str] = None,
+        orderBy: Optional[str] = None,
+        pageNumber: Optional[int] = None,
+        pageSize: Optional[int] = None
     ):
         """
         拉取服务变更记录。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Zmb4v9gvl
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Zmb4vcylp
 
         Args:
-            serviceId: 服务ID（必填）
-            pageNumber: 页码，默认1（可选）
-            pageSize: 每页数量，默认10（可选）
+            serviceId: 服务ID（必填，Query参数）
+            changeType: 变更类型，1:创建 2:更新 3:扩缩容 4:流量接入变更（可选，Query参数）
+            order: 排序方式，asc或desc，需与orderBy同时使用（可选，Query参数）
+            orderBy: 排序字段，目前仅支持createdAt，需与order同时使用（可选，Query参数）
+            pageNumber: 页码，默认1（可选，Query参数）
+            pageSize: 每页数量，默认10（可选，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 服务变更记录列表
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -490,6 +500,11 @@ class ServiceClient(AIHCBaseClient):
             'pageNumber': pageNumber,
             'pageSize': pageSize,
         }
+        if changeType is not None:
+            params['changeType'] = changeType
+        if order is not None and orderBy is not None:
+            params['order'] = order
+            params['orderBy'] = orderBy
 
         return self._send_request(
             http_methods.GET,

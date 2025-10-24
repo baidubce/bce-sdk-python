@@ -183,7 +183,7 @@ def main():
     # 查询服务变更记录
     if service_id:
         try:
-            __logger.info('--------------------------------DescribeServiceChangelogs start...--------------------------------')
+            __logger.info('----------------------DescribeServiceChangelogs start...--------------------------------')
             response = aihc_client.service.DescribeServiceChangelogs(serviceId=service_id)
             print(json.dumps(to_dict(response), ensure_ascii=False))
             __logger.info('DescribeServiceChangelogs: %s', response.__dict__.keys())
