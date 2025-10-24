@@ -504,13 +504,17 @@ class ServiceClient(AIHCBaseClient):
         """
         查询服务变更详情。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/vmb4vam48
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/xmb4ve6i2
 
         Args:
-            changeId: 变更记录ID（必填）
+            changeId: 变更记录ID（必填，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 服务变更详情
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
