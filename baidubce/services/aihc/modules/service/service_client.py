@@ -444,13 +444,17 @@ class ServiceClient(AIHCBaseClient):
         """
         获取实例组列表。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Emb4va9nm
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Xmb4vkxbb
 
         Args:
-            serviceId: 服务ID（必填）
+            serviceId: 服务ID（必填，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 实例组列表
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {

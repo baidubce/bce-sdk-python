@@ -169,7 +169,7 @@ def main():
     # 获取实例组列表
     if service_id:
         try:
-            __logger.info('--------------------------------DescribeServicePodGroups start...--------------------------------')
+            __logger.info('-------------------DescribeServicePodGroups start...--------------------------------')
             response = aihc_client.service.DescribeServicePodGroups(serviceId=service_id)
             print(json.dumps(to_dict(response), ensure_ascii=False))
             __logger.info('DescribeServicePodGroups: %s', response.__dict__.keys())
