@@ -312,13 +312,18 @@ class ServiceClient(AIHCBaseClient):
         """
         拉取服务pod列表。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/cmb4vggnt
 
         Args:
             serviceId: 服务ID（必填）
 
         Returns:
             baidubce.bce_response.BceResponse: 服务pod列表
+
+        Raises:
+            Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {

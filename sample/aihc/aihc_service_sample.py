@@ -155,7 +155,7 @@ def main():
     # 查询服务Pod列表
     if service_id:
         try:
-            __logger.info('--------------------------------DescribeServicePods start...--------------------------------')
+            __logger.info('--------------------------DescribeServicePods start...--------------------------------')
             response = aihc_client.service.DescribeServicePods(serviceId=service_id)
             print(json.dumps(to_dict(response), ensure_ascii=False))
             __logger.info('DescribeServicePods: %s', response.__dict__.keys())
