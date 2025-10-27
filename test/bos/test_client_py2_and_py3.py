@@ -3401,6 +3401,76 @@ class TestTrafficLimit(TestClient):
         self.assertTrue(hasattr(response, "key"))
         self.assertTrue(hasattr(response, "location"))
 
+class TestBucketQuota(TestClient):
+    """test put mirroring config"""
+    def test_bucket_quota(self):
+        err = None
+        quota_conf = {
+            "maxObjectCount": 10000,
+            "maxCapacityMegaBytes": 12341234
+        }
+        try:
+            self.bos.put_bucket_quota(self.BUCKET, quota_conf= quota_conf)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        
+        try:
+            response = self.bos.get_bucket_quota(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.max_object_count, 10000)
+        self.assertEqual(response.max_capacity_mega_bytes, 12341234)
+
+        try:
+            self.bos.delete_bucket_quota(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
+class TestBucketTagging(TestClient):
+    """test put mirroring config"""
+    def test_bucket_tagging(self):
+        err = None
+        tag_conf = {
+        "tags": [
+            {
+                "tagKey": "key1",
+                "tagValue": "value123"
+            },
+            {
+                "tagKey": "ttt2",
+                "tagValue": "6863gerg"
+            }
+            ],
+        }
+        try:
+            self.bos.put_bucket_tagging(self.BUCKET, tag_conf= tag_conf)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        
+        try:
+            response = self.bos.get_bucket_tagging(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(len(response.tag), 2)
+        self.assertEqual(response.tag[0].tag_key, 'ttt2')
+
+        try:
+            self.bos.delete_bucket_tagging(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -3453,6 +3523,8 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketInventory))
     runner.run(unittest.makeSuite(TestNotification))
     runner.run(unittest.makeSuite(TestMirroringConf))
+    runner.run(unittest.makeSuite(TestBucketQuota))
+    runner.run(unittest.makeSuite(TestBucketTagging))
     
     """test quota, the quota cache may exist causing the bucket to be created error"""
     # runner.run(unittest.makeSuite(TestQuota))

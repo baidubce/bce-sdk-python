@@ -707,6 +707,9 @@ class BosClient(BceBaseClient):
             **URL string**
         """
         key = compat.convert_to_bytes(key)
+        if len(key) == 0 or key == b'v1':
+            raise ValueError('generate url the key param error!')
+
         config = self._merge_config(config, bucket_name)
         headers = headers or {}
         params = params or {}
@@ -2609,8 +2612,203 @@ class BosClient(BceBaseClient):
             params[b'versionIdMarker'] = version_marker
 
         return self._send_request(http_methods.GET, bucket_name, params=params, config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def init_bucket_object_lock(self, 
+                        bucket_name,
+                        retention_days,
+                        config=None):
+        """
+        init bucket object lock
+        :type bucket: string
+        :param bucket: None
 
-        
+        :type retention_days: int
+        :param retention_days: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.POST,
+                                  bucket_name,
+                                  params={b'objectlock': b''},
+                                  body=json.dumps({'retentionDays': retention_days}),
+                                  config=config)
+
+    @required(bucket_name=(bytes, str))
+    def get_bucket_object_lock(self, bucket_name, config=None):
+        """
+        get bucket object lock
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.GET,
+                                  bucket_name,
+                                  params={b'objectlock': b''},
+                                  config=config)
+
+    @required(bucket_name=(bytes, str))
+    def delete_bucket_object_lock(self, bucket_name, config=None):
+        """
+        Delete Bucket Object Lock
+
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={b'objectlock': b''},
+                                  config=config)
+
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def complete_bucket_object_lock(self, 
+                        bucket_name,
+                        config=None):
+        """
+        complete bucket object lock
+        :type bucket: string
+        :param bucket: None
+
+        :type retention_days: int
+        :param retention_days: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.POST,
+                                  bucket_name,
+                                  params={b'completeobjectlock': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def extend_bucket_object_lock(self, 
+                        bucket_name,
+                        extend_retent_days,
+                        config=None):
+        """
+        extend bucket object lock
+        :type bucket: string
+        :param bucket: None
+
+        :type extend_retent_days: int
+        :param extend_retent_days: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.POST,
+                                  bucket_name,
+                                  params={b'extendobjectlock': b''},
+                                  body=json.dumps({'extendRetentionDays': extend_retent_days}),
+                                  config=config)
+
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def get_bucket_quota(self, 
+                        bucket_name,
+                        config=None):
+        """
+        get bucket quota
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.GET,
+                                  bucket_name,
+                                  params={b'quota': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def put_bucket_quota(self, 
+                        bucket_name,
+                        quota_conf,
+                        config=None):
+        """
+        put quota conf of bucket
+        :type bucket: string
+        :param bucket: None
+
+        :type retention_days: int
+        :param retention_days: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.PUT,
+                                  bucket_name,
+                                  body=json.dumps(quota_conf, default=BosClient._dump_acl_object),
+                                  params={b'quota': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def delete_bucket_quota(self, 
+                        bucket_name,
+                        config=None):
+        """
+        get bucket quota
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={b'quota': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def get_bucket_tagging(self, 
+                        bucket_name,
+                        config=None):
+        """
+        get bucket tagging
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.GET,
+                                  bucket_name,
+                                  params={b'tagging': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def put_bucket_tagging(self, 
+                        bucket_name,
+                        tag_conf,
+                        config=None):
+        """
+        put tagging conf of bucket
+        :type bucket: string
+        :param bucket: None
+
+        :type retention_days: int
+        :param retention_days: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.PUT,
+                                  bucket_name,
+                                  body=json.dumps(tag_conf, default=BosClient._dump_acl_object),
+                                  params={b'tagging': b''},
+                                  config=config)
+    
+    @required(bucket_name=(bytes, str), cors_configuration=list)
+    def delete_bucket_tagging(self, 
+                        bucket_name,
+                        config=None):
+        """
+        delete bucket tagging
+        :type bucket: string
+        :param bucket: None
+
+        :return:**Http Response**
+        """
+        return self._send_request(http_methods.DELETE,
+                                  bucket_name,
+                                  params={b'tagging': b''},
+                                  config=config)
 
     @staticmethod
     def _prepare_object_headers(
