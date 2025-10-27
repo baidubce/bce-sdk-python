@@ -34,13 +34,16 @@ AIHC客户端示例模块。
 
 # !/usr/bin/env python
 # coding=utf-8
-from baidubce.exception import BceHttpClientError, BceServerError
-# from baidubce.services.aihc.aihc_model import JobConfig
-from baidubce.services.aihc.aihc_client import AihcClient
-
-import sample.aihc.aihc_sample_conf as aihc_sample_conf
 import json
 import logging
+
+from baidubce.exception import BceHttpClientError, BceServerError
+from baidubce.services.aihc.aihc_client import AihcClient
+from baidubce.services.aihc.modules.service.service_model import ResourcePoolConf, ImageConf, ContainerConf, ServiceConf
+from baidubce.services.aihc.modules.service.service_model import ModifyServiceConf
+
+import sample.aihc.aihc_sample_conf as aihc_sample_conf
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("baidubce").setLevel(logging.INFO)
@@ -89,7 +92,7 @@ def main():
     4. 完整的错误处理机制
     
     注意：
-    - 部分功能（如创建、更新、删除任务）被注释掉，避免误操作
+    - 部分功能（如创建、升级、删除服务等）被注释掉，避免误操作
     - 所有API调用都包含完整的异常处理
     - 响应数据会被转换为JSON格式输出
     
@@ -106,14 +109,14 @@ def main():
     # 查询服务列表
     try:
         __logger.info('--------------------------------DescribeServices start...--------------------------------')
-        response = aihc_client.service.DescribeServices()   
+        response = aihc_client.service.DescribeServices()
         print(json.dumps(to_dict(response), ensure_ascii=False))
         __logger.info('DescribeServices: %s', response.__dict__.keys())
-        
+
         # 获取第一个服务ID用于后续操作
         if hasattr(response, 'services') and response.services is not None and len(response.services) > 0:
             service_id = response.services[0].id
-            
+
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -190,6 +193,129 @@ def main():
                                % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # # 创建服务
+    # try:
+    #     __logger.info('--------------------------------CreateService start...--------------------------------')
+    #     resource_pool_conf = ResourcePoolConf(
+    #         resourcePoolId="cce-xxx",
+    #         queueName='default',
+    #         resourcePoolType="",
+    #         resourcePoolName="pool-xxx"
+    #     )
+    #     image_conf = ImageConf(
+    #         imageType=1,
+    #         imageUrl="registry.baidubce.com/csm-online/sglang-router:0.2.0",
+    #     )
+    #     containers = [ContainerConf(
+    #             name="container-test",
+    #             cpus=16,
+    #             memory=64,
+    #             acceleratorCount=1,
+    #             image=image_conf,
+    #             command=[
+    #                 "python",
+    #                 "-m",
+    #                 "sglang_router.launch_router",
+    #                 "--enable-igw",
+    #                 "--pd-disaggregation",
+    #                 "--service-discovery",
+    #                 "--prefill-selector",
+    #                 "pom.aihc.baidubce.com/app-name=sglang-p-test",
+    #                 "--decode-selector",
+    #                 "pom.aihc.baidubce.com/app-name=sglang-d-test",
+    #                 "--service-discovery-namespace",
+    #                 "aihc-pom",
+    #                 "--service-discovery-port",
+    #                 "9000",
+    #                 "--prefill-policy",
+    #                 "cache_aware",
+    #                 "--decode-policy",
+    #                 "round_robin",
+    #                 "--host",
+    #                 "0.0.0.0",
+    #                 "--port",
+    #                 "30000"
+    #             ],
+    #         )]
+    #     response = aihc_client.service.CreateService(
+    #         serviceConf={
+    #             "name": "pythonsdk-aihc-service-test-xxx",
+    #             "acceleratorType": "NVIDIA H20-3e",
+    #             "workloadType": "",
+    #             "instanceCount": 1,
+    #             "resourcePool": resource_pool_conf,
+    #             "containers": containers
+    #         }
+    #     )
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('CreateService: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+    #
+    # # 升级在线服务
+    # try:
+    #     __logger.info('--------------------------------ModifyService start...--------------------------------')
+    #     resource_pool_conf = ResourcePoolConf(
+    #         resourcePoolId="cce-xxx",
+    #         queueName='default',
+    #         resourcePoolType="",
+    #         resourcePoolName="xxxx"
+    #     )
+    #     service_conf = ModifyServiceConf(
+    #         name="service-xxx-test-20251027",
+    #         acceleratorType="NVIDIA H20-3e",
+    #         instanceCount=3,
+    #         resourcePool=resource_pool_conf,
+    #         containers=[ContainerConf(
+    #             name="custom-container",
+    #             cpus=16,
+    #             memory=64,
+    #             acceleratorCount=1,
+    #             image= ImageConf(
+    #                 imageType=1,
+    #                 imageUrl="registry.baidubce.com/csm-online/sglang-router:0.2.0",
+    #             ),
+    #             command=[
+    #                 "python",
+    #                 "-m",
+    #                 "sglang_router.launch_router",
+    #                 "--enable-igw",
+    #                 "--pd-disaggregation",
+    #                 "--service-discovery",
+    #                 "--prefill-selector",
+    #                 "pom.aihc.baidubce.com/app-name=sglang-p-test",
+    #                 "--decode-selector",
+    #                 "pom.aihc.baidubce.com/app-name=sglang-d-test",
+    #                 "--service-discovery-namespace",
+    #                 "aihc-pom",
+    #                 "--service-discovery-port",
+    #                 "9000",
+    #                 "--prefill-policy",
+    #                 "cache_aware",
+    #                 "--decode-policy",
+    #                 "round_robin",
+    #                 "--host",
+    #                 "0.0.0.0",
+    #                 "--port",
+    #                 "30000"
+    #             ],
+    #         )]
+    #     )
+    #     response = aihc_client.service.ModifyService(serviceId=service_id, serviceConf=service_conf)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('ModifyService: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
 
 if __name__ == '__main__':
     main()

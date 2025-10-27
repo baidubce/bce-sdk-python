@@ -110,14 +110,16 @@ class ServiceClient(AIHCBaseClient):
 
     def CreateService(
         self,
-        serviceConf: dict
+        serviceConf: dict,
+        clientToken: Optional[str] = None
     ):
         """
         创建在线服务。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Gmb4v1kcc
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Imb4uf20u
 
         Args:
+            clientToken: clientToken保证请求的幂等性（可选，Query参数）
             serviceConf: 服务配置（必填，Body参数，详见ServiceConf结构），包含：
                 - name: 服务名称（必填）
                 - acceleratorType: 加速芯片类型（必填）
@@ -133,11 +135,17 @@ class ServiceClient(AIHCBaseClient):
 
         Returns:
             baidubce.bce_response.BceResponse: 创建结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'CreateService',
         }
+        if clientToken is not None:
+            params['clientToken'] = clientToken
 
         return self._send_request(
             http_methods.POST,
@@ -176,42 +184,45 @@ class ServiceClient(AIHCBaseClient):
     def ModifyService(
         self,
         serviceId: str,
-        name: Optional[str] = None,
+        serviceConf: dict,
         description: Optional[str] = None,
-        instanceCount: Optional[int] = None
     ):
         """
-        修改在线服务。
+        升级在线服务。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/xxxxx
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Zmb4v974k
 
         Args:
-            serviceId: 服务ID（必填）
-            name: 服务名称（可选）
-            description: 描述（可选）
-            instanceCount: 实例数量（可选）
+            serviceId: 服务ID（必填，Query参数）
+            serviceConf: 与创建参数一致，但不允许修改网络配置，当前支持修改的字段如下：（可选，Body参数）
+            - acceleratorType: 加速芯片类型（必填）
+            - instanceCount: 部署实例数，取值>=0（必填）
+            - storage: 存储卷、共享内存配置（可选）
+            - containers: 服务容器信息，最少需要1个，最多10个（必填）
+            - log: 日志配置（可选）
+            - deploy: 部署配置，默认为最大超量和最大不可用均为25%（可选）
+            - misc: 实例label、annotations配置（可选）
+            description: 描述（可选，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 修改结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'ModifyService',
             'serviceId': serviceId,
         }
-        
-        body = {}
-        if name is not None:
-            body['name'] = name
-        if description is not None:
-            body['description'] = description
-        if instanceCount is not None:
-            body['instanceCount'] = instanceCount
+        if params is not None:
+            params['description'] = description
 
         return self._send_request(
             http_methods.POST,
             path,
-            body=json.dumps(body),
+            body=json.dumps(serviceConf),
             params=params
         )
 
@@ -237,7 +248,7 @@ class ServiceClient(AIHCBaseClient):
             'action': 'ModifyServiceReplicas',
             'serviceId': serviceId,
         }
-        
+
         body = {
             'instanceCount': instanceCount,
         }
@@ -273,7 +284,7 @@ class ServiceClient(AIHCBaseClient):
             'action': 'UpgradeService',
             'serviceId': serviceId,
         }
-        
+
         body = {
             'versionId': versionId,
             **kwargs
@@ -335,7 +346,7 @@ class ServiceClient(AIHCBaseClient):
             'action': 'DeleteServicePod',
             'serviceId': serviceId,
         }
-        
+
         body = {
             'instanceId': instanceId,
         }
@@ -371,7 +382,7 @@ class ServiceClient(AIHCBaseClient):
             'action': 'DisableServicePod',
             'serviceId': serviceId,
         }
-        
+
         body = {
             'instanceId': instanceId,
             'block': block,
