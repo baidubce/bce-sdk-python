@@ -245,35 +245,46 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeDatasetVersions(self, datasetId, pageNumber=1, pageSize=10):
+    def DescribeDatasetVersions(
+            self,
+            datasetId: str,
+            pageNumber: Optional[int] = None,
+            pageSize: Optional[int] = None
+    ):
         """
         获取数据集版本列表。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Tmc09d4k0
 
-        :param datasetId: 数据集ID（必填，Query参数）
-        :type datasetId: str
-        :param pageNumber: 页码，默认1（可选，Query参数）
-        :type pageNumber: int
-        :param pageSize: 每页数量，默认10（可选，Query参数）
-        :type pageSize: int
-        :return: 数据集版本列表及总数
-        :rtype: baidubce.bce_response.BceResponse
+        Args：
+        datasetId: 数据集ID（必填，Query参数）
+        pageNumber: 页码，默认1（可选，Query参数）
+        pageSize: 每页数量，默认10（可选，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse：数据集版本列表及总数
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'DescribeDatasetVersions',
             'datasetId': datasetId,
-            'pageNumber': pageNumber,
-            'pageSize': pageSize,
         }
+        if pageNumber is not None:
+            params['pageNumber'] = pageNumber
+        if pageSize is not None:
+            params['pageSize'] = pageSize
+
         return self._send_request(
             http_methods.GET,
             path,
             params=params
         )
 
-    def DescribeDatasetVersion(self, datasetId: str, versionId: str) -> 'BceResponse':
+    def DescribeDatasetVersion(self, datasetId: str, versionId: str):
         """
         获取数据集版本详情。
 
@@ -285,6 +296,10 @@ class DatasetClient(AIHCBaseClient):
 
         Returns:
             baidubce.bce_response.BceResponse: 数据集版本详情
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
