@@ -29,9 +29,9 @@ class DatasetClient(AIHCBaseClient):
         storageType: Optional[str] = None,
         storageInstances: Optional[str] = None,
         importFormat: Optional[str] = None,
-        pageNumber: int = 1,
-        pageSize: Optional[int] = 10
-    ) -> 'BceResponse':
+        pageNumber: Optional[int] = None,
+        pageSize: Optional[int] = None
+    ):
         """
         获取数据集列表。
 
@@ -47,11 +47,14 @@ class DatasetClient(AIHCBaseClient):
 
         Returns:
             baidubce.bce_response.BceResponse: 数据集列表及总数
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'DescribeDatasets',
-            'pageNumber': pageNumber,
         }
         if keyword is not None:
             params['keyword'] = keyword
@@ -61,6 +64,8 @@ class DatasetClient(AIHCBaseClient):
             params['storageInstances'] = storageInstances
         if importFormat is not None:
             params['importFormat'] = importFormat
+        if pageNumber is not None:
+            params['pageNumber'] = pageNumber
         if pageSize is not None:
             params['pageSize'] = pageSize
 
@@ -70,7 +75,7 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeDataset(self, datasetId: str) -> 'BceResponse':
+    def DescribeDataset(self, datasetId: str):
         """
         获取数据集详情。
 
@@ -81,6 +86,10 @@ class DatasetClient(AIHCBaseClient):
 
         Returns:
             baidubce.bce_response.BceResponse: 数据集详情
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
