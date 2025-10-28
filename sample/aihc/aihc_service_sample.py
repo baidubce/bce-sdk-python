@@ -371,6 +371,34 @@ def main():
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # # 服务扩缩容
+    # try:
+    #     __logger.info('-----------------------ModifyServiceReplicas start...-----------------------------')
+    #     service_id = "s-xxx"
+    #     response = aihc_client.service.ModifyServiceReplicas(serviceId=service_id, instanceCount=2)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('ModifyServiceReplicas: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # # 配置公网访问
+    # try:
+    #     __logger.info('------------------------ModifyServiceNetConfig start...-----------------------------')
+    #     service_id = "s-xxx"
+    #     response = aihc_client.service.ModifyServiceNetConfig(serviceId=service_id, publicAccess=False)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('ModifyServiceNetConfig: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
     # # 删除服务
     # try:
     #     __logger.info('----------------DeleteService start...-----------------------------')

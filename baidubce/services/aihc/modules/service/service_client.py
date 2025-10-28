@@ -245,31 +245,31 @@ class ServiceClient(AIHCBaseClient):
         instanceCount: int
     ):
         """
-        扩缩容在线服务。
+        服务扩缩容。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Omb4vbjhh
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/4mb4vaipm
 
         Args:
-            serviceId: 服务ID（必填）
-            instanceCount: 实例数量（必填）
+            serviceId: 服务ID（必填，Query参数）
+            instanceCount: 实例数量（必填，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 扩缩容结果
+
+        Raises:
+            BceHttpClientError: 当API调用失败时抛出
+            BceServerError: 当服务器返回错误时抛出
         """
         path = b'/'
         params = {
             'action': 'ModifyServiceReplicas',
             'serviceId': serviceId,
-        }
-
-        body = {
-            'instanceCount': instanceCount,
+            'instanceCount': instanceCount
         }
 
         return self._send_request(
             http_methods.POST,
             path,
-            body=json.dumps(body),
             params=params
         )
 
@@ -425,12 +425,16 @@ class ServiceClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Gmb4vgurj
 
         Args:
-            serviceId: 服务ID（必填）
-            publicAccess: 是否开启公网访问（必填）
-            eip: 弹性公网IP（可选）
+            serviceId: 服务ID（必填，Query参数）
+            publicAccess: 是否开启公网访问（必填，Query参数）
+            eip: 弹性公网IP（可选，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: 公网访问配置结果
+
+        Raises:
+            BceHttpClientError: 当API调用失败时抛出
+            BceServerError: 当服务器返回错误时抛出
         """
         path = b'/'
         params = {

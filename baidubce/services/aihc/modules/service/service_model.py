@@ -32,10 +32,10 @@ class ResourcePoolConf(dict):
 
     def __init__(
         self,
-        resourcePoolId: str,
-        queueName: str,
-        resourcePoolType: str,
-        resourcePoolName: str
+        resourcePoolId,  # type: str
+        queueName,  # type: str
+        resourcePoolType,  # type: str
+        resourcePoolName  # type: str
     ):
         super().__init__()
         self["resourcePoolId"] = resourcePoolId
@@ -52,7 +52,7 @@ class PFSConfig(dict):
         InstanceId (str): PFS实例ID（如"pfs-12345"）
     """
 
-    def __init__(self, sourcePath: str, InstanceId: str):
+    def __init__(self, sourcePath, InstanceId):
         super().__init__()
         self["sourcePath"] = sourcePath
         self["InstanceId"] = InstanceId
@@ -72,9 +72,9 @@ class VolumnConf(dict):
 
     def __init__(
             self,
-            volumeType: str,
-            volumnName: str,
-            pfs: Optional[dict] = None
+            volumeType,  # type: str
+            volumnName,  # type: str
+            pfs,  # type: Optional[dict] = None
     ):
         super().__init__()
         self["volumeType"] = volumeType
@@ -92,8 +92,8 @@ class StorageConf(dict):
 
     def __init__(
             self,
-            shmSize: Optional[int] = None,
-            volumns: Optional[List[dict]] = None
+            shmSize, # type: Optional[int] = None,
+            volumns # type: Optional[List[dict]] = None
     ):
         super().__init__()
         if shmSize is not None:
@@ -116,10 +116,10 @@ class ImageConf(dict):
 
     def __init__(
             self,
-            imageType: int,
-            imageUrl: str,
-            username: Optional[str] = None,
-            password: Optional[str] = None
+            imageType,  # type: int
+            imageUrl,  # type: str
+            username,  # type: Optional[str]
+            password   # type: Optional[str]
     ):
         super().__init__()
         self["imageType"] = imageType
@@ -136,7 +136,7 @@ class ExecAction(dict):
         command (list): 要执行的命令数组（如["/bin/sh", "-c", "echo ready"]）
     """
 
-    def __init__(self, command: list):
+    def __init__(self, command):  # type: list
         super().__init__()
         self["command"] = command
 
@@ -148,7 +148,7 @@ class HTTPGetAction(dict):
         port (int): 请求端口号（如8080）
     """
 
-    def __init__(self, path: str, port: int):
+    def __init__(self, path, port):  # type: (str, int)
         super().__init__()
         self["path"] = path
         self["port"] = port
@@ -160,7 +160,7 @@ class TCPSocketAction(dict):
         port (int): 要检查的端口号
     """
 
-    def __init__(self, port: int):
+    def __init__(self, port):  # type: int
         super().__init__()
         self["port"] = port
 
@@ -177,9 +177,9 @@ class ProbeHandlerConf(dict):
 
     def __init__(
             self,
-            exec: Optional[dict] = None,
-            httpGet: Optional[dict] = None,
-            tcpSocketAction: Optional[dict] = None
+            exec, # type: Optional[dict]
+            httpGet, # type: Optional[dict]
+            tcpSocketAction # type: Optional[dict]
     ):
         super().__init__()
         if exec is not None:
@@ -203,12 +203,12 @@ class ProbeConf(dict):
 
     def __init__(
             self,
-            initialDelaySeconds: int,
-            timeoutSeconds: int,
-            periodSeconds: int,
-            successThreshold: int,
-            failureThreshold: int,
-            handler: dict
+            initialDelaySeconds,  # type: int
+            timeoutSeconds,       # type: int
+            periodSeconds,        # type: int
+            successThreshold,     # type: int
+            failureThreshold,     # type: int
+            handler               # type: dict
     ):
         super().__init__()
         self["initialDelaySeconds"] = initialDelaySeconds
@@ -240,19 +240,19 @@ class ContainerConf(dict):
 
     def __init__(
             self,
-            name: str,
-            cpus: int,
-            memory: int,
-            acceleratorCount: int,
-            image: dict,
-            command: Optional[list] = None,
-            runArgs: Optional[list] = None,
-            ports: Optional[list] = None,
-            envs: Optional[dict] = None,
-            volumeMounts: Optional[list] = None,
-            readinessProbe: Optional[dict] = None,
-            startupsProbe: Optional[dict] = None,
-            livenessProbe: Optional[dict] = None
+            name,  # type: str
+            cpus,  # type: int
+            memory,  # type: int
+            acceleratorCount,  # type: int
+            image,  # type: dict
+            command,  # type: Optional[list]
+            runArgs,  # type: Optional[list]
+            ports,  # type: Optional[list]
+            envs,  # type: Optional[dict]
+            volumeMounts,  # type: Optional[list]
+            readinessProbe,  # type: Optional[dict]
+            startupsProbe,  # type: Optional[dict]
+            livenessProbe   # type: Optional[dict]
     ):
         super().__init__()
         self["name"] = name
@@ -286,7 +286,7 @@ class AiGatewayConf(dict):
         enableAuth (bool): 是否开启鉴权（True/False）
     """
 
-    def __init__(self, enableAuth: bool):
+    def __init__(self, enableAuth):  # type: bool
         super().__init__()
         self["enableAuth"] = enableAuth
 
@@ -303,10 +303,10 @@ class AccessConf(dict):
 
     def __init__(
             self,
-            publicAccess: Optional[bool] = None,
-            eip: Optional[str] = None,
-            aiGateway: Optional[dict] = None,
-            networkType: Optional[str] = None
+            publicAccess,  # type: Optional[bool]
+            eip,           # type: Optional[str]
+            aiGateway,     # type: Optional[dict]
+            networkType    # type: Optional[str]
     ):
         super().__init__()
         if publicAccess is not None:
@@ -326,7 +326,7 @@ class LogConf(dict):
         persistent (Optional[bool]): 是否持久化容器标准输出日志（默认False）
     """
 
-    def __init__(self, persistent: Optional[bool] = None):
+    def __init__(self, persistent=None):  # type: Optional[bool]
         super().__init__()
         if persistent is not None:  # 日志持久化开关
             self["persistent"] = persistent
@@ -344,8 +344,8 @@ class CanaryStrategyConf(dict):
 
     def __init__(
             self,
-            maxSurge: Optional[int] = None,
-            maxUnavailable: Optional[int] = None
+            maxSurge,       # type: Optional[int]
+            maxUnavailable  # type: Optional[int]
     ):
         super().__init__()
         if maxSurge is not None:
@@ -361,7 +361,7 @@ class ScheduleConf(dict):
         priority (str): 优先级（"high"/"normal"/"low"）
     """
 
-    def __init__(self, priority: str):
+    def __init__(self, priority):  # type: str
         super().__init__()
         self["priority"] = priority
 
@@ -399,11 +399,11 @@ class Misc(dict):
 
     def __init__(
             self,
-            podLabels: Optional[dict] = None,
-            podAnnotations: Optional[dict] = None,
-            gracePeriodSec: Optional[int] = None,
-            fedPodsPerIns: Optional[int] = None,
-            enableRDMA: Optional[bool] = None
+            podLabels,      # type: Optional[dict]
+            podAnnotations, # type: Optional[dict]
+            gracePeriodSec, # type: Optional[int]
+            fedPodsPerIns,  # type: Optional[int]
+            enableRDMA      # type: Optional[bool]
     ):
         super().__init__()
         if podLabels is not None:
@@ -437,17 +437,17 @@ class ServiceConf(dict):
 
     def __init__(
             self,
-            name: str,
-            acceleratorType: str,
-            workloadType: str,
-            instanceCount: int,
-            resourcePool: dict,
-            containers: List[dict],
-            storage: Optional[dict] = None,
-            access: Optional[dict] = None,
-            log: Optional[dict] = None,
-            deploy: Optional[dict] = None,
-            misc: Optional[dict] = None
+            name,            # type: str
+            acceleratorType, # type: str
+            workloadType,    # type: str
+            instanceCount,   # type: int
+            resourcePool,    # type: dict
+            containers,      # type: List[dict]
+            storage,    # type: Optional[dict]
+            access,     # type: Optional[dict]
+            log,        # type: Optional[dict]
+            deploy,     # type: Optional[dict]
+            misc        # type: Optional[dict]
     ):
         super().__init__()
         self["name"] = name
@@ -485,15 +485,15 @@ class ModifyServiceConf(dict):
 
     def __init__(
             self,
-            name: str,
-            acceleratorType: str,
-            instanceCount: int,
-            resourcePool: dict,
-            containers: List[dict],
-            storage: Optional[dict] = None,
-            log: Optional[dict] = None,
-            deploy: Optional[dict] = None,
-            misc: Optional[dict] = None
+            name,            # type: str
+            acceleratorType, # type: str
+            instanceCount,   # type: int
+            resourcePool,    # type: dict
+            containers,      # type: List[dict]
+            storage,    # type: Optional[dict]
+            log,        # type: Optional[dict]
+            deploy,     # type: Optional[dict]
+            misc     # type: Optional[dict]
     ):
         super().__init__()
         self["name"] = name
