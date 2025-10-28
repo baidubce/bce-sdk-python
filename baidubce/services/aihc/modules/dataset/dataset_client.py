@@ -289,18 +289,22 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DeleteDatasetVersion(self, datasetId, versionId):
+    def DeleteDatasetVersion(self, datasetId: str, versionId: str):
         """
         删除数据集版本。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Omc09gd0f
 
-        :param datasetId: 数据集ID（必填，Query参数）
-        :type datasetId: str
-        :param versionId: 数据集版本ID（必填，Query参数）
-        :type versionId: str
-        :return: 删除结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            datasetId: 数据集ID（必填，Query参数）
+            versionId: 数据集版本ID（必填，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 删除结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -314,22 +318,30 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def CreateDatasetVersion(self, datasetId, storagePath, mountPath, description=None):
+    def CreateDatasetVersion(
+            self,
+            datasetId: str,
+            storagePath: str,
+            mountPath: str,
+            description: Optional[str] = None
+    ):
         """
         创建数据集版本。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/hmc09en7q
 
-        :param datasetId: 数据集ID（必填，Query参数）
-        :type datasetId: str
-        :param storagePath: 存储路径（必填，Body参数）
-        :type storagePath: str
-        :param mountPath: 默认挂载路径（必填，Body参数）
-        :type mountPath: str
-        :param description: 版本描述（可选，Body参数）
-        :type description: str
-        :return: 创建结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            datasetId: 数据集ID（必填，Query参数）
+            storagePath: 存储路径（必填，Body参数）
+            mountPath: 默认挂载路径（必填，Body参数）
+            description: 版本描述（可选，Body参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 创建结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
