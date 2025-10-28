@@ -316,6 +316,20 @@ def main():
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # # 删除服务
+    # try:
+    #     __logger.info('----------------DeleteService start...-----------------------------')
+    #     service_id = "s-xxx"
+    #     response = aihc_client.service.DeleteService(serviceId=service_id)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('DeleteService: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
 
 if __name__ == '__main__':
     main()

@@ -168,6 +168,10 @@ class ServiceClient(AIHCBaseClient):
 
         Returns:
             baidubce.bce_response.BceResponse: 删除结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
