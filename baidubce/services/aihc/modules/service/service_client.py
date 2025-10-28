@@ -336,29 +336,29 @@ class ServiceClient(AIHCBaseClient):
         """
         删除Pod并重建。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Wmb4vdg53
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/Hmb4vjh24
 
         Args:
-            serviceId: 服务ID（必填）
-            instanceId: Pod实例ID（必填）
+            serviceId: 服务ID（必填，Query参数）
+            instanceId: Pod实例ID（必填，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: Pod删除结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'DeleteServicePod',
             'serviceId': serviceId,
-        }
-
-        body = {
             'instanceId': instanceId,
         }
 
         return self._send_request(
             http_methods.POST,
             path,
-            body=json.dumps(body),
             params=params
         )
 
@@ -366,28 +366,29 @@ class ServiceClient(AIHCBaseClient):
         self,
         serviceId: str,
         instanceId: str,
-        block: bool = True
+        block: bool
     ):
         """
         摘除Pod流量。
 
-        参考文档：https://cloud.baidu.com/doc/AIHC/s/Jmb4vf5ew
+        参考文档：https://cloud.baidu.com/doc/AIHC/s/5mb4vhz0a
 
         Args:
-            serviceId: 服务ID（必填）
-            instanceId: Pod实例ID（必填）
-            block: 是否阻塞等待（可选，默认True）
+            serviceId: 服务ID（必填，Query参数）
+            instanceId: Pod实例ID（必填，Query参数）
+            block: 是否阻塞等待（必填，Query参数）
 
         Returns:
             baidubce.bce_response.BceResponse: Pod流量摘除结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
             'action': 'DisableServicePod',
             'serviceId': serviceId,
-        }
-
-        body = {
             'instanceId': instanceId,
             'block': block,
         }
@@ -395,7 +396,6 @@ class ServiceClient(AIHCBaseClient):
         return self._send_request(
             http_methods.POST,
             path,
-            body=json.dumps(body),
             params=params
         )
 

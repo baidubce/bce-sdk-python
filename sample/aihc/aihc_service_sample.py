@@ -316,6 +316,37 @@ def main():
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # # 摘除pod流量
+    # try:
+    #     __logger.info('--------------------------------DisableServicePod start...--------------------------------')
+    #     service_id = "s-xxx"
+    #     instance_id = "s-xxx-xxx-xx"
+    #     block = False
+    #     response = aihc_client.service.DisableServicePod(serviceId=service_id, instanceId=instance_id, block=block)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('DisableServicePod: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # # 删除pod并重建
+    # try:
+    #     __logger.info('--------------------------------DeleteServicePod start...--------------------------------')
+    #     service_id = "s-xxx"
+    #     instance_id = "s-xxx-xxx-xx"
+    #     response = aihc_client.service.DeleteServicePod(serviceId=service_id, instanceId=instance_id)
+    #     print(json.dumps(to_dict(response), ensure_ascii=False))
+    #     __logger.info('DeleteServicePod: %s', response.__dict__.keys())
+    # except BceHttpClientError as e:
+    #     if isinstance(e.last_error, BceServerError):
+    #         __logger.error('send request failed. Response %s, code: %s, msg: %s'
+    #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+    #     else:
+    #         __logger.error('send request failed. Unknown exception: %s' % e)
+
     # # 删除服务
     # try:
     #     __logger.info('----------------DeleteService start...-----------------------------')
