@@ -34,13 +34,15 @@ AIHC客户端示例模块。
 
 # !/usr/bin/env python
 # coding=utf-8
-from baidubce.exception import BceHttpClientError, BceServerError
-# from baidubce.services.aihc.aihc_model import JobConfig
-from baidubce.services.aihc.aihc_client import AihcClient
-
-import sample.aihc.aihc_sample_conf as aihc_sample_conf
 import json
 import logging
+
+from baidubce.exception import BceHttpClientError, BceServerError
+from baidubce.services.aihc.aihc_client import AihcClient
+from baidubce.services.aihc.modules.dataset.dataset_model import DatasetVersionEntry
+
+import sample.aihc.aihc_sample_conf as aihc_sample_conf
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("baidubce").setLevel(logging.INFO)
@@ -51,16 +53,16 @@ __logger.setLevel(logging.INFO)
 def to_dict(obj):
     """
     将对象转换为字典格式。
-    
+
     递归地将Python对象（包括自定义对象、字典、列表）转换为纯字典格式，
     便于JSON序列化和调试输出。
-    
+
     Args:
         obj: 要转换的对象，可以是字典、列表、自定义对象或基本类型
-        
+
     Returns:
         dict/list/基本类型: 转换后的字典、列表或基本类型值
-        
+
     Examples:
         >>> obj = SomeClass()
         >>> obj.name = "test"
@@ -78,21 +80,21 @@ def to_dict(obj):
         return obj
 
 
-def main(ModifyDataset=False, DeleteDataset=False):
+def main(ModifyDataset=False, DeleteDataset=False, CreateDataset=False):
     """
     主函数，演示AIHC服务的各种操作。
-    
+
     本函数展示了AihcClient的完整使用流程，包括：
     1. 创建AIHC客户端实例
     2. 查询任务列表和详情
     3. 查询各种资源列表（数据集、模型、服务、开发机）
     4. 完整的错误处理机制
-    
+
     注意：
     - 部分功能（如创建、更新、删除任务）被注释掉，避免误操作
     - 所有API调用都包含完整的异常处理
     - 响应数据会被转换为JSON格式输出
-    
+
     Raises:
         BceHttpClientError: 当API调用失败时抛出
         BceServerError: 当服务器返回错误时抛出
@@ -191,6 +193,65 @@ def main(ModifyDataset=False, DeleteDataset=False):
             else:
                 __logger.error('send request failed. Unknown exception: %s' % e)
 
+    # 创建数据集
+    if dataset_id and CreateDataset:
+        try:
+            __logger.info('--------------------CreateDataset start--------------------')
+            response = aihc_client.dataset.CreateDataset(
+                name='sdk-test-dataset-xxx-xxx',
+                storageType='PFS',
+                storageInstance='pfs-xxx',
+                importFormat='FOLDER',
+                visibilityScope='ALL_PEOPLE',
+                initVersionEntry=DatasetVersionEntry(
+                    storagePath='/',
+                    mountPath='/xx'
+                )
+            )
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('create dataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 修改数据集
+    if dataset_id and ModifyDataset:
+        try:
+            __logger.info('--------------------ModifyDataset start--------------------')
+            response = aihc_client.dataset.ModifyDataset(
+                datasetId=dataset_id,
+                name='sdk-test-dataset-xxx-xxx',
+                description='test rename dataset',
+                visibilityScope='ONLY_OWNER',
+            )
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('modify dataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # 删除数据集
+    if dataset_id and DeleteDataset:
+        try:
+            __logger.info('--------------------DeleteDataset start--------------------')
+            response = aihc_client.dataset.DeleteDataset(
+                datasetId=dataset_id
+            )
+            print(json.dumps(to_dict(response), ensure_ascii=False))
+            __logger.info('delete dataset: %s', response.__dict__.keys())
+        except BceHttpClientError as e:
+            if isinstance(e.last_error, BceServerError):
+                __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                               % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
+            else:
+                __logger.error('send request failed. Unknown exception: %s' % e)
+
+
 if __name__ == '__main__':
-    # main(ModifyDataset=True, DeleteDataset=True)
-    main(ModifyDataset=False, DeleteDataset=False)
+    main(ModifyDataset=False, DeleteDataset=False, CreateDataset=False)

@@ -14,101 +14,62 @@
 AIHC dataset model module: Dataset, DatasetVersion
 """
 
+from typing import Optional
 
-class Dataset(dict):
+
+class PermissionEntry(dict):
     """
-    数据集信息结构体，对应数据集详情、数据集列表接口。
-    :param id: 数据集ID
-    :param name: 数据集名称
-    :param storageType: 存储类型（如 PFS、BOS）
-    :param storageInstance: 存储实例ID
-    :param importFormat: 导入格式（如 FILE、FOLDER）
-    :param owner: 拥有者ID
-    :param ownerName: 拥有者名称
-    :param visibilityScope: 可见范围（如 ALL_PEOPLE）
-    :param permission: 权限（如 rw）
-    :param latestVersionId: 最新版本ID
-    :param latestVersion: 最新版本号
-    :param latestVersionEntry: 最新版本详情（DatasetVersion 类型或 dict，可选）
-    :param createdAt: 创建时间（ISO8601字符串）
-    :param updatedAt: 更新时间（ISO8601字符串）
+    权限条目结构体，用于表示用户或用户组的权限信息
     """
-    def __init__(self, id, name, storageType, storageInstance, importFormat, owner, 
-                 ownerName, visibilityScope, permission, latestVersionId, latestVersion, 
-                 createdAt, updatedAt, latestVersionEntry=None):
+
+    def __init__(self, id: str, name: str, permission: str):
         """
-        初始化数据集信息
-        
+        初始化权限条目
+
         Args:
-            id: 数据集ID
-            name: 数据集名称
-            storageType: 存储类型（如 PFS、BOS）
-            storageInstance: 存储实例ID
-            importFormat: 导入格式（如 FILE、FOLDER）
-            owner: 拥有者ID
-            ownerName: 拥有者名称
-            visibilityScope: 可见范围（如 ALL_PEOPLE）
-            permission: 权限（如 rw）
-            latestVersionId: 最新版本ID
-            latestVersion: 最新版本号
-            createdAt: 创建时间（ISO8601字符串）
-            updatedAt: 更新时间（ISO8601字符串）
-            latestVersionEntry: 最新版本详情（DatasetVersion 类型或 dict，可选）
+            id: 用户或用户组ID
+            name: 用户或用户组名
+            permission: 权限，枚举值：r：只读，rw：读写
         """
-        super(Dataset, self).__init__()
+        super().__init__()
         self["id"] = id
         self["name"] = name
-        self["storageType"] = storageType
-        self["storageInstance"] = storageInstance
-        self["importFormat"] = importFormat
-        self["owner"] = owner
-        self["ownerName"] = ownerName
-        self["visibilityScope"] = visibilityScope
         self["permission"] = permission
-        self["latestVersionId"] = latestVersionId
-        self["latestVersion"] = latestVersion
-        self["createdAt"] = createdAt
-        self["updatedAt"] = updatedAt
-        if latestVersionEntry is not None:
-            self["latestVersionEntry"] = latestVersionEntry
 
 
-class DatasetVersion(dict):
+class DatasetVersionEntry(dict):
     """
-    数据集版本信息结构体，对应数据集版本详情、版本列表接口。
-    :param id: 版本ID
-    :param version: 版本号
-    :param description: 版本描述
-    :param storagePath: 存储路径
-    :param mountPath: 挂载路径
-    :param createUser: 创建人ID
-    :param createUserName: 创建人名称
-    :param createdAt: 创建时间（ISO8601字符串）
-    :param updatedAt: 更新时间（ISO8601字符串）
+    数据集版本条目结构体，用于表示数据集版本信息
     """
-    def __init__(self, id, version, description, storagePath, mountPath, createUser, 
-                 createUserName, createdAt, updatedAt):
+
+    def __init__(
+            self,
+            storagePath: str,
+            mountPath: str,
+            id: Optional[str] = None,
+            version: Optional[str] = None,
+            description: Optional[str] = None,
+            createUser: Optional[str] = None
+    ):
         """
-        初始化数据集版本信息
-        
+        初始化数据集版本条目
+
         Args:
-            id: 版本ID
-            version: 版本号
-            description: 版本描述
-            storagePath: 存储路径
-            mountPath: 挂载路径
-            createUser: 创建人ID
-            createUserName: 创建人名称
-            createdAt: 创建时间（ISO8601字符串）
-            updatedAt: 更新时间（ISO8601字符串）
+            storagePath: 存储路径（必须）
+            mountPath: 默认挂载路径（必须）
+            id: 数据集版本ID（可选）
+            version: 版本号（可选）
+            description: 版本描述（可选）
+            createUser: 创建用户（可选）
         """
-        super(DatasetVersion, self).__init__()
-        self["id"] = id
-        self["version"] = version
-        self["description"] = description
+        super().__init__()
         self["storagePath"] = storagePath
         self["mountPath"] = mountPath
-        self["createUser"] = createUser
-        self["createUserName"] = createUserName
-        self["createdAt"] = createdAt
-        self["updatedAt"] = updatedAt 
+        if id is not None:
+            self["id"] = id
+        if version is not None:
+            self["version"] = version
+        if description is not None:
+            self["description"] = description
+        if createUser is not None:
+            self["createUser"] = createUser

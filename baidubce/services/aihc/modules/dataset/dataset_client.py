@@ -14,7 +14,7 @@
 AIHC dataset client module.
 """
 import json
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 
 from baidubce.bce_response import BceResponse
 from baidubce.http import http_methods
@@ -93,27 +93,34 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def ModifyDataset(self, datasetId, name=None, description=None, visibilityScope=None, 
-                    visibilityUser=None, visibilityGroup=None):
+    def ModifyDataset(
+            self,
+            datasetId: str,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            visibilityScope: Optional[str] = None,
+            visibilityUser: List[Dict] = None,
+            visibilityGroup: List[Dict] = None
+    ):
         """
         修改数据集。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Imc095v8z
 
-        :param datasetId: 数据集ID（必填，Query参数）
-        :type datasetId: str
-        :param name: 数据集名称（可选，Body参数）
-        :type name: str
-        :param description: 数据集描述（可选，Body参数）
-        :type description: str
-        :param visibilityScope: 可见范围（可选，Body参数）
-        :type visibilityScope: str
-        :param visibilityUser: 用户权限列表（可选，Body参数，List[dict]）
-        :type visibilityUser: list
-        :param visibilityGroup: 用户组权限列表（可选，Body参数，List[dict]）
-        :type visibilityGroup: list
-        :return: 修改结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            datasetId: 数据集ID（必填，Query参数）
+            name: 数据集名称（可选，Body参数）
+            description: 数据集描述（可选，Body参数）
+            visibilityScope: 可见范围（可选，Body参数）
+            visibilityUser: 用户权限列表（可选，Body参数，List[dict]）
+            visibilityGroup: 用户组权限列表（可选，Body参数，List[dict]）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 修改结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -138,16 +145,21 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def DeleteDataset(self, datasetId):
+    def DeleteDataset(self, datasetId: str):
         """
         删除数据集，同时删除所有版本。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/wmc09407x
 
-        :param datasetId: 数据集ID（必填，Query参数）
-        :type datasetId: str
-        :return: 删除结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            datasetId: 数据集ID（必填，Query参数）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 删除结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -160,35 +172,42 @@ class DatasetClient(AIHCBaseClient):
             params=params
         )
 
-    def CreateDataset(self, name, storageType, storageInstance, importFormat, visibilityScope, initVersionEntry,
-                    description=None, owner=None, visibilityUser=None, visibilityGroup=None):
+    def CreateDataset(
+            self,
+            name: str,
+            storageType: str,
+            storageInstance: str,
+            importFormat: str,
+            visibilityScope: str,
+            initVersionEntry: str,
+            description: Optional[str] = None,
+            owner: Optional[str] = None,
+            visibilityUser: List[Dict] = None,
+            visibilityGroup: List[Dict] = None
+    ):
         """
         创建数据集。
 
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Dmc091fap
 
-        :param name: 数据集名称（必填，Body参数）
-        :type name: str
-        :param storageType: 存储类型（必填，Body参数）
-        :type storageType: str
-        :param storageInstance: 存储实例ID（必填，Body参数）
-        :type storageInstance: str
-        :param importFormat: 导入格式（必填，Body参数）
-        :type importFormat: str
-        :param visibilityScope: 可见范围（必填，Body参数）
-        :type visibilityScope: str
-        :param initVersionEntry: 初始版本信息（必填，Body参数，dict）
-        :type initVersionEntry: dict
-        :param description: 数据集描述（可选，Body参数）
-        :type description: str
-        :param owner: 拥有者ID（可选，Body参数）
-        :type owner: str
-        :param visibilityUser: 用户权限列表（可选，Body参数，List[dict]）
-        :type visibilityUser: list
-        :param visibilityGroup: 用户组权限列表（可选，Body参数，List[dict]）
-        :type visibilityGroup: list
-        :return: 创建结果
-        :rtype: baidubce.bce_response.BceResponse
+        Args:
+            name: 数据集名称（必填，Body参数）
+            storageType: 存储类型（必填，Body参数）
+            storageInstance: 存储实例ID（必填，Body参数）
+            importFormat: 导入格式（必填，Body参数）
+            visibilityScope: 可见范围（必填，Body参数）
+            initVersionEntry: 初始版本信息（必填，Body参数，dict）
+            description: 数据集描述（可选，Body参数）
+            owner: 拥有者ID（可选，Body参数）
+            visibilityUser: 用户权限列表（可选，Body参数，List[dict]）
+            visibilityGroup: 用户组权限列表（可选，Body参数，List[dict]）
+
+        Returns:
+            baidubce.bce_response.BceResponse: 创建结果
+
+        Raises:
+            ValueError: 当必填参数为空时
+            TypeError: 当参数类型不匹配时
         """
         path = b'/'
         params = {
@@ -329,4 +348,3 @@ class DatasetClient(AIHCBaseClient):
             body=json.dumps(body),
             params=params
         )
-
