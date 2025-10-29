@@ -14,9 +14,12 @@ if __name__ == '__main__':
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     vpc_client = vpc_client.VpcClient(config)  # client 初始化
-    vpc_id = "vpc-c46sdgpdkams" # 要更新的vpc的id
+    vpc_id = "vpc-cvp89v5x1jin" # 要更新的vpc的id
+    enable_ipv6 = True
+    secondaryCidr = ["10.0.0.0/16"]
     try:
-        resp = vpc_client.update_vpc(vpc_id, name="vpc_name", description="测试")  # 更新vpc的名称
+        resp = vpc_client.update_vpc(vpc_id, name="vpc_name", description="测试",
+                                     enable_ipv6=enable_ipv6, secondaryCidr=secondaryCidr)  # 更新vpc的名称
         print("[example] update vpc response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

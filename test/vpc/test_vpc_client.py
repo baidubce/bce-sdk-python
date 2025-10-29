@@ -21,6 +21,8 @@ import sys
 import unittest
 import uuid
 
+from test.et.test_et_client import enable_ipv6
+
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 
@@ -72,9 +74,13 @@ class TestVpcClient(unittest.TestCase):
         vpc_name = 'test_vpc_name' + client_token
         vpc_cidr = '192.168.240.0/20'
         description = 'test_vpc_descrition' + client_token
+        enable_ipv6 = False
+        tags = [{"tagKey": "test_tag", "tagValue": "test_val"}]
         res = self.the_client.create_vpc(vpc_name,
                                             vpc_cidr,
                                             description,
+                                            enable_ipv6=enable_ipv6,
+                                            tags=tags,
                                             client_token=client_token)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
@@ -103,7 +109,10 @@ class TestVpcClient(unittest.TestCase):
         """
         test case for delete_vpc
         """
-        res = self.the_client.update_vpc(vpc_id, 'test_update_name', 'test_update_description')
+        enable_ipv6 = False
+        secondaryCidr = []
+        res = self.the_client.update_vpc(vpc_id, 'test_update_name', 'test_update_description',
+                                         enable_ipv6=enable_ipv6,secondaryCidr=secondaryCidr)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
     def test_get_vpc_ip(self):

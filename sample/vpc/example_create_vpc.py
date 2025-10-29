@@ -14,12 +14,16 @@ if __name__ == '__main__':
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     vpc_client = vpc_client.VpcClient(config)  # client 初始化
-    vpc_name = "vpcName"  # vpc名称
+    vpc_name = "vpcName_test2"  # vpc名称
     cidr = "192.168.0.0/16"  # vpc的cidr
+    enable_ipv6 = True
+    tags = [{"tagKey": "test_tag", "tagValue": "test_val"}]
     try:
         resp = vpc_client.create_vpc(
             name=vpc_name,
-            cidr=cidr
+            cidr=cidr,
+            enable_ipv6=enable_ipv6,
+            tags=tags
         )  # 创建vpc
         print("[example] create vpc response: %s" % resp)
     except BceHttpClientError as e:

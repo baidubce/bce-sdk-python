@@ -21,6 +21,8 @@ import sys
 import unittest
 import uuid
 
+from test.et.test_et_client import enable_ipv6
+
 file_path = os.path.normpath(os.path.dirname(__file__))
 sys.path.append(file_path + '/../../')
 
@@ -72,11 +74,18 @@ class TestSubnetClient(unittest.TestCase):
         client_token = generate_client_token()
         subnet_name = 'test_subnet_name1' + client_token
         subnet_cidr = '192.168.0.64/26'
+        enable_ipv6 = False
+        vpcSecondaryCidr = ""
+        tags = [{"tagKey": "test_tag", "tagValue": "test_val"}]
+
         self.assertEqual(
             type(self.the_client.create_subnet(subnet_name,
                                             'cn-bj-a',
                                             subnet_cidr,
                                             vpc_id,
+                                            enable_ipv6=enable_ipv6,
+                                            vpcSecondaryCidr=vpcSecondaryCidr,
+                                            tags=tags,
                                             client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -106,9 +115,11 @@ class TestSubnetClient(unittest.TestCase):
         """
         test case for delete_subnet
         """
+        enable_ipv6 = False
         self.assertEqual(
             type(self.the_client.update_subnet(subnet_id, 'test_update_name1',
-                                               'test_update_description1')),
+                                               'test_update_description1',
+                                               enable_ipv6=enable_ipv6)),
             baidubce.bce_response.BceResponse)
 
     def test_create_subnet_ipreserve(self):

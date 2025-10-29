@@ -67,7 +67,7 @@ class VpcClient(bce_base_client.BceBaseClient):
             http_method, VpcClient.prefix + path, body, headers, params)
 
     @required(name=(bytes, str), cidr=(bytes, str))
-    def create_vpc(self, name, cidr, description=None, client_token=None, config=None):
+    def create_vpc(self, name, cidr, description=None, client_token=None, enable_ipv6=None, tags=None, config=None):
         """
         The name of vpc to be created.
 
@@ -82,6 +82,14 @@ class VpcClient(bce_base_client.BceBaseClient):
         :param description:
             The description of the vpc.
         :type description: string
+
+        :param enable_ipv6:
+            The option param to enable or disable ipv6 for the subnet
+        :type enable_ipv6: boolean
+
+        :param tags:
+            List of tags to be bind
+        :type tags: list
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -108,6 +116,12 @@ class VpcClient(bce_base_client.BceBaseClient):
         }
         if description is not None:
             body['description'] = compat.convert_to_string(description)
+
+        if tags is not None:
+            body['tags'] = tags
+
+        if enable_ipv6 is not None:
+            body['enable_ipv6'] = enable_ipv6
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
@@ -210,7 +224,8 @@ class VpcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
     @required(vpc_id=(bytes, str), name=(bytes, str))
-    def update_vpc(self, vpc_id, name, description=None, client_token=None, config=None):
+    def update_vpc(self, vpc_id, name, description=None, enable_ipv6=None,
+                          secondaryCidr=None, client_token=None, config=None):
         """
         Modify the special attribute to new value of the vpc owned by the user.
 
@@ -225,6 +240,14 @@ class VpcClient(bce_base_client.BceBaseClient):
         :param description:
            The description of the vpc.
         :type description: string
+
+        :param enable_ipv6:
+            The option param to enable or disable ipv6 for the subnet
+        :type enable_ipv6: boolean
+
+        :param secondaryCidr:
+            This parameter specifies the secondary CIDR ranges associated with the VPC.
+        :type secondaryCidr: list
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -254,6 +277,12 @@ class VpcClient(bce_base_client.BceBaseClient):
 
         if description is not None:
             body['description'] = compat.convert_to_string(description)
+
+        if enable_ipv6 is not None:
+            body['enableIpv6'] = enable_ipv6
+
+        if secondaryCidr is not None:
+            body['secondaryCidr'] = secondaryCidr
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
