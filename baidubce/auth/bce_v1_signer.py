@@ -14,8 +14,6 @@
 This module provides authentication functions for bce services.
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import bytes
 import hashlib
 import hmac
 import logging
@@ -74,7 +72,7 @@ def sign(credentials, http_method, path, headers, params,
 
     canonical_headers = _get_canonical_headers(headers, headers_to_sign)
     string_to_sign = (b'\n').join([
-        http_method, canonical_uri, 
+        http_method, canonical_uri,
         canonical_querystring, canonical_headers
         ])
     sign_result = hmac.new(compat.convert_to_bytes(sign_key), string_to_sign, hashlib.sha256).hexdigest()
@@ -85,6 +83,57 @@ def sign(credentials, http_method, path, headers, params,
         result = b'%s/%s/%s' % (sign_key_info, (b';').join(headers_to_sign), sign_result)
     else:
         result = b'%s//%s' % (sign_key_info, sign_result)
+
+    _logger.debug('sign_key=[%s] sign_string=[%d bytes][ %s ]' %
+                  (sign_key, len(string_to_sign), string_to_sign))
+    _logger.debug('result=%s' % result)
+    return result
+
+
+def resource_pool_sign(credentials, http_method, path, headers, params,
+         timestamp=0, expiration_in_seconds=1800, headers_to_sign=None):
+    """
+    资源池接口签名适配方法，与普通接口签名不同的是，资源池接口需要额外处理host头
+    """
+
+    _logger.debug('Sign params: %s %s %s %s %d %d %s' % (
+        http_method, path, headers, params, timestamp, expiration_in_seconds, headers_to_sign))
+
+    headers = headers or {}
+    params = params or {}
+
+    sign_key_info = b'bce-auth-v1/%s/%s/%d' % (
+        credentials.access_key_id,
+        utils.get_canonical_time(timestamp),
+        expiration_in_seconds)
+    sign_key = hmac.new(
+        credentials.secret_access_key,
+        sign_key_info,
+        hashlib.sha256).hexdigest()
+
+    canonical_uri = path
+    canonical_querystring = utils.get_canonical_querystring(params, True)
+
+    # 从headers中提取host
+    host_header = None
+    for key, value in headers.items():
+        if key.lower() == b'host':
+            host_header = utils.convert_to_standard_string(value).strip()
+            break
+
+    canonical_headers = b'host:' + utils.normalize_string(host_header)
+    string_to_sign = (b'\n').join([
+        http_method, canonical_uri,
+        canonical_querystring, canonical_headers
+        ])
+    sign_result = hmac.new(compat.convert_to_bytes(sign_key), string_to_sign, hashlib.sha256).hexdigest()
+    # convert to bytes
+    sign_result = compat.convert_to_bytes(sign_result)
+
+    if headers_to_sign:
+        result = b'%s/%s/%s' % (sign_key_info, (b';').join(headers_to_sign), sign_result)
+    else:
+        result = b'%s/host/%s' % (sign_key_info, sign_result)
 
     _logger.debug('sign_key=[%s] sign_string=[%d bytes][ %s ]' %
                   (sign_key, len(string_to_sign), string_to_sign))
