@@ -3993,14 +3993,16 @@ class BccClient(bce_base_client.BceBaseClient):
                                 is_open_ipv6=None, tags=None, key_pair_id=None, auto_renew_time_unit=None,
                                 auto_renew_time=0, cds_auto_renew=None, asp_id=None, bid_model=None, bid_price=None,
                                 dedicate_host_id=None, deploy_id=None, deploy_id_list=None, enable_jumbo_frame=None,
-                                cpu_thread_config=None, numa_config=None, eni_ids=None,
-                                client_token=None, config=None):
+                                cpu_thread_config=None, numa_config=None, eni_ids=None, client_token=None, config=None,
+                                user_data=None, spec_id=None, deletion_protection=None, is_open_hosteye=None,
+                                hosteye_type=None, res_group_id=None, enable_ht=None, data_partition_type=None,
+                                root_partition_type=None, file_systems=None, disable_root_disk_serial=None,
+                                internal_ips=None, network_purchase_type=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
         This is an asynchronous interface,
         you can get the latest status by BccClient.get_instance.
-
         :param spec:
             The specification of the BBC package.
         :type spec: string
@@ -4211,6 +4213,53 @@ class BccClient(bce_base_client.BceBaseClient):
             The enis must in the same vpc and available zone with instance.
         :type eni_ids: list<string>
 
+        :param user_data:
+        :type user_data: string
+
+        :param is_open_hosteye:
+        :type is_open_hosteye: boolean
+
+        :param hosteye_type:
+        :type hosteye_type: string
+
+        :param res_group_id:
+            The optional parameter to specify the resGroupId of the instance
+        :type res_group_id: string
+
+        :param enable_ht:
+            Whether to enable HT (used by EBC). Default: true
+        :type enable_ht: bool
+
+        :param data_partition_type:
+            Data disk file system format.Available values: xfs, ext4.
+        :type data_partition_type: bool
+
+        :param root_partition_type:
+            System disk file system format.Available values: xfs, ext4.
+        :type root_partition_type: bool
+
+        :param deletion_protection:
+        :type deletion_protection: int
+
+        :param spec_id:
+            Identify of the spec.
+
+        :param file_systems:
+            This parameter is obsolete.
+        :type file_systems:list<bcc_model.FileSystemModel>
+
+        :param disable_root_disk_serial:
+            Whether to hide the system disk SN during instance creation. Default: false
+        :type disable_root_disk_serial: bool
+
+        :param internal_ips:
+            The parameter to specify the internal ips.
+        :type internal_ips: list<string>
+
+        :param network_purchase_type:
+            EIP line type, including Standard BGP (BGP) and Enhanced BGP (BGP_S).The default value is Standard BGP.
+        :type network_purchase_type: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4305,6 +4354,33 @@ class BccClient(bce_base_client.BceBaseClient):
         if eni_ids is not None:
             body['eniIds'] = eni_ids
         body['cdsAutoRenew'] = cds_auto_renew
+        if user_data is not None:
+            body['userData'] = user_data
+        if spec_id is not None:
+            body['specId'] = spec_id
+        if is_open_hosteye is not None:
+            body['isOpenHosteye'] = is_open_hosteye
+        if deletion_protection is not None:
+            body['deletionProtection'] = deletion_protection
+        if hosteye_type is not None:
+            body['hosteyeType'] = hosteye_type
+        if res_group_id is not None:
+            body['resGroupId'] = res_group_id
+        if enable_ht is not None:
+            body['enableHt'] = enable_ht
+        if data_partition_type is not None:
+            body['dataPartitionType'] = data_partition_type
+        if root_partition_type is not None:
+            body['rootPartitionType'] = root_partition_type
+        if file_systems is not None:
+            file_system_list = [file_system.__dict__ for file_system in file_systems]
+            body['fileSystems'] = file_system_list
+        if disable_root_disk_serial is not None:
+            body['disableRootDiskSerial'] = disable_root_disk_serial
+        if internal_ips is not None:
+            body['internalIps'] = internal_ips
+        if network_purchase_type is not None:
+            body['networkPurchaseType'] = network_purchase_type
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
