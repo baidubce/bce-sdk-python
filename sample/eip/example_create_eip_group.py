@@ -20,7 +20,7 @@ from baidubce.services.eip.eip_group_client import EipGroupClient
 from baidubce.services.eip.eip_group_model import Billing
 
 def test_create_eip_group(eip_group_client, eip_count, bandwidth_in_mbps, name, 
-                          billing):
+                          billing, route_type):
     """
     Create a shared bandwidth EIP group with specified options.
     Real-name authentication is required before creating EIP groups.
@@ -61,7 +61,7 @@ def test_create_eip_group(eip_group_client, eip_count, bandwidth_in_mbps, name,
     """
     try:
         res = eip_group_client.create_eip_group(eip_count=eip_count, bandwidth_in_mbps=bandwidth_in_mbps, 
-                                               name=name, billing=billing)
+                                               name=name, billing=billing, route_type=route_type)
         eip_group_id = res.id
         return eip_group_id
     except exception.BceHttpClientError as e:
@@ -77,13 +77,15 @@ if __name__ == '__main__':
     # eip数量
     test_eip_count = 3
     # 10M带宽
-    test_bw = 10
+    test_bw = 20
     # EIPGroup名字                
     test_name = "test-sdk-eipgroup"     
     # 创建后付费EIPGroup
     test_post_billing = Billing(paymentTiming="Postpaid", billingMethod="ByBandwidth")
+    # EIPGroup线路类型
+    test_route_type = 'BGP'
     post_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count, 
-                                             bandwidth_in_mbps = test_bw, name = test_name, billing = test_post_billing)
+                                             bandwidth_in_mbps = test_bw, name = test_name, billing = test_post_billing, route_type = test_route_type)
 
     # 创建预付费EIPGroup，周期为1个月
     test_pre_billing = Billing(paymentTiming="Prepaid", reservationLength = 1, 

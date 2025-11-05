@@ -18,7 +18,7 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_client import EipClient
 
-def test_bind_eip(eip_client, eip, instance_type, instance_id):
+def test_bind_eip(eip_client, eip, instance_type, instance_id, instance_ip):
     """
     Bind the eip to a specified instanceId and instanceType
 
@@ -42,7 +42,7 @@ def test_bind_eip(eip_client, eip, instance_type, instance_id):
         BceHttpClientError: http request error
     """
     try:
-        res = eip_client.bind_eip(eip, instance_type, instance_id)
+        res = eip_client.bind_eip(eip, instance_type, instance_id, instance_ip)
         print(res)
     except exception.BceHttpClientError as e:
         #异常处理
@@ -55,10 +55,12 @@ if __name__ == '__main__':
     # 初始化EipClient
     eip_client = EipClient(example_conf.config)
     # 绑定实例的类型
-    instance_type = "BLB"
+    instance_type = "ENI"
     # 绑定实例的ID
-    instance_id = "lb-xxxxxxxx"
+    instance_id = "eni-xxxxxxxxx"
     # 绑定的EIP
     eip = "x.x.x.x"
+    # 实例中需要绑定EIP的IP
+    instance_ip = "x.x.x.x"
     # 绑定EIP
-    test_bind_eip(eip_client, eip, instance_type, instance_id)
+    test_bind_eip(eip_client, eip, instance_type, instance_id, instance_ip)

@@ -18,7 +18,7 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_client import EipClient
 
-def test_list_eips(eip_client, eip, instance_type, instance_id, status, marker, max_keys):
+def test_list_eips(eip_client, eip, instance_type, ip_version, instance_id, status, marker, max_keys):
     """
     Get a list of eip owned by the authenticated user and specified
     conditions. we can Also get a single eip function  through this
@@ -89,7 +89,7 @@ def test_list_eips(eip_client, eip, instance_type, instance_id, status, marker, 
         BceHttpClientError: http request error
     """
     try:
-        res = eip_client.list_eips(eip, instance_type, instance_id, status, marker, max_keys)
+        res = eip_client.list_eips(eip, instance_type, ip_version, instance_id, status, marker, max_keys)
         eip_list  = res.eip_list
         return eip_list
     except exception.BceHttpClientError as e:
@@ -103,6 +103,6 @@ if __name__ == '__main__':
     # 创建EIPClient
     eip_client = EipClient(example_conf.config)
     # 获取所有EIP列表
-    eip_list = test_list_eips(eip_client, None, None, None, None, None, None)
+    eip_list = test_list_eips(eip_client, None, None, None, None, None, None, None)
     print(eip_list)
    

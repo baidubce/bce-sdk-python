@@ -19,7 +19,7 @@ from baidubce import exception
 from baidubce.services.eip.eip_client import EipClient
 from baidubce.services.eip.model import Billing
 
-def test_create_eip(eip_client, bandwidth_in_mbps, name, billing):
+def test_create_eip(eip_client, bandwidth_in_mbps, name, billing, route_type):
     """
     Create an eip with the specified options.
 
@@ -43,7 +43,7 @@ def test_create_eip(eip_client, bandwidth_in_mbps, name, billing):
         BceHttpClientError: http request failed
     """
     try:
-        res = eip_client.create_eip(bandwidth_in_mbps, name, billing)
+        res = eip_client.create_eip(bandwidth_in_mbps, name, billing, route_type)
         eip_addr_str = res.eip
         return eip_addr_str
     except exception.BceHttpClientError as e:
@@ -62,8 +62,10 @@ if __name__ == '__main__':
     test_name = "test-sdk-eip"     
     # 创建后付费EIP
     test_post_billing = Billing(payment_timing="Postpaid", billing_method="ByBandwidth")
+    # EIP线路类型
+    test_route_type = 'BGP'
     post_eipstr = test_create_eip(eip_client, bandwidth_in_mbps = test_bw, name = test_name, 
-                                  billing = test_post_billing)
+                                  billing = test_post_billing, route_type = test_route_type)
     # 创建预付费EIP，周期为1个月
     test_pre_billing = Billing(payment_timing="Prepaid", reservation_length = 1, reservation_time_unit = "Month")
     pre_eipstr = test_create_eip(eip_client, bandwidth_in_mbps = test_bw, name = test_name, 

@@ -49,7 +49,7 @@ class EipClient(BceBaseClient):
         BceBaseClient.__init__(self, config)
 
     def create_eip(self, bandwidth_in_mbps, name=None, billing=None,
-                   client_token=None, config=None):
+                   route_type = None, client_token=None, config=None):
         """
         Create an eip with the specified options.
 
@@ -74,7 +74,8 @@ class EipClient(BceBaseClient):
         """
         body = {
             'name': name,
-            'bandwidthInMbps': bandwidth_in_mbps
+            'bandwidthInMbps': bandwidth_in_mbps,
+            'routeType': route_type
         }
         if billing is None:
             body['billing'] = {
@@ -255,7 +256,7 @@ class EipClient(BceBaseClient):
         return self._send_request(http_methods.PUT, path, params=params, config=config)
 
 
-    def bind_eip(self, eip, instance_type, instance_id, client_token=None,
+    def bind_eip(self, eip, instance_type, instance_id, instance_ip, client_token=None,
                  config=None):
         """
         bind the eip to a specified instanceId and instanceType
@@ -280,7 +281,8 @@ class EipClient(BceBaseClient):
         """
         body = {
             'instanceType': instance_type,
-            'instanceId': instance_id
+            'instanceId': instance_id,
+            'instanceIp': instance_ip
         }
         path = utils.append_uri(self._get_path(), eip)
         if client_token is None:
@@ -396,7 +398,7 @@ class EipClient(BceBaseClient):
         return self._send_request(http_methods.PUT, path, params=params, config=config)
 
 
-    def list_eips(self, eip=None, instance_type=None, instance_id=None, status=None, marker=None, max_keys=1000,
+    def list_eips(self, eip=None, instance_type=None, ip_version=None, instance_id=None, status=None, marker=None, max_keys=1000,
                   config=None):
         """
         get a list of eip owned by the authenticated user and specified
@@ -477,6 +479,8 @@ class EipClient(BceBaseClient):
             params[b'marker'] = marker
         if max_keys is not None:
             params[b'maxKeys'] = max_keys
+        if ip_version is not None:
+            params[b'ipVersion'] = ip_version
         return self._send_request(http_methods.GET, path, params=params,
                                   config=config)
 
