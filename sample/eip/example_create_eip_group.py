@@ -85,7 +85,8 @@ if __name__ == '__main__':
     # EIPGroup线路类型
     test_route_type = 'BGP'
     post_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count, 
-                                             bandwidth_in_mbps = test_bw, name = test_name, billing = test_post_billing, route_type = test_route_type)
+                                             bandwidth_in_mbps = test_bw, name = test_name,
+                                             billing = test_post_billing, route_type = test_route_type)
 
     # 创建预付费EIPGroup，周期为1个月
     test_pre_billing = Billing(paymentTiming="Prepaid", reservationLength = 1, 

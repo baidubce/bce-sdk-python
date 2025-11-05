@@ -49,7 +49,7 @@ class EipClient(BceBaseClient):
         BceBaseClient.__init__(self, config)
 
     def create_eip(self, bandwidth_in_mbps, name=None, billing=None,
-                   route_type = None, client_token=None, config=None):
+                   route_type=None, client_token=None, config=None):
         """
         Create an eip with the specified options.
 
@@ -398,8 +398,8 @@ class EipClient(BceBaseClient):
         return self._send_request(http_methods.PUT, path, params=params, config=config)
 
 
-    def list_eips(self, eip=None, instance_type=None, ip_version=None, instance_id=None, status=None, marker=None, max_keys=1000,
-                  config=None):
+    def list_eips(self, eip=None, instance_type=None, ip_version=None, instance_id=None,
+                  status=None, marker=None, max_keys=1000, config=None):
         """
         get a list of eip owned by the authenticated user and specified
         conditions. we can Also get a single eip function  through this

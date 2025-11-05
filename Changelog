@@ -3,8 +3,8 @@
 【版本：v0.9.50】
 涉及产品：EIP
 eip列表接口支持ipVersion过滤查询
-eip创建接口添加routeType
-eipGroup创建接口添加routeType
+eip创建接口支持routeType
+eipGroup创建接口支持routeType
 绑定eip接口入参支持instanceIp
 
 【版本：v0.9.49】

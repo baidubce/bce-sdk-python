@@ -80,7 +80,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
               bandwidth_in_mbps=int)
     def create_eip_group(self, eip_count, bandwidth_in_mbps,
                          name=None, client_token=None,
-                         billing=None, route_type = None,
+                         billing=None, route_type=None,
                          config=None):
         """
         Create a shared bandwidth EIP group with specified options.
