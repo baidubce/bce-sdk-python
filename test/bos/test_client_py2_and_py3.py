@@ -15,12 +15,12 @@
 Test models of BOS.
 """
 # compatibility py2 and py3
-from __future__ import absolute_import
+# from __future__ import absolute_import
 from builtins import str
 from builtins import bytes
-from future.utils import iteritems
-from future.utils import iterkeys
-from future.utils import itervalues
+# from future.utils import iteritems
+# from future.utils import iterkeys
+# from future.utils import itervalues
 
 import base64
 import multiprocessing
