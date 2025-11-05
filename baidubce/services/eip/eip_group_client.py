@@ -130,9 +130,10 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         body = {
             'eipCount': eip_count,
             'bandwidthInMbps': bandwidth_in_mbps,
-            'billing': billing.__dict__,
-            "routeType": route_type
+            'billing': billing.__dict__
         }
+        if route_type is not None:
+            body['routeType'] = route_type
         if name is not None:
             body['name'] = name
         return self._send_request(http_methods.POST,

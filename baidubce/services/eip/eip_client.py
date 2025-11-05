@@ -74,9 +74,10 @@ class EipClient(BceBaseClient):
         """
         body = {
             'name': name,
-            'bandwidthInMbps': bandwidth_in_mbps,
-            'routeType': route_type
+            'bandwidthInMbps': bandwidth_in_mbps
         }
+        if route_type is not None:
+            body['routeType'] = route_type
         if billing is None:
             body['billing'] = {
                 'paymentTiming': 'Postpaid',
@@ -281,9 +282,10 @@ class EipClient(BceBaseClient):
         """
         body = {
             'instanceType': instance_type,
-            'instanceId': instance_id,
-            'instanceIp': instance_ip
+            'instanceId': instance_id
         }
+        if instance_ip is not None:
+            body['instanceIp'] = instance_ip
         path = utils.append_uri(self._get_path(), eip)
         if client_token is None:
             client_token = self._generate_default_client_token()
