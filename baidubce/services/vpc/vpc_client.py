@@ -121,7 +121,7 @@ class VpcClient(bce_base_client.BceBaseClient):
             body['tags'] = tags
 
         if enable_ipv6 is not None:
-            body['enable_ipv6'] = enable_ipv6
+            body['enableIpv6'] = enable_ipv6
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
