@@ -3997,7 +3997,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 user_data=None, spec_id=None, deletion_protection=None, is_open_hosteye=None,
                                 hosteye_type=None, res_group_id=None, enable_ht=None, data_partition_type=None,
                                 root_partition_type=None, file_systems=None, disable_root_disk_serial=None,
-                                internal_ips=None, network_purchase_type=None):
+                                internal_ips=None, network_purchase_type=None, is_keep_image_login=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -4381,6 +4381,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['internalIps'] = internal_ips
         if network_purchase_type is not None:
             body['networkPurchaseType'] = network_purchase_type
+        if is_keep_image_login is not None:
+            body['keepImageLogin'] = is_keep_image_login
 
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
