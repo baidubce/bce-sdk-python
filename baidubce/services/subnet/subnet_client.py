@@ -70,7 +70,7 @@ class SubnetClient(bce_base_client.BceBaseClient):
               cidr=(bytes, str),
               vpc_id=(bytes, str))
     def create_subnet(self, name, zone_name, cidr, vpc_id, subnet_type=None, description=None,
-                      client_token=None, enable_ipv6=None, vpcSecondaryCidr=None, config=None, tags=None):
+                      client_token=None, enable_ipv6=None, vpc_secondary_cidr=None, config=None, tags=None):
         """
         Create a subnet with the specified options.
 
@@ -151,8 +151,8 @@ class SubnetClient(bce_base_client.BceBaseClient):
         if enable_ipv6 is not None:
             body['enableIpv6'] = enable_ipv6
 
-        if vpcSecondaryCidr is not None:
-            body['secondaryCidr'] = compat.convert_to_string(vpcSecondaryCidr)
+        if vpc_secondary_cidr is not None:
+            body['vpcSecondaryCidr'] = compat.convert_to_string(vpc_secondary_cidr)
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
