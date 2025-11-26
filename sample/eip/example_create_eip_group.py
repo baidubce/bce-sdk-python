@@ -94,5 +94,6 @@ if __name__ == '__main__':
     test_pre_billing = Billing(paymentTiming="Prepaid", reservationLength = 1, 
                                reservationTimeUnit = "Month")
     pre_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count, 
-                                            bandwidth_in_mbps = test_bw, name = test_name, billing = test_pre_billing, route_type = test_route_type, idc = idc)
+                                            bandwidth_in_mbps = test_bw, name = test_name, billing = test_pre_billing,
+                                            route_type = test_route_type, idc = idc)
     print(pre_eipgroup_id)
