@@ -20,7 +20,7 @@ from baidubce.services.eip.eip_group_client import EipGroupClient
 from baidubce.services.eip.eip_group_model import Billing
 
 def test_create_eip_group(eip_group_client, eip_count, bandwidth_in_mbps, name, 
-                          billing, route_type, idc):
+                          billing, route_type, idc, tags):
     """
     Create a shared bandwidth EIP group with specified options.
     Real-name authentication is required before creating EIP groups.
@@ -61,7 +61,8 @@ def test_create_eip_group(eip_group_client, eip_count, bandwidth_in_mbps, name,
     """
     try:
         res = eip_group_client.create_eip_group(eip_count=eip_count, bandwidth_in_mbps=bandwidth_in_mbps, 
-                                               name=name, billing=billing, route_type=route_type, idc = idc)
+                                               name=name, billing=billing, route_type=route_type,
+                                               idc = idc, tags = tags)
         eip_group_id = res.id
         return eip_group_id
     except exception.BceHttpClientError as e:
@@ -85,15 +86,22 @@ if __name__ == '__main__':
     # EIPGroup线路类型
     test_route_type = 'ChinaTelcom'
     idc = 'CT1'
-    post_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count, 
+    tags = [
+        {
+          "tagKey": "testKey",
+          "tagValue": "testValue"
+        }
+   ]
+    post_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count,
                                              bandwidth_in_mbps = test_bw, name = test_name,
-                                             billing = test_post_billing, route_type = test_route_type, idc = idc)
+                                             billing = test_post_billing, route_type = test_route_type,
+                                             idc = idc, tags = tags)
     print(post_eipgroup_id)
 
     # 创建预付费EIPGroup，周期为1个月
-    test_pre_billing = Billing(paymentTiming="Prepaid", reservationLength = 1, 
+    test_pre_billing = Billing(paymentTiming="Prepaid", reservationLength = 1,
                                reservationTimeUnit = "Month")
-    pre_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count, 
+    pre_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count,
                                             bandwidth_in_mbps = test_bw, name = test_name, billing = test_pre_billing,
-                                            route_type = test_route_type, idc = idc)
+                                            route_type = test_route_type, idc = idc, tags = tags)
     print(pre_eipgroup_id)

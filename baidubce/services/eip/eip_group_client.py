@@ -81,7 +81,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
     def create_eip_group(self, eip_count, bandwidth_in_mbps,
                          name=None, client_token=None,
                          billing=None, route_type=None, idc=None,
-                         config=None):
+                         tags=None, config=None):
         """
         Create a shared bandwidth EIP group with specified options.
         Real-name authentication is required before creating EIP groups.
@@ -138,6 +138,8 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             body['name'] = name
         if idc is not None:
             body['idc'] = idc
+        if tags is not None:
+            body['tags'] = tags
         return self._send_request(http_methods.POST,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
