@@ -1,0 +1,10 @@
+[run]
+branch = True
+source = ${MODULE_PATH}/baidubce/services/bos/
+[report]
+include = ${INCLUDES}
+omit = ${EXCLUDES}
+[html]
+directory = htmlcov 
+[xml]
+output = bos-coverage.xml

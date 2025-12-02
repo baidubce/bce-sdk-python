@@ -21,13 +21,12 @@ import baidubce
 from baidubce.auth import bce_credentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.retry.retry_policy import NoRetryPolicy
+import os
 
 # online
-HOST=""
-ACCESS_KEY=""
-SECRET_KEY=""
-DISPLAY_NAME = 'PASSPORT:1504517149'
-OWNER_ID = ""
+HOST=os.environ['BOS_HOST'] 
+ACCESS_KEY=os.environ['BOS_AK'] 
+SECRET_KEY=os.environ['BOS_SK'] 
 
 
 # sandbox
