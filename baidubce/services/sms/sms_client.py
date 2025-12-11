@@ -789,3 +789,74 @@ class SmsClient(BceBaseClient):
 
         return model.ListStatisticsResponse(self._send_request(http_method=http_methods.GET, function_name='summary',
                                             params=req_params, config=config, api_version=2))
+
+    @required(user_id=str)
+    def get_prepaid_packages(self, user_id, country_type=None, package_status=None,
+                             page_no=1, page_size=10, config=None):
+        """
+        Get merchant's prepaid_packages list
+        :param user_id: Queried user id
+        :type  user_id: str
+
+        :param country_type: Queried country type, available values: "domestic", "international", "global"
+        :type  country_type: str
+
+        :param package_status: Queried package status, available values: "RUNNING", "EXPIRED", "USED_UP", "DESTROYED"
+        :type  package_status: str
+
+        :param page_no: Queried page no, optional, need more than 0
+        :type  page_no: int
+
+        :param page_size: Queried page size, optional, need more than 0
+        :type  page_size: int
+
+        :param config: None
+        :type  config: BceClientConfiguration
+
+        :return: Object:
+            {
+                "prepaidPackages": [
+                    {
+                        "packageId": "c983db8fdc1853fc78cdaf598458394c",
+                        "name": "国内普通短信包",
+                        "countryType": "DOMESTIC",
+                        "capacity": 5000.00,
+                        "remainingCapacity": 0.00,
+                        "packageStatus": "EXPIRED",
+                        "purchaseDate": "2022-01-07T08:53:52.000+00:00",
+                        "expiryDate": "2022-01-07T09:05:52.000+00:00"
+                    },
+                    {
+                        "packageId": "96c566bcb26a3dc0794e0e34dcad4edc",
+                        "name": "国内普通短信包",
+                        "countryType": "DOMESTIC",
+                        "capacity": 5000.00,
+                        "remainingCapacity": 0.00,
+                        "packageStatus": "EXPIRED",
+                        "purchaseDate": "2022-01-07T08:42:52.000+00:00",
+                        "expiryDate": "2022-01-07T08:54:52.000+00:00"
+                    },
+                ]
+                "totalCount":185
+            }
+        """
+
+        req_params = {
+        }
+
+        if country_type:
+            req_params["countryType"] = country_type
+
+        if package_status:
+            req_params["packageStatus"] = package_status
+
+        if page_no > 0:
+            req_params["pageNo"] = page_no
+
+        if page_size > 0:
+            req_params["pageSize"] = page_size
+
+        return model.GetPrepaidPackageResponse(self._send_request(http_method=http_methods.GET,
+                                                                  function_name='prepay/' + user_id,
+                                                                  params=req_params, config=config,
+                                                                  api_version=2))

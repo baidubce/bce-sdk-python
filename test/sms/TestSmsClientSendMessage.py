@@ -199,6 +199,49 @@ class TestSmsClientSendMessageNorQa(unittest.TestCase):
         except BceHttpClientError as e:
             self.assertEqual(type(e), BceHttpClientError)
 
+    def test_prepaid_packages(self):
+        # userid必填
+        try:
+            response = self.sms_client2.get_prepaid_packages(
+            )
+        except TypeError as e:
+            self.assertEqual(type(e), TypeError)
+
+        # 获取沙盒量包
+        try:
+            response = self.sms_client2.get_prepaid_packages(
+                user_id="you_userid"
+            )
+            self.assertEqual(len(response.prepaid_packages), 10)
+            self.assertEqual(response.total_count, 185)
+            print(response)
+        except BceHttpClientError as e:
+            self.assertEqual(type(e), BceHttpClientError)
+
+        try:
+            response = self.sms_client2.get_prepaid_packages(
+                user_id="you_userid",
+                page_no=1,
+                page_size=5
+            )
+            self.assertEqual(len(response.prepaid_packages), 5)
+            print(response)
+        except BceHttpClientError as e:
+            self.assertEqual(type(e), BceHttpClientError)
+
+        try:
+            response = self.sms_client2.get_prepaid_packages(
+                user_id="you_userid",
+                page_no=1,
+                page_size=5,
+                package_status="EXPIRED",
+                country_type="domestic"
+            )
+            self.assertEqual(response.total_count, 13)
+            print(response)
+        except BceHttpClientError as e:
+            self.assertEqual(type(e), BceHttpClientError)
+
 
 if __name__ == '__main__':
     unittest.main()

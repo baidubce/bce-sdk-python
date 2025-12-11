@@ -122,6 +122,11 @@ if __name__ == '__main__':
         response = sms_client.list_statistics(start_time="2023-07-18", end_time="2023-07-19")
         LOG.debug('\n%s', response)
 
+        #get prepaid packages data
+        LOG.debug('\n\n\nSample 13: Get Prepaid Packages Data\n\n\n')
+        response = sms_client.get_prepaid_packages(user_id="you_userid")
+        LOG.debug('\n%s', response)
+
     except ex.BceHttpClientError as e:
         if isinstance(e.last_error, ex.BceServerError):
             LOG.error('send request failed. Response %s, code: %s, request_id: %s'

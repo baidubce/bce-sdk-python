@@ -157,3 +157,25 @@ class ListStatisticsResponse(BceResponse):
         }
         return res
 
+class GetPrepaidPackageResponse(BceResponse):
+    """
+    Get Prepaid Packages Information Response as List
+    """
+
+    def __init__(self, bce_response):
+        super(GetPrepaidPackageResponse, self).__init__()
+        self.total_count = bce_response.total_count
+        self.prepaid_packages = list(map(self.__result_trans, bce_response.prepaid_packages))
+
+    def __result_trans(self, prepaid_package):
+        res = {
+            'package_id': prepaid_package.package_id,
+            'name': prepaid_package.name,
+            'country_type': prepaid_package.country_type,
+            'capacity': prepaid_package.capacity,
+            'remaining_capacity': prepaid_package.remaining_capacity,
+            'package_status': prepaid_package.package_status,
+            'purchase_date': prepaid_package.purchase_date,
+            'expiry_date': prepaid_package.expiry_date
+        }
+        return res
