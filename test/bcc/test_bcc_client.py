@@ -1837,7 +1837,7 @@ class TestBccClient(unittest.TestCase):
         test case for batch_change_instance_to_postpay
         """
         req1 = PayTimingChangeReqModel('i-FhvOuv4t', relationCds=True, cdsList=['cds1'], autoPay=False, duration=123)
-        req2 = PayTimingChangeReqModel('i-45IP2Tn7')
+        req2 = PayTimingChangeReqModel('i-45IP2Tn7', effectiveType='atOnce')
         req = [req1, req2]
         resp = self.client.batch_change_instance_to_postpay(req)
         self.assertEqual(

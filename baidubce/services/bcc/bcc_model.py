@@ -141,10 +141,11 @@ class PayTimingChangeReqModel(object):
     """
 
     def __init__(self, instanceId, relationCds=False, cdsList=None, duration=None, autoPay=True,
-                 autoRenew=None, autoRenewPeriod=None):
+                 autoRenew=None, autoRenewPeriod=None, effectiveType=None):
         self.instanceId = instanceId
         self.relationCds = relationCds
         self.cdsList = cdsList
+        self.effectiveType = effectiveType
         self.duration = duration
         self.autoPay = autoPay
         self.autoRenew = autoRenew
