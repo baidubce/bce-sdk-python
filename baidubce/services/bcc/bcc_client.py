@@ -1515,7 +1515,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),  # ***Unicode***
               image_id=(bytes, str))  # ***Unicode***
-    def rebuild_instance(self, instance_id, image_id, admin_pass=None, key_pair_id=None,
+    def rebuild_instance(self, instance_id, image_id, admin_pass=None, key_pair_id=None, is_keep_image_login=None,
                          config=None):
         """
         Rebuilding the instance owned by the user.
@@ -1555,6 +1555,8 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         if key_pair_id is not None:
             body['keypairId'] = key_pair_id
+        if is_keep_image_login is not None:
+            body['keepImageLogin'] = is_keep_image_login
         if admin_pass is not None:
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
@@ -5605,7 +5607,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
-    def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None,
+    def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None, is_keep_image_login=None,
                                 client_token=None, config=None):
         """
         Batch rebuild instances.
@@ -5645,6 +5647,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['adminPass'] = cipher_admin_pass
         if keypair_id is not None:
             body['keypairId'] = keypair_id
+        if is_keep_image_login is not None:
+            body['keepImageLogin'] = is_keep_image_login
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def change_to_prepaid(self, instance_id, duration, relation_cds, auto_renew, auto_renew_period=None,
