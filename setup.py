@@ -46,6 +46,7 @@ setup(
               'baidubce.services.aihc.modules.job',
               'baidubce.services.aihc.modules.model',
               'baidubce.services.aihc.modules.service',
+              'baidubce.services.aihc.modules.resource_pool',
               'baidubce.services.autoscaling',
               'baidubce.services.bos',
               'baidubce.services.bts',

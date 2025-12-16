@@ -7,6 +7,8 @@
 支持立即转后付费
 涉及产品：BCC
 重装支持keepImageLogin功能
+涉及产品：AIHC
+修复aihc/modules/resource_pool模块代码构建缺失问题
 
 【版本：v0.9.55】
 涉及产品：EIPGROUP
