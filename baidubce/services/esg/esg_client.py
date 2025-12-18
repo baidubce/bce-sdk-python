@@ -263,7 +263,6 @@ class EsgClient(bce_base_client.BceBaseClient):
         enterprise_security_group_rule_id = compat.convert_to_bytes(enterprise_security_group_rule_id)
         path = b'/enterprise/security/rule/%s' % enterprise_security_group_rule_id
         body = {
-            'enterpriseSecurityGroupRuleId': compat.convert_to_unicode(enterprise_security_group_rule_id),
             'remark': remark,
             'protocol': protocol,
             'portRange': portrange,
