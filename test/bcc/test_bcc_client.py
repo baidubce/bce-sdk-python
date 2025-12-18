@@ -926,8 +926,10 @@ class TestBccClient(unittest.TestCase):
 
     def test_modify_volume_charge_type(self):
         billing = pre_paid_billing
+        effective_type = 'AtOnce'
         self.assertEqual(
             type(self.client.modify_volume_charge_type(volume_id=volume_id,
+                                                       effective_type=effective_type,
                                                        billing=billing)),
             baidubce.bce_response.BceResponse)
 

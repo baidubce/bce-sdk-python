@@ -2602,12 +2602,17 @@ class BccClient(bce_base_client.BceBaseClient):
     def modify_volume_charge_type(self,
                                   volume_id,
                                   billing=None,
+                                  effective_type=None,
                                   config=None):
         """
         :param volume_id: volume id
         :type volume_id: string
         :param billing: payment information
         :type billing: bcc_model.Billing
+        :param effective_type: Optional parameters:
+                                AtOnce (switch to pay-as-you-go immediately),
+                                AfterExpiration (switch to pay-as-you-go after expiration).
+                                Defaults to AfterExpiration if not provided.
         :param config:
 
         :return:
@@ -2619,6 +2624,7 @@ class BccClient(bce_base_client.BceBaseClient):
         if billing is None:
             billing = default_billing_to_purchase_reserved
         body = {
+            'effectiveType': effective_type,
             'billing': billing.__dict__
         }
 
