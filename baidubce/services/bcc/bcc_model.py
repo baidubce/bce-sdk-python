@@ -70,11 +70,12 @@ class CreateCdsModel(object):
 	param: encryptKey
 	"""
 
-    def __init__(self, cdsSizeInGB=None, storageType='hp1', snapshotId=None, encryptKey=None):
+    def __init__(self, cdsSizeInGB=None, storageType='hp1', snapshotId=None, encryptKey=None, deleteWithInstance=None):
         self.cdsSizeInGB = cdsSizeInGB
         self.storageType = storageType
         self.snapshotId = snapshotId
         self.encryptKey = encryptKey
+        self.deleteWithInstance = deleteWithInstance
 
 
 class SecurityGroupRuleModel(object):
