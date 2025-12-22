@@ -1516,7 +1516,9 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str),  # ***Unicode***
               image_id=(bytes, str))  # ***Unicode***
     def rebuild_instance(self, instance_id, image_id, admin_pass=None, key_pair_id=None, is_keep_image_login=None,
-                         config=None):
+                         config=None, user_data=None, clean_last_user_data=None, is_open_hostEye=None,
+                         sys_root_size=None, is_preserve_data=None, raid_id=None, data_partition_type=None,
+                         root_partition_type=None):
         """
         Rebuilding the instance owned by the user.
         After rebuilding the instance,
@@ -1545,6 +1547,40 @@ class BccClient(bce_base_client.BceBaseClient):
             key_pair_id or admin_pass is required for rebuild instance.
         :type key_pair_id: string
 
+        :param user_data:
+            User data to pass to the instance at launch time.
+        :type user_data: string
+
+        :param clean_last_user_data:
+            Indicates whether to clean the user data after the instance has been rebuilded.
+            Default value is False.
+        :type clean_user_data: boolean
+
+        :param is_open_hostEye:
+            Indicates whether to open host eye.
+        :type is_open_hostEye: boolean
+
+        :param sys_root_size:
+            System partition size (unit: GB).
+        :type sys_root_size: int
+
+        :param is_preserve_data:
+            Indicates whether to preserve data during the instance rebuilding process.
+            Default value is False.
+        :type is_preserve_data: boolean
+
+        :param raid_id:
+            RAID ID.
+        :type raid_id: string
+
+        :param data_partition_type:
+            Data partition type.
+        :type data_partition_type: string
+
+        :param root_partition_type:
+            Root partition type.
+        :type root_partition_type: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1561,6 +1597,22 @@ class BccClient(bce_base_client.BceBaseClient):
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
             body['adminPass'] = cipher_admin_pass
+        if user_data is not None:
+            body['userData'] = user_data
+        if clean_last_user_data is not None:
+            body['cleanLastUserData'] = clean_last_user_data
+        if is_open_hostEye is not None:
+            body['isOpenHostEye'] = is_open_hostEye
+        if sys_root_size is not None:
+            body['sysRootSize'] = sys_root_size
+        if is_preserve_data is not None:
+            body['isPreserveData'] = is_preserve_data
+        if raid_id is not None:
+            body['raidId'] = raid_id
+        if data_partition_type is not None:
+            body['dataPartitionType'] = data_partition_type
+        if root_partition_type is not None:
+            body['rootPartitionType'] = root_partition_type
         params = {
             'rebuild': None
         }
@@ -5616,7 +5668,9 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def batch_rebuild_instances(self, image_id, admin_pass, instance_ids, keypair_id=None, is_keep_image_login=None,
-                                client_token=None, config=None):
+                                client_token=None, config=None, user_data=None, use_last_user_data=None,
+                                is_open_hostEye=None, sys_root_size=None, is_preserve_data=None, raid_id=None,
+                                data_partition_type=None, root_partition_type=None):
         """
         Batch rebuild instances.
 
@@ -5635,6 +5689,30 @@ class BccClient(bce_base_client.BceBaseClient):
         :param keypair_id:
             Set the id of the keypair to be bound. (optional param)
         :type keypair_id: string
+
+        :param user_data:
+            UserData of the instance.
+
+        :param use_last_user_data:
+            Use last user data.
+
+        :param is_open_hostEye:
+            Is open host eye.
+
+        :param sys_root_size:
+            System disk size.
+
+        :param is_preserve_data:
+            Preserve data.
+
+        :param raid_id:
+            Raid id.
+
+        :param data_partition_type:
+            Data partition type.
+
+        :param root_partition_type:
+            Root partition type.
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -5657,6 +5735,22 @@ class BccClient(bce_base_client.BceBaseClient):
             body['keypairId'] = keypair_id
         if is_keep_image_login is not None:
             body['keepImageLogin'] = is_keep_image_login
+        if user_data is not None:
+            body['userData'] = user_data
+        if use_last_user_data is not None:
+            body['useLastUserData'] = use_last_user_data
+        if is_open_hostEye is not None:
+            body['isOpenHostEye'] = is_open_hostEye
+        if sys_root_size is not None:
+            body['sysRootSize'] = sys_root_size
+        if is_preserve_data is not None:
+            body['isPreserveData'] = is_preserve_data
+        if raid_id is not None:
+            body['raidId'] = raid_id
+        if data_partition_type is not None:
+            body['dataPartitionType'] = data_partition_type
+        if root_partition_type is not None:
+            body['rootPartitionType'] = root_partition_type
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     def change_to_prepaid(self, instance_id, duration, relation_cds, auto_renew, auto_renew_period=None,
