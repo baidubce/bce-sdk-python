@@ -288,26 +288,47 @@ def main():
     #     name = ("python-sdk-test-xxx")
     #     command = "sleep 5m"
     #     envs = [Env(name="NCCL_DEBUG", value="DEBUG"), Env(name="NCCL_IB_DISABLE", value="0")]
-    #     data_source = Datasource(type="pfs", name="pfs-pxE6jz", mountPath="/mnt/cluster")
+    #     data_source = Datasource(type="pfs", name="pfs-xxx", mountPath="/mnt/cluster")  # pfs数据源挂载示例
+    #     # data_source = Datasource(type="hostpath", name="hostpath-1", sourcePath="/a"
+    #     #                          , mountPath="/b", options={"readOnly": False})  # 本地盘挂载示例
+    #     # data_source = Datasource(type="bos", sourcePath="xxx-test-bos-bucket",
+    #     #                          mountPath="/test", options={"readOnly": False})  # bos数据源挂载示例
     #     job_spec = JobSpec(
     #         image="registry.baidubce.com/aihc-aiak/aiak-megatron:ubuntu20.04"
     #               "-cu11.8-torch1.14.0-py38_v1.2.7.12_release",
-    #         replicas=1,
-    #         resources=[],
+    #         replicas=1,  # 实例副本数
+    #         # 资源配置示例，可根据实际需求进行调整
+    #         resources=[
+    #             # 1核CPU
+    #             {
+    #                 "name": "cpu",
+    #                 "quantity": 1
+    #             },
+    #             # 内存4G
+    #             {
+    #                 "name": "memory",
+    #                 "quantity": 4
+    #             },
+    #             # 3090显卡1张
+    #             {
+    #                 "name": "baidu.com/rtx_3090_cgpu",
+    #                 "quantity": 1
+    #             },
+    #         ],
     #         envs=envs,
-    #         enableRDMA=False
+    #         enableRDMA=False  # 是否开启RDMA
     #     )
     #     job_type = "PyTorchJob"
-    #     labels = []
-    #     priority = "normal"
+    #     labels = []  # 任务标签
+    #     priority = "normal"  # 任务优先级
     #     dataSources = [
     #         data_source,
     #     ]
-    #     enable_bccl = False
-    #     fault_tolerance = False
-    #     fault_tolerance_args = {}
-    #     tensorboard_config = {}
-    #     retention_period = "5m"
+    #     enable_bccl = False  # 是否开启BCCL自动注入
+    #     fault_tolerance = False  # 是否开启容错
+    #     fault_tolerance_args = ""  # 容错参数设置
+    #     tensorboard_config = {}  # tensorboard配置
+    #     retention_period = ""  # 任务保留时间
     #     response = aihc_client.job.CreateJob(
     #         resourcePoolId=resource_pool_id,
     #         queueID=queue_id,
@@ -331,7 +352,7 @@ def main():
     #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
-    #
+
     # # 停止训练任务
     # try:
     #     __logger.info('stop job')

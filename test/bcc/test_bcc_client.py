@@ -438,9 +438,17 @@ class TestBccClient(unittest.TestCase):
         '''
         key_pair_id = 'k-JdqSutgI'
         self.assertEqual(
-            type(self.client.rebuild_instance(instance_id,
+            type(self.client.rebuild_instance("",
                                               image_id,
-                                              key_pair_id=key_pair_id)),
+                                              key_pair_id=key_pair_id,
+                                              clean_last_user_data=True,
+                                              user_data="userData",
+                                              is_open_hostEye=False,
+                                              sys_root_size=23,
+                                              is_preserve_data=False,
+                                              raid_id="raidId",
+                                              data_partition_type="ext4",
+                                              root_partition_type="ext4")),
             baidubce.bce_response.BceResponse)
 
     def test_release_instance(self):
@@ -1617,7 +1625,15 @@ class TestBccClient(unittest.TestCase):
         test case for resize_instance_by_spec
         """
         resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='123456', keypair_id="123",
-                                                   instance_ids=["i-oUXBvdIx"])
+                                                   instance_ids=["i-oUXBvdIx"],
+                                                   clean_last_user_data=True,
+                                                   user_data="userData",
+                                                   is_open_hostEye=False,
+                                                   sys_root_size=23,
+                                                   is_preserve_data=False,
+                                                   raid_id="raidId",
+                                                   data_partition_type="ext4",
+                                                   root_partition_type="ext4")
         self.assertEqual(
             type(resp),
             baidubce.bce_response.BceResponse)

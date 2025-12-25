@@ -1230,7 +1230,8 @@ if __name__ == "__main__":
     # batch_rebuild_instances
     try:
         response = bcc_client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass=admin_pass, keypair_id="123",
-                                                      instance_ids=["i-oUXBvdIx", "i_id2"])
+                                                      instance_ids=["i-oUXBvdIx", "i_id2"], clean_user_data=True,
+                                                      user_data="userData")
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
