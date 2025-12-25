@@ -935,7 +935,8 @@ if __name__ == "__main__":
                                                                       related_release_flag=True,
                                                                       delete_cds_snapshot_flag=True,
                                                                       delete_related_enis_flag=True,
-                                                                      bcc_recycle_flag=True)
+                                                                      bcc_recycle_flag=True,
+                                                                      cds_attribute_active=True)
         print response
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):

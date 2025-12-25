@@ -4440,7 +4440,7 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(instance_id=(bytes, str))  # ***Unicode***
     def release_instance_with_related_resources(self, instance_id, related_release_flag=None,
                                                 delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
-                                                bcc_recycle_flag=None, client_token=None, config=None):
+                                                bcc_recycle_flag=None, cds_attribute_active=None, client_token=None, config=None):
         """
         Releasing the instance owned by the user.
         Only the Postpaid instance or Prepaid which is expired can be released.
@@ -4489,6 +4489,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['deleteRelatedEnisFlag'] = delete_related_enis_flag
         if bcc_recycle_flag is not None:
             body['bccRecycleFlag'] = bcc_recycle_flag
+        if bcc_recycle_flag is not None:
+            body['cdsAttributeActive'] = cds_attribute_active
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     @required(instance_id=(bytes, str))  # ***Unicode***
@@ -5937,7 +5939,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     def batch_delete_instance_with_related_resource(self, instance_ids, related_release_flag=None,
                                                     delete_cds_snapshot_flag=None, delete_related_enis_flag=None,
-                                                    bcc_recycle_flag=None, client_token=None, config=None):
+                                                    bcc_recycle_flag=None,cds_attribute_active=None, client_token=None, config=None):
         """
         batch delete instance with related resource
 
@@ -5982,6 +5984,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['deleteRelatedEnisFlag'] = delete_related_enis_flag
         if bcc_recycle_flag is not None:
             body['bccRecycleFlag'] = bcc_recycle_flag
+        if bcc_recycle_flag is not None:
+            body['cdsAttributeActive'] = cds_attribute_active
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def batch_start_instance(self, instance_ids, client_token=None, config=None):
