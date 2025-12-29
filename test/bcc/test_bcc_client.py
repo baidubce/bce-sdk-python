@@ -1624,7 +1624,7 @@ class TestBccClient(unittest.TestCase):
         """
         test case for resize_instance_by_spec
         """
-        resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='123456', keypair_id="123",
+        resp = self.client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass='*****', keypair_id="123",
                                                    instance_ids=["i-oUXBvdIx"],
                                                    clean_last_user_data=True,
                                                    user_data="userData",

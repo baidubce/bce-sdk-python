@@ -47,7 +47,7 @@ region = ''
 
 
 force_stop = False
-admin_pass = 'testbbc123@baidu'
+admin_pass = '*************'
 
 change_tags = [{"tagKey" : "test_key", "tagValue" : "test_val"}]
 
@@ -261,7 +261,7 @@ class TestBbcClient(unittest.TestCase):
         """
         test modify the admin password of the specified instance
         """
-        new_admin_pass = "newpass@bbc123"
+        new_admin_pass = "******"
         response = self.client.modify_instance_password(instance_id=instance_id, admin_pass=new_admin_pass)
         self.assertEqual(type(response), baidubce.bce_response.BceResponse)
         print(response)
