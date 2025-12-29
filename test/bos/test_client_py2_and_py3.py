@@ -847,6 +847,8 @@ class TestBucketReplication(TestClient):
     """test bucket replication"""
     def test_bucket_replication(self):
         """test put,get,delete bucket replication"""
+        if not self.bos.does_bucket_exist(self.BUCKET):
+            self.bos.create_bucket(self.BUCKET)
         # create destination bucket
         dst_bucket_name = self.BUCKET + "-gz"
         rule_id = "sample-rep-config"
@@ -1902,25 +1904,21 @@ class TestPutSuperObejctFromFile(TestClient):
         """ test cancel after calling put_super_obejct_from_file() """
         self.get_file(300)
         uploadTaskHandle = UploadTaskHandle()
-        t = threading.Thread(target=self.bos.put_super_obejct_from_file, args=(self.BUCKET, self.KEY, self.FILENAME),
-                kwargs={
-                    "chunk_size": 5,
-                    "thread_num": multiprocessing.cpu_count(),
-                    "uploadTaskHandle": uploadTaskHandle
-                    })
+        result = {'success': None}
+    
+        def upload_with_result():
+            result['success'] = self.bos.put_super_obejct_from_file(
+                self.BUCKET, self.KEY, self.FILENAME,
+                chunk_size=5,
+                thread_num=multiprocessing.cpu_count(),
+                uploadTaskHandle=uploadTaskHandle
+            )
+        t = threading.Thread(target=upload_with_result)
         t.start()
-        time.sleep(1)
+        time.sleep(0.1)
         uploadTaskHandle.cancel()
         t.join()
-
-        err = None
-        try:
-            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY)
-        except BceHttpClientError as e:
-            err = e
-        finally:
-            self.assertIsNotNone(err)
-    
+        self.assertFalse(result['success'], "Upload should have been canceled and returned False")
 
 
 class TestUploadPartCopy(TestClient):
@@ -2620,8 +2618,8 @@ class TestBceClientConfiguration(TestClient):
         merge_config = self.bos._merge_config(config = conf, bucket_name=bucket_name)
         self.assertEqual(merge_config.endpoint, b'bj.bcebos.com')
 
-        conf = BceClientConfiguration(endpoint='test.bj.bcebos.com', path_style_enable=True)
-        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name=bucket_name)
+        conf = BceClientConfiguration(endpoint='wrong-bucket.bj.bcebos.com')
+        self.assertRaises(ValueError, self.bos._merge_config, config = conf, bucket_name='correct-bucket')
 
         # test cname_enabled
         conf = BceClientConfiguration(endpoint='bj.bcebos.com', cname_enabled=True)

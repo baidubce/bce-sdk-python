@@ -237,9 +237,18 @@ def send_request(
                 if http_method == b'GET' and  300 <= http_response.status < 400:
                     headers_map = {k: v for k, v in headers_list}
                     if 'location' in headers_map:
+                        try:
+                            http_response.read()
+                        except Exception:
+                            _logger.info("ignore read response body error")
+                        try:
+                            http_response.close()
+                        except Exception:
+                            _logger.info("ignore close response connection error")
                         location = headers_map.get('location')
                         _logger.debug('request auto follow redirect location is %s', location)
                         parsed_url = urlparse(location)
+                        redirect_conn = None
                         if protocol.name == baidubce.protocol.HTTP.name:
                             redirect_conn = http.client.HTTPConnection(parsed_url.netloc, 
                             timeout=config.connection_timeout_in_mills / 1000)
@@ -248,8 +257,10 @@ def send_request(
                             timeout=config.connection_timeout_in_mills / 1000)
                         else:
                             raise ValueError('Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
-                        redirect_conn.request("GET", parsed_url.path + "?" + parsed_url.query, 
+                        redirect_conn.putrequest("GET", parsed_url.path + "?" + parsed_url.query, 
                             skip_host=True, skip_accept_encoding=True)
+                        redirect_conn.putheader("Host", parsed_url.netloc)
+                        redirect_conn.endheaders()
                         http_response = redirect_conn.getresponse()
             for handler_function in response_handler_functions:
                 if handler_function(http_response, response):

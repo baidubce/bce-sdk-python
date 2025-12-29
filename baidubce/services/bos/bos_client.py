@@ -64,7 +64,7 @@ class UploadTaskHandle:
     handle to control multi upload file with multi-thread
     """
     def __init__(self):
-        self.cancel_flag= False
+        self.cancel_flag = False
         self.cancel_lock = threading.Lock()
 
     def cancel(self):
@@ -985,7 +985,8 @@ class BosClient(BceBaseClient):
             params=query_params,
             config=config,
             body_parser=BosClient._parse_bos_object)
-# restore object
+
+    # restore object
     @required(bucket_name=(bytes, str), key=(bytes, str))
     def restore_object(self, bucket_name, key, days=None, tier="Standard", config=None):
         """
@@ -2996,6 +2997,19 @@ class BosClient(BceBaseClient):
         return config.endpoint
 
     @staticmethod
+    def _need_retry_for_bos(config, error):
+        
+        if not isinstance(error, BceServerError):
+            return False
+
+        # if you need add more retry condition, please add it here
+        if error.status_code == http.client.FORBIDDEN:
+            _logger.debug('BOS retry condition matched: 403 Forbidden')
+            return True
+
+        return False
+
+    @staticmethod
     def _need_retry_backup_endpoint(error):
         # always retry on IOError
         if isinstance(error, IOError):
@@ -3008,6 +3022,8 @@ class BosClient(BceBaseClient):
             if error.status_code == http.client.SERVICE_UNAVAILABLE:
                 return True
             if error.code == BceServerError.REQUEST_EXPIRED:
+                return True
+            if error.status_code == http.client.FORBIDDEN:
                 return True
         return False
 
@@ -3026,22 +3042,42 @@ class BosClient(BceBaseClient):
             headers = headers or {}
             headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
 
+        last_exception = None
+        e = None
         try:
             return bce_http_client.send_request(
                 config, bce_v1_signer.sign, [handler.parse_error, body_parser],
                 http_method, path, body, headers, params)
-        except BceHttpClientError as e:
-            # retry backup endpoint
-            if config.backup_endpoint is None:
-                raise e
-            if BosClient._need_retry_backup_endpoint(e.last_error):
-                _logger.debug(b'Retry for backup endpoint.')
+        except BceHttpClientError as ex:
+            last_exception = ex
+            e = ex
+
+        # retry backup endpoint
+        if e is not None and config.backup_endpoint is not None and BosClient._need_retry_backup_endpoint(e):
+            try:
+                _logger.debug(b'Retry for backup endpoint error code: %d.', e.status_code)
                 path = BosClient._get_path(config, bucket_name, key, True)
-                return bce_http_client.send_request_no_underlined(
+                return bce_http_client.send_request(
                     config, bce_v1_signer.sign, [handler.parse_error, body_parser],
                     http_method, path, body, headers, params, True)
-            else:
-                raise e
+            except BceHttpClientError as ex:
+                last_exception = ex
+                e = ex
+
+        # retry for bos error
+        if e is not None and BosClient._need_retry_for_bos(config, e.last_error):
+            try:
+                _logger.debug(b'Retry for BOS error code: %d.', e.status_code)
+                return bce_http_client.send_request(
+                    config, bce_v1_signer.sign, [handler.parse_error, body_parser],
+                    http_method, path, body, headers, params)
+            except BceHttpClientError as ex:
+                last_exception = ex
+                e = ex
+
+        if last_exception is None:
+            raise
+        raise last_exception
 
 
 class SelectMessage(object):
@@ -3137,7 +3173,7 @@ class SelectResponse(object):
                     msg.set_end_message(headers_map, crc)
                     self.finish = True
                     yield msg
-            raise StopIteration
+            return
         finally:
             self.http_response.close()
 
