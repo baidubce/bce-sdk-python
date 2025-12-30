@@ -14,7 +14,6 @@
 This module provides a client for STS.
 """
 
-from future.utils import iteritems
 import copy
 import http.client
 import os
@@ -94,7 +93,7 @@ class StsClient(BceBaseClient):
     @staticmethod
     def _dump_acl_object(acl):
         result = {}
-        for k, v in iteritems(acl.__dict__):
+        for k, v in acl.__dict__.items():
             if not k.startswith('_'):
                 result[k] = v
         return result

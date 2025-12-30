@@ -13,7 +13,6 @@
 """
 This module provides authentication functions for bce services.
 """
-from __future__ import absolute_import
 import hashlib
 import hmac
 import logging

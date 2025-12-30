@@ -13,9 +13,7 @@
 """
 This module provide base class for BCE service clients.
 """
-from __future__ import absolute_import
 import copy
-from builtins import str, bytes
 
 import baidubce
 from baidubce import bce_client_configuration

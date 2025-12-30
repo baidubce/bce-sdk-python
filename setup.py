@@ -13,7 +13,6 @@
 """
 The setup script to install BCE SDK for python
 """
-from __future__ import absolute_import
 import io
 import os
 import re
@@ -30,7 +29,6 @@ setup(
     name='bce-python-sdk',
     version=SDK_VERSION,
     install_requires=['pycryptodome>=3.8.0',
-                      'future>=0.6.0',
                       'six>=1.4.0'],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     packages=['baidubce',
