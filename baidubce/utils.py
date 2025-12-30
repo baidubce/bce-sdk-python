@@ -13,11 +13,6 @@
 """
 This module provide some tools for bce client.
 """
-# str() generator unicode,bytes() for ASCII
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import str, bytes
-from future.utils import iteritems, iterkeys, itervalues
 from baidubce import compat
 
 import os
@@ -175,7 +170,7 @@ def safe_get_element(name, container):
     :return:
         **Value**
     """
-    for k, v in iteritems(container):
+    for k, v in container.items():
         if k.strip().lower() == name.strip().lower():
             return v
     return ""
@@ -320,7 +315,7 @@ def guess_content_type_by_file_name(file_name):
         file_name = compat.convert_to_string(file_name)
         name = os.path.basename(file_name.lower())
         suffix = name.split('.')[-1]
-        if suffix in iterkeys(mime_map):
+        if suffix in mime_map.keys():
             mime_type = mime_map[suffix]
         else:
             import mimetypes
@@ -368,7 +363,7 @@ def get_canonical_querystring(params, for_signature):
     if params is None:
         return ''
     result = []
-    for k, v in iteritems(params):
+    for k, v in params.items():
         if not for_signature or k.lower != http_headers.AUTHORIZATION.lower():
             if v is None:
                 v = ''
@@ -384,7 +379,7 @@ def print_object(obj):
     :return:
     """
     tmp = []
-    for k, v in iteritems(obj.__dict__):
+    for k, v in obj.__dict__.items():
         if not k.startswith('__') and k != "raw_data":
             if isinstance(v, bytes):
                 tmp.append("%s:'%s'" % (k, v))
@@ -419,7 +414,7 @@ def dict_to_python_object(d):
     :return:
     """
     attr = {}
-    for k, v in iteritems(d):
+    for k, v in d.items():
         if not isinstance(k, compat.string_types):
             k = compat.convert_to_string(k)
         k = pythonize_name(k)
@@ -445,7 +440,7 @@ def required(**types):
                                         (f.__code__.co_varnames[i],
                                          v,
                                          types[f.__code__.co_varnames[i]]))
-            for k, v in iteritems(kwds):
+            for k, v in kwds.items():
                 if k in types:
                     if v is None:
                         raise ValueError('arg "%s" should not be None' % k)

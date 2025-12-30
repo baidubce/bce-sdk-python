@@ -14,8 +14,6 @@
 This module provides a client class for CERT.
 """
 
-from __future__ import unicode_literals
-
 import copy
 import json
 import logging

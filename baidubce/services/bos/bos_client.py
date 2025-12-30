@@ -22,9 +22,6 @@ import json
 import logging
 import shutil
 import struct
-from builtins import str
-from builtins import bytes
-from future.utils import iteritems, iterkeys, itervalues
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED, FIRST_COMPLETED
 import threading
 import functools
@@ -174,7 +171,7 @@ class BosClient(BceBaseClient):
     @staticmethod
     def _dump_acl_object(acl):
         result = {}
-        for k, v in iteritems(acl.__dict__):
+        for k, v in acl.__dict__.items():
             if not k.startswith('_'):
                 result[k] = v
         return result
@@ -2851,7 +2848,7 @@ class BosClient(BceBaseClient):
             meta_data_set = set()
             if not isinstance(user_metadata, dict):
                 raise TypeError('user_metadata should be of type dict.')
-            for k, v in iteritems(user_metadata):
+            for k, v in user_metadata.items():
                 meta_data_set.add(k.lower())
                 k = utils.convert_to_standard_string(k)
                 v = utils.convert_to_standard_string(v)
@@ -2911,7 +2908,7 @@ class BosClient(BceBaseClient):
                                     http_headers.BCE_COPY_SOURCE_IF_UNMODIFIED_SINCE,
                                     http_headers.BCE_COPY_SOURCE_IF_MODIFIED_SINCE]))
 
-        for k, v in iteritems(user_headers):
+        for k, v in user_headers.items():
             k = utils.convert_to_standard_string(k)
             if k != http_headers.BOS_OBJECT_EXPIRES:
                 v = utils.convert_to_standard_string(v)

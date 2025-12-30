@@ -15,8 +15,6 @@
 This module provides a client class for BCC.
 """
 
-from __future__ import unicode_literals
-
 import copy
 import json
 import logging

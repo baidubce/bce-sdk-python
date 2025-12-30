@@ -13,8 +13,6 @@
 """
 This module provide http request function for bce services.
 """
-from future.utils import iteritems, iterkeys, itervalues
-from builtins import str, bytes
 import logging
 import http.client
 import sys
@@ -77,7 +75,7 @@ def _send_http_request(conn, http_method, uri, headers, body, send_buf_size):
     uri = compat.convert_to_string(uri)
     conn.putrequest(http_method, uri, skip_host=True, skip_accept_encoding=True)
 
-    for k, v in iteritems(headers):
+    for k, v in headers.items():
         k = utils.convert_to_standard_string(k)
         v = utils.convert_to_standard_string(v)
         conn.putheader(k, v)
@@ -110,7 +108,7 @@ def check_headers(headers):
     :param headers:
     :return:
     """
-    for k, v in iteritems(headers):
+    for k, v in headers.items():
         if isinstance(v, (bytes, str)) and \
                 b'\n' in compat.convert_to_bytes(v):
             raise BceClientError(r'There should not be any "\n" in header[%s]:%s' % (k, v))

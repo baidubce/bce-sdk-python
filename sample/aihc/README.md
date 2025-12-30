@@ -63,9 +63,9 @@ Before running any samples, please update the configuration in [aihc_sample_conf
 
 2. **Install Dependencies**:
    ```bash
-   pip install future six pycryptodome
+   pip install six pycryptodome
    # or
-   pip3 install future six pycryptodome
+   pip3 install six pycryptodome
    ```
 
 3. **Configure Credentials**: Update [aihc_sample_conf.py](aihc_sample_conf.py)

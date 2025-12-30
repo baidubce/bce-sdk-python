@@ -13,7 +13,6 @@
 """
 This module provides a client class for esg.
 """
-from __future__ import unicode_literals
 
 import copy
 import json

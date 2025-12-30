@@ -18,8 +18,6 @@ import copy
 import json
 import logging
 
-from future.utils import iteritems
-
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
 from baidubce.http import bce_http_client
