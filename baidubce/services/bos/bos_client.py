@@ -956,12 +956,16 @@ class BosClient(BceBaseClient):
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object(self, bucket_name, key, range=None, traffic_limit=None, version_id=None, config=None):
+    def get_object(self, bucket_name, key, range=None, traffic_limit=None, version_id=None, 
+                   cond_read_write=None, config=None):
         """
 
         :param bucket_name:
         :param key:
         :param range:
+        :param traffic_limit:
+        :param version_id:
+        :param cond_read_write:
         :param config:
         :return:
         """
@@ -973,10 +977,17 @@ class BosClient(BceBaseClient):
         if len(key) == 0 or key.startswith(b"/"):
             raise BceClientError("Key can not be empty or start with '/' .")
         range_header = BosClient._get_range_header_dict(range)
+
         if traffic_limit is not None:
             if range_header is None:
                 range_header = {}
             range_header[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
+        
+        if cond_read_write is not None:
+            if range_header is None:
+                range_header = {}
+            range_header = self._get_cond_read_write_headers(http_methods.GET, range_header, cond_read_write)
+        
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -1036,7 +1047,7 @@ class BosClient(BceBaseClient):
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object_as_string(self, bucket_name, key, range=None, version_id=None, config=None):
+    def get_object_as_string(self, bucket_name, key, range=None, version_id=None, cond_read_write=None, config=None):
         """
 
         :param bucket_name:
@@ -1046,14 +1057,15 @@ class BosClient(BceBaseClient):
         :return:
         """
         key = compat.convert_to_bytes(key)
-        response = self.get_object(bucket_name, key, range=range, version_id = version_id, config=config)
+        response = self.get_object(bucket_name, key, range=range, version_id = version_id,
+                                   cond_read_write = cond_read_write, config=config)
         s = response.data.read()
         response.data.close()
         return s
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
     def get_object_to_file(self, bucket_name, key, file_name, range=None, config=None, 
-                            progress_callback=None, traffic_limit=None, version_id=None):
+                            progress_callback=None, traffic_limit=None, cond_read_write=None, version_id=None):
         """
         Get Content of Object and Put Content to File
 
@@ -1085,6 +1097,11 @@ class BosClient(BceBaseClient):
                 range_header = {}
             range_header[http_headers.BOS_TRAFFIC_LIMIT] = traffic_limit
         
+        if cond_read_write is not None:
+            if range_header is None:
+                range_header = {}
+            range_header = self._get_cond_read_write_headers(http_methods.GET, range_header, cond_read_write)
+        
         return self._send_request(
             http_methods.GET,
             bucket_name,
@@ -1101,7 +1118,7 @@ class BosClient(BceBaseClient):
 
 
     @required(bucket_name=(bytes, str), key=(bytes, str))
-    def get_object_meta_data(self, bucket_name, key, version_id=None, config=None):
+    def get_object_meta_data(self, bucket_name, key, version_id=None, cond_read_write=None, config=None):
         """
         Get head of object
 
@@ -1117,9 +1134,14 @@ class BosClient(BceBaseClient):
         if version_id is not None:
             version_id = compat.convert_to_bytes(version_id)
             query_params={b'versionId': version_id}
+
+        headers = {}
+        if cond_read_write is not None:
+            headers = self._get_cond_read_write_headers(http_methods.HEAD, headers, cond_read_write)
+        
         key = compat.convert_to_bytes(key)
         return self._send_request(http_methods.HEAD, bucket_name, key,
-        params=query_params, config=config)
+                                  headers=headers, params=query_params, config=config)
 
     @required(bucket_name=(bytes, str),
               key=(bytes, str),
@@ -1252,6 +1274,7 @@ class BosClient(BceBaseClient):
                    progress_callback=None,
                    traffic_limit=None,
                    object_tagging=None,
+                   cond_read_write=None,
                    config=None):
         """
         Put object and put content of file to the object
@@ -1284,6 +1307,9 @@ class BosClient(BceBaseClient):
             traffic_limit=traffic_limit,
             object_tagging=object_tagging,)
 
+        if cond_read_write is not None:
+            headers = self._get_cond_read_write_headers(http_methods.PUT, headers, cond_read_write)
+
         buf_size = self._get_config_parameter(config, 'recv_buf_size')
 
         if content_length > bos.MAX_PUT_OBJECT_LENGTH:
@@ -1315,6 +1341,7 @@ class BosClient(BceBaseClient):
                                progress_callback=None,
                                traffic_limit=None,
                                object_tagging=None,
+                               cond_read_write=None,
                                config=None):
         """
         Create object and put content of string to the object
@@ -1357,6 +1384,7 @@ class BosClient(BceBaseClient):
                                    progress_callback = progress_callback,
                                    traffic_limit=traffic_limit,
                                    object_tagging=object_tagging,
+                                   cond_read_write=cond_read_write,
                                    config=config)
         finally:
             if fp is not None:
@@ -1377,6 +1405,7 @@ class BosClient(BceBaseClient):
                              progress_callback=None,
                              traffic_limit=None,
                              object_tagging=None,
+                             cond_read_write=None,
                              config=None,
                              ):
 
@@ -1424,6 +1453,7 @@ class BosClient(BceBaseClient):
                                    progress_callback=progress_callback,
                                    traffic_limit=traffic_limit,
                                    object_tagging=object_tagging,
+                                   cond_read_write=cond_read_write,
                                    config=config)
         finally:
             fp.close()
@@ -1806,8 +1836,9 @@ class BosClient(BceBaseClient):
               part_list=list)
     def complete_multipart_upload(self, bucket_name, key,
                                   upload_id, part_list,
-                                  user_metadata=None,
                                   user_headers=None,
+                                  user_metadata=None,
+                                  cond_read_write=None,
                                   config=None):
         """
         After finish all the task, complete multi_upload_file.
@@ -1832,6 +1863,9 @@ class BosClient(BceBaseClient):
             content_type=http_content_types.JSON,
             user_metadata=user_metadata,
             user_headers=user_headers)
+
+        if cond_read_write is not None:
+            headers = self._get_cond_read_write_headers(http_methods.POST, headers, cond_read_write)
 
         return self._send_request(
             http_methods.POST,
@@ -2012,6 +2046,7 @@ class BosClient(BceBaseClient):
             user_headers=None,
             progress_callback=None,
             traffic_limit=None,
+            cond_read_write=None,
             config=None):
         """
         Multipart Upload file to bos
@@ -2067,7 +2102,7 @@ class BosClient(BceBaseClient):
         # sort
         part_list.sort(key=lambda x: x["partNumber"])
         # complete_multipart_upload
-        self.complete_multipart_upload(bucket_name, key, upload_id, part_list)
+        self.complete_multipart_upload(bucket_name, key, upload_id, part_list, cond_read_write)
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str), acl=(list, dict))
@@ -2891,6 +2926,37 @@ class BosClient(BceBaseClient):
 
         if object_tagging is not None:
             headers[http_headers.BOS_TAGGING] = compat.convert_to_bytes(object_tagging)
+
+        return headers
+
+
+    @staticmethod
+    def _get_cond_read_write_headers(http_method, headers, cond_read_write):
+        """
+        get if condition headers
+        :type http_method: string
+        :param http_method: GET, HEAD, PUT, POST
+
+        :type cond_read_write: string
+        :param cond_read_write: put_object, complete_multipart_upload, get_object, get_object_meta_data
+
+        :return: headers
+        """
+        cond_read_write_set = http_headers.BOS_COND_READ_WRITE_HEADERS
+        
+        if http_method == http_methods.GET or http_method == http_methods.HEAD:
+            cond_read_write_set = cond_read_write_set.union(set(
+                [http_headers.BOS_IF_MODIFIED_SINCE,
+                 http_headers.BOS_IF_UNMODIFIED_SINCE,
+                 http_headers.BOS_IF_MATCH,
+                 http_headers.BOS_IF_NONE_MATCH]))
+        
+        for k, v in iteritems(cond_read_write):
+            k = utils.convert_to_standard_string(k)
+            if k in cond_read_write_set:
+                headers[k] = v
+            else:
+                raise ValueError('%s is not valid in %s' % (k, http_method))
         return headers
 
 
@@ -3078,7 +3144,6 @@ class BosClient(BceBaseClient):
         if last_exception is None:
             raise
         raise last_exception
-
 
 class SelectMessage(object):
     """

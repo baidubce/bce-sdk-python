@@ -1,5 +1,9 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.9.59】
+涉及产品：BOS
+新增head字段：If-Match、If-None-Match、If-Modified-Since、 If-Unmodified-Since
+
 【版本：v0.9.58】
 涉及产品：BOS
 修复auto_follow_redirect=True出错的BUG

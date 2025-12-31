@@ -35,7 +35,7 @@ import socket
 import threading
 import time
 import pprint
-import datetime
+from datetime import datetime
 
 import coverage
 import baidubce
@@ -3303,9 +3303,9 @@ class TestTrafficLimit(TestClient):
     def test_put_object(self):
         self.get_file(20)
         traffic_limit_speed = 819200 * 5
-        start_time = datetime.datetime.now()
+        start_time = datetime.now()
         self.bos.put_object_from_file(bucket=self.BUCKET, key=self.KEY, file_name=self.FILENAME, traffic_limit=traffic_limit_speed)
-        end_time = datetime.datetime.now()
+        end_time = datetime.now()
         time_interval = (end_time - start_time).seconds
         speed = 20 * 1024 * 1024 * 8 / time_interval
         self.assertTrue(speed <= traffic_limit_speed)
@@ -3342,7 +3342,7 @@ class TestTrafficLimit(TestClient):
             err = e
         finally:
             self.assertIsNone(err)
-        start_time = datetime.datetime.now()
+        start_time = datetime.now()
         try:
             response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME,
                                         traffic_limit=traffic_limit_speed)
@@ -3350,7 +3350,7 @@ class TestTrafficLimit(TestClient):
             err = e
         finally:
             self.assertIsNone(err)
-        end_time = datetime.datetime.now()
+        end_time = datetime.now()
         time_interval = (end_time - start_time).seconds
         speed = 20 * 1024 * 1024 * 8 / time_interval
         self.assertTrue(speed <= traffic_limit_speed)
@@ -3469,6 +3469,842 @@ class TestBucketTagging(TestClient):
         finally:
             self.assertIsNone(err)
 
+
+class TestConditionalReadWrite(TestClient):
+    """test put, get, post, head, 4 conditional read-write fields"""
+
+    def test_get_object(self):
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        md5 = utils.get_md5_from_fp(fp)
+        response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write_1 = {"If-Match": etag}
+        err = None
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_1)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+
+        cond_read_write_2 = {"If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_2)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+        
+        cond_read_write_3 = {"If-None-Match": etag + "invalid"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_3)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+
+        cond_read_write_4 = {"If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_4)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+
+        cond_read_write_5 = {"If-None-Match": etag + "invalid", 
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_5)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+
+        cond_read_write_6 = {"If-None-Match": etag + "invalid", 
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_6)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+
+        cond_read_write_7 = {"If-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_7)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+    
+        cond_read_write_8 = {"If-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_8)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = response.data.read()
+        self.check_headers(response)
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+        
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": etag + "invalid"}
+        err = None
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_3 = {"If-None-Match": etag}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+        
+        cond_read_write_4 = {"If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_4)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_5 = {"If-None-Match": etag + "invalid", 
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_5)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_6 = {"If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_6)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+        
+        cond_read_write_7 = {"If-Match": etag + "invalid", 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_7)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_8 = {"If-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_8)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_9 = {"XX-test": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object(self.BUCKET, self.KEY, cond_read_write=cond_read_write_9)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_get_object_as_string(self):
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        md5 = utils.get_md5_from_fp(fp)
+        response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid",
+                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        err = None
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, self.KEY, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response, b"abcdefghijklmnopqrstuvwxyz")
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, self.KEY, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, self.KEY, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": "",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, self.KEY, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_as_string(self.BUCKET, self.KEY, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_get_object_to_file(self):
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        md5 = utils.get_md5_from_fp(fp)
+        response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid",
+                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        err = None
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        data = open(self.FILENAME, "rb").read()
+        self.assertEqual(data, b"abcdefghijklmnopqrstuvwxyz")
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": "",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_to_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_get_object_meta_data(self):
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        md5 = utils.get_md5_from_fp(fp)
+        response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid",
+                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        err = None
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": "",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 304)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.get_object_meta_data(self.BUCKET, self.KEY, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_put_object(self):
+        fp = io.BytesIO(b"abcdefghijklmnopqrstuvwxyz")
+        md5 = utils.get_md5_from_fp(fp)
+        response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid",
+                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        err = None
+        try:
+            fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
+            md5 = utils.get_md5_from_fp(fp)
+            response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
+            md5 = utils.get_md5_from_fp(fp)
+            response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
+            md5 = utils.get_md5_from_fp(fp)
+            response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": "",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
+            md5 = utils.get_md5_from_fp(fp)
+            response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
+            md5 = utils.get_md5_from_fp(fp)
+            response = self.bos.put_object(self.BUCKET, self.KEY, fp, len(fp.getvalue()), md5, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+    
+    def test_put_object_from_string(self):
+        fp = "zyxwvutsrqponmlkjihgfedcba"
+        response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid",
+                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        err = None
+        try:
+            fp = "zyxwvutsrqponmlkjihgfedcba"
+            response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = "zyxwvutsrqponmlkjihgfedcba"
+            response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag,
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = "zyxwvutsrqponmlkjihgfedcba"
+            response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": "",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            fp = "zyxwvutsrqponmlkjihgfedcba"
+            response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            fp = "zyxwvutsrqponmlkjihgfedcba"
+            response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+    
+    def test_put_object_from_file(self):
+        self.get_file(20)
+        response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME)
+
+        # normal situation, can be downloaded object
+        etag = response.metadata.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid"}
+        err = None
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        cond_read_write_1 = {"If-Match": "",
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag + "invalid"}
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_1)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag}
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": ""}
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid"}
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+        
+        cond_read_write_5 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+        try:
+            response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_5)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+    def test_complete_multipart_upload(self):
+        response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+        upload_id = response.upload_id
+        self.get_file(20)
+        left_size = os.path.getsize(self.FILENAME)
+        done = 0
+        part_number = 1
+        part_list = []
+        while left_size > 0:
+            part_size = 5 * 1024 * 1024
+            if left_size < part_size:
+                part_size = left_size
+
+            response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                      part_size=part_size, file_name = self.FILENAME, offset=done)
+            left_size = left_size - part_size
+            done = done + part_size
+            part_list.append({
+                "partNumber": part_number,
+                "eTag": response.metadata.etag
+            })
+            part_number += 1
+
+        response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list)
+
+        # normal situation, can be downloaded object
+        etag = response.etag
+        cond_read_write = {"If-Match": etag,
+                           "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                           "If-None-Match": etag + "invalid"}
+        err = None
+        try:
+            response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+            upload_id = response.upload_id
+            left_size = os.path.getsize(self.FILENAME)
+            done = 0
+            part_number = 1
+            part_list = []
+            while left_size > 0:
+                part_size = 5 * 1024 * 1024
+                if left_size < part_size:
+                    part_size = left_size
+
+                response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                        part_size=part_size, file_name = self.FILENAME, offset=done)
+                left_size = left_size - part_size
+                done = done + part_size
+                part_list.append({
+                    "partNumber": part_number,
+                    "eTag": response.metadata.etag
+                })
+                part_number += 1
+            response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list, cond_read_write=cond_read_write)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # abnormal situation, unable to download object, return 412 or 304
+        # cond_read_write_1 = {"If-Match": "",
+        #                      "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+        #                      "If-None-Match": etag + "invalid"}
+        # try:
+        #     response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+        #     upload_id = response.upload_id
+        #     left_size = os.path.getsize(self.FILENAME)
+        #     done = 0
+        #     part_number = 1
+        #     part_list = []
+        #     while left_size > 0:
+        #         part_size = 5 * 1024 * 1024
+        #         if left_size < part_size:
+        #             part_size = left_size
+
+        #         response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+        #                                                 part_size=part_size, file_name = self.FILENAME, offset=done)
+        #         left_size = left_size - part_size
+        #         done = done + part_size
+        #         part_list.append({
+        #             "partNumber": part_number,
+        #             "eTag": response.metadata.etag
+        #         })
+        #         part_number += 1
+        #     response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+        #                                               part_list=part_list, cond_read_write=cond_read_write_1)
+        # except BceHttpClientError as e:
+        #     err = e
+        #     print(err)
+        # finally:
+        #     self.assertEqual(err.status_code, 412)
+        
+        cond_read_write_2 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
+                             "If-None-Match": etag}
+        try:
+            response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+            upload_id = response.upload_id
+            left_size = os.path.getsize(self.FILENAME)
+            done = 0
+            part_number = 1
+            part_list = []
+            while left_size > 0:
+                part_size = 5 * 1024 * 1024
+                if left_size < part_size:
+                    part_size = left_size
+
+                response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                        part_size=part_size, file_name = self.FILENAME, offset=done)
+                left_size = left_size - part_size
+                done = done + part_size
+                part_list.append({
+                    "partNumber": part_number,
+                    "eTag": response.metadata.etag
+                })
+                part_number += 1
+            response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list, cond_read_write=cond_read_write_2)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_3 = {"If-Match": etag,
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-None-Match": ""}
+        try:
+            response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+            upload_id = response.upload_id
+            left_size = os.path.getsize(self.FILENAME)
+            done = 0
+            part_number = 1
+            part_list = []
+            while left_size > 0:
+                part_size = 5 * 1024 * 1024
+                if left_size < part_size:
+                    part_size = left_size
+
+                response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                        part_size=part_size, file_name = self.FILENAME, offset=done)
+                left_size = left_size - part_size
+                done = done + part_size
+                part_list.append({
+                    "partNumber": part_number,
+                    "eTag": response.metadata.etag
+                })
+                part_number += 1
+            response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list, cond_read_write=cond_read_write_3)
+        except BceHttpClientError as e:
+            err = e
+        finally:
+            self.assertEqual(err.status_code, 412)
+
+        cond_read_write_4 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid"}
+        try:
+            response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+            upload_id = response.upload_id
+            left_size = os.path.getsize(self.FILENAME)
+            done = 0
+            part_number = 1
+            part_list = []
+            while left_size > 0:
+                part_size = 5 * 1024 * 1024
+                if left_size < part_size:
+                    part_size = left_size
+
+                response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                        part_size=part_size, file_name = self.FILENAME, offset=done)
+                left_size = left_size - part_size
+                done = done + part_size
+                part_list.append({
+                    "partNumber": part_number,
+                    "eTag": response.metadata.etag
+                })
+                part_number += 1
+            response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list, cond_read_write=cond_read_write_4)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+        
+        cond_read_write_5 = {"If-None-Match": etag, 
+                             "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
+                             "If-xxx-Match": etag + "invalid",
+                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+        try:
+            response = self.bos.initiate_multipart_upload(self.BUCKET, self.KEY)
+            upload_id = response.upload_id
+            left_size = os.path.getsize(self.FILENAME)
+            done = 0
+            part_number = 1
+            part_list = []
+            while left_size > 0:
+                part_size = 5 * 1024 * 1024
+                if left_size < part_size:
+                    part_size = left_size
+
+                response = self.bos.upload_part_from_file(self.BUCKET, self.KEY, upload_id, part_number=part_number,
+                                                        part_size=part_size, file_name = self.FILENAME, offset=done)
+                left_size = left_size - part_size
+                done = done + part_size
+                part_list.append({
+                    "partNumber": part_number,
+                    "eTag": response.metadata.etag
+                })
+                part_number += 1
+            response = self.bos.complete_multipart_upload(self.BUCKET, self.KEY, upload_id=upload_id,
+                                                      part_list=part_list, cond_read_write=cond_read_write_5)
+        except ValueError as e:
+            err = e
+        finally:
+            self.assertIsNotNone(err)
+
+        self.bos.delete_object(self.BUCKET, self.KEY)
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -3523,6 +4359,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestMirroringConf))
     runner.run(unittest.makeSuite(TestBucketQuota))
     runner.run(unittest.makeSuite(TestBucketTagging))
+    runner.run(unittest.makeSuite(TestConditionalReadWrite))
     
     """test quota, the quota cache may exist causing the bucket to be created error"""
     # runner.run(unittest.makeSuite(TestQuota))

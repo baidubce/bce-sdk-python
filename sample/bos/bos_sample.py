@@ -632,7 +632,7 @@ if __name__ == "__main__":
     __logger.debug("[Sample] delete bucket mirroing response :%s", response)
 
 
-    #####################################################################################################
+    ######################################################################################################
     #            test progress_callback samples
     ######################################################################################################
 
@@ -713,7 +713,7 @@ if __name__ == "__main__":
         })
         part_number += 1
 
-    #####################################################################################################
+    ######################################################################################################
     #            test traffic limit samples
     ######################################################################################################
     traffic_limit_speed = 819200 * 5
@@ -768,7 +768,7 @@ if __name__ == "__main__":
     # copy a object
     bos_client.copy_object(bucket_name, key, bucket_name, key + ".copy", traffic_limit=traffic_limit_speed)
 
-    #####################################################################################################
+    ######################################################################################################
     #            test bucket version samples
     ######################################################################################################
 
@@ -792,9 +792,10 @@ if __name__ == "__main__":
     res = bos_client.get_object_to_file(bucket_name, key, download)
     __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
 
-    #####################################################################################################
+    ######################################################################################################
     #            test object expire samples
     ######################################################################################################
+
     user_headers = {"x-bce-object-expires": 3}
     res = bos_client.put_object_from_file(bucket_name, key, download, user_headers=user_headers)
     __logger.debug("[Sample] put object into file, file size:%s", os.path.getsize(download))
@@ -810,3 +811,37 @@ if __name__ == "__main__":
 
     # SuperFile step 3: complete multi-upload
     bos_client.complete_multipart_upload(bucket_name, key, upload_id, part_list, user_headers=user_headers)
+
+    ######################################################################################################
+    #            test conditional read and write samples
+    ######################################################################################################
+
+    cond_read_write_put_post = {"If-Match": "111",
+                                "If-None-Match": "222", 
+                                "If-Unmodified-Since": "Wed, 21 Jul 2020 07:23:48 GMT"}
+    cond_read_write_get_head = {"If-Match": "111",
+                                "If-None-Match": "222",
+                                "If-Modified-Since": "Wed, 21 Jul 2020 07:23:49 GMT",
+                                "If-Unmodified-Since": "Wed, 21 Jul 2020 07:23:48 GMT"}
+
+    res = bos_client.put_object_from_file(bucket_name, key, download, cond_read_write=cond_read_write_put_post)
+    __logger.debug("[Sample] put object from file, file size:%s", os.path.getsize(download))
+
+    res = bos_client.put_object_from_string(bucket_name, key, "download", cond_read_write=cond_read_write_put_post)
+    __logger.debug("[Sample] put object from string, file size:%s", os.path.getsize(download))
+
+    res = bos_client.get_object_meta_data(bucket_name, key, cond_read_write=cond_read_write_get_head)
+    __logger.debug("[Sample] get object meta, meta response:%s", res)
+    
+    res = bos_client.get_object(bucket_name, key, cond_read_write=cond_read_write_get_head)
+    __logger.debug("[Sample] get object meta, meta response:%s", res)
+    
+    res = bos_client.get_object_as_string(bucket_name, key, cond_read_write=cond_read_write_get_head)
+    __logger.debug("[Sample] get object as string:%s", res)
+
+    res = bos_client.get_object_to_file(bucket_name, key, download, cond_read_write=cond_read_write_get_head)
+    __logger.debug("[Sample] get object into file, file size:%s", os.path.getsize(download))
+
+    # SuperFile step 3: complete multi-upload
+    bos_client.complete_multipart_upload(bucket_name, key, upload_id, part_list,
+                                         cond_read_write=cond_read_write_put_post)
