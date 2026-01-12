@@ -389,6 +389,12 @@ class EtClient(bce_base_client.BceBaseClient):
         if ipv6_networks is not None:
             body['ipv6Networks'] = ipv6_networks
 
+        if bgp_asn is not None:
+            body['bgpAsn'] = compat.convert_to_string(bgp_asn)
+
+        if bgp_key is not None:
+            body['bgpKey'] = compat.convert_to_string(bgp_key)
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
     
     @required(et_id=(bytes, str))
