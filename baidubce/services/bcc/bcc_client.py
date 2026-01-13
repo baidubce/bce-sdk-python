@@ -4058,7 +4058,7 @@ class BccClient(bce_base_client.BceBaseClient):
                                 hosteye_type=None, res_group_id=None, enable_ht=None, data_partition_type=None,
                                 root_partition_type=None, file_systems=None, disable_root_disk_serial=None,
                                 internal_ips=None, network_purchase_type=None, is_keep_image_login=None,
-                                reserved_instance=None):
+                                reserved_instance=None, is_eip_auto_related_delete=None):
         """
         Create a bcc Instance with the specified options.
         You must fill the field of clientToken,which is especially for keeping idempotent.
@@ -4321,6 +4321,11 @@ class BccClient(bce_base_client.BceBaseClient):
             EIP line type, including Standard BGP (BGP) and Enhanced BGP (BGP_S).The default value is Standard BGP.
         :type network_purchase_type: string
 
+        :param is_eip_auto_related_delete
+            Whether to automatically delete the EIP associated with the instance after the instance is released.
+            The default value is False.
+        :type is_eip_auto_related_delete: boolean
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -4357,6 +4362,8 @@ class BccClient(bce_base_client.BceBaseClient):
             body['autoSeqSuffix'] = auto_seq_suffix
         if is_open_hostname_domain is not None:
             body['isOpenHostnameDomain'] = is_open_hostname_domain
+        if is_eip_auto_related_delete is not None:
+            body['isEipAutoRelatedDelete'] = is_eip_auto_related_delete
         if admin_pass is not None:
             secret_access_key = self.config.credentials.secret_access_key
             cipher_admin_pass = aes128_encrypt_16char_key(admin_pass, secret_access_key)
@@ -4450,7 +4457,8 @@ class BccClient(bce_base_client.BceBaseClient):
                                   params=params, config=config)
 
     @required(instance_id=(bytes, str))
-    def auto_release_instance(self, instance_id, release_time=None, client_token=None, config=None):
+    def auto_release_instance(self, instance_id, release_time=None, client_token=None, config=None,
+                              is_eip_auto_related_delete=None):
         """
             set instance auto release.
 
@@ -4461,6 +4469,9 @@ class BccClient(bce_base_client.BceBaseClient):
         :param release_time:
             The new value for instance's name.
         :type release_time: string in format yyyy-MM-dd'T'HH:mm:ss'Z'.
+
+        :param is_eip_auto_related_delete:
+            Auto delete eip when instance is released.
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -4485,7 +4496,8 @@ class BccClient(bce_base_client.BceBaseClient):
         # instance_id = instance_id.encode(encoding='utf-8')
         path = b'/instance/%s' % instance_id
         body = {
-            'releaseTime': release_time
+            'releaseTime': release_time,
+            'isEipAutoRelatedDelete': is_eip_auto_related_delete
         }
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
