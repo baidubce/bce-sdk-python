@@ -107,7 +107,7 @@ def main():
     # 查询训练任务列表
     try:
         __logger.info('--------------------------------DescribeJobs start--------------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         keyword = ""
         response = aihc_client.job.DescribeJobs(resourcePoolId=resource_pool_id, keyword=keyword)
         print(json.dumps(to_dict(response), ensure_ascii=False))
@@ -121,7 +121,7 @@ def main():
     # 查询训练任务详情
     try:
         __logger.info('--------------------------------DescribeJob start--------------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         queue_id = "default"
         job_id = "job-xxx"
         need_detail = True
@@ -138,7 +138,7 @@ def main():
     # 查询训练任务事件
     try:
         __logger.info('--------------------------DescribeJobEvents start-----------------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         job_id = "job-xxx"
         start_time = "1758532230"
         end_time = "1758618650"
@@ -155,7 +155,7 @@ def main():
     # 查询训练任务日志
     try:
         __logger.info('--------------------------DescribeJobLogs start---------------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         job_id = "job-xxx"
         pod_name = "xxx-test-copy2-master-0"
         keywords = "xxx"
@@ -174,7 +174,7 @@ def main():
     # 查询训练任务Pod事件
     try:
         __logger.info('---------------DescribeJobPodEvents start---------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         pod_name = "job-xxx-master-0"
         job_id = "job-xxx"
         response = aihc_client.job.DescribeJobPodEvents(resourcePoolId=resource_pool_id,
@@ -192,7 +192,7 @@ def main():
     # 查询训练任务监控
     try:
         __logger.info('--------------------DescribeJobMetrics start------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         job_id = "job-xxx"
         start_time = "1758359060"
         end_time = "1758445563"
@@ -217,7 +217,7 @@ def main():
     # 查询训练任务所在节点列表
     try:
         __logger.info('-------------------DescribeJobNodes start--------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         job_id = "job-xxx"
         response = aihc_client.job.DescribeJobNodes(resourcePoolId=resource_pool_id, jobId=job_id)
         print(json.dumps(to_dict(response), ensure_ascii=False))
@@ -231,7 +231,7 @@ def main():
     # 获取训练任务WebTerminal地址
     try:
         __logger.info('-------------------DescribeJobWebterminal start--------------------------')
-        resource_pool_id = "cce-xxx"
+        resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
         job_id = "job-xxx"
         podName = "xxx-test-bb1-rerun1-master-0"
         handshake_timeout_second = "30"
@@ -254,7 +254,7 @@ def main():
     # # 删除训练任务
     # try:
     #     __logger.info('----------------------------------DeleteJob start-----------------------------------')
-    #     resource_pool_id = "cce-xxx"
+    #     resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
     #     job_id = "job-xxx"
     #     response = aihc_client.job.DeleteJob(resourcePoolId=resource_pool_id, jobId=job_id)
     #     print(json.dumps(to_dict(response), ensure_ascii=False))
@@ -268,7 +268,7 @@ def main():
     # # 更新训练任务
     # try:
     #     __logger.info('---------------------------------ModifyJob start----------------------------------')
-    #     resource_pool_id = ("cce-xxx")
+    #     resource_pool_id = ("cce-xxx")  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
     #     job_id = "job-xxx"
     #     priority = "high"
     #     response = aihc_client.job.ModifyJob(resourcePoolId=resource_pool_id, jobId=job_id, priority=priority)
@@ -283,7 +283,7 @@ def main():
     # # 创建训练任务
     # try:
     #     __logger.info('---------------------------------CreateJob start------------------------------')
-    #     resource_pool_id = "cce-xxx"
+    #     resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
     #     queue_id = "default"
     #     name = ("python-sdk-test-xxx")
     #     command = "sleep 5m"
@@ -356,7 +356,7 @@ def main():
     # # 停止训练任务
     # try:
     #     __logger.info('stop job')
-    #     resource_pool_id = "cce-xxx"
+    #     resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
     #     job_id = "job-xxx"
     #     response = aihc_client.job.StopJob(resourcePoolId=resource_pool_id, jobId=job_id)
     #     print(json.dumps(to_dict(response), ensure_ascii=False))

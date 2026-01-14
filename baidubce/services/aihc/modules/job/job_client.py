@@ -41,7 +41,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/xmayvctia
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             queueID: 托管资源池需传入该参数，为队列Id（可选，Query参数）
             queue: 训练任务所属队列，通用资源池须填入队列名称，不填时返回所有。托管资源池须填入队列Id（可选，Body参数）
             status: 基于状态筛选任务（可选，Body参数）
@@ -105,7 +105,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Kmayvejf0
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 任务ID（必填，Body参数）
             needDetail: 是否需要详细信息（可选）
@@ -137,8 +137,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/rmayvfzxj
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
-            resourcePoolId: string
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             jobId: string
 
@@ -166,7 +165,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Smayvhq0w
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             priority: 优先级（必填，Body参数），如 "normal"
 
@@ -201,7 +200,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/fmayvjaeq
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             startTime: 获取任务事件的起始时间（可选，Body参数）
             endTime: 获取任务事件的结束时间（可选，Body参数）
@@ -245,7 +244,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Hmayvkw26
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             podName: Pod名称（必填，Body参数）
             keywords: 日志查询关键字（可选，Body参数）
@@ -306,7 +305,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/mmayvm8tb
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             podName: 训练任务节点名称（必填，Body参数）
             startTime: 事件起始时间，Unix时间格式（可选，Body参数）
@@ -347,7 +346,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/0mayvnkik
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
 
         Returns:
@@ -379,7 +378,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/2mayvq994
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
 
         Returns:
@@ -418,7 +417,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/9mayvri1t
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 训练任务ID（必填，Body参数）
             podName: 训练任务节点名称（必填，Body参数）
             handshakeTimeoutSecond: 连接超时参数，单位秒（可选，Body参数）
@@ -475,7 +474,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/Hmayv96tj
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             queueID: 训练任务所属队列，通用资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             name: 训练任务名称（必填，Body参数）
             command: 启动命令（必填，Body参数）
@@ -550,7 +549,7 @@ class JobClient(AIHCBaseClient):
         参考文档：https://cloud.baidu.com/doc/AIHC/s/fmayvjaeq
 
         Args:
-            resourcePoolId: 资源池唯一标识符（必填，Query参数）
+            resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
             jobId: 任务ID（必填，Body参数）
             metricType: 查询监控数据的指标类型（必填，Body参数）
             startTime: 开始时间，Unix时间格式（可选，Body参数）
