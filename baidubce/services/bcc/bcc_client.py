@@ -7136,6 +7136,95 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def create_snapshot_share(self, snapshot_id, account_ids, client_token=None, config=None):
+        """
+        Create a share link for the specified snapshot.
+
+        :param snapshot_id:
+            Snapshot id.
+        :type snapshot_id: string
+
+        :param account_ids:
+            Account ids that can access the snapshot.
+        :type account_ids: list
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/share'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'snapshotId': snapshot_id,
+            'accountIds': account_ids
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                params=params, config=config)
+
+    def cancel_snapshot_share(self, source_snapshot_id, account_ids, share_snapshot_id, client_token=None, config=None):
+        """
+        Cancel a share link for the specified snapshot.
+
+        :param source_snapshot_id:
+            Source snapshot id.
+        :type source_snapshot_id: string
+
+        :param account_ids:
+            Account ids that can access the snapshot.
+        :type account_ids: list
+
+        :param share_snapshot_id:
+            Share snapshot id.
+        :type share_snapshot_id: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/unShare'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'sourceSnapshotId': source_snapshot_id,
+            'accountIds': account_ids,
+            'shareSnapshotId': share_snapshot_id
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def list_snapshot_share(self, marker, max_keys, client_token=None, config=None):
+        """
+        List all snapshots shared with you.
+
+        :param marker:
+            The marker used for pagination.
+        :type marker: string
+
+        :param max_keys:
+            Maximum number of results returned per request.
+        :type max_keys: int
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/snapshotShare/list'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'marker': marker,
+            'maxKeys': max_keys
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body), params=params, config=config)
+
+
     def enter_rescue_mode(self, instance_id, force_stop, password, client_token=None, config=None):
         """
                 进入救援模式。

@@ -2249,6 +2249,36 @@ class TestBccClient(unittest.TestCase):
         else:
             print(resp)
 
+    def test_create_snapshot_share(self):
+        resp = self.client.create_snapshot_share(self, snapshot_id='s-test', account_ids=['accountId1', 'accountId2'])
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_cancel_snapshot_share(self):
+        resp = self.client.cancel_snapshot_share(source_snapshot_id='s-test', account_ids=['accountId1', 'accountId2'], share_snapshot_id='share-test')
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
+    def test_list_snapshot_share(self):
+        resp = self.client.list_snapshot_share(marker='-1', max_keys=10)
+        self.assertEqual(
+            type(resp),
+            baidubce.bce_response.BceResponse)
+        if resp is not None and resp.content is not None:
+            print(json.loads(resp.content.decode('utf-8')))
+        else:
+            print(resp)
+
     def test_authorize_server_event(self):
         resp = self.client.authorize_server_event(server_event_id='event-kotclGLf',
                                                   authorize_maintenance_operation='Repair',
