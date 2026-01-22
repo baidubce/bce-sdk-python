@@ -64,7 +64,11 @@ class TestEtClient(unittest.TestCase):
         """
         client_token = generate_client_token()
 
+        # Test get all et channels
         print(self.the_client.get_et_channel(et_id, client_token=client_token))
+
+        # Test get specific et channel
+        print(self.the_client.get_et_channel(et_id, et_channel_id=etchannel_id, client_token=client_token))
 
     def test_recommit_et_channel(self):
         """
@@ -114,9 +118,27 @@ class TestEtClient(unittest.TestCase):
         """
         test case for create_et_dcphy
         """
+        billing = {
+            'paymentTiming': 'Prepaid',
+            'reservation': {
+                'reservationLength': 3,
+                'reservationTimeUnit': 'month'
+            }
+        }
+
+        tags = [
+            {
+                'tagKey': 'testKey',
+                'tagValue': 'testValue'
+            }
+        ]
+
         self.the_client.create_et_dcphy('et_18', 'ISP_CMCC', '1G', 'SINGLE', 'BJYZ', 'z3',
-                                        '13333333333', '123@123.com', 'BJ|K2')
-        
+                                        '13333333333', '123@123.com', 'BJ|K2',
+                                        description='test description',
+                                        billing=billing,
+                                        tags=tags)
+
     def test_update_et_dcphy(self):
         """
         test case for update_et_dcphy
@@ -128,7 +150,7 @@ class TestEtClient(unittest.TestCase):
         test case for list_et_dcphy
         """
         self.the_client.list_et_dcphy()
-        
+
     def test_list_et_dcphy_detail(self):
         """
         test case for list_et_dcphy_detail
@@ -147,7 +169,7 @@ class TestEtClient(unittest.TestCase):
         test create et channel route rule
         """
         client_token = generate_client_token()
-        dest_address = "192.168.0.7/32" 
+        dest_address = "192.168.0.7/32"
         nexthop_type = "etChannel"
         nexthop_id = ""
         resp = self.the_client.create_et_channel_route_rule(et_id, etchannel_id, dest_address,
@@ -184,6 +206,40 @@ class TestEtClient(unittest.TestCase):
                                                             client_token=client_token)
         print(resp)
 
+    def test_create_et_channel_bfd(self):
+        """
+        test case for create et channel bfd
+        """
+        client_token = generate_client_token()
+        detect_multiplier = 4
+        send_interval = 300
+        receive_interval = 300
+
+        print(self.the_client.create_et_channel_bfd(et_id, etchannel_id, detect_multiplier,
+                                                    send_interval, receive_interval,
+                                                    client_token=client_token))
+
+    def test_update_et_channel_bfd(self):
+        """
+        test case for update et channel bfd
+        """
+        client_token = generate_client_token()
+        detect_multiplier = 5
+        send_interval = 400
+        receive_interval = 400
+
+        print(self.the_client.update_et_channel_bfd(et_id, etchannel_id, detect_multiplier,
+                                                    send_interval, receive_interval,
+                                                    client_token=client_token))
+
+    def test_delete_et_channel_bfd(self):
+        """
+        test case for delete et channel bfd
+        """
+        client_token = generate_client_token()
+
+        print(self.the_client.delete_et_channel_bfd(et_id, etchannel_id, client_token=client_token))
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     #suite.addTest(TestEtClient("test_create_et_dcphy"))
@@ -201,5 +257,8 @@ if __name__ == '__main__':
     #suite.addTest(TestEtClient("test_update_et_channel_route_rule"))
     #suite.addTest(TestEtClient("test_list_et_channel_route_rule"))
     #suite.addTest(TestEtClient("test_delete_et_channel_route_rule"))
+    #suite.addTest(TestEtClient("test_create_et_channel_bfd"))
+    #suite.addTest(TestEtClient("test_update_et_channel_bfd"))
+    #suite.addTest(TestEtClient("test_delete_et_channel_bfd"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

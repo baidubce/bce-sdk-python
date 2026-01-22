@@ -7,7 +7,7 @@ import uuid
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
-from baidubce.services.et import et_client
+from baidubce.services.et.et_client import EtClient
 
 
 if __name__ == "__main__":
@@ -16,9 +16,9 @@ if __name__ == "__main__":
     endpoint = "bcc.bj.baidubce.com"
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
-    et_client = et_client.EtClient(config)
+    client = EtClient(config)
     try:
-        resp = et_client.recommit_et_channel(et_id="Your et_id", et_channel_id="Your et_channel_id",
+        resp = client.recommit_et_channel(et_id="Your et_id", et_channel_id="Your et_channel_id",
                                             local_ip="BaiduAddress", name="name", networks=["Your cidr"],
                                             remote_ip="CustomerAddress", route_type="Your routeType", vlan_id=2,
                                             authorized_users=["Your user"], description="description", enable_ipv6=1,

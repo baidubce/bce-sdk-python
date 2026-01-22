@@ -3,6 +3,9 @@
 【版本：v0.9.60】
 涉及产品：专线ET
 创建专线ET通道新增bgpAsn和bgpKey字段
+创建物理专线支持 billing 和 tags 参数
+支持查询指定专线通道（et_channel_id 参数）
+新增 BFD 配置管理方法
 涉及产品：BCC
 新增后付费eip随实例同时释放字段
 涉及产品：AIHC
