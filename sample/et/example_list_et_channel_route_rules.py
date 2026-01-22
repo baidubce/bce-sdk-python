@@ -5,7 +5,7 @@ example for et channel route rule.
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
-from baidubce.services.et import et_client
+from baidubce.services.et.et_client import EtClient
 
 if __name__ == '__main__':
     ak = "Your Ak"  # 账号的Ak
@@ -13,8 +13,8 @@ if __name__ == '__main__':
     endpoint = "bcc.bj.baidubce.com"  # 服务对应的Region域名
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
-    client = et_client.EtClient(config)
- 
+    client = EtClient(config)
+
     try:
         resp = client.list_et_channel_route_rules(et_id="dcphy-gq65bz9ip712",
                                                   et_channel_id="dedicatedconn-zy9t7n91k0iq",

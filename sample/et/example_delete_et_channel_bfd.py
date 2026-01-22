@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-example for associate et channel.
+example for delete et channel bfd.
 """
 
 import uuid
@@ -18,12 +18,10 @@ if __name__ == "__main__":
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     client = EtClient(config)
-    et_id = "Your et_id"
-    et_channel_id = "Your et_channel_id"
-    extra_channel_id = "Your extra_channel_id"
     try:
-        resp = client.associate_et_channel(et_id=et_id, et_channel_id=et_channel_id,
-                                              extra_channel_id=extra_channel_id, client_token=str(uuid.uuid4()))
-        print("Associate et channel response: %s" % resp)
+        resp = client.delete_et_channel_bfd(et_id="Your Et ID",
+                                            et_channel_id="Your Et Channel ID",
+                                            client_token=str(uuid.uuid4()))
+        print("Delete et channel bfd response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)
