@@ -1555,7 +1555,7 @@ class TestPutObject(TestClient):
     def test_put_object_from_file_user_metadata(self):
         """test put_object_from_file user metadata"""
 
-        user_metadata = {'company': '百度', 'work': 'develop'}
+        user_metadata = {'company': '百度', 'work': 'develop', 'test-key': ''}
         object_key = '测试文件'.encode('utf-8')
         self.get_file(5)
         response = self.bos.put_object_from_file(bucket=self.BUCKET,
@@ -1567,6 +1567,7 @@ class TestPutObject(TestClient):
                                                  key=object_key)
         self.assertEqual(response.metadata.bce_meta_company, '百度')
         self.assertEqual(response.metadata.bce_meta_work, 'develop')
+        self.assertEqual(response.metadata.bce_meta_test_key, None)
 
     def test_put_object_from_file_with_storage_class(self):
         """test put_object_from_file with storage class"""
@@ -3872,8 +3873,7 @@ class TestConditionalReadWrite(TestClient):
         etag = response.metadata.etag
         cond_read_write = {"If-Match": etag,
                            "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                           "If-None-Match": etag + "invalid",
-                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+                           "If-None-Match": etag + "invalid"}
         err = None
         try:
             fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
@@ -3888,8 +3888,7 @@ class TestConditionalReadWrite(TestClient):
         # abnormal situation, unable to download object, return 412 or 304
         cond_read_write_1 = {"If-Match": "",
                              "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
-                             "If-None-Match": etag + "invalid",
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": etag + "invalid"}
         try:
             fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
             md5 = utils.get_md5_from_fp(fp)
@@ -3901,8 +3900,7 @@ class TestConditionalReadWrite(TestClient):
         
         cond_read_write_2 = {"If-Match": etag,
                              "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
-                             "If-None-Match": etag,
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": etag}
         try:
             fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
             md5 = utils.get_md5_from_fp(fp)
@@ -3914,8 +3912,7 @@ class TestConditionalReadWrite(TestClient):
 
         cond_read_write_3 = {"If-Match": etag,
                              "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                             "If-None-Match": "",
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": ""}
         try:
             fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
             md5 = utils.get_md5_from_fp(fp)
@@ -3927,8 +3924,7 @@ class TestConditionalReadWrite(TestClient):
 
         cond_read_write_4 = {"If-None-Match": etag, 
                              "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                             "If-xxx-Match": etag + "invalid",
-                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+                             "If-xxx-Match": etag + "invalid"}
         try:
             fp = io.BytesIO(b"zyxwvutsrqponmlkjihgfedcba")
             md5 = utils.get_md5_from_fp(fp)
@@ -3948,8 +3944,7 @@ class TestConditionalReadWrite(TestClient):
         etag = response.metadata.etag
         cond_read_write = {"If-Match": etag,
                            "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                           "If-None-Match": etag + "invalid",
-                           "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+                           "If-None-Match": etag + "invalid"}
         err = None
         try:
             fp = "zyxwvutsrqponmlkjihgfedcba"
@@ -3963,8 +3958,7 @@ class TestConditionalReadWrite(TestClient):
         # abnormal situation, unable to download object, return 412 or 304
         cond_read_write_1 = {"If-Match": "",
                              "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
-                             "If-None-Match": etag + "invalid",
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": etag + "invalid"}
         try:
             fp = "zyxwvutsrqponmlkjihgfedcba"
             response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_1)
@@ -3975,8 +3969,7 @@ class TestConditionalReadWrite(TestClient):
         
         cond_read_write_2 = {"If-Match": etag,
                              "If-Unmodified-Since": "Tue, 29 Dec 2020 10:14:38 GMT",
-                             "If-None-Match": etag,
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": etag}
         try:
             fp = "zyxwvutsrqponmlkjihgfedcba"
             response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_2)
@@ -3987,8 +3980,7 @@ class TestConditionalReadWrite(TestClient):
 
         cond_read_write_3 = {"If-Match": etag,
                              "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                             "If-None-Match": "",
-                             "If-Modified-Since": "Tue, 29 Dec 2099 10:14:38 GMT"}
+                             "If-None-Match": ""}
         try:
             fp = "zyxwvutsrqponmlkjihgfedcba"
             response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_3)
@@ -3999,8 +3991,7 @@ class TestConditionalReadWrite(TestClient):
 
         cond_read_write_4 = {"If-None-Match": etag, 
                              "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                             "If-xxx-Match": etag + "invalid",
-                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+                             "If-xxx-Match": etag + "invalid"}
         try:
             fp = "zyxwvutsrqponmlkjihgfedcba"
             response = self.bos.put_object_from_string(self.BUCKET, self.KEY, fp, cond_read_write=cond_read_write_4)
@@ -4072,8 +4063,7 @@ class TestConditionalReadWrite(TestClient):
         
         cond_read_write_5 = {"If-None-Match": etag, 
                              "If-Unmodified-Since": "Tue, 29 Dec 2099 10:14:38 GMT",
-                             "If-xxx-Match": etag + "invalid",
-                             "If-Modified-Since": "Tue, 29 Dec 2020 10:14:38 GMT"}
+                             "If-xxx-Match": etag + "invalid"}
         try:
             response = self.bos.put_object_from_file(self.BUCKET, self.KEY, self.FILENAME, cond_read_write=cond_read_write_5)
         except ValueError as e:

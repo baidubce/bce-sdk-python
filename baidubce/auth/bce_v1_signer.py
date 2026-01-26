@@ -38,6 +38,9 @@ def _get_canonical_headers(headers, headers_to_sign=None):
     for k in headers:
         k_lower = k.strip().lower()
         value = utils.convert_to_standard_string(headers[k]).strip()
+        # 值为空字符的header不参与签名计算
+        if not value:
+            continue
         if k_lower.startswith(http_headers.BCE_PREFIX) \
                 or k_lower in headers_to_sign:
             str_tmp = b"%s:%s" % (utils.normalize_string(k_lower), utils.normalize_string(value))
