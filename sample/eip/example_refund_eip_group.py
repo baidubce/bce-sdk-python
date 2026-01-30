@@ -11,30 +11,24 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Example for eip group client.
+Example for refunding a prepaid EIP group.
 """
-
 
 import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_group_client import EipGroupClient
 
-def test_resize_eip_group_count(eip_group_client, id, eip_add_count,eipv6_add_count):
+
+def test_refund_eip_group(eip_group_client, group_id):
     """
-    Resize the EIP count of a specified EIP group.
+    Refund a prepaid EIP group.
 
     Args:
         :type eip_group_client: EipGroupClient
         :param eip_group_client: EipGroupClient
 
-        :type id: string
-        :param id: The id of specified EIP group.
-
-        :type eip_add_count: int
-        :param eip_add_count: The increase number of EIP addresses in the EIP group.
-                            This value must be larger than zero, and the maximum 
-                            number multiplies 5Mbps mustn't exceed the total amount 
-                            of shared bandwidth package.
+        :type group_id: string
+        :param group_id: The ID of the prepaid EIP group to refund.
 
     Return:
         None
@@ -43,22 +37,21 @@ def test_resize_eip_group_count(eip_group_client, id, eip_add_count,eipv6_add_co
         BceHttpClientError: If the HTTP request fails.
     """
     try:
-        res = eip_group_client.resize_eip_group_count(id=id, eip_add_count=eip_add_count,eipv6_add_count=eipv6_add_count)
-        print(res)
+        res = eip_group_client.refund_eip_group(id=group_id)
+        print("Refund EIP group success!")
+        return res
     except exception.BceHttpClientError as e:
-        #异常处理
+        # 异常处理
         print(e.last_error)
         print(e.request_id)
         print(e.code)
         return None
-    
+
+
 if __name__ == '__main__':
     # 创建EIPGroupClient
     eipgroup_client = EipGroupClient(example_conf.config)
-    # 指定eipgroup的id
+    # 待退订的预付费eipgroup id
     id = "eg-xxxxxxxx"
-    # 重设eipgroup的bandwidth，单位M
-    eip_add_count = 1
-    eipv6_add_count = 1
-    # 列出对应id的eipgroup信息
-    test_resize_eip_group_count(eipgroup_client, id, eip_add_count)
+    # 退订预付费共享带宽
+    test_refund_eip_group(eipgroup_client, id)

@@ -81,7 +81,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
     def create_eip_group(self, eip_count, bandwidth_in_mbps,
                          name=None, client_token=None,
                          billing=None, route_type=None, idc=None,
-                         tags=None, config=None):
+                         tags=None, eipv6_count=None, resource_group_id=None,config=None):
         """
         Create a shared bandwidth EIP group with specified options.
         Real-name authentication is required before creating EIP groups.
@@ -114,6 +114,13 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             1 and 65 bytes, and could contain alphabets, numbers or '-_/.'.
             If not specified, the service will generate it automatically.
         :type name: string
+        :param eipv6_count:
+             Number of IPv6 EIP addresses in the EIP group.
+        :type eipv6_count: int
+
+        :param resource_group_id:
+            Resource group ID.
+        :type resource_group_id: string
 
         :param config:
         :type config: baidubce.BceClientConfiguration
@@ -140,6 +147,10 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             body['idc'] = idc
         if tags is not None:
             body['tags'] = tags
+        if eipv6_count is not None:
+            body['eipv6Count'] = eipv6_count
+        if resource_group_id is not None:
+            body['resourceGroupId'] = resource_group_id
         return self._send_request(http_methods.POST,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
@@ -299,9 +310,10 @@ class EipGroupClient(bce_base_client.BceBaseClient):
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(id=(bytes, str), eip_add_count=int)
-    def resize_eip_group_count(self, id, eip_add_count,
-                               client_token=None, config=None):
+    @required(id=(bytes, str))
+    def resize_eip_group_count(self, id, eip_add_count=None,
+                               client_token=None, eipv6_add_count=None,
+                               config=None):
         """
         Resize the EIP count of a specified EIP group.
 
@@ -335,15 +347,20 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             b'resize': None,
             b'clientToken': client_token
         }
-        body = {
-            'eipAddCount': eip_add_count
-        }
+        body = {}
+        if eip_add_count is not None:
+            body['eipAddCount'] = eip_add_count
+
+        if eipv6_add_count is not None:
+            body['eipv6AddCount'] = eipv6_add_count
+
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
 
-    @required(id=(bytes, str), eip_add_count=int)
-    def resize_eip_group_count_v2(self, id, eip_add_count,
+    @required(id=(bytes, str))
+    def resize_eip_group_count_v2(self, id, eip_add_count=None,
+                                  eipv6_add_count=None,
                                   client_token=None, config=None):
         """
         Resize the EIP count of a specified EIP group.
@@ -378,9 +395,12 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             b'resize': None,
             b'clientToken': client_token
         }
-        body = {
-            'eipAddCount': eip_add_count
-        }
+        body = {}
+        if eip_add_count is not None:
+            body['eipAddCount'] = eip_add_count
+
+        if eipv6_add_count is not None:
+            body['eipv6AddCount'] = eipv6_add_count
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
@@ -495,10 +515,10 @@ class EipGroupClient(bce_base_client.BceBaseClient):
             "moveOutEips": move_out_eips
         }
         json_body = json.dumps(body)
-        
+
         return self._send_request(http_methods.PUT, path, params=params, body=json_body, config=config)
-    
-    @required(eips=(list,)) 
+
+    @required(eips=(list,))
     def eip_group_move_in(self, id, eips, client_token=None, config=None):
         """
         Move in an EIP to a group.
@@ -530,6 +550,30 @@ class EipGroupClient(bce_base_client.BceBaseClient):
         json_body = json.dumps(body)
 
         return self._send_request(http_methods.PUT, path, params=params, body=json_body, config=config)
+
+    @required(id=(bytes, str))
+    def refund_eip_group(self, id, client_token=None, config=None):
+        """
+        Refund a prepaid EIP group.
+
+        :type id: string
+        :param id: The ID of the EIP group to refund.
+
+        :type client_token: string
+        :param client_token: A unique token for identifying the request.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config: None
+
+        :return: baidubce.bce_response.BceResponse
+        """
+        path = utils.append_uri(self._get_path(), 'refund', id)
+        if client_token is None:
+            client_token = generate_client_token()
+        params = {
+            b'clientToken': client_token
+        }
+        return self._send_request(http_methods.PUT, path, params=params, config=config)
 
     @staticmethod
     def _get_path(prefix=None):

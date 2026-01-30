@@ -121,7 +121,7 @@ class TestEipGroupClient(unittest.TestCase):
         client_token = generate_client_token()
         self.client.resize_eip_group_count(id=EIP_GRP_ID,
                                            client_token=client_token,
-                                           eip_add_count=1)
+                                           eip_add_count=1,eipv6_add_count=1)
 
     def test_resize_eip_group_count_v2(self):
         """
@@ -130,7 +130,7 @@ class TestEipGroupClient(unittest.TestCase):
         client_token = generate_client_token()
         print(self.client.resize_eip_group_count_v2(id=EIP_GRP_ID,
                                               client_token=client_token,
-                                              eip_add_count=2))
+                                              eip_add_count=2,eipv6_add_count=2))
 
     def test_purchase_reserved_eip_group(self):
         """
@@ -139,14 +139,14 @@ class TestEipGroupClient(unittest.TestCase):
         client_token = generate_client_token()
         self.client.purchase_reserved_eip_group(
             id=EIP_GRP_ID, client_token=client_token)
-        
+
     def test_delete_eip_group(self):
         """
         test case for deleting EIP group
         """
         client_token = generate_client_token()
         self.client.delete_eip_group(id=EIP_GRP_ID, client_token=client_token)
-    
+
     def test_eip_group_move_out(self):
         """
         test case for moving EIP group out
@@ -159,7 +159,14 @@ class TestEipGroupClient(unittest.TestCase):
         test case for moving EIP group in
         """
         client_token = generate_client_token()
-        self.client.eip_group_move_in(id=EIP_GRP_ID, move_in_args=EIP_MOVE_IN_ID)
+        self.client.eip_group_move_in(id=EIP_GRP_ID, eips=EIP_MOVE_IN_ID)
+
+    def test_refund_eip_group(self):
+        """
+        test case for refunding prepaid EIP group
+        """
+        client_token = generate_client_token()
+        self.client.refund_eip_group(id=EIP_GRP_ID, client_token=client_token)
 
 
 def generate_client_token_by_uuid():
@@ -191,6 +198,7 @@ if __name__ == '__main__':
     # suite.addTest(TestEipGroupClient("test_delete_eip_group"))
     # suite.addTest(TestEipGroupClient("test_eip_group_move_out"))
     # suite.addTest(TestEipGroupClient("test_eip_group_move_in"))
+    # suite.addTest(TestEipGroupClient("test_refund_eip_group"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
