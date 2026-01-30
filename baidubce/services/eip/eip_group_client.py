@@ -81,7 +81,7 @@ class EipGroupClient(bce_base_client.BceBaseClient):
     def create_eip_group(self, eip_count, bandwidth_in_mbps,
                          name=None, client_token=None,
                          billing=None, route_type=None, idc=None,
-                         tags=None, eipv6_count=None, resource_group_id=None,config=None):
+                         tags=None, eipv6_count=None, resource_group_id=None, config=None):
         """
         Create a shared bandwidth EIP group with specified options.
         Real-name authentication is required before creating EIP groups.

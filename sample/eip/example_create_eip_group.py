@@ -20,7 +20,7 @@ from baidubce.services.eip.eip_group_client import EipGroupClient
 from baidubce.services.eip.eip_group_model import Billing
 
 def test_create_eip_group(eip_group_client, eip_count, bandwidth_in_mbps, name, 
-                          billing, route_type, idc, tags, eipv6_count,resource_group_id):
+                          billing, route_type, idc, tags, eipv6_count, resource_group_id):
     """
     Create a shared bandwidth EIP group with specified options.
     Real-name authentication is required before creating EIP groups.
@@ -107,6 +107,7 @@ if __name__ == '__main__':
                                reservationTimeUnit = "Month")
     pre_eipgroup_id = test_create_eip_group(eip_group_client, eip_count = test_eip_count,
                                             bandwidth_in_mbps = test_bw, name = test_name, billing = test_pre_billing,
-                                            route_type = test_route_type, idc = idc, tags = tags, eipv6_count = test_eipv6_count,
+                                            route_type = test_route_type, idc = idc, tags = tags,
+                                            eipv6_count = test_eipv6_count,
                                             resource_group_id=resource_group_id)
     print(pre_eipgroup_id)

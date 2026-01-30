@@ -19,7 +19,7 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_group_client import EipGroupClient
 
-def test_resize_eip_group_count(eip_group_client, id, eip_add_count,eipv6_add_count):
+def test_resize_eip_group_count(eip_group_client, id, eip_add_count, eipv6_add_count):
     """
     Resize the EIP count of a specified EIP group.
 
@@ -43,7 +43,8 @@ def test_resize_eip_group_count(eip_group_client, id, eip_add_count,eipv6_add_co
         BceHttpClientError: If the HTTP request fails.
     """
     try:
-        res = eip_group_client.resize_eip_group_count(id=id, eip_add_count=eip_add_count,eipv6_add_count=eipv6_add_count)
+        res = eip_group_client.resize_eip_group_count(id=id, eip_add_count=eip_add_count,
+                                                      eipv6_add_count=eipv6_add_count)
         print(res)
     except exception.BceHttpClientError as e:
         #异常处理
