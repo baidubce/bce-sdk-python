@@ -2469,7 +2469,7 @@ class BccClient(bce_base_client.BceBaseClient):
     @required(volume_id=(bytes, str),  # ***Unicode***
               new_cds_size=int)
     def resize_volume(self, volume_id, new_cds_size, new_volume_type,
-                      client_token=None, config=None):
+                      client_token=None, config=None, new_extra_io=None):
         """
         Resizing the specified volume with newly size.
         You can resize the specified volume only when the volume is Available,
@@ -2499,6 +2499,10 @@ class BccClient(bce_base_client.BceBaseClient):
             https://bce.baidu.com/doc/BCC/API.html#.E5.B9.82.E7.AD.89.E6.80.A7
         :type client_token: string
 
+        :param new_extra_io:
+            The number of adjusted additional IOPS, supporting configuration upgrade and downgrade.
+        :type new_extra_io: int
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -2509,6 +2513,8 @@ class BccClient(bce_base_client.BceBaseClient):
         }
         if new_volume_type is not None:
             body['newVolumeType'] = new_volume_type
+        if new_extra_io is not None:
+            body['newExtraIO'] = new_extra_io
         params = None
         if client_token is None:
             params = {
