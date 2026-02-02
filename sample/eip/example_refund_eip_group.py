@@ -52,6 +52,6 @@ if __name__ == '__main__':
     # 创建EIPGroupClient
     eipgroup_client = EipGroupClient(example_conf.config)
     # 待退订的预付费eipgroup id
-    id = "eg-xxxxxxxx"
+    id = "eg-xxxxxxx"
     # 退订预付费共享带宽
     test_refund_eip_group(eipgroup_client, id)
