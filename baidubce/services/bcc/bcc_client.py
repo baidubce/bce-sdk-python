@@ -7968,6 +7968,96 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def get_cds_price(self, purchase_length, payment_timing, storage_type, cds_size_in_gb, purchase_count, zone_name,
+                      encrypt_key=None, client_token=None, config=None):
+        """
+        get_deploy_set
+        """
+        path = b'/volume/getPrice'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'purchaseLength': purchase_length,
+            'paymentTiming': payment_timing,
+            'storageType': storage_type,
+            'cdsSizeInGB': cds_size_in_gb,
+            'purchaseCount': purchase_count,
+            'zoneName': zone_name
+        }
+        if encrypt_key is not None:
+            body['encryptKey'] = encrypt_key
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def get_diagnostic_schemas(self, config=None):
+        """
+        get_deploy_set
+        """
+        path = b'/instance/diagnosticReport/schemas'
+        return self._send_request(http_methods.GET, path, config=config)
+
+    def list_diagnostic_report(self, report_id, instance_id, status,
+                               severity, instance_type="bcc", max_keys=100, client_token=None, config=None):
+        """
+        list_diagnostic_report
+        """
+        path = b'/instance/diagnosticReport/list'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'maxKeys': max_keys,
+            'reportId': report_id,
+            'instanceType': instance_type,
+            'instanceId': instance_id,
+            'status': status,
+            'severity': severity
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def create_diagnostic(self, metric_set_id, instance_id, pid, instance_type="bcc", duration=180,
+                      client_token=None, config=None):
+        """
+        create_diagnostic
+        """
+        path = b'/instance/diagnosticReport/create'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'metricSetId': metric_set_id,
+            'instanceType': instance_type,
+            'instanceId': instance_id,
+            'pid': pid,
+            'duration': duration
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+    def delete_diagnostic_report(self, report_ids, client_token=None, config=None):
+        """
+        delete_diagnostic_report
+        """
+        path = b'/instance/diagnosticReport/delete'
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        body = {
+            'reportIds': report_ids
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
 
 def generate_client_token_by_uuid():
     """
@@ -7988,31 +8078,5 @@ def generate_client_token_by_random():
     """
     client_token = ''.join(random.sample(string.ascii_letters + string.digits, 36))
     return client_token
-
-
-def get_cds_price(self, purchase_length, payment_timing, storage_type, cds_size_in_gb, purchase_count, zone_name,
-                  encrypt_key=None, client_token=None, config=None):
-    """
-    get_deploy_set
-    """
-    path = b'/volume/getPrice'
-    params = {}
-    if client_token is None:
-        params['clientToken'] = generate_client_token()
-    else:
-        params['clientToken'] = client_token
-    body = {
-        'purchaseLength': purchase_length,
-        'paymentTiming': payment_timing,
-        'storageType': storage_type,
-        'cdsSizeInGB': cds_size_in_gb,
-        'purchaseCount': purchase_count,
-        'zoneName': zone_name
-    }
-    if encrypt_key is not None:
-        body['encryptKey'] = encrypt_key
-    return self._send_request(http_methods.POST, path, json.dumps(body),
-                              params=params, config=config)
-
 
 generate_client_token = generate_client_token_by_uuid
