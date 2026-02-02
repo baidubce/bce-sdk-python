@@ -152,7 +152,7 @@ class TestEipGroupClient(unittest.TestCase):
         test case for moving EIP group out
         """
         client_token = generate_client_token()
-        self.client.eip_group_move_out(id=EIP_GRP_ID,move_out_args=EIP_MOVE_OUT_ID)
+        self.client.eip_group_move_out(id=EIP_GRP_ID, move_out_args=EIP_MOVE_OUT_ID)
 
     def test_eip_group_move_in(self):
         """
