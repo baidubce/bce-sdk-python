@@ -14,6 +14,8 @@ delete_user_service: 移除空 body;
 涉及产品：IPV6GATEWAY
 IPv6网关create_ipv6_gateway接口新增tags、resource_group_id、delete_protect参数;
 新增update_ipv6_gateway_delete_protect接口，支持更新IPv6网关释放保护开关;
+涉及产品：EIP 新增创建EIP资源转移接口；新增取消EIP资源转移接口；新增接受EIP资源转移接口；新增拒绝EIP资源转移接口；
+新增查询EIP资源转移列表接口。
 
 
 【版本：v0.9.63】
