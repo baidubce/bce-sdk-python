@@ -19,11 +19,14 @@ from baidubce import exception
 from baidubce.services.eip.eip_client import EipClient
 from baidubce.services.eip.model import Billing
 
-def test_create_eip(eip_client, bandwidth_in_mbps, name, billing, route_type):
+def test_create_eip(eip_client, bandwidth_in_mbps, name=None, billing=None,
+                    route_type=None, ip_version=None, tags=None,
+                    resource_group_id=None, auto_renew_time_unit=None,
+                    auto_renew_time=None, delete_protect=None):
     """
     Create an eip with the specified options.
 
-    Args:
+     Args:
         :type eip_client: EipClient
         :param eip_client: EipClient
 
@@ -36,6 +39,27 @@ def test_create_eip(eip_client, bandwidth_in_mbps, name, billing, route_type):
         :type billing: Billing
         :param billing: billing information.
 
+        :type route_type: string
+        :param route_type: route type (BGP or BGP_S)
+
+        :type ip_version: string
+        :param ip_version: IP version (ipv4 or ipv6)
+
+        :type tags: list
+        :param tags: list of tag key-value pairs
+
+        :type resource_group_id: string
+        :param resource_group_id: resource group ID
+
+        :type auto_renew_time_unit: string
+        :param auto_renew_time_unit: auto renew time unit
+
+        :type auto_renew_time: int
+        :param auto_renew_time: auto renew time length
+
+        :type delete_protect: bool
+        :param delete_protect: enable delete protection
+
     Return:
         created eip address, for example,{"eip":"x.x.x.x"}
     
@@ -43,7 +67,18 @@ def test_create_eip(eip_client, bandwidth_in_mbps, name, billing, route_type):
         BceHttpClientError: http request failed
     """
     try:
-        res = eip_client.create_eip(bandwidth_in_mbps, name, billing, route_type)
+        res = eip_client.create_eip(
+            bandwidth_in_mbps=bandwidth_in_mbps,
+            name=name,
+            billing=billing,
+            route_type=route_type,
+            ip_version=ip_version,
+            tags=tags,
+            resource_group_id=resource_group_id,
+            auto_renew_time_unit=auto_renew_time_unit,
+            auto_renew_time=auto_renew_time,
+            delete_protect=delete_protect
+        )
         eip_addr_str = res.eip
         return eip_addr_str
     except exception.BceHttpClientError as e:

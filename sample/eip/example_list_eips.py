@@ -18,7 +18,9 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_client import EipClient
 
-def test_list_eips(eip_client, eip, instance_type, ip_version, instance_id, status, marker, max_keys):
+def test_list_eips(eip_client, eip=None, instance_type=None, ip_version=None,
+                   instance_id=None, status=None, marker=None,
+                   max_keys=1000, name=None, eip_ids=None):
     """
     Get a list of eip owned by the authenticated user and specified
     conditions. we can Also get a single eip function  through this
@@ -50,6 +52,12 @@ def test_list_eips(eip_client, eip, instance_type, ip_version, instance_id, stat
         :type max_keys: int
         :param max_keys: The optional parameter to specifies the max number
          of list result to return. The default value is 1000.
+
+        :type name: string
+        :param name: eip name condition
+
+        :type eip_ids: string
+        :param eip_ids: comma-separated EIP IDs for batch query
 
     Return: list of eip model, for example:
         {
@@ -89,7 +97,17 @@ def test_list_eips(eip_client, eip, instance_type, ip_version, instance_id, stat
         BceHttpClientError: http request error
     """
     try:
-        res = eip_client.list_eips(eip, instance_type, ip_version, instance_id, status, marker, max_keys)
+        res = eip_client.list_eips(
+            eip=eip,
+            instance_type=instance_type,
+            ip_version=ip_version,
+            instance_id=instance_id,
+            status=status,
+            marker=marker,
+            max_keys=max_keys,
+            name=name,
+            eip_ids=eip_ids,
+        )
         eip_list  = res.eip_list
         return eip_list
     except exception.BceHttpClientError as e:
@@ -103,6 +121,8 @@ if __name__ == '__main__':
     # 创建EIPClient
     eip_client = EipClient(example_conf.config)
     # 获取所有EIP列表
-    eip_list = test_list_eips(eip_client, None, None, None, None, None, None, None)
+    eip_list = test_list_eips(eip_client, None, None,
+                              None, None, None,
+                              None, None, "test-sdk-eip", "ip-5wbsyoxj,ip-8bpliug0")
     print(eip_list)
    
