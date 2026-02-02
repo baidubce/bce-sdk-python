@@ -18,7 +18,8 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_bp_client import EipBpClient
 
-def test_create_eip_bp(eip_bp_client, eip, eip_group_Id, bandwidth_in_mbps, name=None, autoReleaseTime=None):
+def test_create_eip_bp(eip_bp_client, eip, eip_group_Id, bandwidth_in_mbps, name=None, autoReleaseTime=None,
+                       type=None, tags=None, resource_group_id=None):
     """
     Create an eip_bp with the specified options.
 
@@ -54,7 +55,8 @@ def test_create_eip_bp(eip_bp_client, eip, eip_group_Id, bandwidth_in_mbps, name
     """
     try:
         res = eip_bp_client.create_eip_bp(eip=eip, eip_group_Id=eip_group_Id, bandwidth_in_mbps = bandwidth_in_mbps,
-                                           name=name, autoReleaseTime=autoReleaseTime)
+                                           name=name, autoReleaseTime=autoReleaseTime, type=type,
+                                           tags=tags, resource_group_id=resource_group_id)
         eip_bp_id = res.id
         return eip_bp_id
     except exception.BceHttpClientError as e:
@@ -65,11 +67,11 @@ def test_create_eip_bp(eip_bp_client, eip, eip_group_Id, bandwidth_in_mbps, name
         return None
 
 if __name__ == '__main__':
-    # 初始化eip_group_client
+    # 初始化eip_bp_client
     eip_bp_client = EipBpClient(example_conf.config)
     # 初始化eip
     eip = "ip-xxxxxxxx"
-    # 初始化移入eip group id
+    # 初始化eip group id
     eip_group_Id = "eg-xxxxxxxx"
     # 初始化带宽
     bandwidth_in_mbps = 10
@@ -78,9 +80,29 @@ if __name__ == '__main__':
     name_eipgroup = "test_eip_bp_eipgroup"
     # 初始化自动释放时间
     autoReleaseTime = "2023-12-30T16:45:00Z"
+    # 初始化标签
+    tags = [{"tagKey": "env", "tagValue": "test"}]
+    # 初始化资源组ID
+    resource_group_id = "RESG-xxxxxxxx"
+    
     # 创建绑定EIP的eip_bp
-    eip_bp_id_by_eip = test_create_eip_bp(eip_bp_client=eip_bp_client, eip=eip, eip_group_Id=None, 
-                       bandwidth_in_mbps=bandwidth_in_mbps, name=name_eip, autoReleaseTime=autoReleaseTime)
-    # 创建绑定eip group的eip_bp
-    eip_bp_id_by_eipgroup = test_create_eip_bp(eip_bp_client=eip_bp_client, eip=None, eip_group_Id=eip_group_Id, 
-                       bandwidth_in_mbps=bandwidth_in_mbps, name=name_eipgroup, autoReleaseTime=autoReleaseTime)
+    eip_bp_id_by_eip = test_create_eip_bp(
+        eip_bp_client=eip_bp_client, 
+        eip=eip, 
+        eip_group_Id=None,
+        bandwidth_in_mbps=bandwidth_in_mbps, 
+        name=name_eip, 
+        autoReleaseTime=autoReleaseTime
+    )
+    
+    # 创建绑定eip group的带宽包（带标签和资源组）
+    eip_bp_id_by_eipgroup = test_create_eip_bp(
+        eip_bp_client=eip_bp_client, 
+        eip=None, 
+        eip_group_Id=eip_group_Id,
+        bandwidth_in_mbps=bandwidth_in_mbps, 
+        name=name_eipgroup, 
+        autoReleaseTime=autoReleaseTime,
+        tags=tags,
+        resource_group_id=resource_group_id
+    )

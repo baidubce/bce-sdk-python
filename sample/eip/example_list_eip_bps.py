@@ -18,7 +18,7 @@ import example_conf
 from baidubce import exception
 from baidubce.services.eip.eip_bp_client import EipBpClient
 
-def test_list_eip_bps(eip_bp_client, id=None, name=None, bind_type=None,
+def test_list_eip_bps(eip_bp_client, id=None, name=None, bind_type=None, type=None,
                      marker=None, max_keys=1000):
     """
     Get a list of eip_bp owned by the authenticated user and specified conditions. 
@@ -72,7 +72,7 @@ def test_list_eip_bps(eip_bp_client, id=None, name=None, bind_type=None,
         BceHttpClientError: If the HTTP request fails.
     """
     try:
-        res = eip_bp_client.list_eip_bps(id=id, name=name, bind_type=bind_type,
+        res = eip_bp_client.list_eip_bps(id=id, name=name, bind_type=bind_type, type=type,
                                          marker=marker, max_keys=max_keys)
         return res
     except exception.BceHttpClientError as e:
@@ -86,6 +86,6 @@ if __name__ == '__main__':
     # 初始化eip_bp client
     eip_bp_client = EipBpClient(example_conf.config)
     # 获取eip_bp详情
-    eip_bp_list = test_list_eip_bps(eip_bp_client, id=None, name=None, bind_type=None,
-                     marker=None, max_keys=1000)
+    eip_bp_list = test_list_eip_bps(eip_bp_client, id=None, name=None, bind_type=None, type=None,
+                                     marker=None, max_keys=1000)
     print(eip_bp_list)
