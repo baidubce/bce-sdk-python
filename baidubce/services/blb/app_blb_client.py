@@ -76,9 +76,25 @@ class AppBlbClient(bce_base_client.BceBaseClient):
     @required(vpc_id=(bytes, str),
               subnet_id=(bytes, str))
     def create_app_loadbalancer(self, vpc_id, subnet_id, name=None,
-                                desc=None, client_token=None, config=None):
+                                desc=None, address=None, type=None,
+                                eip=None, tags=None, billing=None,
+                                performance_level=None,
+                                auto_renew_length=None,
+                                auto_renew_time_unit=None,
+                                resource_group_id=None,
+                                allow_delete=None,
+                                allocate_ipv6=None,
+                                client_token=None, config=None):
         """
         Create a app LoadBalancer with the specified options.
+
+        :param vpc_id:
+                id of vpc which the LoadBalancer belong to
+        :type vpc_id: string
+
+        :param subnet_id:
+                id of subnet which the LoadBalancer belong to
+        :type subnet_id: string
 
         :param name:
                 the name of LoadBalancer to create
@@ -88,13 +104,49 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                 The description of LoadBalancer
         :type desc: string
 
-        :param vpc_id:
-                id of vpc which the LoadBalancer belong to
-        :type vpc_id: string
+        :param type:
+                LoadBalancer type, default is "application"
+        :type type: string
 
-        :param subnet_id:
-                id of subnet which the LoadBalancer belong to
-        :type subnet_id: string
+        :param address:
+                specify the private IP address of LoadBalancer
+        :type address: string
+
+        :param eip:
+                bind an existing eip to the LoadBalancer
+        :type eip: string
+
+        :param tags:
+                list of tag key-value pairs
+        :type tags: list
+
+        :param billing:
+                billing information, required for prepaid LoadBalancer
+        :type billing: dict
+
+        :param performance_level:
+                performance level parameter
+        :type performance_level: string
+
+        :param auto_renew_length:
+                auto renew length
+        :type auto_renew_length: int
+
+        :param auto_renew_time_unit:
+                auto renew time unit, "month" or "year"
+        :type auto_renew_time_unit: string
+
+        :param resource_group_id:
+                resource group id
+        :type resource_group_id: string
+
+        :param allow_delete:
+                whether allow to delete, default is true
+        :type allow_delete: bool
+
+        :param allocate_ipv6:
+                whether allocate ipv6 address
+        :type allocate_ipv6: bool
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -116,12 +168,35 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = client_token
 
         body = {}
+        body['vpcId'] = compat.convert_to_string(vpc_id)
+        body['subnetId'] = compat.convert_to_string(subnet_id)
+
         if name is not None:
             body['name'] = compat.convert_to_string(name)
         if desc is not None:
             body['desc'] = compat.convert_to_string(desc)
-        body['vpcId'] = compat.convert_to_string(vpc_id)
-        body['subnetId'] = compat.convert_to_string(subnet_id)
+        if address is not None:
+            body['address'] = compat.convert_to_string(address)
+        if type is not None:
+            body['type'] = compat.convert_to_string(type)
+        if eip is not None:
+            body['eip'] = compat.convert_to_string(eip)
+        if tags is not None:
+            body['tags'] = tags
+        if billing is not None:
+            body['billing'] = billing
+        if performance_level is not None:
+            body['performanceLevel'] = compat.convert_to_string(performance_level)
+        if auto_renew_length is not None:
+            body['autoRenewLength'] = auto_renew_length
+        if auto_renew_time_unit is not None:
+            body['autoRenewTimeUnit'] = compat.convert_to_string(auto_renew_time_unit)
+        if resource_group_id is not None:
+            body['resourceGroupId'] = compat.convert_to_string(resource_group_id)
+        if allow_delete is not None:
+            body['allowDelete'] = allow_delete
+        if allocate_ipv6 is not None:
+            body['allocateIpv6'] = allocate_ipv6
 
         return self._send_request(http_methods.POST, path,
                                   body=json.dumps(body), params=params,
@@ -129,22 +204,31 @@ class AppBlbClient(bce_base_client.BceBaseClient):
 
     @required(blb_id=(bytes, str))
     def update_app_loadbalancer(self, blb_id, name=None, desc=None,
+                                allow_delete=None, allocate_ipv6=None,
                                 client_token=None, config=None):
         """
         Modify the special attribute to new value of the LoadBalancer
         owned by the user.
 
-        :param name:
-                name of LoadBalancer to describe
-        :type name: string
-
         :param blb_id:
-                id of LoadBalancer to describe
+                id of LoadBalancer to update
         :type blb_id: string
+
+        :param name:
+                name of LoadBalancer
+        :type name: string
 
         :param desc:
                 The description of LoadBalancer
         :type desc: string
+
+        :param allow_delete:
+                whether allow to delete, default is true
+        :type allow_delete: bool
+
+        :param allocate_ipv6:
+                whether allocate ipv6 address
+        :type allocate_ipv6: bool
 
         :param client_token:
                 If the clientToken is not specified by the user,
@@ -171,12 +255,17 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             body['name'] = compat.convert_to_string(name)
         if desc is not None:
             body['desc'] = compat.convert_to_string(desc)
+        if allow_delete is not None:
+            body['allowDelete'] = allow_delete
+        if allocate_ipv6 is not None:
+            body['allocateIpv6'] = allocate_ipv6
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
     def describe_app_loadbalancers(self, address=None, name=None, blb_id=None,
-                                   bcc_id=None, marker=None, max_keys=None,
+                                   bcc_id=None, exactly_match=None,
+                                   marker=None, max_keys=None,
                                    config=None):
         """
         Return a list of LoadBalancers
@@ -190,12 +279,16 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         :type name: string
 
         :param blb_id:
-            id of LoadBalancer to describe
+            id of LoadBalancer to describe (exact match only)
         :type blb_id: string
 
         :param bcc_id:
-            bcc which bind the LoadBalancers
+            bcc which bind the LoadBalancers (exact match only)
         :type bcc_id: string
+
+        :param exactly_match:
+            true for exact match, false for fuzzy match, default is false
+        :type exactly_match: bool
 
         :param marker:
             The optional parameter marker specified in the original
@@ -206,9 +299,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             listing from the first one.
         :type marker: string
 
-        :param max_keys
-        The optional parameter to specifies the max number of list
-        result to return.
+        :param max_keys:
+            The optional parameter to specifies the max number of list
+            result to return.
             The default value is 1000.
         :type max_keys: int
 
@@ -229,6 +322,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             params[b'blbId'] = blb_id
         if bcc_id is not None:
             params[b'bccId'] = bcc_id
+        if exactly_match is not None:
+            params[b'exactlyMatch'] = exactly_match
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:
