@@ -142,8 +142,25 @@ class TestEipClient(unittest.TestCase):
         test case for delete_recycle_eip
         """
         self.the_client.delete_recycle_eip('x.x.x.x')
-    
 
+    def test_change_eip_to_prepaid(self):
+        """
+        test case for change eip billing from postpaid to prepaid
+        """
+        self.the_client.change_eip_to_prepay('x.x.x.x', purchase_length=1, bandwidth=50)
+
+    def test_refund_prepaid_eip(self):
+        """
+        test case for refund prepaid eip
+        """
+        self.the_client.refund_prepay_eip('x.x.x.x')
+
+    def test_update_eip_delete_protect(self):
+        """
+        test case for update eip delete protection
+        """
+        self.the_client.update_eip_delete_protect('x.x.x.x', delete_protect=True)
+        self.the_client.update_eip_delete_protect('x.x.x.x', delete_protect=False)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

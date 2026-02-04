@@ -80,6 +80,22 @@ class TestEipTpClient(unittest.TestCase):
         """
         print(self.client.list_eip_tps(deduct_policy="TimeDurationPackage", config=None))
 
+    def test_get_eip_tp_price(self):
+        """
+        test case for getting eip_tp price
+        """
+        client_token = generate_client_token()
+        result = self.client.get_eip_tp_price(
+            reservation_length=Reservation_length,
+            capacity=Capacity,
+            deduct_policy=Deduct_Policy,
+            package_type=Package_Type,
+            client_token=client_token,
+            config=None
+        )
+        print("EipTp Price:", result)
+        return result
+
 
 def generate_client_token_by_uuid():
     """
@@ -99,5 +115,6 @@ if __name__ == '__main__':
     suite.addTest(TestEipTpClient("test_create_eip_tp"))
     suite.addTest(TestEipTpClient("test_get_eip_tp_detail"))
     suite.addTest(TestEipTpClient("test_list_eip_tps"))
+    suite.addTest(TestEipTpClient("test_get_eip_tp_price"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

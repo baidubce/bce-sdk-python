@@ -126,8 +126,8 @@ class VpcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params,
                                   config=config)
 
-    @required(marker=(bytes, str), max_Keys=int, is_Default=bool)
-    def list_vpcs(self, marker=None, max_Keys=None, vpc_ids=None, isDefault=None, config=None):
+    @required(marker=(bytes, str), max_keys=int, is_default=bool)
+    def list_vpcs(self, marker=None, max_keys=None, vpc_ids=None, is_default=None, config=None):
         """
         Return a list of vpcs owned by the authenticated user.
 
@@ -147,9 +147,9 @@ class VpcClient(bce_base_client.BceBaseClient):
             filter by vpc_ids, optional parameter
         :type vpc_ids: string
 
-        :param isDefault:
+        :param is_default:
             The option param demotes whether the vpc is default vpc.
-        :type isDefault: boolean
+        :type is_default: boolean
 
         :param config:
         :type config: baidubce.BceClientConfiguration
@@ -162,12 +162,12 @@ class VpcClient(bce_base_client.BceBaseClient):
 
         if marker is not None:
             params[b'marker'] = marker
-        if max_Keys is not None:
-            params[b'maxKeys'] = max_Keys
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
         if vpc_ids is not None:
             params[b'vpcIds'] = vpc_ids
-        if isDefault is not None:
-            params[b'isDefault'] = isDefault
+        if is_default is not None:
+            params[b'isDefault'] = is_default
 
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
@@ -322,6 +322,56 @@ class VpcClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(vpc_id=(bytes, str))
+    def get_resource_ip(self, vpc_id, subnet_id=None, resource_type=None, page_no=None, page_size=None, config=None):
+        """
+        Get the resource IP information from vpc.
+
+        :param vpc_id:
+            The id of vpc.
+        :type vpc_id: string
+
+        :param subnet_id:
+            The optional parameter specifying the subnet id.
+        :type subnet_id: string
+
+        :param resource_type:
+            The optional parameter specifying the resource type, such as bcc, enic, blb, etc.
+        :type resource_type: string
+
+        :param page_no:
+            The optional parameter specifying the page number, pageNo >= 1, default value is 1.
+        :type page_no: int
+
+        :param page_size:
+            The optional parameter specifying the page size, range [1, 1000], default value is 100.
+        :type page_size: int
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/vpc/resourceIp'
+        params = {
+            b'vpcId': compat.convert_to_bytes(vpc_id)
+        }
+
+        if subnet_id is not None:
+            params[b'subnetId'] = compat.convert_to_bytes(subnet_id)
+
+        if resource_type is not None:
+            params[b'resourceType'] = compat.convert_to_bytes(resource_type)
+
+        if page_no is not None:
+            params[b'pageNo'] = page_no
+
+        if page_size is not None:
+            params[b'pageSize'] = page_size
+
+        return self._send_request(http_methods.GET, path, params=params, config=config)
+
+    @required(vpc_id=(bytes, str))
     def open_relay(self, vpc_id, client_token=None, config=None):
         """
         Open relay for the specified vpc.
@@ -350,7 +400,7 @@ class VpcClient(bce_base_client.BceBaseClient):
         else:
             params[b'clientToken'] = client_token
 
-        return self._send_request(http_methods.PUT, path, config=config)
+        return self._send_request(http_methods.PUT, path, params=params, config=config)
 
     @required(vpc_id=(bytes, str))
     def shutdown_relay(self, vpc_id, client_token=None, config=None):
@@ -375,13 +425,13 @@ class VpcClient(bce_base_client.BceBaseClient):
         """
         path = b'/vpc/shutdownRelay/%s' % compat.convert_to_bytes(vpc_id)
         params = {}
-        
+
         if client_token is None:
             params[b'clientToken'] = generate_client_token()
         else:
             params[b'clientToken'] = client_token
 
-        return self._send_request(http_methods.PUT, path, config=config)
+        return self._send_request(http_methods.PUT, path, params=params, config=config)
 
 def generate_client_token_by_uuid():
     """

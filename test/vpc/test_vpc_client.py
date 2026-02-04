@@ -122,9 +122,46 @@ class TestVpcClient(unittest.TestCase):
         res1 = self.the_client.get_private_ip_address_info(vpc_id,
                                                              private_ip_addresses=["192.168.240.3", "192.168.240.5"])
         self.assertEqual(type(res1), baidubce.bce_response.BceResponse)
-        
+
         res2 = self.the_client.get_private_ip_address_info(vpc_id, private_ip_addresses=["192.168.240.3"])
         self.assertEqual(type(res2), baidubce.bce_response.BceResponse)
+
+    def test_get_resource_ip(self):
+        """
+        test case for get resource ip
+        """
+        # Test basic query
+        res1 = self.the_client.get_resource_ip(vpc_id)
+        self.assertEqual(type(res1), baidubce.bce_response.BceResponse)
+
+        # Test with subnet_id filter
+        subnet_id = "sbn-a35xa4zjwj0i"
+        res2 = self.the_client.get_resource_ip(vpc_id, subnet_id=subnet_id)
+        self.assertEqual(type(res2), baidubce.bce_response.BceResponse)
+
+        # Test with resource_type filter
+        res3 = self.the_client.get_resource_ip(vpc_id, resource_type="blb")
+        self.assertEqual(type(res3), baidubce.bce_response.BceResponse)
+
+        # Test with pagination
+        res4 = self.the_client.get_resource_ip(vpc_id, page_no=1, page_size=10)
+        self.assertEqual(type(res4), baidubce.bce_response.BceResponse)
+
+    def test_open_relay(self):
+        """
+        test case for open_relay
+        """
+        client_token = generate_client_token()
+        res = self.the_client.open_relay(vpc_id, client_token=client_token)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+
+    def test_shutdown_relay(self):
+        """
+        test case for shutdown_relay
+        """
+        client_token = generate_client_token()
+        res = self.the_client.shutdown_relay(vpc_id, client_token=client_token)
+        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -132,7 +169,10 @@ if __name__ == "__main__":
     # suite.addTest(TestVpcClient("test_list_vpcs"))
     # suite.addTest(TestVpcClient("test_get_vpc"))
     # suite.addTest(TestVpcClient("test_delete_vpc"))
-    suite.addTest(TestVpcClient("test_update_vpc"))
+    # suite.addTest(TestVpcClient("test_update_vpc"))
+    # suite.addTest(TestVpcClient("test_get_resource_ip"))
+    # suite.addTest(TestVpcClient("test_open_relay"))
+    # suite.addTest(TestVpcClient("test_shutdown_relay"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

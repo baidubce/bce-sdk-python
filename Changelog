@@ -3,6 +3,24 @@
 【版本：v0.9.62】
 涉及产品：BCC
 增加自助诊断接口
+涉及产品: EIP
+申请EIP接口中新增ipVersion、tags、resourceGroupId、autoRenewTimeUnit、autoRenewTime、deleteProtect参数
+查询EIP列表接口新增name、eipIds参数
+绑定EIP接口instance_ip参数变为可选
+关闭EIP直通接口client_token参数变为可选
+新增EIP后付费转预付费接口
+新增预付费EIP退订接口
+创建共享带宽新增eipv6Count字段，查询共享带宽列表新增eipv6s和billingMethod字段
+查询共享带宽详情新增eipv6s, defaultDomesticBandwidth, bwShortId, bwBandwidthInMbps, domesticBwShortId, domesticBwBandwidthInMbps, billingMethod, region, routeType
+共享带宽升级新增eipv6Count字段
+新增预付费共享带宽退订接口
+创建带宽包添加字段：type、tags、resource_group_id
+查询用户带宽包列表新增查询条件字段: type
+eiptp新增询价接口
+涉及产品: VPC
+修复open_relay和shutdown_relay接口clientToken参数未传递的Bug
+新增get_resource_ip接口，支持查询VPC内产品占用IP信息
+优化list_vpcs接口参数命名，符合Python PEP 8规范
 
 
 【版本：v0.9.61】

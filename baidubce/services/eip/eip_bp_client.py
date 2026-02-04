@@ -50,6 +50,7 @@ class EipBpClient(BceBaseClient):
 
     @required(bandwidth_in_mbps=int)
     def create_eip_bp(self, eip, eip_group_Id, bandwidth_in_mbps, name=None, autoReleaseTime=None,
+                      type=None, tags=None, resource_group_id=None,
                       client_token=None, config=None):
         """
         Create an eip_bp with the specified options.
@@ -94,6 +95,12 @@ class EipBpClient(BceBaseClient):
             body['name'] = name
         if autoReleaseTime is not None:
             body['autoReleaseTime'] = autoReleaseTime
+        if type is not None:
+            body['type'] = type
+        if tags is not None:
+            body['tags'] = tags
+        if resource_group_id is not None:
+            body['resourceGroupId'] = resource_group_id
 
         path = self._get_path()
         if client_token is None:
@@ -171,7 +178,7 @@ class EipBpClient(BceBaseClient):
         return self._send_request(http_methods.GET, path, params=None,
                                   config=config)
 
-    def list_eip_bps(self, id=None, name=None, bind_type=None,
+    def list_eip_bps(self, id=None, name=None, bind_type=None, type=None,
                      marker=None, max_keys=1000, config=None):
         """
         get a list of eip_bp owned by the authenticated user and specified
@@ -229,6 +236,8 @@ class EipBpClient(BceBaseClient):
             params[b'name'] = name
         if bind_type is not None:
             params[b'bindType'] = bind_type
+        if type is not None:
+            params[b'type'] = type
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:
