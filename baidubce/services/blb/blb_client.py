@@ -76,7 +76,11 @@ class BlbClient(bce_base_client.BceBaseClient):
     @required(vpc_id=(bytes, str),
               subnet_id=(bytes, str))
     def create_loadbalancer(self, vpc_id, subnet_id, name=None,
-                            desc=None, client_token=None, config=None):
+                            desc=None, address=None, blb_type=None, eip=None,
+                            tags=None, billing=None, performance_level=None,
+                            auto_renew_length=None, auto_renew_time_unit=None,
+                            resource_group_id=None, allow_delete=None,
+                            allocate_ipv6=None, client_token=None, config=None):
         """
         Create a LoadBalancer with the specified options.
 
@@ -95,6 +99,50 @@ class BlbClient(bce_base_client.BceBaseClient):
         :param subnet_id:
                 id of subnet which the LoadBalancer belong to
         :type subnet_id: string
+
+        :param address:
+                The private IP address of the LoadBalancer
+        :type address: string
+
+        :param blb_type:
+                The type of LoadBalancer
+        :type blb_type: string
+
+        :param eip:
+                The EIP to bind to the LoadBalancer
+        :type eip: string
+
+        :param tags:
+                The tags for the LoadBalancer
+        :type tags: list
+
+        :param billing:
+                The billing information
+        :type billing: dict
+
+        :param performance_level:
+                The performance level of the LoadBalancer
+        :type performance_level: string
+
+        :param auto_renew_length:
+                The length of auto renew
+        :type auto_renew_length: int
+
+        :param auto_renew_time_unit:
+                The time unit of auto renew
+        :type auto_renew_time_unit: string
+
+        :param resource_group_id:
+                The resource group ID
+        :type resource_group_id: string
+
+        :param allow_delete:
+                Whether to allow deletion
+        :type allow_delete: bool
+
+        :param allocate_ipv6:
+                Whether to allocate IPv6 address
+        :type allocate_ipv6: bool
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -122,14 +170,36 @@ class BlbClient(bce_base_client.BceBaseClient):
             body['desc'] = compat.convert_to_string(desc)
         body['vpcId'] = compat.convert_to_string(vpc_id)
         body['subnetId'] = compat.convert_to_string(subnet_id)
+        if address is not None:
+            body['address'] = compat.convert_to_string(address)
+        if blb_type is not None:
+            body['type'] = compat.convert_to_string(blb_type)
+        if eip is not None:
+            body['eip'] = compat.convert_to_string(eip)
+        if tags is not None:
+            body['tags'] = tags
+        if billing is not None:
+            body['billing'] = billing
+        if performance_level is not None:
+            body['performanceLevel'] = compat.convert_to_string(performance_level)
+        if auto_renew_length is not None:
+            body['autoRenewLength'] = auto_renew_length
+        if auto_renew_time_unit is not None:
+            body['autoRenewTimeUnit'] = compat.convert_to_string(auto_renew_time_unit)
+        if resource_group_id is not None:
+            body['resourceGroupId'] = compat.convert_to_string(resource_group_id)
+        if allow_delete is not None:
+            body['allowDelete'] = allow_delete
+        if allocate_ipv6 is not None:
+            body['allocateIpv6'] = allocate_ipv6
 
         return self._send_request(http_methods.POST, path,
                                   body=json.dumps(body), params=params,
                                   config=config)
 
     def describe_loadbalancers(self, address=None, name=None, blb_id=None,
-                               bcc_id=None, marker=None, max_keys=None,
-                               config=None):
+                               bcc_id=None, exactly_match=None, marker=None, 
+                               max_keys=None, blb_type=None, config=None):
         """
         Return a list of LoadBalancers
 
@@ -149,6 +219,10 @@ class BlbClient(bce_base_client.BceBaseClient):
             bcc which bind the LoadBalancers
         :type bcc_id: string
 
+        :param exactly_match:
+            Whether to match exactly
+        :type exactly_match: bool
+
         :param marker:
             The optional parameter marker specified in the original
             request to specify where in the results to begin listing.
@@ -163,6 +237,10 @@ class BlbClient(bce_base_client.BceBaseClient):
         result to return.
             The default value is 1000.
         :type max_keys: int
+
+        :param blb_type:
+            The type of LoadBalancer
+        :type blb_type: string
 
         :param config:
         :type config: baidubce.BceClientConfiguration
@@ -181,10 +259,14 @@ class BlbClient(bce_base_client.BceBaseClient):
             params[b'blbId'] = blb_id
         if bcc_id is not None:
             params[b'bccId'] = bcc_id
+        if exactly_match is not None:
+            params[b'exactlyMatch'] = exactly_match
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:
             params[b'maxKeys'] = max_keys
+        if blb_type is not None:
+            params[b'type'] = blb_type
 
         return self._send_request(http_methods.GET, path,
                                   params=params, config=config)
@@ -211,6 +293,7 @@ class BlbClient(bce_base_client.BceBaseClient):
 
     @required(blbId=(bytes, str))
     def update_loadbalancer(self, blb_id, name=None, desc=None,
+                            allow_delete=None, allocate_ipv6=None,
                             client_token=None, config=None):
         """
         Modify the special attribute to new value of the LoadBalancer
@@ -227,6 +310,14 @@ class BlbClient(bce_base_client.BceBaseClient):
         :param desc:
                 The description of LoadBalancer
         :type desc: string
+
+        :param allow_delete:
+                Whether to allow deletion
+        :type allow_delete: bool
+
+        :param allocate_ipv6:
+                Whether to allocate IPv6 address
+        :type allocate_ipv6: bool
 
         :param client_token:
                 If the clientToken is not specified by the user,
@@ -251,9 +342,12 @@ class BlbClient(bce_base_client.BceBaseClient):
         body = {}
         if name is not None:
             body['name'] = compat.convert_to_string(name)
-
         if desc is not None:
             body['desc'] = compat.convert_to_string(desc)
+        if allow_delete is not None:
+            body['allowDelete'] = allow_delete
+        if allocate_ipv6 is not None:
+            body['allocateIpv6'] = allocate_ipv6
 
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
