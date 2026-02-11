@@ -91,7 +91,7 @@ if __name__ == "__main__":
                                               image_id=image_id,
                                               instance_type='N1',
                                               purchase_count=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                                               create_cds_list=create_cds_list,
                                               instance_type='N2',
                                               purchase_count=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -134,7 +134,7 @@ if __name__ == "__main__":
                                               cardCount=1,
                                               local_disk_size_in_gb=450,
                                               purchase_count=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -152,7 +152,7 @@ if __name__ == "__main__":
                                               cardCount=1,
                                               local_disk_size_in_gb=450,
                                               purchase_count=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -167,7 +167,7 @@ if __name__ == "__main__":
                 image_id=image_id,
                 purchase_count=2,
                 res_group_id=res_group_id)
-            print response
+            print(response)
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -183,7 +183,7 @@ if __name__ == "__main__":
             image_id=image_id,
             dedicated_host_id=delicade_id,
             purchase_count=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -200,7 +200,7 @@ if __name__ == "__main__":
             image_id=image_id,
             purchase_count=2,
             internal_ips=internal_ips)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -218,7 +218,7 @@ if __name__ == "__main__":
             purchase_count=1,
             name=new_name,
             admin_pass=admin_pass)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -235,7 +235,7 @@ if __name__ == "__main__":
                                                      purchase_count=1,
                                                      bid_model='market',
                                                      spec='bcc.ic1.c1m1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -249,7 +249,7 @@ if __name__ == "__main__":
                                                          purchase_count=1,
                                                          bid_model='market',
                                                          spec='bcc.g4.c2m8')
-            print response
+            print(response)
         except BceHttpClientError as e:
             if isinstance(e.last_error, BceServerError):
                 __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -265,7 +265,7 @@ if __name__ == "__main__":
             dedicated_host_id=delicade_id,
             internal_ip=internalIp,
             zone_name=zone_name)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -508,7 +508,7 @@ if __name__ == "__main__":
                                            zone_name=zone_name,
                                            marker=volume_id_markar,
                                            max_keys=100)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -519,7 +519,7 @@ if __name__ == "__main__":
     # get volume detail
     try:
         response = bcc_client.get_volume(volume_id=volume_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -596,7 +596,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.create_image_from_instance_id(image_name=image_name,
                                                             instance_id=instance_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -608,7 +608,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.create_image_from_snapshot_id(image_name=image_name,
                                                             snapshot_id=snapshot_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -621,7 +621,7 @@ if __name__ == "__main__":
         response = bcc_client.list_images(image_type=image_type,
                                           marker=image_id_marker,
                                           max_keys=100)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -632,7 +632,7 @@ if __name__ == "__main__":
     # get image detail
     try:
         response = bcc_client.get_image(image_id=image_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -659,7 +659,7 @@ if __name__ == "__main__":
         response = bcc_client.create_snapshot(volume_id=volume_id,
                                               snapshot_name=snapshot_name,
                                               desc=snapshot_description)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -672,7 +672,7 @@ if __name__ == "__main__":
         response = bcc_client.list_snapshots(marker=snapshot_id_marker,
                                              max_keys=100,
                                              volume_id=volume_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -683,7 +683,7 @@ if __name__ == "__main__":
     # get snapshot detail
     try:
         response = bcc_client.get_snapshot(snapshot_id=snapshot_id)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -711,7 +711,7 @@ if __name__ == "__main__":
                                                    vpc_id=vpc_id,
                                                    marker=vpc_id_marker,
                                                    max_keys=100)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -741,7 +741,7 @@ if __name__ == "__main__":
                                                     rules=security_group_rule_list,
                                                     vpc_id=vpc_id,
                                                     desc=security_group_description)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -794,7 +794,7 @@ if __name__ == "__main__":
     #
     try:
         response = bcc_client.list_zones()
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -805,7 +805,7 @@ if __name__ == "__main__":
     # cancel autoRenew volume cluster
     try:
         response = bcc_client.cancel_autoRenew_volume_cluster(cluster_id='DC-yWfhpUbN')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -816,7 +816,7 @@ if __name__ == "__main__":
     # create volume cluster
     try:
         response = bcc_client.create_volume_cluster(cluster_size_in_gb=97280)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -827,7 +827,7 @@ if __name__ == "__main__":
     # list volume cluster
     try:
         response = bcc_client.list_volume_cluster()
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -838,7 +838,7 @@ if __name__ == "__main__":
     # get volume cluster detail
     try:
         response = bcc_client.get_volume_cluster(cluster_id='DC-yWfhpUbN')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -849,7 +849,7 @@ if __name__ == "__main__":
     # resize volume cluster
     try:
         response = bcc_client.resize_volume_cluster(cluster_id='DC-yWfhpUbN', new_cluster_size=107520)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -860,7 +860,7 @@ if __name__ == "__main__":
     # renew volume cluster
     try:
         response = bcc_client.renew_volume_cluster(cluster_id='DC-yWfhpUbN')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -871,7 +871,7 @@ if __name__ == "__main__":
     # autoRenew volume cluster
     try:
         response = bcc_client.autoRenew_volume_cluster(cluster_id='DC-yWfhpUbN')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -884,7 +884,7 @@ if __name__ == "__main__":
         response = bcc_client.list_recycled_instances(payment_timing="prepay", recycle_begin='2023-03-11T00:00:00Z',
                                                       recycle_end='2023-03-31T00:00:00Z',
                                                       marker='marker', max_keys=1000, name='name')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -910,7 +910,7 @@ if __name__ == "__main__":
                                                       bid_model='model_test', bid_price='3.14', dedicate_host_id='id1',
                                                       deploy_id='did1', deploy_id_list=['did2', 'did3'],
                                                       eni_ids=['eni_short_id'])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -921,7 +921,7 @@ if __name__ == "__main__":
     # set instance auto release
     try:
         response = bcc_client.auto_release_instance(instance_id='i-XS7Db00e', release_time='2023-03-15T14:20:00Z')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -937,7 +937,7 @@ if __name__ == "__main__":
                                                                       delete_related_enis_flag=True,
                                                                       bcc_recycle_flag=True,
                                                                       cds_attribute_active=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -951,7 +951,7 @@ if __name__ == "__main__":
                                                                       related_release_flag=True,
                                                                       delete_cds_snapshot_flag=True,
                                                                       delete_related_enis_flag=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -962,7 +962,7 @@ if __name__ == "__main__":
     # get instance with deploy set
     try:
         response = bcc_client.get_instance_with_deploy_set(instance_id='i-XS7Db00e', contains_failed=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -973,7 +973,7 @@ if __name__ == "__main__":
     # get instance with deploy set with failed
     try:
         response = bcc_client.get_instance_with_deploy_set_and_failed(instance_id='i-XS7Db00e', contains_failed=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -985,7 +985,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.modify_instance_hostname(instance_id='i-XS7Db00e', hostname='new.hostname',
                                                        reboot=True, is_open_hostname_domain=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -996,7 +996,7 @@ if __name__ == "__main__":
     # recovery instances
     try:
         response = bcc_client.recovery_instances(instance_id_list=['i-XS7Db00e', 'i-vrLaXNTm'])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1014,7 +1014,7 @@ if __name__ == "__main__":
                                                      bid_price='12345', network_cap_in_mbps=100, relation_tag=True,
                                                      tags=test_tags, security_group_id='sec_id', subnet_id='snet-id',
                                                      zone_name='z-name', internet_charge_type='c-type')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1026,7 +1026,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.batch_refund_resources(instance_id=['i-XS7Db00e'], related_release_flag=True,
                                                      delete_cds_snapshot_flag=True, delete_related_enis_flag=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1037,7 +1037,7 @@ if __name__ == "__main__":
     # get bid instance flavor
     try:
         response = bcc_client.list_bid_flavor()
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1048,7 +1048,7 @@ if __name__ == "__main__":
     # modify_deletion_protection
     try:
         response = bcc_client.modify_deletion_protection(instance_id='i-vrLaXNTm', deletion_protection=1)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1059,7 +1059,7 @@ if __name__ == "__main__":
     # modify_deletion_protection
     try:
         response = bcc_client.release_volume_new(volume_id='i-vrLaXNTm', auto_snapshot='on', manual_snapshot='on')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1070,7 +1070,7 @@ if __name__ == "__main__":
     # cancel_auto_renew_cds_volume
     try:
         response = bcc_client.cancel_auto_renew_cds_volume(volume_id='i-vrLaXNTm')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1081,7 +1081,7 @@ if __name__ == "__main__":
     # get_available_disk_info
     try:
         response = bcc_client.get_available_disk_info(zone_name='bj')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1092,7 +1092,7 @@ if __name__ == "__main__":
     # tag_volume
     try:
         response = bcc_client.tag_volume("v-0RMyIJRq", relation_tag=True, tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1103,7 +1103,7 @@ if __name__ == "__main__":
     # untag_volume
     try:
         response = bcc_client.untag_volume("v-0RMyIJRq", relation_tag=True, tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1115,7 +1115,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.list_snapshot_chain("v-0RMyIJRq", order='desc', order_by='volumeSize', page_no=2,
                                                   page_size=20)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1126,7 +1126,7 @@ if __name__ == "__main__":
     # tag_snapshot_chain
     try:
         response = bcc_client.tag_snapshot_chain(chain_id='c_id', tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1137,7 +1137,7 @@ if __name__ == "__main__":
     # untag_snapshot_chain
     try:
         response = bcc_client.untag_snapshot_chain(chain_id='c_id', tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1149,7 +1149,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.update_asp(name="sl-fJDs8G9i", asp_id="asp-CEZInnal", time_points=[0, 13],
                                          repeat_week_days=[0, 4], retention_days=2)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1161,7 +1161,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.get_price_by_spec(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", payment_timing="prepay",
                                                 zone_name="szth", purchase_num=2, purchase_length=2)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1173,7 +1173,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.list_type_zones(spec_id="sl-fJDs8G9i", spec="bcc.g4.c1m1", product_type="prepay",
                                               instance_type="N3")
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1186,7 +1186,7 @@ if __name__ == "__main__":
         response = bcc_client.instance_change_vpc(instance_id="i-oUXBvdIx", subnet_id="sbn-5k3wawcrtktz",
                                                   internal_ip="192.168.32.2", reboot=True,
                                                   security_group_ids=["g-9yjq****"])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1197,7 +1197,7 @@ if __name__ == "__main__":
     # list_instance_enis
     try:
         response = bcc_client.list_instance_enis(instance_id="i-oUXBvdIx")
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1208,7 +1208,7 @@ if __name__ == "__main__":
     # list_flavor_spec
     try:
         response = bcc_client.list_flavor_spec(zone_name="szth")
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1219,7 +1219,7 @@ if __name__ == "__main__":
     # resize_instance_by_spec
     try:
         response = bcc_client.resize_instance_by_spec(instance_id="i-oUXBvdIx", spec='bcc.g4.c1m1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1232,7 +1232,7 @@ if __name__ == "__main__":
         response = bcc_client.batch_rebuild_instances(image_id="m-U4nNXY9T", admin_pass=admin_pass, keypair_id="123",
                                                       instance_ids=["i-oUXBvdIx", "i_id2"], clean_user_data=True,
                                                       user_data="userData")
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1243,7 +1243,7 @@ if __name__ == "__main__":
     # change_to_prepaid
     try:
         response = bcc_client.change_to_prepaid(instance_id="i-45IP2Tn7", duration=3, relation_cds=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1255,7 +1255,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.list_instance_no_charge(keypair_id='k-Mk1c8QPE', marker="marker", max_keys=100,
                                                       internal_ip="in_ip", zone_name='cn-bj-a')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1266,7 +1266,7 @@ if __name__ == "__main__":
     # cancel_bid_order
     try:
         response = bcc_client.cancel_bid_order(order_id='test_id')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1278,7 +1278,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.batch_create_auto_renew_rules(instance_id='i-45IP2Tn7', renew_time=2,
                                                             renew_time_unit='year')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1289,7 +1289,7 @@ if __name__ == "__main__":
     # batch_delete_auto_renew_rules
     try:
         response = bcc_client.batch_delete_auto_renew_rules(instance_id='i-45IP2Tn7', renew_cds=True, renew_eip=False)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1300,7 +1300,7 @@ if __name__ == "__main__":
     # delete_recycled_instance
     try:
         response = bcc_client.delete_recycled_instance(instance_id='i-45IP2Tn7')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1312,7 +1312,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.list_instance_by_instance_ids(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'],
                                                             marker='123', max_keys=10000)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1323,7 +1323,7 @@ if __name__ == "__main__":
     # get_instance_delete_progress
     try:
         response = bcc_client.get_instance_delete_progress(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t', 'i-oUXBvdIx'])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1338,7 +1338,7 @@ if __name__ == "__main__":
                                                                           delete_cds_snapshot_flag=True,
                                                                           delete_related_enis_flag=True,
                                                                           bcc_recycle_flag=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1349,7 +1349,7 @@ if __name__ == "__main__":
     # batch_start_instance
     try:
         response = bcc_client.batch_start_instance(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t'])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1361,7 +1361,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.batch_stop_instance(instance_ids=['i-45IP2Tn7', 'i-FhvOuv4t'], force_stop=True,
                                                   stop_with_no_charge=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1372,7 +1372,7 @@ if __name__ == "__main__":
     # list_id_mappings
     try:
         response = bcc_client.list_id_mappings(ids=['i-FhvOuv4t'], id_type='short', object_type='bcc')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1385,7 +1385,7 @@ if __name__ == "__main__":
         response = bcc_client.batch_resize_instance(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
                                                     subnet_id='subnet_id', logical_zone='zone_name',
                                                     internal_ip_v4='ipv4')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1397,7 +1397,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.list_available_resize_specs(instance_ids=['i-FhvOuv4t'], spec='bcc.g4.c1m1',
                                                           spec_id='subnet_id', logical_zone='zone_name')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1411,7 +1411,7 @@ if __name__ == "__main__":
         req2 = PayTimingChangeReqModel('i-45IP2Tn7')
         req = [req1, req2]
         response = bcc_client.batch_change_instance_to_prepay(req)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1425,7 +1425,7 @@ if __name__ == "__main__":
         req2 = PayTimingChangeReqModel('i-45IP2Tn7')
         req = [req1, req2]
         response = bcc_client.batch_change_instance_to_postpay(req)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1436,7 +1436,7 @@ if __name__ == "__main__":
     # list_instance_roles
     try:
         response = bcc_client.list_instance_roles()
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1447,7 +1447,7 @@ if __name__ == "__main__":
     # bind_instance_role
     try:
         response = bcc_client.bind_instance_role(instance_ids=['i-FhvOuv4t', 'i-FhvOuv4f'], role_name='role1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1458,7 +1458,7 @@ if __name__ == "__main__":
     # unbind_instance_role
     try:
         response = bcc_client.unbind_instance_role(instance_ids=['i-FhvOuv4t', 'i-FhvOuv4f'], role_name='role1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1469,7 +1469,7 @@ if __name__ == "__main__":
     # add_ipv6
     try:
         response = bcc_client.add_ipv6(instance_id='i-FhvOuv4t', ipv6_address='new_addr', reboot=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1480,7 +1480,7 @@ if __name__ == "__main__":
     # delete_ipv6
     try:
         response = bcc_client.delete_ipv6(instance_id='i-FhvOuv4t', reboot=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1491,7 +1491,7 @@ if __name__ == "__main__":
     # bind_image_to_tags
     try:
         response = bcc_client.bind_image_to_tags(image_id='i-FhvOuv4t', tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1502,7 +1502,7 @@ if __name__ == "__main__":
     # unbind_image_to_tags
     try:
         response = bcc_client.unbind_image_to_tags(image_id='i-FhvOuv4t', tags=test_tags)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1514,7 +1514,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.import_custom_image(os_name='os-name', os_arch='os-arch', os_type='os-type',
                                                   os_version='os_version', name='name', bos_url='url')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1526,7 +1526,7 @@ if __name__ == "__main__":
     try:
         dest_region_infos = [bcc_model.DestRegionInfoModel("bj", "bj1"), bcc_model.DestRegionInfoModel("sh", "sh1")]
         response = bcc_client.create_remote_copy_snapshot(snapshot_id='sid', dest_region_infos=dest_region_infos)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1537,7 +1537,7 @@ if __name__ == "__main__":
     # create_deploy_set
     try:
         response = bcc_client.create_deploy_set(name='d_set_name', desc='this is deploy set desc', strategy='HA')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1548,7 +1548,7 @@ if __name__ == "__main__":
     # list_deploy_sets
     try:
         response = bcc_client.list_deploy_sets()
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1559,7 +1559,7 @@ if __name__ == "__main__":
     # delete_deploy_set
     try:
         response = bcc_client.delete_deploy_set('deployset_id1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1570,7 +1570,7 @@ if __name__ == "__main__":
     # modify_deploy_set
     try:
         response = bcc_client.modify_deploy_set('deployset_id1', name='name-new', desc='new desc for ds1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1581,7 +1581,7 @@ if __name__ == "__main__":
     # get_deploy_set
     try:
         response = bcc_client.get_deploy_set('deployset_id1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1592,7 +1592,7 @@ if __name__ == "__main__":
     # update_instance_deploy
     try:
         response = bcc_client.update_instance_deploy(instance_id='iid1', deployset_id_list=['did1', 'did2'], force=True)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1603,7 +1603,7 @@ if __name__ == "__main__":
     # del_instance_deploy
     try:
         response = bcc_client.del_instance_deploy(instance_id_list=['iid1', 'iid2'], deploy_set_id='dsid')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1614,7 +1614,7 @@ if __name__ == "__main__":
     # create_ehc_cluster
     try:
         response = bcc_client.create_ehc_cluster(name='clusterName', zone_name='zone_name', description='description')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1625,7 +1625,7 @@ if __name__ == "__main__":
     # modify_ehc_cluster
     try:
         response = bcc_client.modify_ehc_cluster(ehc_cluster_id='ecid', name='clusterName', description='description')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1637,7 +1637,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.get_ehc_cluster_list(ehc_cluster_id_list=['ecid1', 'ecid2'],
                                                    name_list=['cname1', 'cname2'], zone_name='zone_name')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1648,7 +1648,7 @@ if __name__ == "__main__":
     # delete_ehc_cluster
     try:
         response = bcc_client.delete_ehc_cluster(ehc_cluster_id_list=['ecid1', 'ecid2'])
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1659,7 +1659,7 @@ if __name__ == "__main__":
     # get_available_images_by_spec
     try:
         response = bcc_client.get_available_images_by_spec(spec='bcc.ic4.c1m1')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1670,8 +1670,7 @@ if __name__ == "__main__":
     # bind_reserved_instance_to_tags
     try:
         response = bcc_client.bind_reserved_instance_to_tags(reserved_instance_ids, test_tags)
-        print
-        response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1682,8 +1681,7 @@ if __name__ == "__main__":
     # unbind_reserved_instance_from_tags
     try:
         response = bcc_client.unbind_reserved_instance_from_tags(reserved_instance_ids, test_tags)
-        print
-        response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1695,7 +1693,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.get_cds_price(purchase_length=1, payment_timing='Prepaid', storage_type='cloud_hp1',
                                             cds_size_in_gb=1000, purchase_count=1, zone_name='cn-bj-a')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1708,7 +1706,7 @@ if __name__ == "__main__":
         response = bcc_client.enter_rescue_mode(instance_id='i-FhvOuv4t',
                                                 force_stop=True,
                                                 password=password)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1724,7 +1722,7 @@ if __name__ == "__main__":
         response = bcc_client.authorize_server_event(server_event_id='event-kotclGLf',
                                                      authorize_maintenance_operation='Repair',
                                                      execute_time='2025-08-15T14:20:00Z')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1739,7 +1737,7 @@ if __name__ == "__main__":
                                                     rule_name='test-rule-name',
                                                     enable_rule=0,
                                                     effective_scope='AllInstance')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1754,7 +1752,7 @@ if __name__ == "__main__":
                                                     rule_name='test-rule-name1',
                                                     enable_rule=0,
                                                     effective_scope='AllInstance')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1765,7 +1763,7 @@ if __name__ == "__main__":
     # delete_authorize_rule
     try:
         response = bcc_client.delete_authorize_rule(rule_id='rule-dOJnTeWs')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1776,7 +1774,7 @@ if __name__ == "__main__":
     # describe_authorize_rules
     try:
         response = bcc_client.describe_authorize_rules(max_keys=1, marker='rule-rzAGQNS6')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1787,7 +1785,7 @@ if __name__ == "__main__":
     # describe_planned_events
     try:
         response = bcc_client.describe_planned_events(max_keys=100, server_event_status='Processing')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1799,7 +1797,7 @@ if __name__ == "__main__":
     try:
         response = bcc_client.describe_planned_recored_events(max_keys=100,
                                                               server_event_type='CustomScheduleInstanceRebootEvent')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1812,7 +1810,7 @@ if __name__ == "__main__":
         response = bcc_client.describe_unplanned_events(max_keys=100,
                                                         server_event_log_time_filter='EventCreate',
                                                         period_end_time='2026-03-15T14:20:00Z')
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1823,7 +1821,7 @@ if __name__ == "__main__":
     # describe_unplanned_recored_events
     try:
         response = bcc_client.describe_unplanned_recored_events(max_keys=100)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'
@@ -1839,7 +1837,7 @@ if __name__ == "__main__":
     # bbc_client's endpoint must be bbc.baidubce.com
     try:
         response = bcc_client.describe_regions(region=region)
-        print response
+        print(response)
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
             __logger.error('send request failed. Response %s, code: %s, msg: %s'

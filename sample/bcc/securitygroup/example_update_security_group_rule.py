@@ -2,6 +2,7 @@
 """
     Example for updating a security group rule from the specified security group
 """
+import uuid
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
@@ -14,18 +15,24 @@ if __name__ == '__main__':
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     bcc_client = bcc_client.BccClient(config)  # client 初始化
-    security_group_rule_id = "g-dcqaukr9u3yn"  # 指定SecurityGroupRule的id
+    security_group_rule_id = "r-eg280qrkmxp0"  # 指定SecurityGroupRule的id（注意：应该是r-开头的规则ID，不是g-开头的安全组ID）
+
     try:
-        resp = bcc_client.update_security_group_rule(security_group_rule_id=security_group_rule_id,# 指定SecurityGroupRuleid
-                                                     remark="test_update",# 指定标记
-                                                     direction="ingress", # 指定方向 ingress or egress
-                                                     protocol="udp", # 指定协议 tcp or udp
-                                                     portrange='68-90',# 指定端口范围
-                                                     source_ip="10.0.0.1", # 指定源ip, 不能否同时指定sourceGroupId
-                                                     # sourcegroup_id="sourcegroup_id",
-                                                     # dest_ip="10.0.0.2", # 指定目的ip, 不能否同时指定destGroupId
-                                                     # destgroup_id="destgroup_id"
-                                                     )
-        print("[example] update sg rule response: %s" % resp)
+        # 方式1：更新单个字段（推荐用于快速调用）
+        resp = bcc_client.update_security_group_rule(security_group_rule_id=security_group_rule_id,
+                                                     remark="test_update")
+        print("[example] update sg rule (remark only) response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
+
+    try:
+        # 方式2：更新多个字段
+        resp = bcc_client.update_security_group_rule(security_group_rule_id=security_group_rule_id,
+                                                    remark="test_update",
+                                                     protocol="udp",
+                                                     portrange='809',
+                                                     source_ip="10.0.0.1")
+        print("[example] update sg rule (multiple fields) response: %s" % resp)
+    except BceHttpClientError as e:
+        print("Exception when calling api: %s\n" % e)
+

@@ -155,13 +155,18 @@ class EsgClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     @required(enterprise_security_group_id=(bytes, str))  # ***Unicode***
-    def delete_enterprise_security_group(self, enterprise_security_group_id, config=None):
+    def delete_enterprise_security_group(self, enterprise_security_group_id, client_token=None, config=None):
         """
             Deleting the specified EnterpriseSecurityGroup.
 
                 :param enterprise_security_group_id:
                     The id of SecurityGroup that will be deleted.
                 :type enterprise_security_group_id: string
+
+                :param client_token:
+                    An ASCII string whose length is less than 64.
+                    The request will be idempotent if client token is provided.
+                :type client_token: string
 
                 :param config:
                     :type config: baidubce.BceClientConfiguration
@@ -170,7 +175,12 @@ class EsgClient(bce_base_client.BceBaseClient):
         """
         enterprise_security_group_id = compat.convert_to_bytes(enterprise_security_group_id)
         path = b'/enterprise/security/%s' % enterprise_security_group_id
-        return self._send_request(http_methods.DELETE, path, config=config)
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
     @required(enterprise_security_group_id=(bytes, str),  # ***Unicode***
               rule=esg_model.EnterpriseSecurityGroupRuleModel)
@@ -225,6 +235,9 @@ class EsgClient(bce_base_client.BceBaseClient):
                                               local_ip=None,
                                               priority=None,
                                               source_portrange=None,
+                                              remote_ip_set=None,
+                                              remote_ip_group=None,
+                                              client_token=None,
                                               config=None):
         """
             uodate a enterprise security group rule from the specified security group
@@ -255,6 +268,16 @@ class EsgClient(bce_base_client.BceBaseClient):
                 The parameter specify the priority of the rule(range 1-1000).
             :param: action:
                 The parameter specify the action of the rule, available value are "allow/deny".
+            :param: remote_ip_set:
+                The remote ip set.
+            :type remote_ip_set: string
+            :param: remote_ip_group:
+                The remote ip group.
+            :type remote_ip_group: string
+            :param: client_token:
+                An ASCII string whose length is less than 64.
+                The request will be idempotent if client token is provided.
+            :type client_token: string
             :param config:
                 :type config: baidubce.BceClientConfiguration
             :return:
@@ -262,27 +285,55 @@ class EsgClient(bce_base_client.BceBaseClient):
         """
         enterprise_security_group_rule_id = compat.convert_to_bytes(enterprise_security_group_rule_id)
         path = b'/enterprise/security/rule/%s' % enterprise_security_group_rule_id
-        body = {
-            'remark': remark,
-            'protocol': protocol,
-            'portRange': portrange,
-            'sourceIp': source_ip,
-            'destIp': dest_ip,
-            'action': action,
-            'localIp': local_ip,
-            'priority': priority,
-            'sourcePortRange': source_portrange
-        }
-        return self._send_request(http_methods.PUT, path, json.dumps(body), params=None, config=config)
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        # 只添加非None的字段到body，避免误更新
+        body = {}
+        if remark is not None:
+            body['remark'] = remark
+        if protocol is not None:
+            body['protocol'] = protocol
+        if portrange is not None:
+            body['portRange'] = portrange
+        if source_ip is not None:
+            body['sourceIp'] = source_ip
+        if dest_ip is not None:
+            body['destIp'] = dest_ip
+        if action is not None:
+            body['action'] = action
+        if local_ip is not None:
+            body['localIp'] = local_ip
+        if priority is not None:
+            body['priority'] = priority
+        if source_portrange is not None:
+            body['sourcePortRange'] = source_portrange
+        if remote_ip_set is not None:
+            body['remoteIpSet'] = remote_ip_set
+        if remote_ip_group is not None:
+            body['remoteIpGroup'] = remote_ip_group
+        print("request path =", path)
+        print("params =", params)
+        print("body =", json.dumps(body, ensure_ascii=False))
+
+        return self._send_request(http_methods.PUT, path, json.dumps(body), params=params, config=config)
 
     @required(enterprise_security_group_rule_id=(bytes, str))  # ***Unicode***
-    def delete_enterprise_security_group_rule(self, enterprise_security_group_rule_id, config=None):
+    def delete_enterprise_security_group_rule(self, enterprise_security_group_rule_id, client_token=None, config=None):
         """
             delete a enterprise security group rule from the specified security group
             :param enterprise_security_group_rule_id:
                 The id of EnterpriseSecurityGroupRule that will be deleted.
             :type enterprise_security_group_id: string
 
+            :param client_token:
+                An ASCII string whose length is less than 64.
+                The request will be idempotent if client token is provided.
+            :type client_token: string
+
             :param config:
                 :type config: baidubce.BceClientConfiguration
             :return:
@@ -290,7 +341,12 @@ class EsgClient(bce_base_client.BceBaseClient):
         """
         enterprise_security_group_rule_id = compat.convert_to_bytes(enterprise_security_group_rule_id)
         path = b'/enterprise/security/rule/%s' % enterprise_security_group_rule_id
-        return self._send_request(http_methods.DELETE, path, params=None, config=config)
+        params = {}
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+        return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
 
 def generate_client_token_by_uuid():
