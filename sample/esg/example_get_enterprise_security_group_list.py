@@ -41,8 +41,9 @@ if __name__ == '__main__':
                 rule_dest_ip = rules[0].dest_ip
                 rule_enterprise_security_group_rule_id = rules[0].enterprise_security_group_rule_id
                 rule_protocol = rules[0].protocol
-                rule_created_time = resp[0].created_time
-                rule_updated_time = resp[0].updated_time
+                # 新增字段：远程IP集合和远程IP组
+                rule_remote_ip_set = rules[0].remote_ip_set if hasattr(rules[0], 'remote_ip_set') else None
+                rule_remote_ip_group = rules[0].remote_ip_group if hasattr(rules[0], 'remote_ip_group') else None
 
             tags = resp[0].tags
         print("[example] list esg response: %s" % resp)

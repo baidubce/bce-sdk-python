@@ -63,11 +63,20 @@ class EnterpriseSecurityGroupRuleModel(object):
             The parameter specify the priority of the rule(range 1-1000).
         param: action:
         	The parameter specify the action of the rule, available value are "allow/deny".
+        param: remoteIpSet:
+            The remote ip set.
+        param: remoteIpGroup:
+            The remote ip group.
+        param: createdTime:
+            The created time of the rule.
+        param: updatedTime:
+            The updated time of the rule.
 	"""
 
     def __init__(self, remark=None, direction=None, ethertype=None, portRange=None, sourcePortRange=None,
                  protocol=None, sourceIp=None, destIp=None,
-                 enterpriseSecurityGroupId=None, action=None, localIp=None, priority=None):
+                 enterpriseSecurityGroupId=None, action=None, localIp=None, priority=None,
+                 remoteIpSet=None, remoteIpGroup=None, createdTime=None, updatedTime=None):
         self.remark = remark
         self.direction = direction
         self.ethertype = ethertype
@@ -80,3 +89,7 @@ class EnterpriseSecurityGroupRuleModel(object):
         self.action = action
         self.localIp = localIp
         self.priority = priority
+        self.remoteIpSet = remoteIpSet
+        self.remoteIpGroup = remoteIpGroup
+        self.createdTime = createdTime
+        self.updatedTime = updatedTime
