@@ -21,9 +21,21 @@ from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.services.esg import esg_client
 from baidubce.services.esg import esg_model
+import uuid
 
 esg_id = 'esg-zdeijr7gmjnh'
 esg_rule_id = 'esgr-um5ggn03bqaj'
+
+def generate_client_token_by_uuid():
+    """
+    The default method to generate the random string for client_token
+    if the optional parameter client_token is not specified by the user.
+    :return:
+    :rtype string
+    """
+    return str(uuid.uuid4())
+
+generate_client_token = generate_client_token_by_uuid
 
 class TestEsgClient(unittest.TestCase):
     """
@@ -82,9 +94,10 @@ class TestEsgClient(unittest.TestCase):
         """
         test case for authorize_enterprise_securitygroup_rule
         """
+        client_token = generate_client_token()
         res = self.the_client.authorize_enterprise_security_group_rule(enterprise_security_group_id=esg_id,
                                                                        rules=self.rules,
-                                                                       client_token='test')
+                                                                       client_token=client_token)
         print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
@@ -92,7 +105,9 @@ class TestEsgClient(unittest.TestCase):
         """
         test case for delete_enterprise_securitygroup_rule
         """
-        res = self.the_client.delete_enterprise_security_group_rule(enterprise_security_group_rule_id=esg_rule_id)
+        client_token = generate_client_token()
+        res = self.the_client.delete_enterprise_security_group_rule(enterprise_security_group_rule_id=esg_rule_id,
+                                                                    client_token=client_token)
         print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
@@ -100,8 +115,10 @@ class TestEsgClient(unittest.TestCase):
         """
         test case for update_enterprise_securitygroup_rule
         """
+        client_token = generate_client_token()
         res = self.the_client.update_enterprise_security_group_rule(enterprise_security_group_rule_id=esg_rule_id,
-                                                                    remark='test')
+                                                                    remark='test',
+                                                                    client_token= client_token)
         print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
@@ -109,7 +126,8 @@ class TestEsgClient(unittest.TestCase):
         """
         test case for delete_enterprise_securitygroup
         """
-        res = self.the_client.delete_enterprise_security_group(esg_id)
+        client_token = generate_client_token()
+        res = self.the_client.delete_enterprise_security_group(esg_id, client_token= client_token)
         print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 

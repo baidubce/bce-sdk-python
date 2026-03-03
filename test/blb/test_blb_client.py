@@ -84,11 +84,173 @@ class TestBlbClient(unittest.TestCase):
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+    def test_create_loadbalancer_with_address(self):
+        """
+        test case for create_loadbalancer with address parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_with_address',
+                address='192.168.1.10',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_blb_type(self):
+        """
+        test case for create_loadbalancer with blb_type parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_application',
+                blb_type='application',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_tags(self):
+        """
+        test case for create_loadbalancer with tags parameter
+        """
+        client_token = generate_client_token()
+        tags = [
+            {"tagKey": "env", "tagValue": "test"},
+            {"tagKey": "team", "tagValue": "qa"}
+        ]
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_with_tags',
+                tags=tags,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_eip(self):
+        """
+        test case for create_loadbalancer with eip parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_with_eip',
+                eip='1.2.3.4',  # EIP的IP地址
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_billing(self):
+        """
+        test case for create_loadbalancer with billing parameter
+        """
+        client_token = generate_client_token()
+        billing = {
+            "paymentTiming": "Postpaid",
+            "billingMethod": "ByTraffic"
+        }
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_with_billing',
+                billing=billing,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_performance_level(self):
+        """
+        test case for create_loadbalancer with performance_level parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_small',
+                performance_level='small',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_resource_group(self):
+        """
+        test case for create_loadbalancer with resource_group_id parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_with_rg',
+                resource_group_id='rg-test123',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_with_ipv6(self):
+        """
+        test case for create_loadbalancer with allocate_ipv6 parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_ipv6',
+                allocate_ipv6=True,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_create_loadbalancer_full_params(self):
+        """
+        test case for create_loadbalancer with all optional parameters
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.create_loadbalancer(
+                vpc_id=vpc_id, subnet_id=subnetId,
+                name='test_blb_full',
+                desc='Full parameter test',
+                address='192.168.1.20',
+                blb_type='application',
+                tags=[{"tagKey": "env", "tagValue": "prod"}],
+                billing={"paymentTiming": "Postpaid"},
+                performance_level='small',
+                resource_group_id='rg-test',
+                allow_delete=True,
+                allocate_ipv6=True,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
     def test_describe_loadbalancers(self):
         """
         test case for describe_loadbalancers
         """
         print(self.the_client.describe_loadbalancers())
+
+    def test_describe_loadbalancers_with_name(self):
+        """
+        test case for describe_loadbalancers with name filter
+        """
+        print(self.the_client.describe_loadbalancers(name='test_blb'))
+
+    def test_describe_loadbalancers_with_exactly_match(self):
+        """
+        test case for describe_loadbalancers with exactly_match parameter
+        """
+        print(self.the_client.describe_loadbalancers(
+            name='test_blb_hzf', exactly_match=True))
+
+    def test_describe_loadbalancers_with_blb_type(self):
+        """
+        test case for describe_loadbalancers with blb_type parameter
+        """
+        print(self.the_client.describe_loadbalancers(blb_type='application'))
+
+    def test_describe_loadbalancers_combined_filters(self):
+        """
+        test case for describe_loadbalancers with combined filters
+        """
+        print(self.the_client.describe_loadbalancers(
+            name='test_blb',
+            blb_type='application',
+            exactly_match=False,
+            max_keys=50))
 
     def test_describe_loadbalancer_detail(self):
         """
@@ -104,6 +266,43 @@ class TestBlbClient(unittest.TestCase):
         self.assertEqual(
             type(self.the_client.update_loadbalancer(
                 blbId, name='blb_test_hzf_new',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_loadbalancer_with_allow_delete(self):
+        """
+        test case for update_loadbalancer with allow_delete parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_loadbalancer(
+                blbId, allow_delete=False,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_loadbalancer_with_allocate_ipv6(self):
+        """
+        test case for update_loadbalancer with allocate_ipv6 parameter
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_loadbalancer(
+                blbId, allocate_ipv6=True,
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_loadbalancer_full_params(self):
+        """
+        test case for update_loadbalancer with all parameters
+        """
+        client_token = generate_client_token()
+        self.assertEqual(
+            type(self.the_client.update_loadbalancer(
+                blbId,
+                name='blb_updated',
+                desc='Updated description',
+                allow_delete=True,
+                allocate_ipv6=True,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 

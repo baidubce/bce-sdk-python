@@ -18,12 +18,16 @@ if __name__ == "__main__":
 
     try:
         # Specify the parameters for getting route details
-        vpc_id = "vpc-nx6bs5uaq2d2"  # Replace with the VPC ID
-        route_table_id = "rt-q1zg3i8mx8p6"  # Replace with the ID of the route table
+        # 方式1: 使用VPC ID查询
+        vpc_id = "vpc-6tke3nxcmfzg"  # Replace with the VPC ID
+                # Call the get_route method
+        resp = route_client.get_route(vpc_id=vpc_id)
+        vpcId = resp.vpcId
+        print("Get route response: %s" % resp)
 
-        # Call the get_route method
-        resp = route_client.get_route(vpc_id=vpc_id,
-                                      route_table_id=route_table_id)
+        # 方式2: 使用路由表ID查询
+        route_table_id = "rt-1s7qb9mba41r"  # Replace with the ID of the route table
+        resp = route_client.get_route(route_table_id=route_table_id)
         vpcId = resp.vpcId
         print("Get route response: %s" % resp)
 

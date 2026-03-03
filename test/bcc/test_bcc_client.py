@@ -791,6 +791,11 @@ class TestBccClient(unittest.TestCase):
                                                                protocol='tcp')
         print(self.client.authorize_security_group_rule("g-RrAecfjQ", security_group_rule))
 
+        # Test with sg_version and client_token
+        client_token = generate_client_token()
+        print(self.client.authorize_security_group_rule("g-RrAecfjQ", security_group_rule,
+                                                        client_token=client_token, sg_version=0))
+
     def test_revoke_security_group_rule(self):
         """
         test case for revoke_security_group_rule
@@ -798,13 +803,28 @@ class TestBccClient(unittest.TestCase):
         security_group_rule = bcc_model.SecurityGroupRuleModel(direction='ingress',
                                                                portRange='80-90',
                                                                protocol='tcp')
+        # Test without sg_version
         print(self.client.revoke_security_group_rule("g-RrAecfjQ", security_group_rule))
+
+        # Test with sg_version and client_token
+        client_token = generate_client_token()
+        print(self.client.revoke_security_group_rule("g-RrAecfjQ", security_group_rule,
+                                                     client_token=client_token, sg_version=0))
 
     def test_update_security_group_rule(self):
         """
         test case for update_security_group_rule
         """
-        res = self.client.update_security_group_rule(security_group_rule_id="g-RrAecfjQ", direction='ingress')
+        res = self.client.update_security_group_rule(security_group_rule_id="r-q1ek3jvwuede",
+                                                     remark='updated remark',
+                                                     portrange='890')
+        print(res)
+        # Test with sg_version and client_token
+        client_token = generate_client_token()
+        res = self.client.update_security_group_rule(security_group_rule_id="r-q1ek3jvwuede",
+                                                     protocol='udp',
+                                                     sg_version=0,
+                                                     client_token=client_token)
         print(res)
         self.assertEqual(type(res), baidubce.bce_response.BceResponse)
 
@@ -812,9 +832,13 @@ class TestBccClient(unittest.TestCase):
         """
         test case for delete_security_group_rule
         """
-        res = self.client.delete_security_group_rule(security_group_rule_id="g-RrAecfjQ")
+        res = self.client.delete_security_group_rule(security_group_rule_id="r-xxxxx")
         print(res)
-        self.assertEqual(type(res), baidubce.bce_response.BceResponse)
+        client_token = generate_client_token()
+        res = self.client.delete_security_group_rule(security_group_rule_id="r-xxxxx",
+                                                     sg_version=0,
+                                                     client_token=client_token)
+        print(res)
 
     def test_list_zones(self):
         """

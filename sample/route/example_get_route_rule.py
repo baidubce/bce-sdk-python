@@ -18,9 +18,9 @@ if __name__ == "__main__":
 
     try:
         # Specify the route rule ID to get details
-        routeTableId = "rt-q1zg3i8mx8p6"
-        vpcId = "vpc-nx6bs5uaq2a2"
-        marker = "rr-dvq3cxpghw5e"  # mark the start point of query, deafault null
+        routeTableId = "rt-1s7qb9mba41r"
+        vpcId = "vpc-6tke3nxcmfzg"
+        marker = ""  # mark the start point of query, deafault null
         maxKeys = 10  # max number of query in each page, default 1000
 
         # Call the get_route_rule method
