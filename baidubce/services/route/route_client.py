@@ -257,9 +257,7 @@ class RouteClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = b'/route/rule/%s' % compat.convert_to_bytes(route_rule_id)
-        params = {
-            'action': 'switchRouteHA'
-        }
+        params = {}
         if client_token is None:
             params[b'clientToken'] = generate_client_token()
         else:
@@ -287,12 +285,14 @@ class RouteClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = b'/route/rule/%s' % compat.convert_to_bytes(route_rule_id)
-        params = {}
+        params = {
+            b'switchRouteHA': None
+        }
         if client_token is None:
             params[b'clientToken'] = generate_client_token()
         else:
             params[b'clientToken'] = client_token
-        return self._send_request(http_methods.DELETE, path, params=params, config=config)
+        return self._send_request(http_methods.PUT, path, params=params, config=config)
 
     @required(route_rule_id=(bytes, str),
               description=(bytes, str))

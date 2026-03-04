@@ -26,7 +26,34 @@ if __name__ == '__main__':
                                     endpoint=endpoint)
     blb_client = blb_client.BlbClient(config)  # 初始化client
     try:
-        resp = blb_client.create_loadbalancer(vpc_id="vpc-xxxx", subnet_id="sbn-xxxx")  # 创建blb
-        print("[example] create loadbalancer response :%s" % resp)
+        # 基本创建（仅必填参数）
+        resp = blb_client.create_loadbalancer(vpc_id="vpc-xxxx", subnet_id="sbn-xxxx")
+        print("[example] create loadbalancer (basic) response :%s" % resp)
+        
+        # 完整创建（包含所有可选参数）
+        resp_full = blb_client.create_loadbalancer(
+            vpc_id="vpc-xxxx",
+            subnet_id="sbn-xxxx",
+            name="my-blb",
+            desc="My Load Balancer",
+            address="192.168.1.10",
+            blb_type="application",
+            eip="1.2.3.4",
+            tags=[
+                {"tagKey": "env", "tagValue": "prod"},
+                {"tagKey": "team", "tagValue": "backend"}
+            ],
+            billing={
+                "paymentTiming": "Postpaid",
+                "billingMethod": "ByTraffic"
+            },
+            performance_level="small",
+            auto_renew_length=1,
+            auto_renew_time_unit="month",
+            resource_group_id="rg-xxxx",
+            allow_delete=True,
+            allocate_ipv6=True
+        )
+        print("[example] create loadbalancer (full) response :%s" % resp_full)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

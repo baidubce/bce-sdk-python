@@ -1,5 +1,25 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.9.63】
+涉及产品:VPC
+删除路由规则接口入参的params中删除action参数和数值;主备切换接口新增switchRouteHA查询参数；HTTP Method由DELETE修改为PUT;
+企业安全组规则添加remoteIpSet、remoteIpGroup、createdTime、updatedTime字段；删除普通安全组规则、授权普通安全组增加sgVersion字段；
+更新企业安全组规则增加remoteIpSet、remoteIpGroup参数；删除企业安全组、删除企业安全组规则、更新企业安全组规则增加clientToken 参数；
+查询普通安全组列表增加 securityGroupId 参数;update_eni校验name和description二者不能同时为空;list_eni去除max_keys默认值设为1000逻辑，
+由服务端实现;list_eni去除client_token参数;get_eni_details去除client_token参数;attach_eni_instance请求添加instanceType字段;
+update_eni_enterprise_security_group必填security_group_ids修改为security_group_ids;get_eni_status去除client_token参数;
+bind_eni_public_ip中privat_ip_address修改为private_ip_address;unbind_eni_public_ip去除private_ip_address必填;
+
+涉及产品: BLB
+查询普通型blb实例支持exactlyMatch和type字段;补齐创建普通型blb实例参数;更新普通型blb实例接口支持allowDelete、
+allocateIpv6字段;CreateTCPListener 新增tcpSessionTimeout,healthCheckType入参;CreateUDPListener 新增udpSessionTimeout入参，
+healthCheckString修改为非必须参数;CreateHTTPListener 新增 xForwardedProto,additionalAttributes,healthCheckHost入参;
+CraeteHTTPSListener新增xForwardedProto,additionalAttributes,healthCheckHost,appliedCiphers入参;CreateSSLListener新增
+healthCheckType,serverTimeout,appliedCiphers入参;UpdateTCPListener新增healthCheckType,tcpSessionTimeout入参;
+UpdateUDPListener新增udpSessionTimeout参数，backend_port修改为非必须;UpdateHTTPListener新增xForwardedProto,
+additionalAttributes,healthCheckHost入参;UpdateHTTPSListener新增xForwardedProto,additionalAttributes,healthCHeckHost入参;
+UpdateSSLListener新增healthCheckType,appliedCiphers入参;完善应用型lb的创建时支持的参数;增加list和detail的响应参数;
+
 【版本：v0.9.62】
 涉及产品：BCC
 增加自助诊断接口

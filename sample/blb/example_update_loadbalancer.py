@@ -26,7 +26,26 @@ if __name__ == '__main__':
                                     endpoint=endpoint)
     blb_client = blb_client.BlbClient(config)  # 初始化client
     try:
-        resp = blb_client.update_loadbalancer("lb-xxxx", "testblb", "justForTest")  # 更新blb
-        print("[example] update loadbalancer response :%s" % resp)
+        # 基本更新（名称和描述）
+        resp = blb_client.update_loadbalancer("lb-xxxx", name="testblb", desc="justForTest")
+        print("[example] update loadbalancer (basic) response :%s" % resp)
+        
+        # 更新删除保护设置
+        resp_delete = blb_client.update_loadbalancer("lb-xxxx", allow_delete=False)
+        print("[example] update loadbalancer (allow_delete) response :%s" % resp_delete)
+        
+        # 启用IPv6支持
+        resp_ipv6 = blb_client.update_loadbalancer("lb-xxxx", allocate_ipv6=True)
+        print("[example] update loadbalancer (allocate_ipv6) response :%s" % resp_ipv6)
+        
+        # 完整更新（包含所有参数）
+        resp_full = blb_client.update_loadbalancer(
+            blb_id="lb-xxxx",
+            name="new-blb-name",
+            desc="Updated description",
+            allow_delete=True,
+            allocate_ipv6=True
+        )
+        print("[example] update loadbalancer (full) response :%s" % resp_full)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
