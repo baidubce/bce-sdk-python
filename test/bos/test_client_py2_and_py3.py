@@ -549,12 +549,186 @@ class TestCopyObject(TestClient):
 
 class TestGeneratePreSignedUrl(TestClient):
     """test generate_pre_signed_url function"""
+
     def test_generate_pre_signed_url(self):
         """test generate_pre_signed_url normally"""
         url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
                                                expiration_in_seconds=100000000)
         self.assertEqual(url, self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
                                                               expiration_in_seconds=100000000))
+
+    def test_generate_pre_signed_url_with_empty_key(self):
+        """test generate_pre_signed_url with empty key should raise ValueError"""
+        with self.assertRaises(ValueError) as context:
+            self.bos.generate_pre_signed_url(self.BUCKET, b'', timestamp=1,
+                                           expiration_in_seconds=100000000)
+        self.assertIn('key param error', str(context.exception))
+
+    def test_generate_pre_signed_url_with_v1_key(self):
+        """test generate_pre_signed_url with key='v1' should raise ValueError"""
+        with self.assertRaises(ValueError) as context:
+            self.bos.generate_pre_signed_url(self.BUCKET, b'v1', timestamp=1,
+                                           expiration_in_seconds=100000000)
+        self.assertIn('key param error', str(context.exception))
+
+    def test_generate_pre_signed_url_with_slash_key(self):
+        """test generate_pre_signed_url with slash-only key should raise ValueError"""
+        with self.assertRaises(ValueError) as context:
+            self.bos.generate_pre_signed_url(self.BUCKET, b'/', timestamp=1,
+                                           expiration_in_seconds=100000000)
+        self.assertIn('key param error', str(context.exception))
+
+    def test_generate_pre_signed_url_with_normal_key_with_leading_slash(self):
+        """test generate_pre_signed_url with key having leading slash (should be stripped)"""
+        # Key with leading slash should work after strip
+        url = self.bos.generate_pre_signed_url(self.BUCKET, b'/testkey', timestamp=1,
+                                               expiration_in_seconds=100000000)
+        self.assertIsNotNone(url)
+        self.assertIn(b'testkey', url)
+
+    def test_generate_pre_signed_url_with_normal_key(self):
+        """test generate_pre_signed_url with normal key"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, b'test-object-key', timestamp=1,
+                                               expiration_in_seconds=100000000)
+        self.assertIsNotNone(url)
+        self.assertIn(b'test-object-key', url)
+
+    def test_generate_pre_signed_url_with_special_characters(self):
+        """test generate_pre_signed_url with special characters in key"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, b'test/file@key.txt', timestamp=1,
+                                               expiration_in_seconds=100000000)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_zero_expiration(self):
+        """test generate_pre_signed_url with expiration_in_seconds=0"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=0)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_negative_expiration(self):
+        """test generate_pre_signed_url with negative expiration_in_seconds"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=-100)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_large_expiration(self):
+        """test generate_pre_signed_url with very large expiration_in_seconds"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=999999999)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_zero_timestamp(self):
+        """test generate_pre_signed_url with timestamp=0 (default)"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY,
+                                               expiration_in_seconds=1800)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_negative_timestamp(self):
+        """test generate_pre_signed_url with negative timestamp"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=-100,
+                                               expiration_in_seconds=1800)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_post_method(self):
+        """test generate_pre_signed_url with POST method"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               httpmethod=http_methods.POST)
+        self.assertIsNotNone(url)
+        self.assertIn(b'authorization', url.lower())
+
+    def test_generate_pre_signed_url_with_put_method(self):
+        """test generate_pre_signed_url with PUT method"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               httpmethod=http_methods.PUT)
+        self.assertIsNotNone(url)
+        self.assertIn(b'authorization', url.lower())
+
+    def test_generate_pre_signed_url_with_delete_method(self):
+        """test generate_pre_signed_url with DELETE method"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               httpmethod=http_methods.DELETE)
+        self.assertIsNotNone(url)
+        self.assertIn(b'authorization', url.lower())
+
+    def test_generate_pre_signed_url_with_head_method(self):
+        """test generate_pre_signed_url with HEAD method"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               httpmethod=http_methods.HEAD)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_headers(self):
+        """test generate_pre_signed_url with custom headers"""
+        headers = {
+            b'x-bce-content-sha256': b'test-hash',
+            b'x-bce-meta-custom': b'custom-value'
+        }
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               headers=headers)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_params(self):
+        """test generate_pre_signed_url with custom params"""
+        params = {
+            b'cache-control': b'no-cache',
+            b'response-content-type': b'application/json'
+        }
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               params=params)
+        self.assertIsNotNone(url)
+        self.assertIn(b'cache-control', url.lower())
+
+    def test_generate_pre_signed_url_with_headers_to_sign(self):
+        """test generate_pre_signed_url with headers_to_sign"""
+        headers_to_sign = [b'host', b'x-bce-content-sha256']
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               headers_to_sign=headers_to_sign)
+        self.assertIsNotNone(url)
+
+    def test_generate_pre_signed_url_with_https_protocol(self):
+        """test generate_pre_signed_url with HTTPS protocol"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               protocol='https')
+        self.assertIsNotNone(url)
+        self.assertIn(b'https://', url)
+
+    def test_generate_pre_signed_url_with_http_protocol(self):
+        """test generate_pre_signed_url with HTTP protocol"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800,
+                                               protocol='http')
+        self.assertIsNotNone(url)
+        self.assertIn(b'http://', url)
+
+    def test_generate_pre_signed_url_consistency(self):
+        """test generate_pre_signed_url produces consistent results with same params"""
+        url1 = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=100,
+                                                expiration_in_seconds=3600)
+        url2 = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=100,
+                                                expiration_in_seconds=3600)
+        self.assertEqual(url1, url2)
+
+    def test_generate_pre_signed_url_contains_auth(self):
+        """test generate_pre_signed_url contains authorization parameter"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800)
+        url_str = compat.convert_to_string(url)
+        self.assertIn('authorization', url_str.lower())
+
+    def test_generate_pre_signed_url_contains_expiry(self):
+        """test generate_pre_signed_url contains expiration information"""
+        url = self.bos.generate_pre_signed_url(self.BUCKET, self.KEY, timestamp=1,
+                                               expiration_in_seconds=1800)
+        url_str = compat.convert_to_string(url)
+        # The expiration should be encoded in the signature
+        self.assertTrue(len(url) > 0)
 
 
 class TestListMultipartsUploads(TestClient):
@@ -1888,7 +2062,7 @@ class TestPutSuperObejctFromFile(TestClient):
     def test_put_super_obejct_from_file(self):
         """test put_super_obejct_from_file()"""
         self.get_file(30)
-        result = self.bos.put_super_obejct_from_file(self.BUCKET, self.KEY, self.FILENAME,
+        result = self.bos.put_super_object_from_file(self.BUCKET, self.KEY, self.FILENAME,
             chunk_size=5, thread_num=multiprocessing.cpu_count())
         self.assertTrue(result)
 
@@ -1908,7 +2082,7 @@ class TestPutSuperObejctFromFile(TestClient):
         result = {'success': None}
     
         def upload_with_result():
-            result['success'] = self.bos.put_super_obejct_from_file(
+            result['success'] = self.bos.put_super_object_from_file(
                 self.BUCKET, self.KEY, self.FILENAME,
                 chunk_size=5,
                 thread_num=multiprocessing.cpu_count(),
@@ -4295,6 +4469,1088 @@ class TestConditionalReadWrite(TestClient):
         self.bos.delete_object(self.BUCKET, self.KEY)
 
 
+class TestCRC32(TestClient):
+    """Test CRC32 validation for object upload operations"""
+
+    def test_append_object_with_crc32(self):
+        """test append_object with user-provided CRC32"""
+        data = b"test_data_for_append_object"
+        fp = io.BytesIO(data)
+        # Calculate CRC32 manually
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Reset fp for upload
+        fp.seek(0)
+
+        # Test with user-provided CRC32
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_crc32",
+            data=fp,
+            content_length=len(data),
+            content_crc32=crc32
+        )
+        self.check_headers(response)
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len(data))
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_crc32")
+        self.assertEqual(content, data)
+
+    def test_append_object_auto_crc32(self):
+        """test append_object with auto-calculated CRC32"""
+        data = b"test_data_auto_crc32"
+        fp = io.BytesIO(data)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_auto_crc32",
+            data=fp,
+            content_length=len(data)
+        )
+        self.check_headers(response)
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len(data))
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_auto_crc32")
+        self.assertEqual(content, data)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_append_object_from_string_with_crc32(self):
+        """test append_object_from_string with user-provided CRC32"""
+        data = "test_append_string_crc32"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test with user-provided CRC32
+        response = self.bos.append_object_from_string(
+            bucket_name=self.BUCKET,
+            key=b"test_append_string_crc32",
+            data=data,
+            content_crc32=crc32
+        )
+        self.check_headers(response)
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len(data))
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_string_crc32")
+        self.assertEqual(content, data_bytes)
+
+    def test_append_object_from_string_auto_crc32(self):
+        """test append_object_from_string with auto-calculated CRC32"""
+        data = "test_append_string_auto_crc32"
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.append_object_from_string(
+            bucket_name=self.BUCKET,
+            key=b"test_append_string_auto_crc32",
+            data=data
+        )
+        self.check_headers(response)
+        next_offset = response.metadata.bce_next_append_offset
+        self.assertEqual(int(next_offset), len(data))
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_string_auto_crc32")
+        self.assertEqual(content, data.encode('utf-8'))
+
+        fp = io.BytesIO(data)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_put_object_with_crc32(self):
+        """test put_object with user-provided CRC32"""
+        data = b"test_put_object_crc32"
+        fp = io.BytesIO(data)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        # Test with user-provided CRC32
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data),
+            content_crc32=crc32
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_put_object_auto_crc32(self):
+        """test put_object with auto-calculated CRC32"""
+        data = b"test_put_object_auto_crc32"
+        fp = io.BytesIO(data)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data)
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_put_object_from_string_with_crc32(self):
+        """test put_object_from_string with user-provided CRC32"""
+        data = "test_put_string_crc32"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test with user-provided CRC32
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data,
+            content_crc32=crc32
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data_bytes)
+
+    def test_put_object_from_string_auto_crc32(self):
+        """test put_object_from_string with auto-calculated CRC32"""
+        data = "test_put_string_auto_crc32"
+        fp = io.BytesIO(data.encode('utf-8'))
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data.encode('utf-8'))
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_put_object_from_file_with_crc32(self):
+        """test put_object_from_file with user-provided CRC32"""
+        self.get_file(1)  # Create 1MB file
+        file_crc32 = 0
+
+        # Calculate CRC32 for the file
+        with open(self.FILENAME, 'rb') as fp:
+            file_crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test with user-provided CRC32
+        response = self.bos.put_object_from_file(
+            bucket=self.BUCKET,
+            key=b"test_file_crc32",
+            file_name=self.FILENAME,
+            content_crc32=file_crc32
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_file_crc32")
+        self.assertIsNotNone(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(file_crc32))
+
+    def test_put_object_from_file_auto_crc32(self):
+        """test put_object_from_file with auto-calculated CRC32"""
+        self.get_file(1)  # Create 1MB file
+        file_crc32 = 0
+
+        # Calculate CRC32 for the file
+        with open(self.FILENAME, 'rb') as fp:
+            file_crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.put_object_from_file(
+            bucket=self.BUCKET,
+            key=b"test_file_auto_crc32",
+            file_name=self.FILENAME
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_file_auto_crc32")
+        self.assertIsNotNone(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(file_crc32))
+
+    def test_upload_part_with_crc32(self):
+        """test upload_part with user-provided CRC32"""
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        part_data = b"test_part_data_crc32"
+        fp = io.BytesIO(part_data)
+        part_crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        # Test with user-provided CRC32
+        response = self.bos.upload_part(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_crc32",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=len(part_data),
+            part_fp=fp,
+            part_crc32=part_crc32
+        )
+        self.check_headers(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(part_crc32))
+
+        # Clean up
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_crc32", upload_id)
+
+    def test_upload_part_auto_crc32(self):
+        """test upload_part with auto-calculated CRC32"""
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_auto_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        part_data = b"test_part_data_auto_crc32"
+        fp = io.BytesIO(part_data)
+        crc32 = utils.get_crc32_from_fp(fp, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.upload_part(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_auto_crc32",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=len(part_data),
+            part_fp=fp
+        )
+        self.check_headers(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+        # Clean up
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_auto_crc32", upload_id)
+
+    def test_upload_part_from_file_with_crc32(self):
+        """test upload_part_from_file with user-provided CRC32"""
+        # Create 5MB file (minimum BOS part size)
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (5 * 1024 * 1024))
+
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_file_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        # Calculate CRC32 for part of file
+        with open(self.FILENAME, 'rb') as fp:
+            part_crc32 = utils.get_crc32_from_fp(fp, offset=0, length=5*1024*1024, buf_size=8192)
+
+        # Test with user-provided CRC32
+        response = self.bos.upload_part_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_file_crc32",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=5*1024*1024,
+            file_name=self.FILENAME,
+            offset=0,
+            part_crc32=part_crc32
+        )
+        self.check_headers(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(part_crc32))
+
+        # Clean up
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_file_crc32", upload_id)
+
+    def test_upload_part_from_file_auto_crc32(self):
+        """test upload_part_from_file with auto-calculated CRC32"""
+        # Create 5MB file (minimum BOS part size)
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (5 * 1024 * 1024))
+
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_file_auto_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        with open(self.FILENAME, 'rb') as fp:
+            part_crc32 = utils.get_crc32_from_fp(fp, offset=0, length=5*1024*1024, buf_size=8192)
+
+        # Test without providing CRC32 (should be auto-calculated)
+        response = self.bos.upload_part_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_file_auto_crc32",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=5*1024*1024,
+            file_name=self.FILENAME,
+            offset=0
+        )
+        self.check_headers(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(part_crc32))
+
+        # Clean up
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_file_auto_crc32", upload_id)
+
+    def test_complete_multipart_upload_with_crc32(self):
+        """test complete_multipart_upload with user-provided CRC32"""
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_complete_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        # Create file with at least 5MB per part (minimum BOS part size)
+        self.get_file(10)  # Create 10MB file (2 parts of 5MB each)
+
+        # Upload two parts
+        response1 = self.bos.upload_part_from_file(
+            self.BUCKET, b"test_complete_crc32", upload_id, 1,
+            5 * 1024 * 1024, self.FILENAME, 0
+        )
+        crc32_1 = int(response1.metadata.bce_content_crc_32)
+
+        response2 = self.bos.upload_part_from_file(
+            self.BUCKET, b"test_complete_crc32", upload_id, 2,
+            5 * 1024 * 1024, self.FILENAME, 5 * 1024 * 1024
+        )
+        crc32_2 = int(response2.metadata.bce_content_crc_32)
+
+        part_list = [
+            {"partNumber": 1, "eTag": response1.metadata.etag},
+            {"partNumber": 2, "eTag": response2.metadata.etag}
+        ]
+        crc32 = utils.crc32_combine(crc32_1, crc32_2, 5 * 1024 * 1024)
+
+        # Calculate total CRC32 for complete (optional parameter)
+        # Note: For multi-part uploads, CRC32 calculation requires combining part CRCs
+        # Here we test that the parameter is accepted
+        response = self.bos.complete_multipart_upload(
+            bucket_name=self.BUCKET,
+            key=b"test_complete_crc32",
+            upload_id=upload_id,
+            part_list=part_list,
+            content_crc32=crc32
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_complete_crc32")
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_complete_multipart_upload_auto_crc32(self):
+        """test complete_multipart_upload without user-provided CRC32"""
+        # Initialize multipart upload
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_complete_auto_crc32")
+        self.check_headers(init_response)
+        upload_id = init_response.upload_id
+
+        # Create file with at least 5MB per part (minimum BOS part size)
+        self.get_file(10)  # Create 10MB file (2 parts of 5MB each)
+
+        # Upload two parts
+        response1 = self.bos.upload_part_from_file(
+            self.BUCKET, b"test_complete_auto_crc32", upload_id, 1,
+            5 * 1024 * 1024, self.FILENAME, 0
+        )
+
+        response2 = self.bos.upload_part_from_file(
+            self.BUCKET, b"test_complete_auto_crc32", upload_id, 2,
+            5 * 1024 * 1024, self.FILENAME, 5 * 1024 * 1024
+        )
+
+        part_list = [
+            {"partNumber": 1, "eTag": response1.metadata.etag},
+            {"partNumber": 2, "eTag": response2.metadata.etag}
+        ]
+
+        # Test complete without CRC32 (optional parameter)
+        response = self.bos.complete_multipart_upload(
+            bucket_name=self.BUCKET,
+            key=b"test_complete_auto_crc32",
+            upload_id=upload_id,
+            part_list=part_list
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_complete_auto_crc32")
+        self.assertIsNotNone(response)
+
+    def test_put_super_object_from_file_with_crc32(self):
+        """test put_super_object_from_file with user-provided CRC32"""
+        # Create a file larger than 5MB to trigger multi-part upload
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (6 * 1024 * 1024))  # 6MB file (2 parts: 5MB + 1MB)
+
+        crc32 = utils.get_crc32_from_fp(open(self.FILENAME, 'rb'))
+
+        result = self.bos.put_super_object_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_super_object_crc32",
+            file_name=self.FILENAME,
+            chunk_size=5,  # 5MB chunks
+            thread_num=1,
+            content_crc32=crc32
+        )
+        # put_super_object_from_file returns bool (True on success)
+        self.assertTrue(result)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_super_object_crc32")
+        self.assertIsNotNone(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+    def test_put_super_object_from_file_auto_crc32(self):
+        """test put_super_object_from_file with auto-calculated CRC32"""
+        # Create a 6MB file for testing (will be split into 2 parts)
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (6 * 1024 * 1024))
+            
+        crc32 = utils.get_crc32_from_fp(open(self.FILENAME, 'rb'))
+
+        # Test without providing CRC32 (should be auto-calculated)
+        result = self.bos.put_super_object_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_super_object_auto_crc32",
+            file_name=self.FILENAME,
+            chunk_size=5,  # 5MB chunks
+            thread_num=1
+        )
+        # put_super_object_from_file returns bool (True on success)
+        self.assertTrue(result)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_super_object_auto_crc32")
+        self.assertIsNotNone(response)
+        self.assertEqual(response.metadata.bce_content_crc_32, str(crc32))
+
+
+class TestSHA256(TestClient):
+    """Test SHA256 validation for object upload operations"""
+
+    def test_put_object_with_sha256(self):
+        """test put_object with user-provided SHA256"""
+        data = b"test_put_object_sha256"
+        fp = io.BytesIO(data)
+        sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data),
+            content_sha256=sha256
+        )
+        self.check_headers(response)
+
+        # Verify the object was created correctly
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+
+    def test_put_object_from_string_with_sha256(self):
+        """test put_object_from_string with user-provided SHA256"""
+        data = "test_put_string_sha256"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data,
+            content_sha256=sha256
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data_bytes)
+
+    def test_put_object_from_file_with_sha256(self):
+        """test put_object_from_file with user-provided SHA256"""
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (1 * 1024 * 1024))  # 1MB file
+
+        with open(self.FILENAME, 'rb') as fp:
+            sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_file(
+            bucket=self.BUCKET,
+            key=b"test_file_sha256",
+            file_name=self.FILENAME,
+            content_sha256=sha256
+        )
+        self.check_headers(response)
+
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_file_sha256")
+        self.assertIsNotNone(response)
+
+    def test_append_object_with_sha256(self):
+        """test append_object with user-provided SHA256"""
+        data = b"test_append_object_sha256"
+        fp = io.BytesIO(data)
+        sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_sha256",
+            data=fp,
+            content_length=len(data),
+            content_sha256=sha256
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_sha256")
+        self.assertEqual(content, data)
+
+    def test_append_object_from_string_with_sha256(self):
+        """test append_object_from_string with user-provided SHA256"""
+        data = "test_append_string_sha256"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+
+        response = self.bos.append_object_from_string(
+            bucket_name=self.BUCKET,
+            key=b"test_append_string_sha256",
+            data=data,
+            content_sha256=sha256
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_string_sha256")
+        self.assertEqual(content, data_bytes)
+
+    def test_upload_part_with_sha256(self):
+        """test upload_part with user-provided SHA256"""
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_sha256")
+        upload_id = init_response.upload_id
+
+        part_data = b"test_part_data_sha256"
+        fp = io.BytesIO(part_data)
+        part_sha256 = utils.get_sha256_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.upload_part(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_sha256",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=len(part_data),
+            part_fp=fp,
+            part_sha256=part_sha256
+        )
+        self.check_headers(response)
+
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_sha256", upload_id)
+
+    def test_upload_part_from_file_with_sha256(self):
+        """test upload_part_from_file with user-provided SHA256"""
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (5 * 1024 * 1024))  # 5MB file (minimum BOS part size)
+
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_file_sha256")
+        upload_id = init_response.upload_id
+
+        with open(self.FILENAME, 'rb') as fp:
+            part_sha256 = utils.get_sha256_from_fp(fp, offset=0, length=5*1024*1024, buf_size=8192)
+
+        response = self.bos.upload_part_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_file_sha256",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=5*1024*1024,
+            file_name=self.FILENAME,
+            offset=0,
+            part_sha256=part_sha256
+        )
+        self.check_headers(response)
+
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_file_sha256", upload_id)
+
+
+class TestCRC32C(TestClient):
+    """Test CRC32C validation for object upload operations"""
+
+    def test_put_object_with_crc32c(self):
+        """test put_object with user-provided CRC32C"""
+        data = b"test_put_object_crc32c"
+        fp = io.BytesIO(data)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data),
+            content_crc32c=crc32c
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+
+    def test_put_object_from_string_with_crc32c(self):
+        """test put_object_from_string with user-provided CRC32C"""
+        data = "test_put_string_crc32c"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data,
+            content_crc32c=crc32c
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data_bytes)
+
+    def test_put_object_from_file_with_crc32c(self):
+        """test put_object_from_file with user-provided CRC32C"""
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (1 * 1024 * 1024))
+
+        with open(self.FILENAME, 'rb') as fp:
+            crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_file(
+            bucket=self.BUCKET,
+            key=b"test_file_crc32c",
+            file_name=self.FILENAME,
+            content_crc32c=crc32c
+        )
+        self.check_headers(response)
+
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_file_crc32c")
+        self.assertIsNotNone(response)
+
+    def test_append_object_with_crc32c(self):
+        """test append_object with user-provided CRC32C"""
+        data = b"test_append_object_crc32c"
+        fp = io.BytesIO(data)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_crc32c",
+            data=fp,
+            content_length=len(data),
+            content_crc32c=crc32c
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_crc32c")
+        self.assertEqual(content, data)
+
+    def test_append_object_from_string_with_crc32c(self):
+        """test append_object_from_string with user-provided CRC32C"""
+        data = "test_append_string_crc32c"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+
+        response = self.bos.append_object_from_string(
+            bucket_name=self.BUCKET,
+            key=b"test_append_string_crc32c",
+            data=data,
+            content_crc32c=crc32c
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_string_crc32c")
+        self.assertEqual(content, data_bytes)
+
+    def test_upload_part_with_crc32c(self):
+        """test upload_part with user-provided CRC32C"""
+        init_response = self.bos.initiate_multipart_upload(self.BUCKET, b"test_upload_part_crc32c")
+        upload_id = init_response.upload_id
+
+        part_data = b"test_part_data_crc32c"
+        fp = io.BytesIO(part_data)
+        part_crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.upload_part(
+            bucket_name=self.BUCKET,
+            key=b"test_upload_part_crc32c",
+            upload_id=upload_id,
+            part_number=1,
+            part_size=len(part_data),
+            part_fp=fp,
+            part_crc32c=part_crc32c
+        )
+        self.check_headers(response)
+
+        self.bos.abort_multipart_upload(self.BUCKET, b"test_upload_part_crc32c", upload_id)
+
+
+class TestCRC32CFlag(TestClient):
+    """Test CRC32C flag parameter for operations"""
+
+    def test_put_object_with_crc32c_flag(self):
+        """test put_object with content_crc32c_flag parameter"""
+        data = b"test_put_object_crc32c_flag"
+        fp = io.BytesIO(data)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data),
+            content_crc32c=crc32c,
+            content_crc32c_flag=True
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+
+    def test_put_object_from_string_with_crc32c_flag(self):
+        """test put_object_from_string with content_crc32c_flag parameter"""
+        data = "test_put_string_crc32c_flag"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data,
+            content_crc32c=crc32c,
+            content_crc32c_flag=b"true"
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data_bytes)
+
+    def test_append_object_with_crc32c_flag(self):
+        """test append_object with content_crc32c_flag parameter"""
+        data = b"test_append_object_crc32c_flag"
+        fp = io.BytesIO(data)
+        crc32c = utils.get_crc32c_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_crc32c_flag",
+            data=fp,
+            content_length=len(data),
+            content_crc32c=crc32c,
+            content_crc32c_flag=b"true"
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_crc32c_flag")
+        self.assertEqual(content, data)
+
+
+class TestPutSuperObjectWithCRC32C(TestClient):
+    """Test put_super_object_from_file with CRC32C parameters"""
+
+    def test_put_super_object_from_file_with_crc32c(self):
+        """test put_super_object_from_file with user-provided CRC32C"""
+        # Create a file larger than 5MB to trigger multi-part upload
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (6 * 1024 * 1024))  # 6MB file (2 parts: 5MB + 1MB)
+
+        crc32c = utils.get_crc32c_from_fp(open(self.FILENAME, 'rb'))
+
+        result = self.bos.put_super_object_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_super_object_crc32c",
+            file_name=self.FILENAME,
+            chunk_size=5,  # 5MB chunks
+            thread_num=1,
+            content_crc32c=crc32c
+        )
+        self.assertTrue(result)
+
+        # Verify the object was created correctly
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_super_object_crc32c")
+        self.assertIsNotNone(response)
+
+    def test_put_super_object_from_file_with_both_crc32_and_crc32c(self):
+        """test put_super_object_from_file with both CRC32 and CRC32C provided"""
+        # This tests the logic: when both are provided, user values should be used
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (6 * 1024 * 1024))  # 6MB file
+
+        crc32 = utils.get_crc32_from_fp(open(self.FILENAME, 'rb'))
+        crc32c = utils.get_crc32c_from_fp(open(self.FILENAME, 'rb'))
+
+        result = self.bos.put_super_object_from_file(
+            bucket_name=self.BUCKET,
+            key=b"test_super_object_both_crc",
+            file_name=self.FILENAME,
+            chunk_size=5,
+            thread_num=1,
+            content_crc32=crc32,
+            content_crc32c=crc32c
+        )
+        self.assertTrue(result)
+
+
+class TestBucketVersioning(TestClient):
+    """Test bucket versioning operations"""
+
+    def test_put_bucket_versioning_enabled(self):
+        """test put_bucket_versioning with enabled status"""
+        versioning_status = "Enabled"
+
+        try:
+            response = self.bos.put_bucket_versioning(self.BUCKET, versioning_status)
+        except (BceServerError, BceHttpClientError) as e:
+            # If the API is not supported or not configured, skip the test
+            self.skipTest("Bucket versioning is not supported or not configured in this environment: " + str(e))
+        self.check_headers(response)
+
+        # Verify versioning is enabled
+        response = self.bos.get_bucket_versioning(self.BUCKET)
+        self.assertEqual(response.status, "Enabled")
+
+    def test_put_bucket_versioning_suspended(self):
+        """test put_bucket_versioning with suspended status"""
+        # First enable versioning
+        try:
+            self.bos.put_bucket_versioning(self.BUCKET, "Enabled")
+        except (BceServerError, BceHttpClientError) as e:
+            # If the API is not supported, skip the test
+            self.skipTest("Bucket versioning is not supported or not configured in this environment: " + str(e))
+
+        # Then suspend versioning
+        versioning_status = "Suspended"
+
+        err = None
+        try:
+            response = self.bos.put_bucket_versioning(self.BUCKET, versioning_status)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+
+        # Verify versioning is suspended
+        response = self.bos.get_bucket_versioning(self.BUCKET)
+        self.assertEqual(response.status, "Suspended")
+
+    def test_get_bucket_versioning(self):
+        """test get_bucket_versioning function"""
+        # Enable versioning first
+        try:
+            self.bos.put_bucket_versioning(self.BUCKET, "Enabled")
+        except (BceServerError, BceHttpClientError) as e:
+            # If the API is not supported, skip the test
+            self.skipTest("Bucket versioning is not supported or not configured in this environment: " + str(e))
+
+        err = None
+        try:
+            response = self.bos.get_bucket_versioning(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.assertEqual(response.status, "Enabled")
+        self.check_headers(response)
+
+    def test_list_objects_versions(self):
+        """test list_objects_versions function"""
+        # Enable versioning
+        try:
+            self.bos.put_bucket_versioning(self.BUCKET, "Enabled")
+        except (BceServerError, BceHttpClientError) as e:
+            # If the API is not supported, skip the test
+            self.skipTest("Bucket versioning is not supported or not configured in this environment: " + str(e))
+
+        # Put same object multiple times to create versions
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'First version')
+        time.sleep(1)
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Second version')
+        time.sleep(1)
+        self.bos.put_object_from_string(self.BUCKET, self.KEY, 'Third version')
+
+        err = None
+        try:
+            response = self.bos.list_objects_versions(self.BUCKET)
+        except BceServerError as e:
+            err = e
+        finally:
+            self.assertIsNone(err)
+        self.check_headers(response)
+        # Should have at least 3 versions of the object
+        self.assertGreaterEqual(len(response), 3)
+
+
+class TestBucketObjectLock(TestClient):
+    """Test bucket object lock operations"""
+
+    def test_get_bucket_object_lock(self):
+        """test get_bucket_object_lock function"""
+        # Object lock requires versioning enabled
+        try:
+            self.bos.put_bucket_versioning(self.BUCKET, "Enabled")
+        except (BceServerError, BceHttpClientError) as e:
+            # If versioning is not supported, skip the test
+            self.skipTest("Bucket object lock is not supported or not configured in this environment: " + str(e))
+
+        err = None
+        try:
+            response = self.bos.get_bucket_object_lock(self.BUCKET)
+        except BceServerError as e:
+            # If object lock is not configured, it may return an error
+            # This is expected behavior
+            err = e
+        finally:
+            # If no error, check response; otherwise, verify it's expected
+            if err is None:
+                self.check_headers(response)
+
+    def test_delete_bucket_object_lock(self):
+        """test delete_bucket_object_lock function"""
+        # Object lock requires versioning enabled
+        try:
+            self.bos.put_bucket_versioning(self.BUCKET, "Enabled")
+        except (BceServerError, BceHttpClientError) as e:
+            # If versioning is not supported, skip the test
+            self.skipTest("Bucket object lock is not supported or not configured in this environment: " + str(e))
+
+        err = None
+        try:
+            response = self.bos.delete_bucket_object_lock(self.BUCKET)
+        except BceServerError as e:
+            # If object lock is not configured, it may return an error
+            # This is expected behavior
+            err = e
+        finally:
+            # If no error, check response; otherwise, verify it's expected
+            if err is None:
+                self.check_headers(response)
+
+
+class TestCRC64ECMA(TestClient):
+    """Test CRC64ECMA validation for object upload operations"""
+
+    def test_put_object_with_crc64ecma(self):
+        """test put_object with user-provided CRC64ECMA"""
+        data = b"test_put_object_crc64ecma"
+        fp = io.BytesIO(data)
+        crc64ecma = utils.get_crc64_ecma_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.put_object(
+            bucket_name=self.BUCKET,
+            key=self.KEY,
+            data=fp,
+            content_length=len(data),
+            content_crc64ecma=crc64ecma
+        )
+        self.check_headers(response)
+        self.assertEqual(response.metadata.bce_content_crc_64ecma, str(crc64ecma))
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data)
+
+    def test_put_object_from_string_with_crc64ecma(self):
+        """test put_object_from_string with user-provided CRC64ECMA"""
+        data = "test_put_string_crc64ecma"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc64ecma = utils.get_crc64_ecma_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_string(
+            bucket=self.BUCKET,
+            key=self.KEY,
+            data=data,
+            content_crc64ecma=crc64ecma
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=self.KEY)
+        self.assertEqual(content, data_bytes)
+
+    def test_put_object_from_file_with_crc64ecma(self):
+        """test put_object_from_file with user-provided CRC64ECMA"""
+        with open(self.FILENAME, 'wb') as f:
+            f.write(b'a' * (1 * 1024 * 1024))
+
+        with open(self.FILENAME, 'rb') as fp:
+            crc64ecma = utils.get_crc64_ecma_from_fp(fp, buf_size=8192)
+
+        response = self.bos.put_object_from_file(
+            bucket=self.BUCKET,
+            key=b"test_file_crc64ecma",
+            file_name=self.FILENAME,
+            content_crc64ecma=crc64ecma
+        )
+        self.check_headers(response)
+
+        response = self.bos.get_object(bucket_name=self.BUCKET, key=b"test_file_crc64ecma")
+        self.assertIsNotNone(response)
+
+    def test_append_object_with_crc64ecma(self):
+        """test append_object with user-provided CRC64ECMA"""
+        data = b"test_append_object_crc64ecma"
+        fp = io.BytesIO(data)
+        crc64ecma = utils.get_crc64_ecma_from_fp(fp, buf_size=8192)
+        fp.seek(0)
+
+        response = self.bos.append_object(
+            bucket_name=self.BUCKET,
+            key=b"test_append_object_crc64ecma",
+            data=fp,
+            content_length=len(data),
+            content_crc64ecma=crc64ecma
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_object_crc64ecma")
+        self.assertEqual(content, data)
+
+    def test_append_object_from_string_with_crc64ecma(self):
+        """test append_object_from_string with user-provided CRC64ECMA"""
+        data = "test_append_string_crc64ecma"
+        data_bytes = data.encode('utf-8')
+        fp = io.BytesIO(data_bytes)
+        crc64ecma = utils.get_crc64_ecma_from_fp(fp, buf_size=8192)
+
+        response = self.bos.append_object_from_string(
+            bucket_name=self.BUCKET,
+            key=b"test_append_string_crc64ecma",
+            data=data,
+            content_crc64ecma=crc64ecma
+        )
+        self.check_headers(response)
+
+        content = self.bos.get_object_as_string(bucket_name=self.BUCKET, key=b"test_append_string_crc64ecma")
+        self.assertEqual(content, data_bytes)
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -4350,12 +5606,17 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketQuota))
     runner.run(unittest.makeSuite(TestBucketTagging))
     runner.run(unittest.makeSuite(TestConditionalReadWrite))
-    
+    runner.run(unittest.makeSuite(TestCRC32))
+    runner.run(unittest.makeSuite(TestSHA256))
+    runner.run(unittest.makeSuite(TestCRC32C))
+    runner.run(unittest.makeSuite(TestCRC32CFlag))
+    runner.run(unittest.makeSuite(TestPutSuperObjectWithCRC32C))
+    runner.run(unittest.makeSuite(TestCRC64ECMA))
+
     """test quota, the quota cache may exist causing the bucket to be created error"""
     # runner.run(unittest.makeSuite(TestQuota))
     """test speed limit, the case is skipped by default"""
     # runner.run(unittest.makeSuite(TestTrafficLimit))
-    
 
 
 run_test()

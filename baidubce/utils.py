@@ -36,6 +36,14 @@ import baidubce
 from baidubce.http import http_headers
 
 import codecs
+import struct
+try:
+    import crc32c
+    _has_crc32c = True
+except ImportError:
+    _has_crc32c = False
+    crc32c = None
+import zlib
 
 DEFAULT_CNAME_LIKE_LIST = [b".cdn.bcebos.com"]
 DEFAULT_BOS_DOMAIN_SUFFIX = b'bcebos.com'
@@ -55,7 +63,7 @@ def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     :param length: None
     =======================
     :return:
-        **file_size, MD(encode by base64)**
+        **MD5(encode by base64)**
     """
 
     origin_offset = fp.tell()
@@ -77,6 +85,312 @@ def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     fp.seek(origin_offset)
     return base64.standard_b64encode(md5.digest())
 
+def get_sha256_from_fp(fp, offset=0, length=-1, buf_size=8192):
+    """
+    Get SHA256 from file by fp.
+
+    :type fp: FileIO
+    :param fp: file pointer
+
+    :type offset: long
+    :param offset: start position
+
+    :type length: long
+    :param length: read length (-1 means read all)
+
+    :type buf_size: int
+    :param buf_size: read buffer size
+
+    :return:
+        **SHA256 (encode by base64)**
+    """
+
+    origin_offset = fp.tell()
+    if offset:
+        fp.seek(offset)
+    sha256 = hashlib.sha256()
+    while True:
+        bytes_to_read = buf_size
+        if bytes_to_read > length > 0:
+            bytes_to_read = length
+        buf = fp.read(bytes_to_read)
+        if not buf:
+            break
+        sha256.update(buf)
+        if length > 0:
+            length -= len(buf)
+        if length == 0:
+            break
+    fp.seek(origin_offset)
+    return sha256.hexdigest()
+
+
+def get_crc32_from_fp(fp, offset=0, length=-1, buf_size=8192):
+    """
+    Get CRC32 from file by fp.
+
+    :type fp: FileIO
+    :param fp: file pointer
+
+    :type offset: long
+    :param offset: start position
+
+    :type length: long
+    :param length: read length (-1 means read all)
+
+    :type buf_size: int
+    :param buf_size: read buffer size
+
+    :return:
+        **crc32 (unsigned 32bit int)**
+    """
+    origin_offset = fp.tell()
+    if offset:
+        fp.seek(offset)
+    crc = 0
+    while True:
+        bytes_to_read = buf_size
+        if bytes_to_read > length > 0:
+            bytes_to_read = length
+        buf = fp.read(bytes_to_read)
+        if not buf:
+            break
+        crc = zlib.crc32(buf, crc)
+        if length > 0:
+            length -= len(buf)
+        if length == 0:
+            break
+    fp.seek(origin_offset)
+    return crc & 0xffffffff
+
+def _gf2_matrix_times(mat, vec):
+    sum = 0
+    idx = 0
+    while vec:
+        if vec & 1:
+            sum ^= mat[idx]
+        vec >>= 1
+        idx += 1
+    return sum
+
+def _gf2_matrix_square(square, mat):
+    n = 0
+    while n < 32:
+        square[n] = _gf2_matrix_times(mat, mat[n])
+        n += 1
+
+def crc32_combine(crc1, crc2, len2):
+    """
+    combine two crc32 values
+
+    This function combines two CRC32 values such that:
+    crc32(data1 + data2) == crc32_combine(crc32(data1), crc32(data2), len(data2))
+
+    :param crc1: CRC32 of the first part (as returned by zlib.crc32)
+    :param crc2: CRC32 of the second part (as returned by zlib.crc32)
+    :param len2: length of the second part in bytes
+    :return: combined CRC32 value
+    """
+    # Use zlib's built-in CRC combination by simulating the continuation
+    # This is equivalent to computing CRC of data2 starting with crc1 as initial value
+    # The trick is that we need to "undo" the initial XOR of crc2 (which is the CRC of data2)
+    # and then apply it with crc1
+
+    if len2 == 0:
+        return crc1
+
+    # The correct way to combine CRC32 is to use the GF(2) matrix approach
+    # which handles the fact that CRC is a linear operation over GF(2)
+    odd = [0] * 32
+    even = [0] * 32
+    odd[0] = 0xedb88320  # CRC32 polynomial
+    row = 1
+    n = 1
+    while n < 32:
+        odd[n] = row
+        row <<= 1
+        n += 1
+    _gf2_matrix_square(even, odd)
+    _gf2_matrix_square(odd, even)
+
+    # Apply the matrix transformation to crc1 for len2 bytes
+    # This effectively "shifts" crc1 forward by len2 positions
+    while True:
+        _gf2_matrix_square(even, odd)
+        if len2 & 1:
+            crc1 = _gf2_matrix_times(even, crc1)
+        len2 >>= 1
+        if len2 == 0:
+            break
+        _gf2_matrix_square(odd, even)
+        if len2 & 1:
+            crc1 = _gf2_matrix_times(odd, crc1)
+        len2 >>= 1
+        if len2 == 0:
+            break
+
+    crc1 ^= crc2
+    return crc1 & 0xffffffff
+
+def get_crc32c_from_fp(fp, offset=0, length=-1, buf_size=8192):
+    """
+    Get CRC32C from file by fp.
+
+    :type fp: FileIO
+    :param fp: file pointer
+
+    :type offset: long
+    :param offset: start position
+
+    :type length: long
+    :param length: read length
+
+    =======================
+    :return:
+        **CRC32C(hex)**
+    """
+    if not _has_crc32c:
+        raise ImportError("crc32c module is not installed. Install it with: pip install crc32c")
+
+    origin_offset = fp.tell()
+    if offset:
+        fp.seek(offset)
+    crc = 0
+    while True:
+        bytes_to_read = buf_size
+        if bytes_to_read > length > 0:
+            bytes_to_read = length
+        buf = fp.read(bytes_to_read)
+        if not buf:
+            break
+        crc = crc32c.crc32c(buf, crc)
+        if length > 0:
+            length -= len(buf)
+        if length == 0:
+            break
+    fp.seek(origin_offset)
+    return crc & 0xffffffff
+
+CRC64_POLY = 0xC96C5795D7870F42
+
+def _generate_crc64_tables():
+    """
+    Generate slice-by-8 CRC64 tables
+    """
+    table = [[0] * 256 for _ in range(8)]
+    for i in range(256):
+        crc = i
+        for _ in range(8):
+            if crc & 1:
+                crc = (crc >> 1) ^ CRC64_POLY
+            else:
+                crc >>= 1
+        table[0][i] = crc
+    for t in range(1, 8):
+        for i in range(256):
+            crc = table[t - 1][i]
+            table[t][i] = table[0][crc & 0xff] ^ (crc >> 8)
+    return table
+
+CRC64_TABLE = _generate_crc64_tables()
+
+def _crc64_update(crc, data):
+    """
+    Fast CRC64 update using slice-by-8
+    """
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+    mv = memoryview(data)
+    table = CRC64_TABLE
+    crc = ~crc & 0xFFFFFFFFFFFFFFFF
+    length = len(mv)
+    i = 0
+    # slice-by-8 loop
+    while i + 8 <= length:
+        b0 = mv[i]
+        b1 = mv[i + 1]
+        b2 = mv[i + 2]
+        b3 = mv[i + 3]
+        b4 = mv[i + 4]
+        b5 = mv[i + 5]
+        b6 = mv[i + 6]
+        b7 = mv[i + 7]
+        if not isinstance(b0, int):  # python2
+            b0 = ord(b0); b1 = ord(b1); b2 = ord(b2); b3 = ord(b3)
+            b4 = ord(b4); b5 = ord(b5); b6 = ord(b6); b7 = ord(b7)
+        crc ^= (
+            b0
+            | (b1 << 8)
+            | (b2 << 16)
+            | (b3 << 24)
+            | (b4 << 32)
+            | (b5 << 40)
+            | (b6 << 48)
+            | (b7 << 56)
+        )
+        crc = (
+            table[7][crc & 0xff] ^
+            table[6][(crc >> 8) & 0xff] ^
+            table[5][(crc >> 16) & 0xff] ^
+            table[4][(crc >> 24) & 0xff] ^
+            table[3][(crc >> 32) & 0xff] ^
+            table[2][(crc >> 40) & 0xff] ^
+            table[1][(crc >> 48) & 0xff] ^
+            table[0][(crc >> 56) & 0xff]
+        )
+        i += 8
+    while i < length:
+        b = mv[i]
+        if not isinstance(b, int):
+            b = ord(b)
+        crc = CRC64_TABLE[0][(crc ^ b) & 0xff] ^ (crc >> 8)
+        i += 1
+    return ~crc & 0xFFFFFFFFFFFFFFFF
+
+class CRC64ECMA(object):
+    """
+    To generate CRC64ECMA
+    """
+
+    def __init__(self, crc=0):
+        self.crc = crc
+
+    def update(self, data):
+        """
+        Update CRC64 with specified data
+        """
+        self.crc = _crc64_update(self.crc, data)
+
+    def value(self):
+        """
+        Get CRC64 ECMA value
+        """
+        return self.crc
+
+def get_crc64_ecma_from_fp(fp, offset=0, length=-1, buf_size=8192):
+    """
+    Get CRC64 from file pointer
+    Compatible with get_crc32_from_fp
+    """
+
+    origin_offset = fp.tell()
+    if offset:
+        fp.seek(offset)
+    crc = CRC64ECMA(0)
+    while True:
+        bytes_to_read = buf_size
+        if bytes_to_read > length > 0:
+            bytes_to_read = length
+        buf = fp.read(bytes_to_read)
+        if not buf:
+            break
+        crc.update(buf)
+        if length > 0:
+            length -= len(buf)
+        if length == 0:
+            break
+    fp.seek(origin_offset)
+    return crc.value()
 
 def get_canonical_time(timestamp=0):
     """

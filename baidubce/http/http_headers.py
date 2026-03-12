@@ -56,6 +56,14 @@ BCE_ACL = b"x-bce-acl"
 
 BCE_CONTENT_SHA256 = b"x-bce-content-sha256"
 
+BCE_CONTENT_CRC32 = b"x-bce-content-crc32"
+
+BCE_CONTENT_CRC32C = b"x-bce-content-crc32c"
+
+BCE_CONTENT_CRC32C_FLAG = b"x-bce-content-crc32c-flag"
+
+BCE_CONTENT_CRC64ECMA = b"x-bce-content-crc64ecma"
+
 BCE_COPY_METADATA_DIRECTIVE = b"x-bce-metadata-directive"
 
 BCE_COPY_SOURCE = b"x-bce-copy-source"

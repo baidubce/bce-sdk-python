@@ -48,6 +48,7 @@ from baidubce.services.bos import bos_handler
 from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
+import baidubce.protocol as Protocol
 
 _logger = logging.getLogger(__name__)
 
@@ -706,6 +707,8 @@ class BosClient(BceBaseClient):
         :return:
             **URL string**
         """
+        key = compat.convert_to_string(key)
+        key = (key or "").strip('/')
         key = compat.convert_to_bytes(key)
         if len(key) == 0 or key == b'v1':
             raise ValueError('generate url the key param error!')
@@ -716,7 +719,16 @@ class BosClient(BceBaseClient):
 
         # specified  protocol in endpoint > protocal > default protocol in config
         if protocol is not None:
-            config.protocol = protocol
+            if isinstance(protocol, str):
+                p = protocol.lower()
+                if p == 'http':
+                    config.protocol = Protocol.HTTP
+                elif p == 'https':
+                    config.protocol = Protocol.HTTPS
+                else:
+                    raise ValueError('Invalid protocol: %s' % protocol)
+            else:
+                config.protocol = protocol
         endpoint_protocol, endpoint_host, endpoint_port = \
             utils.parse_host_port(config.endpoint, config.protocol)
 
@@ -1011,10 +1023,14 @@ class BosClient(BceBaseClient):
         headers = {}
         if days is not None:
             headers[http_headers.BOS_RESTORE_DAYS] = days
-        if compat.convert_to_string(tier) not in ("Standard", "Expedited", "LowCost"):
-            raise ValueError('invalid tier:{} for restore_object.The valid value is \"Standard\" or \"Expedited\" or '\
-                    '\"LowCost\"'.format(tier) )
-        headers[http_headers.BOS_RESTORE_TIER] = compat.convert_to_bytes(tier)
+        if tier is not None:
+            tier_str = tier if isinstance(tier, str) else tier.decode('utf-8') if isinstance(tier, bytes) else str(tier)
+            if tier_str not in ("Standard", "Expedited", "LowCost"):
+                raise ValueError('invalid tier:{} for restore_object.The valid value is "Standard" or \
+                                 "Expedited" or "LowCost"'.format(tier) )
+            headers[http_headers.BOS_RESTORE_TIER] = compat.convert_to_bytes(tier)
+        else:
+            raise BceClientError("tier can not be None for restore_object.")
         return self._send_request(
             http_methods.POST,
             bucket_name,
@@ -1146,15 +1162,18 @@ class BosClient(BceBaseClient):
     @required(bucket_name=(bytes, str),
               key=(bytes, str),
               data=object,
-              content_length=compat.integer_types,
-              content_md5=(bytes, str))
+              content_length=compat.integer_types)
     def append_object(self, bucket_name, key, data,
-                     content_md5,
                      content_length,
+                     content_md5=None,
                      offset=None,
                      content_type=None,
                      user_metadata=None,
                      content_sha256=None,
+                     content_crc32=None,
+                     content_crc32c=None,
+                     content_crc32c_flag=None,
+                     content_crc64ecma=None,
                      storage_class=None,
                      user_headers=None,
                      progress_callback=None,
@@ -1176,12 +1195,44 @@ class BosClient(BceBaseClient):
             **HTTP Response**
         """
         key = compat.convert_to_bytes(key)
-        content_md5 = compat.convert_to_bytes(content_md5)
+        if content_md5 is None and content_sha256 is None and content_crc32 is None and \
+                                   content_crc32c is None and content_crc64ecma is None:
+            max_retries = 3
+            for retry_count in range(max_retries):
+                try:
+                    content_crc32 = utils.get_crc32_from_fp(data, length=content_length,
+                                                buf_size=self._get_config_parameter(config, 'recv_buf_size'))
+                    break
+                except Exception as e:
+                    if retry_count < max_retries - 1:
+                        _logger.warning("CRC32 calculation failed, retrying (attempt %d/%d): %s",
+                                      retry_count + 1, max_retries, str(e))
+                        continue
+                    else:
+                        _logger.error("CRC32 calculation failed after %d attempts: %s", max_retries, str(e))
+                        content_crc32 = None
+        if content_md5:
+            content_md5 = compat.convert_to_bytes(content_md5)
+        if content_sha256:
+            content_sha256 = compat.convert_to_bytes(content_sha256)
+        if content_crc32:
+            content_crc32 = compat.convert_to_bytes(content_crc32)
+        if content_crc32c:
+            content_crc32c = compat.convert_to_bytes(content_crc32c)
+        if content_crc32c_flag is not None:
+            content_crc32c_flag = compat.convert_to_bytes(content_crc32c_flag)
+        if content_crc64ecma:
+            content_crc64ecma = compat.convert_to_bytes(content_crc64ecma)
+
         headers = self._prepare_object_headers(
             content_length=content_length,
             content_md5=content_md5,
             content_type=content_type,
             content_sha256=content_sha256,
+            content_crc32=content_crc32,
+            content_crc32c=content_crc32c,
+            content_crc32c_flag=content_crc32c_flag,
+            content_crc64ecma=content_crc64ecma,
             user_metadata=user_metadata,
             storage_class=storage_class,
             user_headers=user_headers,
@@ -1195,7 +1246,7 @@ class BosClient(BceBaseClient):
         params = {b'append': b''}
         if offset is not None:
             params[b'offset'] = offset
-        
+
         if progress_callback:
             data = utils.make_progress_adapter(data, progress_callback)
 
@@ -1217,6 +1268,10 @@ class BosClient(BceBaseClient):
                                   content_type=None,
                                   user_metadata=None,
                                   content_sha256=None,
+                                  content_crc32=None,
+                                  content_crc32c=None,
+                                  content_crc32c_flag=None,
+                                  content_crc64ecma=None,
                                   storage_class=None,
                                   user_headers=None,
                                   progress_callback=None,
@@ -1233,8 +1288,8 @@ class BosClient(BceBaseClient):
         fp = None
         try:
             fp = io.BytesIO(data)
-            if content_md5 is None:
-                content_md5 = utils.get_md5_from_fp(
+            if content_crc32 is None:
+                content_crc32 = utils.get_crc32_from_fp(
                     fp, buf_size=self._get_config_parameter(config, 'recv_buf_size'))
 
             return self.append_object(bucket_name=bucket_name,
@@ -1246,6 +1301,10 @@ class BosClient(BceBaseClient):
                                       content_type=content_type,
                                       user_metadata=user_metadata,
                                       content_sha256=content_sha256,
+                                      content_crc32=content_crc32,
+                                      content_crc32c=content_crc32c,
+                                      content_crc32c_flag=content_crc32c_flag,
+                                      content_crc64ecma=content_crc64ecma,
                                       storage_class=storage_class,
                                       user_headers=user_headers,
                                       progress_callback=progress_callback,
@@ -1258,13 +1317,16 @@ class BosClient(BceBaseClient):
     @required(bucket_name=(bytes, str),
               key=(bytes, str),
               data=object,
-              content_length=compat.integer_types,
-              content_md5=(bytes, str))
+              content_length=compat.integer_types)
     def put_object(self, bucket_name, key, data,
                    content_length,
-                   content_md5,
+                   content_md5=None,
                    content_type=None,
                    content_sha256=None,
+                   content_crc32=None,
+                   content_crc32c=None,
+                   content_crc32c_flag=None,
+                   content_crc64ecma=None,
                    user_metadata=None,
                    storage_class=None,
                    user_headers=None,
@@ -1295,29 +1357,62 @@ class BosClient(BceBaseClient):
             **HTTP Response**
         """
         key = compat.convert_to_bytes(key)
-        content_md5 = compat.convert_to_bytes(content_md5)
+        if content_md5 is None and content_sha256 is None and content_crc32 is None and \
+                                   content_crc32c is None and content_crc64ecma is None:
+            max_retries = 3
+            for retry_count in range(max_retries):
+                try:
+                    content_crc32 = utils.get_crc32_from_fp(data, length=content_length, 
+                                                buf_size=self._get_config_parameter(config, 'recv_buf_size'))
+                    break
+                except Exception as e:
+                    if retry_count < max_retries - 1:
+                        _logger.warning("CRC32 calculation failed, retrying (attempt %d/%d): %s",
+                                      retry_count + 1, max_retries, str(e))
+                        continue
+                    else:
+                        _logger.error("CRC32 calculation failed after %d attempts: %s", max_retries, str(e))
+                        content_crc32 = None
+        if content_md5:
+            content_md5 = compat.convert_to_bytes(content_md5)
+        if content_sha256:
+            content_sha256 = compat.convert_to_bytes(content_sha256)
+        if content_crc32:
+            content_crc32 = compat.convert_to_bytes(content_crc32)
+        if content_crc32c:
+            content_crc32c = compat.convert_to_bytes(content_crc32c)
+        if content_crc32c_flag:
+            content_crc32c_flag = compat.convert_to_bytes(content_crc32c_flag)
+        if content_crc64ecma:
+            content_crc64ecma = compat.convert_to_bytes(content_crc64ecma)
+
         headers = self._prepare_object_headers(
             content_length=content_length,
             content_md5=content_md5,
             content_type=content_type,
             content_sha256=content_sha256,
+            content_crc32=content_crc32,
+            content_crc32c=content_crc32c,
+            content_crc32c_flag=content_crc32c_flag,
+            content_crc64ecma=content_crc64ecma,
             user_metadata=user_metadata,
             storage_class=storage_class,
             user_headers=user_headers,
+            encryption=encryption,
+            customer_key=customer_key,
+            customer_key_md5=customer_key_md5,
             traffic_limit=traffic_limit,
             object_tagging=object_tagging,)
 
         if cond_read_write is not None:
             headers = self._get_cond_read_write_headers(http_methods.PUT, headers, cond_read_write)
 
-        buf_size = self._get_config_parameter(config, 'recv_buf_size')
-
         if content_length > bos.MAX_PUT_OBJECT_LENGTH:
             raise ValueError('Object length should be less than %d. '
                              'Use multi-part upload instead.' % bos.MAX_PUT_OBJECT_LENGTH)
-        
+
         if progress_callback:
-                data = utils.make_progress_adapter(data, progress_callback)
+            data = utils.make_progress_adapter(data, progress_callback)
 
         return self._send_request(
             http_methods.PUT,
@@ -1332,6 +1427,10 @@ class BosClient(BceBaseClient):
                                content_md5=None,
                                content_type=None,
                                content_sha256=None,
+                               content_crc32=None,
+                               content_crc32c=None,
+                               content_crc32c_flag=None,
+                               content_crc64ecma=None,
                                user_metadata=None,
                                storage_class=None,
                                user_headers=None,
@@ -1367,14 +1466,18 @@ class BosClient(BceBaseClient):
         fp = None
         try:
             fp = io.BytesIO(data)
-            if content_md5 is None:
-                content_md5 = utils.get_md5_from_fp(
+            if content_crc32 is None:
+                content_crc32 = utils.get_crc32_from_fp(
                     fp, buf_size=self._get_config_parameter(config, 'recv_buf_size'))
             return self.put_object(bucket, key, fp,
                                    content_length=len(data),
                                    content_md5=content_md5,
                                    content_type=content_type,
                                    content_sha256=content_sha256,
+                                   content_crc32=content_crc32,
+                                   content_crc32c=content_crc32c,
+                                   content_crc32c_flag=content_crc32c_flag,
+                                   content_crc64ecma=content_crc64ecma,
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
                                    user_headers=user_headers,
@@ -1396,6 +1499,10 @@ class BosClient(BceBaseClient):
                              content_md5=None,
                              content_type=None,
                              content_sha256=None,
+                             content_crc32=None,
+                             content_crc32c=None,
+                             content_crc32c_flag=None,
+                             content_crc64ecma=None,
                              user_metadata=None,
                              storage_class=None,
                              user_headers=None,
@@ -1433,9 +1540,9 @@ class BosClient(BceBaseClient):
                 fp.seek(0, os.SEEK_END)
                 content_length = fp.tell()
                 fp.seek(0)
-            if content_md5 is None:
+            if content_crc32 is None:
                 recv_buf_size = self._get_config_parameter(config, 'recv_buf_size')
-                content_md5 = utils.get_md5_from_fp(fp, length=content_length,
+                content_crc32 = utils.get_crc32_from_fp(fp, length=content_length,
                                                     buf_size=recv_buf_size)
             if content_type is None:
                 content_type = utils.guess_content_type_by_file_name(file_name)
@@ -1444,6 +1551,10 @@ class BosClient(BceBaseClient):
                                    content_md5=content_md5,
                                    content_type=content_type,
                                    content_sha256=content_sha256,
+                                   content_crc32=content_crc32,
+                                   content_crc32c=content_crc32c,
+                                   content_crc32c_flag=content_crc32c_flag,
+                                   content_crc64ecma=content_crc64ecma,
                                    user_metadata=user_metadata,
                                    storage_class=storage_class,
                                    user_headers=user_headers,
@@ -1676,9 +1787,9 @@ class BosClient(BceBaseClient):
               part_number=int,
               part_size=compat.integer_types,
               part_fp=object)
-    def upload_part(self, bucket_name, key, upload_id,
-                    part_number, part_size, part_fp, part_md5=None,
-                    progress_callback=None, traffic_limit=None, config=None):
+    def upload_part(self, bucket_name, key, upload_id, part_number, part_size, part_fp, part_md5=None,
+                    part_crc32=None, part_sha256=None, part_crc32c=None, part_crc32c_flag=None,
+                    part_crc64ecma=None, progress_callback=None, traffic_limit=None, config=None):
         """
         Upload a part.
 
@@ -1717,11 +1828,46 @@ class BosClient(BceBaseClient):
         if part_size > bos.MAX_PUT_OBJECT_LENGTH:
             raise ValueError('Single part length should be less than %d. '
                              % bos.MAX_PUT_OBJECT_LENGTH)
-
-        headers = {http_headers.CONTENT_LENGTH: part_size,
-                   http_headers.CONTENT_TYPE: http_content_types.OCTET_STREAM}
-        if part_md5 is not None:
-            headers[http_headers.CONTENT_MD5] = part_md5
+        
+        if part_md5 is None and part_crc32 is None and part_sha256 is None and \
+                                part_crc32c is None and part_crc64ecma is None:
+            max_retries = 3
+            for retry_count in range(max_retries):
+                try:
+                    part_crc32 = utils.get_crc32_from_fp(part_fp, length=part_size, 
+                                                         buf_size=self._get_config_parameter(config, 'recv_buf_size'))
+                    break
+                except Exception as e:
+                    if retry_count < max_retries - 1:
+                        _logger.warning("CRC32 calculation failed, retrying (attempt %d/%d): %s", 
+                                      retry_count + 1, max_retries, str(e))
+                        continue
+                    else:
+                        _logger.error("CRC32 calculation failed after %d attempts: %s", max_retries, str(e))
+                        part_crc32 = None
+        if part_md5:
+            part_md5 = compat.convert_to_bytes(part_md5)
+        if part_sha256:
+            part_sha256 = compat.convert_to_bytes(part_sha256)
+        if part_crc32:
+            part_crc32 = compat.convert_to_bytes(part_crc32)
+        if part_crc32c:
+            part_crc32c = compat.convert_to_bytes(part_crc32c)
+        if part_crc32c_flag:
+            part_crc32c_flag = compat.convert_to_bytes(part_crc32c_flag)
+        if part_crc64ecma:
+            part_crc64ecma = compat.convert_to_bytes(part_crc64ecma)
+        
+        headers = self._prepare_object_headers(
+            content_length=part_size,
+            content_md5=part_md5,
+            content_sha256=part_sha256,
+            content_crc32=part_crc32,
+            content_crc32c=part_crc32c,
+            content_crc32c_flag=part_crc32c_flag,
+            content_crc64ecma=part_crc64ecma,
+            traffic_limit=traffic_limit,
+            )
 
         if progress_callback:
             part_fp = utils.make_progress_adapter(part_fp, progress_callback, part_size)
@@ -1806,6 +1952,8 @@ class BosClient(BceBaseClient):
               offset=compat.integer_types)
     def upload_part_from_file(self, bucket_name, key, upload_id,
                               part_number, part_size, file_name, offset, part_md5=None,
+                              part_crc32=None, part_sha256=None, part_crc32c=None,
+                              part_crc32c_flag=None, part_crc64ecma=None,
                               progress_callback=None, traffic_limit=None, config=None):
         """
 
@@ -1825,8 +1973,11 @@ class BosClient(BceBaseClient):
         try:
             f.seek(offset)
             return self.upload_part(bucket_name, key, upload_id, part_number, part_size, f,
-                                    part_md5=part_md5, progress_callback=progress_callback,
-                                    traffic_limit=traffic_limit, config=config)
+                                    part_md5=part_md5, part_crc32=part_crc32,
+                                    part_sha256=part_sha256, part_crc32c=part_crc32c,
+                                    part_crc32c_flag=part_crc32c_flag, part_crc64ecma=part_crc64ecma,
+                                    progress_callback=progress_callback, traffic_limit=traffic_limit,
+                                    config=config)
         finally:
             f.close()
 
@@ -1838,6 +1989,10 @@ class BosClient(BceBaseClient):
                                   upload_id, part_list,
                                   user_headers=None,
                                   user_metadata=None,
+                                  content_crc32=None,
+                                  content_crc32c=None,
+                                  content_crc32c_flag=None,
+                                  content_crc64ecma=None,
                                   cond_read_write=None,
                                   config=None):
         """
@@ -1862,7 +2017,11 @@ class BosClient(BceBaseClient):
         headers = self._prepare_object_headers(
             content_type=http_content_types.JSON,
             user_metadata=user_metadata,
-            user_headers=user_headers)
+            user_headers=user_headers,
+            content_crc32=content_crc32,
+            content_crc32c=content_crc32c,
+            content_crc32c_flag=content_crc32c_flag,
+            content_crc64ecma=content_crc64ecma)
 
         if cond_read_write is not None:
             headers = self._get_cond_read_write_headers(http_methods.POST, headers, cond_read_write)
@@ -2019,14 +2178,16 @@ class BosClient(BceBaseClient):
 
     def _upload_task(self, bucket_name, object_key, upload_id,
         part_number, part_size, file_name, offset, part_list, uploadTaskHandle,
+        part_crc32=None, part_crc32c=None, part_crc32c_flag=None, part_crc64ecma=None,
         progress_callback=None, traffic_limit=None):
         if uploadTaskHandle.is_cancel():
             _logger.debug("upload task canceled with partNumber={}!".format(part_number))
             return
         try:
             response = self.upload_part_from_file(bucket_name, object_key, upload_id,
-                part_number, part_size, file_name, offset, progress_callback=progress_callback
-                , traffic_limit=traffic_limit)
+                part_number, part_size, file_name, offset, part_crc32=part_crc32,
+                part_crc32c=part_crc32c, part_crc32c_flag=part_crc32c_flag, part_crc64ecma=part_crc64ecma,
+                progress_callback=progress_callback, traffic_limit=traffic_limit)
             part_list.append({
                 "partNumber": part_number,
                 "eTag": response.metadata.etag
@@ -2035,15 +2196,18 @@ class BosClient(BceBaseClient):
         except Exception as e:
             _logger.debug("upload task failed with partNumber={}!".format(part_number))
             raise e
-            #_logger.debug(e)
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
-    def put_super_obejct_from_file(self, bucket_name, key, file_name, chunk_size=5,
+    def put_super_object_from_file(self, bucket_name, key, file_name, chunk_size=5,
             thread_num=None,
             uploadTaskHandle=None,
             content_type=None,
             storage_class=None,
             user_headers=None,
+            content_crc32=None,
+            content_crc32c=None,
+            content_crc32c_flag=None,
+            content_crc64ecma=None,
             progress_callback=None,
             traffic_limit=None,
             cond_read_write=None,
@@ -2079,30 +2243,50 @@ class BosClient(BceBaseClient):
         offset = 0
         part_number = 1
         part_list = []
+        part_crc_list = []
 
-        while left_size > 0:
-            if left_size < part_size:
-                part_size = left_size
-            temp_task= executor.submit(self._upload_task, bucket_name, key, upload_id, part_number, part_size,
-                file_name, offset, part_list, uploadTaskHandle, progress_callback, traffic_limit)
-            all_tasks.append(temp_task)
-            left_size -= part_size
-            offset += part_size
-            part_number += 1
+        with open(file_name, 'rb') as fp:
+            while left_size > 0:
+                current_part_size = part_size
+                if left_size < part_size:
+                    current_part_size = left_size
+                part_crc = utils.get_crc32_from_fp(fp, offset, current_part_size)
+                part_crc_list.append((part_crc, current_part_size))
+
+                temp_task = executor.submit(self._upload_task, bucket_name, key, upload_id, part_number, 
+                                            current_part_size, file_name, offset, part_list, uploadTaskHandle, 
+                                            part_crc, None, None, None, progress_callback, traffic_limit)
+                all_tasks.append(temp_task)
+                left_size -= current_part_size
+                offset += current_part_size
+                part_number += 1
+
         # wait all upload task to exit
         wait(all_tasks, return_when=ALL_COMPLETED)
         if uploadTaskHandle.is_cancel():
             _logger.debug("putting super object is canceled!")
-            self.abort_multipart_upload(bucket_name, key, upload_id = upload_id)
+            self.abort_multipart_upload(bucket_name, key, upload_id=upload_id)
             return False
         elif len(part_list) != total_part:
             _logger.debug("putting super object failed!")
-            self.abort_multipart_upload(bucket_name, key, upload_id = upload_id)
+            self.abort_multipart_upload(bucket_name, key, upload_id=upload_id)
             return False
         # sort
         part_list.sort(key=lambda x: x["partNumber"])
         # complete_multipart_upload
-        self.complete_multipart_upload(bucket_name, key, upload_id, part_list, cond_read_write)
+        # Combine CRC32 values correctly: start with the first part's CRC,
+        # then combine with each subsequent part
+        if part_crc_list:
+            final_crc32 = part_crc_list[0][0]
+            for i in range(1, len(part_crc_list)):
+                crc, length = part_crc_list[i]
+                final_crc32 = utils.crc32_combine(final_crc32, crc, length)
+            final_crc32 &= 0xffffffff
+            if content_crc32 is None:
+                content_crc32 = final_crc32
+        self.complete_multipart_upload(bucket_name, key, upload_id, part_list, content_crc32=content_crc32,
+                                       content_crc32c=content_crc32c, content_crc32c_flag=content_crc32c_flag,
+                                       content_crc64ecma=content_crc64ecma, cond_read_write=cond_read_write)
         return True
 
     @required(bucket_name=(bytes, str), key=(bytes, str), acl=(list, dict))
@@ -2593,6 +2777,7 @@ class BosClient(BceBaseClient):
             bucket_name=bucket_name,
             body=json.dumps({'status': status}, default=BosClient._dump_acl_object),
             params={b'versioning': b''},
+            headers={http_headers.CONTENT_TYPE: http_content_types.JSON},
             config=config,)
     
     def get_bucket_versioning(self, bucket_name, config=None):
@@ -2852,6 +3037,10 @@ class BosClient(BceBaseClient):
             content_md5=None,
             content_type=None,
             content_sha256=None,
+            content_crc32=None,
+            content_crc32c=None,
+            content_crc32c_flag=None,
+            content_crc64ecma=None,
             etag=None,
             user_metadata=None,
             storage_class=None,
@@ -2877,7 +3066,15 @@ class BosClient(BceBaseClient):
             headers[http_headers.CONTENT_TYPE] = http_content_types.OCTET_STREAM
 
         if content_sha256 is not None:
-            headers[http_headers.BCE_CONTENT_SHA256] = content_sha256
+            headers[http_headers.BCE_CONTENT_SHA256] = utils.convert_to_standard_string(content_sha256)
+        if content_crc32 is not None:
+            headers[http_headers.BCE_CONTENT_CRC32] = utils.convert_to_standard_string(content_crc32)
+        if content_crc32c is not None:
+            headers[http_headers.BCE_CONTENT_CRC32C] = utils.convert_to_standard_string(content_crc32c)
+        if content_crc32c_flag is not None:
+            headers[http_headers.BCE_CONTENT_CRC32C_FLAG] = utils.convert_to_standard_string(content_crc32c_flag)
+        if content_crc64ecma is not None:
+            headers[http_headers.BCE_CONTENT_CRC64ECMA] = utils.convert_to_standard_string(content_crc64ecma)
 
         if etag is not None:
             headers[http_headers.ETAG] = b'"%s"' % utils.convert_to_standard_string(etag)
@@ -3096,8 +3293,7 @@ class BosClient(BceBaseClient):
     def _send_request(
             self, http_method, bucket_name=None, key=None,
             body=None, headers=None, params=None,
-            config=None,
-            body_parser=None):
+            config=None, body_parser=None):
         config = self._merge_config(config, bucket_name)
 
         path = BosClient._get_path(config, bucket_name, key)
