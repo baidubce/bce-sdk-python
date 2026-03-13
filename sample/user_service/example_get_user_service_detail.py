@@ -31,7 +31,7 @@ if __name__ == '__main__':
     client = user_service_client.UserServiceClient(config)
     try:
         service = 'Your Service Domain'   # 服务发布点的域名
-        resp = client.get_user_service_detail(service, None, config)
+        resp = client.get_user_service_detail(service, config)
         print("[example] get user service detail response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)
