@@ -29,8 +29,13 @@ if __name__ == '__main__':
         blb_id = 'Your Blbid'  # 指定的BLB ID
         listener_port = 80  # 监听器的监听端口
         scheduler = 'Your Scheduler'  # 负载均衡算法
+        tcp_session_timeout = 900  # TCP会话超时时间（秒）
+        description = 'tcp listener'  # 监听器描述
         resp = app_blb_client.create_app_tcp_listener(blb_id=blb_id, listener_port=listener_port,
-                                                      scheduler=scheduler, config=config)
+                                                      scheduler=scheduler,
+                                                      tcp_session_timeout=tcp_session_timeout,
+                                                      description=description,
+                                                      config=config)
         print("[example] create app tcp listener response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

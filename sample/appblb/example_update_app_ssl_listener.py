@@ -32,8 +32,10 @@ if __name__ == '__main__':
         blb_id = 'Your Blbid'         # 指定的BLB ID
         listener_port = 80            # 监听器的监听端口
         scheduler = 'Your scheduler'  # 更新的参数，比如负载均衡算法
+        dual_auth = False             # 是否开启双向认证
         resp = app_blb_client.update_app_ssl_listener(
-                blb_id=blb_id, listener_port=listener_port, scheduler=scheduler, dual_auth=False)
+                blb_id=blb_id, listener_port=listener_port, scheduler=scheduler,
+                dual_auth=dual_auth)
         print("[example] update app blb ssl listener response : {}".format(resp))
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

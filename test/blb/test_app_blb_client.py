@@ -141,7 +141,10 @@ class TestAppBlbClient(unittest.TestCase):
         #test_token = str.encode(test_token)
         self.assertEqual(
             type(self.the_client.create_app_tcp_listener(
-                blbId, 1900, 'Hash', client_token=client_token)),
+                blbId, 1900, 'Hash',
+                tcp_session_timeout=900,
+                description='test tcp listener',
+                client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
     def test_create_app_udp_listener(self):
@@ -152,6 +155,8 @@ class TestAppBlbClient(unittest.TestCase):
         self.assertEqual(
             type(self.the_client.create_app_udp_listener(
                 blbId, 30000, 'Hash',
+                udp_session_timeout=90,
+                description='test udp listener',
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
@@ -200,7 +205,9 @@ class TestAppBlbClient(unittest.TestCase):
         """
         self.assertEqual(
             type(self.the_client.update_app_tcp_listener(
-                blbId, 1900, scheduler='RoundRobin')),
+                blbId, 1900, scheduler='RoundRobin',
+                tcp_session_timeout=900,
+                description='updated tcp listener')),
             baidubce.bce_response.BceResponse)
 
     def test_update_app_udp_listener(self):
@@ -209,7 +216,9 @@ class TestAppBlbClient(unittest.TestCase):
         """
         self.assertEqual(
             type(self.the_client.update_app_udp_listener(
-                blbId, 30000, 'RoundRobin')),
+                blbId, 30000, 'RoundRobin',
+                udp_session_timeout=90,
+                description='updated udp listener')),
             baidubce.bce_response.BceResponse)
 
     def test_update_app_http_listener(self):
@@ -334,6 +343,23 @@ class TestAppBlbClient(unittest.TestCase):
         self.assertEqual(
             type(self.the_client.delete_policys(
                 blbId, 1900, policyid_list, client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+    def test_update_policys(self):
+        """
+        test case for update policys
+        """
+        client_token = generate_client_token()
+        policy_list = [
+            {
+                'policyId': policyId,
+                'priority': 200,
+                'description': 'updated policy'
+            }
+        ]
+        self.assertEqual(
+            type(self.the_client.update_policys(
+                blbId, 1900, policy_list, listener_type='TCP', client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
     def test_create_app_server_group(self):
