@@ -2224,6 +2224,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
               protocol_type=(bytes, str))
     def create_app_server_group_port(self, blb_id, sg_id,
                                      port, protocol_type,
+                                     enable_health_check=None,
                                      health_check=None,
                                      health_check_port=None,
                                      health_check_urlpath=None,
@@ -2232,6 +2233,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                      health_check_down_retry=None,
                                      health_check_up_retry=None,
                                      health_check_normal_status=None,
+                                     health_check_host=None,
                                      udp_health_check_string=None,
                                      client_token=None,
                                      config=None):
@@ -2250,6 +2252,10 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         :param protocol_type:
             Protocol type of listening port, "TCP"/"UDP"/"HTTP"
         :type protocol_type:string
+        :param enable_health_check:
+            Whether to enable health check, default is true
+        :type enable_health_check: bool
+
         :param health_check:
             Health check protocol
         :value 'HTTP' or 'TCP',default:'HTTP'
@@ -2286,6 +2292,10 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             protocol is "HTTP"
         :value default: http_2xx|http_3xx
         :type health_check_normal_status: string
+        :param health_check_host:
+            The host field in the header of the 7-layer health check request,
+            for example "localhost", effective when the health check protocol is "HTTP"
+        :type health_check_host: string
         :param udp_health_check_string:
             The health check string for the udp listener,
             it must be passed when the health check type is "UDP"
@@ -2312,6 +2322,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             'port': port,
             'type': compat.convert_to_string(protocol_type)
         }
+        if enable_health_check is not None:
+            body['enableHealthCheck'] = enable_health_check
         if health_check is not None:
             body['healthCheck'] = compat.convert_to_string(health_check)
         if health_check_port is not None:
@@ -2330,6 +2342,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_normal_status is not None:
             body['healthCheckNormalStatus'] = \
                 compat.convert_to_string(health_check_normal_status)
+        if health_check_host is not None:
+            body['healthCheckHost'] = \
+                compat.convert_to_string(health_check_host)
         if udp_health_check_string is not None:
             body['udpHealthCheckString'] = \
                 compat.convert_to_string(udp_health_check_string)
@@ -2341,6 +2356,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
               sg_id=(bytes, str),
               port_id=(bytes, str))
     def update_app_server_group_port(self, blb_id, sg_id, port_id,
+                                     enable_health_check=None,
                                      health_check=None,
                                      health_check_port=None,
                                      health_check_urlpath=None,
@@ -2349,6 +2365,7 @@ class AppBlbClient(bce_base_client.BceBaseClient):
                                      health_check_down_retry=None,
                                      health_check_up_retry=None,
                                      health_check_normal_status=None,
+                                     health_check_host=None,
                                      udp_health_check_string=None,
                                      client_token=None,
                                      config=None):
@@ -2367,6 +2384,10 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         :param port_id:
             The id of the server group port to be updated
         :type port_id:string
+
+        :param enable_health_check:
+            Whether to enable health check, default is true
+        :type enable_health_check: bool
 
         :param health_check:
             Health check protocol
@@ -2411,6 +2432,11 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             protocol is "HTTP"
         :value default: http_2xx|http_3xx
         :type health_check_normal_status: string
+
+        :param health_check_host:
+            The host field in the header of the 7-layer health check request,
+            for example "localhost", effective when the health check protocol is "HTTP"
+        :type health_check_host: string
 
         :param udp_health_check_string:
             The health check string for the udp listener
@@ -2439,6 +2465,8 @@ class AppBlbClient(bce_base_client.BceBaseClient):
             'sgId': compat.convert_to_string(sg_id),
             'portId': compat.convert_to_string(port_id)
         }
+        if enable_health_check is not None:
+            body['enableHealthCheck'] = enable_health_check
         if health_check is not None:
             body['healthCheck'] = compat.convert_to_string(health_check)
         if health_check_port is not None:
@@ -2457,6 +2485,9 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         if health_check_normal_status is not None:
             body['healthCheckNormalStatus'] = \
                 compat.convert_to_string(health_check_normal_status)
+        if health_check_host is not None:
+            body['healthCheckHost'] = \
+                compat.convert_to_string(health_check_host)
         if udp_health_check_string is not None:
             body['udpHealthCheckString'] = \
                 compat.convert_to_string(udp_health_check_string)
@@ -3510,16 +3541,6 @@ class AppBlbClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.GET, path, params=params,
                                   config=config)
 
-def generate_client_token_by_uuid():
-    """
-    The default method to generate the random string for client_token
-    if the optional parameter client_token is not specified by the user.
-
-    :return:
-    :rtype string
-    """
-    return str(uuid.uuid4())
-
     @required(blb_id=(bytes, str),
               securitygroupids=list)
     def bind_app_security_groups(self, blb_id, securitygroupids,
@@ -3861,5 +3882,17 @@ def generate_client_token_by_uuid():
 
         return self._send_request(http_methods.GET, path, params=params,
                                   config=config)
+
+
+def generate_client_token_by_uuid():
+    """
+    The default method to generate the random string for client_token
+    if the optional parameter client_token is not specified by the user.
+
+    :return:
+    :rtype string
+    """
+    return str(uuid.uuid4())
+
 
 generate_client_token = generate_client_token_by_uuid

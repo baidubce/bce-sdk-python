@@ -279,7 +279,7 @@ class TestAppBlbClient(unittest.TestCase):
         test case for describe_app_ssl_listener
         """
         print(self.the_client.describe_app_ssl_listener(blbId))
-        
+
     def test_describe_app_all_listener(self):
         """
         test case for describe_app_all_listener
@@ -421,17 +421,44 @@ class TestAppBlbClient(unittest.TestCase):
         """
         client_token = generate_client_token()
 
+        # Test with TCP protocol
         self.assertEqual(
             type(self.the_client.create_app_server_group_port(
                 blbId, appServerGroupId, 6700, 'TCP',
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
+        # Test with UDP protocol
         self.assertEqual(
             type(self.the_client.create_app_server_group_port(
                 blbId, appServerGroupId, 53, 'UDP', health_check='UDP',
                 health_check_timeout_insecond=3, health_check_interval_insecond=3, health_check_down_retry=3,
                 health_check_up_retry=3, udp_health_check_string='test', client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+        # Test with HTTP protocol including enable_health_check and health_check_host parameters
+        self.assertEqual(
+            type(self.the_client.create_app_server_group_port(
+                blbId, appServerGroupId, 8080, 'HTTP',
+                enable_health_check=True,
+                health_check='HTTP',
+                health_check_port=8080,
+                health_check_host='www.example.com',
+                health_check_urlpath='/health',
+                health_check_timeout_insecond=5,
+                health_check_interval_insecond=5,
+                health_check_down_retry=3,
+                health_check_up_retry=3,
+                health_check_normal_status='http_2xx|http_3xx',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+        # Test with enable_health_check=False
+        self.assertEqual(
+            type(self.the_client.create_app_server_group_port(
+                blbId, appServerGroupId, 9090, 'TCP',
+                enable_health_check=False,
+                client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
     def test_update_app_server_group_port(self):
@@ -440,11 +467,37 @@ class TestAppBlbClient(unittest.TestCase):
         """
         client_token = generate_client_token()
 
+        # Test basic update
         self.assertEqual(
             type(self.the_client.update_app_server_group_port(
                 blbId, appServerGroupId, portId,
                 health_check_timeout_insecond=10,
                 udp_health_check_string='test',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+        # Test update with enable_health_check and health_check_host parameters
+        self.assertEqual(
+            type(self.the_client.update_app_server_group_port(
+                blbId, appServerGroupId, portId,
+                enable_health_check=True,
+                health_check='HTTP',
+                health_check_port=8080,
+                health_check_host='www.example.com',
+                health_check_urlpath='/health',
+                health_check_timeout_insecond=5,
+                health_check_interval_insecond=5,
+                health_check_down_retry=3,
+                health_check_up_retry=3,
+                health_check_normal_status='http_2xx|http_3xx',
+                client_token=client_token)),
+            baidubce.bce_response.BceResponse)
+
+        # Test disable health check
+        self.assertEqual(
+            type(self.the_client.update_app_server_group_port(
+                blbId, appServerGroupId, portId,
+                enable_health_check=False,
                 client_token=client_token)),
             baidubce.bce_response.BceResponse)
 
