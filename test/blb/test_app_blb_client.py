@@ -775,14 +775,10 @@ class TestAppBlbClient(unittest.TestCase):
 
     def test_describe_app_security_groups(self):
         """
-        test case for describe app blb enterprise security groups
+        test case for describe app blb security groups
         """
-        client_token = generate_client_token()
-
         self.assertEqual(
-            type(self.the_client.describe_app_security_groups(
-                blbId,
-                client_token=client_token)),
+            type(self.the_client.describe_app_security_groups(blbId)),
             baidubce.bce_response.BceResponse)
 
     def test_bind_app_enterprise_security_groups(self):
@@ -817,12 +813,8 @@ class TestAppBlbClient(unittest.TestCase):
         """
         test case for describe app blb enterprise security groups
         """
-        client_token = generate_client_token()
-
         self.assertEqual(
-            type(self.the_client.describe_app_enterprise_security_groups(
-                blbId,
-                client_token=client_token)),
+            type(self.the_client.describe_app_enterprise_security_groups(blbId)),
             baidubce.bce_response.BceResponse)
 
     def test_create_app_ipgroup_policys(self):
