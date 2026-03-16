@@ -22,6 +22,9 @@ UpdateUDPListener新增udpSessionTimeout参数，backend_port修改为非必须;
 additionalAttributes,healthCheckHost入参;UpdateHTTPSListener新增xForwardedProto,additionalAttributes,healthCHeckHost入参;
 UpdateSSLListener新增healthCheckType,appliedCiphers入参;完善应用型lb的创建时支持的参数;增加list和detail的响应参数;
 
+涉及产品：AIHC
+支持查看托管资源池训练任务监控
+
 【版本：v0.9.62】
 涉及产品：BCC
 增加自助诊断接口
