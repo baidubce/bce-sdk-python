@@ -82,6 +82,35 @@ class TestIPv6GatewayClient(unittest.TestCase):
         self.assertEqual(type(bce_response), baidubce.bce_response.BceResponse)
         print(bce_response.ipv6_gateway_id)
 
+    def test_create_ipv6_gateway_with_tags(self):
+        """
+        test case for creating ipv6 gateway with tags, resource_group_id and delete_protect
+        """
+        client_token = generate_client_token()
+        name = 'ipv6_gateway_name' + client_token
+        bandwidth = 10
+        tags = [
+            {
+                'tagKey': 'testKey',
+                'tagValue': 'testValue'
+            }
+        ]
+        resource_group_id = 'RESG-test123'
+        delete_protect = True
+        bce_response = self.client.create_ipv6_gateway(
+            client_token=client_token,
+            name=name,
+            vpc_id=VPC_ID,
+            bandwidthInMbps=bandwidth,
+            billing=post_paid_billing,
+            tags=tags,
+            resource_group_id=resource_group_id,
+            delete_protect=delete_protect
+        )
+        print(bce_response)
+        self.assertEqual(type(bce_response), baidubce.bce_response.BceResponse)
+        print(bce_response.ipv6_gateway_id)
+
     def test_list_ipv6_gateways(self):
         """
         test case for listing ipv6 gateways
@@ -174,6 +203,16 @@ class TestIPv6GatewayClient(unittest.TestCase):
                                                                  egress_bandwidth=egress_bandwidth)),
             baidubce.bce_response.BceResponse)
 
+    def test_update_ipv6_gateway_delete_protect(self):
+        """
+        test case for updating ipv6 gateway delete protection switch
+        """
+        delete_protect = True
+        self.assertEqual(
+            type(self.client.update_ipv6_gateway_delete_protect(gateway_id=GATEWAY_ID,
+                                                                delete_protect=delete_protect)),
+            baidubce.bce_response.BceResponse)
+
 
 def generate_client_token_by_uuid():
     """
@@ -192,6 +231,7 @@ if __name__ == '__main__':
     suite = unittest.TestSuite()
     # 2s 2b 3s 3bwait for start
     # suite.addTest(TestIPv6GatewayClient("test_create_ipv6_gateway"))
+    # suite.addTest(TestIPv6GatewayClient("test_create_ipv6_gateway_with_tags"))
     # suite.addTest(TestIPv6GatewayClient("test_list_ipv6_gateways"))
     # suite.addTest(TestIPv6GatewayClient("test_delete_ipv6_gateway"))
     # suite.addTest(TestIPv6GatewayClient("test_resize_ipv6_gateway"))
@@ -202,6 +242,7 @@ if __name__ == '__main__':
     # suite.addTest(TestIPv6GatewayClient("test_list_ipv6_gateway_rate_limit_rules"))
     # suite.addTest(TestIPv6GatewayClient("test_delete_ipv6_gateway_rate_limit_rule"))
     # suite.addTest(TestIPv6GatewayClient("test_update_ipv6_gateway_rate_limit_rule"))
+    # suite.addTest(TestIPv6GatewayClient("test_update_ipv6_gateway_delete_protect"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

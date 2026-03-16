@@ -23,7 +23,8 @@ def generate_client_token_by_uuid():
     return str(uuid.uuid4())
 
 
-def test_create_ipv6_gateway(ipv6gateway_client, client_token, name, VPC_ID, bandwidthInMbps, billing):
+def test_create_ipv6_gateway(ipv6gateway_client, client_token, name, VPC_ID, bandwidthInMbps, billing,
+                             tags=None, resource_group_id=None, delete_protect=None):
     """
     create ipv6 gateway.
 
@@ -50,6 +51,18 @@ def test_create_ipv6_gateway(ipv6gateway_client, client_token, name, VPC_ID, ban
         billing info
     :type billing: nat_model.Billing
 
+    :param tags:
+        The list of tags to be bound.
+    :type tags: list
+
+    :param resource_group_id:
+        The id of resource group.
+    :type resource_group_id: string
+
+    :param delete_protect:
+        Whether to enable delete protection. Default is False.
+    :type delete_protect: bool
+
     :return:
     :rtype baidubce.bce_response.BceResponse
 
@@ -59,7 +72,9 @@ def test_create_ipv6_gateway(ipv6gateway_client, client_token, name, VPC_ID, ban
     try:
         res = ipv6gateway_client.create_ipv6_gateway(client_token=client_token, name=name,
                                                      vpc_id=VPC_ID, bandwidthInMbps=bandwidthInMbps,
-                                                     billing=billing)
+                                                     billing=billing, tags=tags,
+                                                     resource_group_id=resource_group_id,
+                                                     delete_protect=delete_protect)
         return res
     except exception.BceHttpClientError as e:
         # 异常处理
@@ -82,8 +97,36 @@ if __name__ == "__main__":
     ipv6gateway_client = IPv6GatewayClient(config)
     client_token = generate_client_token_by_uuid()
     name = 'ipv6_gateway_' + client_token
+    
+    # Example 1: Create IPv6 gateway without optional parameters
     res = test_create_ipv6_gateway(ipv6gateway_client, client_token, name, VPC_ID, bandwidthInMbps=10,
                                    billing=post_paid_billing)
-
+    print("Example 1 - Basic creation:")
     print(res)
-    print(res.ipv6_gateway_id)
+    if res:
+        print(res.ipv6_gateway_id)
+    
+    # Example 2: Create IPv6 gateway with tags, resource_group_id and delete_protect
+    client_token2 = generate_client_token_by_uuid()
+    name2 = 'ipv6_gateway_with_tags_' + client_token2
+    tags = [
+        {
+            'tagKey': 'project',
+            'tagValue': 'test'
+        },
+        {
+            'tagKey': 'env',
+            'tagValue': 'production'
+        }
+    ]
+    resource_group_id = 'RESG-UoMgbkuLNjj'
+    delete_protect = True
+    
+    res2 = test_create_ipv6_gateway(ipv6gateway_client, client_token2, name2, VPC_ID, 
+                                    bandwidthInMbps=20, billing=post_paid_billing,
+                                    tags=tags, resource_group_id=resource_group_id,
+                                    delete_protect=delete_protect)
+    print("\nExample 2 - Creation with tags, resource_group_id and delete_protect:")
+    print(res2)
+    if res2:
+        print(res2.ipv6_gateway_id)
