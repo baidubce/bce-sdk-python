@@ -244,10 +244,8 @@ class LdClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])
 
-    def list_record(self, zone_id=None, marker=None, max_keys=None):
+    def list_record(self, zone_id=None, marker=None, max_keys=None, rr=None, search_mode=None, type_=None, value=None):
         """
-        
-
         :param zone_id:
         :desc Zone的ID
         :type zone_id: str
@@ -258,7 +256,23 @@ class LdClient(bce_base_client.BceBaseClient):
 
         :param max_keys:
         :desc 每页包含的最大数量，最大数量通常不超过1000。缺省值为1000
-        :type max_keys: str
+        :type max_keys: int
+
+        :param rr:
+        :desc 主机记录
+        :type rr: str
+
+        :param search_mode:
+        :desc rr的匹配模式，支持LIKE(模糊匹配),EXACT(精确匹配),默认精确匹配
+        :type search_mode: str
+
+        :param type_:
+        :desc 记录类型,支持A, AAAA,CNAME, TXT, MX, PTR, SRV
+        :type type_: str
+
+        :param value:
+        :desc 记录值,模糊匹配
+        :type value: str
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -268,6 +282,10 @@ class LdClient(bce_base_client.BceBaseClient):
         self._add_path_param(api_config, "zoneId", zone_id)
         self._add_query(api_config, "marker", marker)
         self._add_query(api_config, "maxKeys", max_keys)
+        self._add_query(api_config, "rr", rr)
+        self._add_query(api_config, "searchMode", search_mode)
+        self._add_query(api_config, "type", type_)
+        self._add_query(api_config, "value", value)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"])

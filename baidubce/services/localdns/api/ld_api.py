@@ -108,7 +108,11 @@ ld_apis = {
         "path": "/v1/privatezone/[zoneId]/record",
         "queries": {
             "marker": None,
-            "max_keys": None
+            "max_keys": None,
+            "rr": None,
+            "searchMode": None,
+            "type": None,
+            "value": None
         },
         "headers": {
         }
