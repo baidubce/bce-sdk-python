@@ -536,6 +536,7 @@ class JobClient(AIHCBaseClient):
     def DescribeJobMetrics(
         self,
         resourcePoolId,
+        queueID,
         jobId,
         metricType,
         startTime=None,
@@ -550,6 +551,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 任务所属队列，通用资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 任务ID（必填，Body参数）
             metricType: 查询监控数据的指标类型（必填，Body参数）
             startTime: 开始时间，Unix时间格式（可选，Body参数）
@@ -568,6 +570,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJobMetrics',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
 
         body = {

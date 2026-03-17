@@ -1875,10 +1875,11 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),
               tags=list)
-    def bind_instance_to_tags(self, instance_id, tags, config=None):
+    def bind_instance_to_tags(self, instance_id, tags, attachRelatedResourceTag, config=None):
         """
         :param instance_id:
         :param tags:
+        :param attachRelatedResourceTag
         :param config:
         :return:
         """
@@ -1886,7 +1887,8 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
         body = {
-            'changeTags': tag_list
+            'changeTags': tag_list,
+            'attachRelatedResourceTag': attachRelatedResourceTag
         }
         params = {
             'bind': None
@@ -1896,10 +1898,11 @@ class BccClient(bce_base_client.BceBaseClient):
 
     @required(instance_id=(bytes, str),
               tags=list)
-    def unbind_instance_from_tags(self, instance_id, tags, config=None):
+    def unbind_instance_from_tags(self, instance_id, tags, attachRelatedResourceTag, config=None):
         """
         :param instance_id:
         :param tags:
+        :param attachRelatedResourceTag
         :param config:
         :return:
         """
@@ -1907,7 +1910,8 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/instance/%s/tag' % instance_id
         tag_list = [tag.__dict__ for tag in tags]
         body = {
-            'changeTags': tag_list
+            'changeTags': tag_list,
+            'attachRelatedResourceTag': attachRelatedResourceTag
         }
         params = {
             'unbind': None

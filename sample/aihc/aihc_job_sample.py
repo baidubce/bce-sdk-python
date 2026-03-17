@@ -193,6 +193,7 @@ def main():
     try:
         __logger.info('--------------------DescribeJobMetrics start------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"  # 通用资源池须填入队列名称，托管资源池须填入队列Id
         job_id = "job-xxx"
         start_time = "1758359060"
         end_time = "1758445563"
@@ -200,6 +201,7 @@ def main():
         metric_type = "GpuUsage"
         rate_interval = "5m"
         response = aihc_client.job.DescribeJobMetrics(resourcePoolId=resource_pool_id,
+                                                      queueID=queue_id,
                                                       jobId=job_id,
                                                       metricType=metric_type,
                                                       startTime=start_time,

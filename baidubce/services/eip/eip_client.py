@@ -40,7 +40,7 @@ class EipClient(BceBaseClient):
     """
     version = b'/v1'
     prefix = b'/eip'
-    transfer_prefix="/transfer"
+    transfer_prefix = "/transfer"
 
     def __init__(self, config=None):
         """

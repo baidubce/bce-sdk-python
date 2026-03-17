@@ -19,6 +19,8 @@ IPv6网关create_ipv6_gateway接口新增tags、resource_group_id、delete_prote
 
 
 【版本：v0.9.63】
+涉及产品:BCC
+实例关联操作标签
 涉及产品:VPC
 删除路由规则接口入参的params中删除action参数和数值;主备切换接口新增switchRouteHA查询参数；HTTP Method由DELETE修改为PUT;
 企业安全组规则添加remoteIpSet、remoteIpGroup、createdTime、updatedTime字段；删除普通安全组规则、授权普通安全组增加sgVersion字段；
@@ -37,6 +39,9 @@ healthCheckType,serverTimeout,appliedCiphers入参;UpdateTCPListener新增health
 UpdateUDPListener新增udpSessionTimeout参数，backend_port修改为非必须;UpdateHTTPListener新增xForwardedProto,
 additionalAttributes,healthCheckHost入参;UpdateHTTPSListener新增xForwardedProto,additionalAttributes,healthCHeckHost入参;
 UpdateSSLListener新增healthCheckType,appliedCiphers入参;完善应用型lb的创建时支持的参数;增加list和detail的响应参数;
+
+涉及产品：AIHC
+支持查看托管资源池训练任务监控
 
 【版本：v0.9.62】
 涉及产品：BCC
