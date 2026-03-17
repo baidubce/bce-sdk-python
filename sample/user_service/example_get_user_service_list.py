@@ -30,7 +30,7 @@ if __name__ == '__main__':
                                     secret_access_key=sk), endpoint=endpoint)
     client = user_service_client.UserServiceClient(config)
     try:
-        resp = client.get_user_service_list(None, None, None, config)
+        resp = client.get_user_service_list(None, None, config)
         print("[example] get user service list response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

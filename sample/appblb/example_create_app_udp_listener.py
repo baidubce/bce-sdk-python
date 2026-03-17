@@ -29,8 +29,13 @@ if __name__ == '__main__':
         blb_id = 'Your Blbid'  # 指定的BLB ID
         listener_port = 80  # 监听器的监听端口
         scheduler = 'Your Scheduler'  # 负载均衡算法
+        udp_session_timeout = 90  # UDP会话超时时间（秒）
+        description = 'udp listener'  # 监听器描述
         resp = app_blb_client.create_app_udp_listener(blb_id=blb_id, listener_port=listener_port,
-                                                      scheduler=scheduler, config=config)
+                                                      scheduler=scheduler,
+                                                      udp_session_timeout=udp_session_timeout,
+                                                      description=description,
+                                                      config=config)
         print("[example] create app udp listener response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

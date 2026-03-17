@@ -149,11 +149,26 @@ class TestEipClient(unittest.TestCase):
         """
         self.the_client.change_eip_to_prepay('x.x.x.x', purchase_length=1, bandwidth=50)
 
+    def test_create_eip_transfer(self):
+        """
+        test case for creating EIP transfer task
+        """
+        return self.client.create_eip_transfer(
+            transfer_type="eip",
+            transfer_resource_list=["tf-xxxxxx"],
+            to_user_id="xxx"
+        )
+
     def test_refund_prepaid_eip(self):
         """
         test case for refund prepaid eip
         """
         self.the_client.refund_prepay_eip('x.x.x.x')
+    def test_list_eip_transfer(self):
+        """
+        test case for listing EIP transfer tasks
+        """
+        print(self.client.list_eip_transfer())
 
     def test_update_eip_delete_protect(self):
         """
@@ -161,6 +176,31 @@ class TestEipClient(unittest.TestCase):
         """
         self.the_client.update_eip_delete_protect('x.x.x.x', delete_protect=True)
         self.the_client.update_eip_delete_protect('x.x.x.x', delete_protect=False)
+
+    def test_accept_eip_transfer(self):
+        """
+        test case for accepting EIP transfer tasks
+        """
+        return self.client.accept_eip_transfer(
+            transfer_id_list=["tf-xxxxxx"]
+        )
+
+    def test_reject_eip_transfer(self):
+        """
+        test case for rejecting EIP transfer tasks
+        """
+        return self.client.reject_eip_transfer(
+            transfer_id_list=["tf-xxxxxx"]
+        )
+
+    def test_cancel_eip_transfer(self):
+        """
+        test case for cancelling EIP transfer tasks
+        """
+        return self.client.cancel_eip_transfer(
+            transfer_id_list=["tf-xxxxxx"]
+        )
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

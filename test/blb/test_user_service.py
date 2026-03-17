@@ -168,23 +168,18 @@ class TestBlbClient(unittest.TestCase):
         """
         test case get user service list information
         """
-        client_token = generate_client_token()
-
         self.assertEqual(
-            type(self.the_client.get_user_service_list(
-                None, None, client_token)),
+            type(self.the_client.get_user_service_list()),
             baidubce.bce_response.BceResponse)
 
     def test_get_user_service_detail(self):
         """
         test case get user service detail information
         """
-        client_token = generate_client_token()
         service = 'snic.uservice-d363dd71.beijing.baidubce.com'
 
         self.assertEqual(
-            type(self.the_client.get_user_service_detail(
-                service, client_token)),
+            type(self.the_client.get_user_service_detail(service)),
             baidubce.bce_response.BceResponse)
 
     def test_delete_user_service(self):

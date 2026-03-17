@@ -34,12 +34,33 @@ if __name__ == "__main__":
 
     blb_id = "lb-xxxxxxxx"  # 指定的BLB ID
     sg_id = "sg-xxxxxxxx"  # 服务器组ID
-    port = "port-xxxxxxxx"  # 端口协议ID
-    health_check_down_retry = 5  # 健康检查失败重试次数
+    port_id = "port-xxxxxxxx"  # 端口协议ID
+    enable_health_check = True  # 是否启用健康检查
+    health_check = "HTTP"  # 健康检查协议，支持 "HTTP"/"TCP"/"UDP"/"ICMP"
+    health_check_port = 80  # 健康检查端口
+    health_check_host = "www.example.com"  # 7层健康检查请求的Host头，仅当health_check为HTTP时有效
+    health_check_urlpath = "/health"  # 健康检查URI
+    health_check_timeout_insecond = 5  # 健康检查超时时间(秒)
+    health_check_interval_insecond = 5  # 健康检查间隔(秒)
+    health_check_down_retry = 3  # 不健康阈值
+    health_check_up_retry = 3  # 健康阈值
+    health_check_normal_status = "http_2xx|http_3xx"  # HTTP健康检查正常状态码
 
     # update server group port
     try:
-        app_blb_client.update_app_server_group_port(blb_id, sg_id, port,
-                                                    health_check_down_retry=health_check_down_retry)
+        resp = app_blb_client.update_app_server_group_port(
+            blb_id, sg_id, port_id,
+            enable_health_check=enable_health_check,
+            health_check=health_check,
+            health_check_port=health_check_port,
+            health_check_host=health_check_host,  # 更新健康检查Host头
+            health_check_urlpath=health_check_urlpath,
+            health_check_timeout_insecond=health_check_timeout_insecond,
+            health_check_interval_insecond=health_check_interval_insecond,
+            health_check_down_retry=health_check_down_retry,
+            health_check_up_retry=health_check_up_retry,
+            health_check_normal_status=health_check_normal_status
+        )
+        print("[example] update server group port response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

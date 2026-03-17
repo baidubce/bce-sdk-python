@@ -29,7 +29,7 @@ if __name__ == '__main__':
     app_blb_client = app_blb_client.AppBlbClient(config)
     try:
         blbid = "Your appblb's id"  # 指定的BLB ID
-        resp = app_blb_client.describe_app_security_groups(blbid, None, config)
+        resp = app_blb_client.describe_app_security_groups(blbid, config)
         print("[example] describe securitygroups response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

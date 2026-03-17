@@ -31,9 +31,10 @@ if __name__ == '__main__':
         scheduler = 'Your Scheduler'  # 负载均衡算法
         cert_ids = []
         cert_ids.append('Your CertIDs')  # 监听器要加载的证书链
+        x_forwarded_for = False  # 是否开启X-Forwarded-For
         resp = app_blb_client.create_app_https_listener(blb_id=blb_id, listener_port=listener_port,
                                                         cert_ids=cert_ids, scheduler=scheduler,
-                                                        x_forwarded_for=False, config=config)
+                                                        x_forwarded_for=x_forwarded_for, config=config)
         print("[example] create app https listener response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

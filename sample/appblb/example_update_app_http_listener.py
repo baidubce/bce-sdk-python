@@ -29,8 +29,10 @@ if __name__ == '__main__':
         blb_id = 'Your Blbid'  # 指定的BLB ID
         listener_port = 80  # 监听器的监听端口
         scheduler = 'Your Scheduler'  # 负载均衡算法
+        x_forwarded_for = True  # 是否开启X-Forwarded-For
         resp = app_blb_client.update_app_http_listener(blb_id=blb_id, listener_port=listener_port,
-                                                       scheduler=scheduler, x_forwarded_for=True, config=config)
+                                                       scheduler=scheduler, x_forwarded_for=x_forwarded_for,
+                                                       config=config)
         print("[example] update app http listener response :%s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s\n" % e)

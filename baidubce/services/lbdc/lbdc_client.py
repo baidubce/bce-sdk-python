@@ -357,8 +357,6 @@ class LbdcClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        params = {}
-        if lbdc_id is not None:
-            params[b'id'] = lbdc_id
+        path = LbdcClient.path + b'/' + compat.convert_to_bytes(lbdc_id) + b'/blb'
 
-        return self._send_request(http_methods.GET, LbdcClient.path, params=params, config=config)
+        return self._send_request(http_methods.GET, path, config=config)

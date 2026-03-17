@@ -40,6 +40,7 @@ class EipClient(BceBaseClient):
     """
     version = b'/v1'
     prefix = b'/eip'
+    transfer_prefix = "/transfer"
 
     def __init__(self, config=None):
         """
@@ -777,6 +778,222 @@ class EipClient(BceBaseClient):
         }
         return self._send_request(http_methods.PUT, path, params=params,
                                   body=json.dumps(body), config=config)
+
+    def create_eip_transfer(self, transfer_type, transfer_resource_list, to_user_id,
+                            client_token=None, config=None):
+        """
+        Create an EIP resource transfer task to transfer resources from one account to another.
+
+        :type transfer_type: string
+        :param transfer_type: Transfer resource type, should be 'eip'
+
+        :type transfer_resource_list: list
+        :param transfer_resource_list: List of resource short IDs to transfer, max 30 items
+
+        :type to_user_id: string
+        :param to_user_id: Target account ID
+
+        :type client_token: string
+        :param client_token: Idempotent token. If not specified, a random string will be generated.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config:
+
+        :return: BceResponse
+        """
+        body = {
+            'transferType': transfer_type,
+            'transferResourceList': transfer_resource_list,
+            'toUserId': to_user_id
+        }
+
+        path = utils.append_uri(self._get_path(EipClient.transfer_prefix))
+
+        if client_token is None:
+            client_token = self._generate_default_client_token()
+        params = {
+            b'clientToken': client_token
+        }
+
+        return self._send_request(http_methods.POST, path,
+                                  body=json.dumps(body),
+                                  params=params,
+                                  config=config)
+
+    def cancel_eip_transfer(self, transfer_id_list, client_token=None, config=None):
+        """
+        Cancel EIP resource transfer tasks.
+
+        :type transfer_id_list: list
+        :param transfer_id_list: List of transfer task IDs to cancel, max 30 items
+
+        :type client_token: string
+        :param client_token: Idempotent token. If not specified, a random string will be generated.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config:
+
+        :return: BceResponse
+        """
+        body = {
+            'transferIdList': transfer_id_list
+        }
+
+        path = utils.append_uri(self._get_path(EipClient.transfer_prefix))
+
+        if client_token is None:
+            client_token = self._generate_default_client_token()
+        params = {
+            b'cancel': b'',
+            b'clientToken': client_token
+        }
+
+        return self._send_request(http_methods.PUT, path,
+                                  body=json.dumps(body),
+                                  params=params,
+                                  config=config)
+
+    def reject_eip_transfer(self, transfer_id_list, client_token=None, config=None):
+        """
+        Reject EIP resource transfer tasks.
+
+        :type transfer_id_list: list
+        :param transfer_id_list: List of transfer task IDs to reject, max 30 items
+
+        :type client_token: string
+        :param client_token: Idempotent token. If not specified, a random string will be generated.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config:
+
+        :return: BceResponse
+        """
+        body = {
+            'transferIdList': transfer_id_list
+        }
+
+        path = utils.append_uri(self._get_path(EipClient.transfer_prefix))
+
+        if client_token is None:
+            client_token = self._generate_default_client_token()
+        params = {
+            b'reject': b'',
+            b'clientToken': client_token
+        }
+
+        return self._send_request(http_methods.PUT, path,
+                                  body=json.dumps(body),
+                                  params=params,
+                                  config=config)
+
+    def accept_eip_transfer(self, transfer_id_list, client_token=None, config=None):
+        """
+        Accept EIP resource transfer tasks.
+
+        :type transfer_id_list: list
+        :param transfer_id_list: List of transfer task IDs to accept, max 30 items
+
+        :type client_token: string
+        :param client_token: Idempotent token. If not specified, a random string will be generated.
+
+        :type config: baidubce.BceClientConfiguration
+        :param config:
+
+        :return: BceResponse
+        """
+        body = {
+            'transferIdList': transfer_id_list
+        }
+
+        path = utils.append_uri(self._get_path(EipClient.transfer_prefix))
+
+        if client_token is None:
+            client_token = self._generate_default_client_token()
+        params = {
+            b'accept': b'',
+            b'clientToken': client_token
+        }
+
+        return self._send_request(http_methods.PUT, path,
+                                  body=json.dumps(body),
+                                  params=params,
+                                  config=config)
+
+    def list_eip_transfer(self, max_keys=None, marker=None, direction=None,
+                           transfer_id=None, status=None,
+                           fuzzy_transfer_id=None, fuzzy_instance_id=None,
+                           fuzzy_instance_name=None, fuzzy_instance_ip=None,
+                           config=None):
+        """
+        List EIP resource transfer tasks.
+
+        :type max_keys: int
+        :param max_keys: Maximum number of items per page, default 10
+
+        :type marker: string
+        :param marker: Pagination marker
+
+        :type direction: string
+        :param direction: 'sent' for initiated by me, 'received' for received by me
+
+        :type transfer_type: string
+        :param transfer_type: Transfer resource type
+
+        :type transfer_id: string
+        :param transfer_id: Transfer ID for exact query, multiple IDs separated by '_'
+
+        :type status: string
+        :param status: Status filter, default 'all'
+
+        :type fuzzy_transfer_id: string
+        :param fuzzy_transfer_id: Transfer ID fuzzy query
+
+        :type fuzzy_instance_id: string
+        :param fuzzy_instance_id: Instance ID fuzzy query
+
+        :type fuzzy_instance_name: string
+        :param fuzzy_instance_name: Instance name fuzzy query
+
+        :type fuzzy_instance_ip: string
+        :param fuzzy_instance_ip: Instance IP fuzzy query
+
+        :type config: baidubce.BceClientConfiguration
+        :param config:
+
+        :return: list of transfer tasks, for example:
+                {
+                    "transferList": [...],
+                    "marker": "tf-1l4m5etb",
+                    "isTruncated": false,
+                    "nextMarker": "...",
+                    "maxKeys": 10
+                }
+        """
+        path = utils.append_uri(self._get_path(EipClient.transfer_prefix))
+        params = {}
+
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
+        if marker is not None:
+            params[b'marker'] = marker
+        if direction is not None:
+            params[b'direction'] = direction
+        if transfer_id is not None:
+            params[b'transferId'] = transfer_id
+        if status is not None:
+            params[b'status'] = status
+        if fuzzy_transfer_id is not None:
+            params[b'fuzzyTransferId'] = fuzzy_transfer_id
+        if fuzzy_instance_id is not None:
+            params[b'fuzzyInstanceId'] = fuzzy_instance_id
+        if fuzzy_instance_name is not None:
+            params[b'fuzzyInstanceName'] = fuzzy_instance_name
+        if fuzzy_instance_ip is not None:
+            params[b'fuzzyInstanceIp'] = fuzzy_instance_ip
+
+        return self._send_request(http_methods.GET, path,
+                                  params=params,
+                                  config=config)
 
     @staticmethod
     def _generate_default_client_token():
