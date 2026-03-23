@@ -1133,17 +1133,17 @@ class NatClient(bce_base_client.BceBaseClient):
 
         body = {}
         if rule_name is not None:
-            body[b'ruleName'] = compat.convert_to_string(rule_name)
+            body['ruleName'] = compat.convert_to_string(rule_name)
         if protocol is not None:
-            body[b'protocol'] = compat.convert_to_string(protocol)
+            body['protocol'] = compat.convert_to_string(protocol)
         if public_ip_address is not None:
-            body[b'publicIpAddress'] = compat.convert_to_string(public_ip_address)
+            body['publicIpAddress'] = compat.convert_to_string(public_ip_address)
         if private_ip_address is not None:
-            body[b'privateIpAddress'] = compat.convert_to_string(private_ip_address)
+            body['privateIpAddress'] = compat.convert_to_string(private_ip_address)
         if public_port is not None:
-            body[b'publicPort'] = compat.convert_to_string(public_port)
+            body['publicPort'] = compat.convert_to_string(public_port)
         if private_port is not None:
-            body[b'privatePort'] = compat.convert_to_string(private_port)
+            body['privatePort'] = compat.convert_to_string(private_port)
         
         return self._send_request(http_methods.POST,
                                   path, body=json.dumps(body),

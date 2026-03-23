@@ -145,13 +145,13 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
         }
 
         if et_id is not None:
-            body[b'etId'] = et_id
+            body['etId'] = et_id
         if channel_id is not None:
-            body[b'channelId'] = channel_id
+            body['channelId'] = channel_id
         if local_cidrs is not None:
-            body[b'localCidrs'] = local_cidrs
+            body['localCidrs'] = local_cidrs
         if description is not None:
-            body[b'description'] = description
+            body['description'] = description
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     @required(et_gateway_id=(bytes, str))
@@ -200,13 +200,13 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
         }
         body = {}
         if name is not None:
-            body[b'name'] = name
+            body['name'] = name
         if description is not None:
-            body[b'description'] = description
+            body['description'] = description
         if speed is not None:
-            body[b'speed'] = speed
+            body['speed'] = speed
         if local_cidrs is not None:
-            body[b'localCidrs'] = local_cidrs
+            body['localCidrs'] = local_cidrs
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
@@ -277,7 +277,7 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             'channelId': channel_id,
         }
         if local_cidrs is not None:
-            body[b'localCidrs'] = local_cidrs
+            body['localCidrs'] = local_cidrs
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
     @required(et_gateway_id=(bytes, str))
@@ -427,18 +427,18 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token,
         }
         body = {
-            b'healthCheckInterval': health_check_interval,
-            b'healthThreshold': health_check_threshold,
-            b'unhealthThreshold': unhealth_threshold,
+            'healthCheckInterval': health_check_interval,
+            'healthThreshold': health_check_threshold,
+            'unhealthThreshold': unhealth_threshold,
         }
         if health_check_source_ip is not None:
-            body[b'healthCheckSourceIp'] = health_check_source_ip
+            body['healthCheckSourceIp'] = health_check_source_ip
         if health_check_type is not None:
-            body[b'healthCheckType'] = health_check_type
+            body['healthCheckType'] = health_check_type
         if health_check_port is not None:
-            body[b'healthCheckPort'] = health_check_port
+            body['healthCheckPort'] = health_check_port
         if auto_generate_route_rule is not None:
-            body[b'autoGenerateRouteRule'] = auto_generate_route_rule
+            body['autoGenerateRouteRule'] = auto_generate_route_rule
         return self._send_request(http_methods.POST, path, params=param, body=json.dumps(body), config=config)
 
     @staticmethod

@@ -5,6 +5,8 @@
 涉及产品: BOS
 修复GeneratePresignedUrl使用'../'会list bukcet
 不强制用户上传md5校验值，由sdk默认计算crc32，用户添加校验字段支持：md5、sha56、crc32、crc32c、crc64_ecma
+涉及产品: ETGateway,LBDC,NAT,VPN
+client实现中body的字节串修改为字符串,VPN create_vpn_conn/update_vpn_conn 新增cgwId参数
 
 【版本：v0.9.65】
 涉及产品: privateZone(localdns)

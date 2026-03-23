@@ -400,7 +400,7 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
 
-    def create_vpn_conn(self, vpn_id, secret_key, local_subnets, remote_ip, remote_subnets, vpn_conn_name,
+    def create_vpn_conn(self, vpn_id, secret_key, local_subnets, cgwId, remote_ip, remote_subnets, vpn_conn_name,
                         ike_config, ipsec_config, description=None, client_token=None, config=None):
 
         """
@@ -413,6 +413,9 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         :param local_subnets:local network cidr list
         :type local_subnets: list
+
+        @param cgwId: use gateway id
+        @type cgwId: string
 
         :param remote_ip:peer vpn gateway public network ip
         :type remote_ip: string
@@ -457,6 +460,7 @@ class VpnClient(bce_base_client.BceBaseClient):
         body = {
             'secretKey': secret_key,
             'localSubnets': local_subnets,
+            'cgwId': cgwId,
             'remoteIp': remote_ip,
             'remoteSubnets': remote_subnets,
             'vpnConnName': vpn_conn_name,
@@ -479,8 +483,8 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), config=config)
 
-    def update_vpn_conn(self, vpn_conn_id, vpn_id, secret_key, local_subnets, remote_ip, remote_subnets, vpn_conn_name,
-                        ike_config, ipsec_config, description=None, client_token=None, config=None):
+    def update_vpn_conn(self, vpn_conn_id, vpn_id, secret_key, local_subnets, cgwId, remote_ip, remote_subnets,
+                        vpn_conn_name, ike_config, ipsec_config, description=None, client_token=None, config=None):
 
         """
         :param vpn_conn_id:vpnconn id
@@ -495,6 +499,9 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         :param local_subnets:local network cidr list
         :type local_subnets: list
+
+        @param cgwId: user gateway id
+        :type cgwId: string
 
         :param remote_ip:peer vpn gateway public network ip
         :type remote_ip: string
@@ -540,6 +547,7 @@ class VpnClient(bce_base_client.BceBaseClient):
             'vpnId': vpn_id,
             'secretKey': secret_key,
             'localSubnets': local_subnets,
+            'cgwId': cgwId,
             'remoteIp': remote_ip,
             'remoteSubnets': remote_subnets,
             'vpnConnName': vpn_conn_name,
@@ -657,12 +665,12 @@ class VpnClient(bce_base_client.BceBaseClient):
             'remoteSubnet': address_pool,
         }
         if interface_type is not None:
-            body[b'interfaceType'] = interface_type
+            body['interfaceType'] = interface_type
         else:
-            body[b'interfaceType'] = b'tun'
+            body['interfaceType'] = 'tun'
 
         if client_dns is not None:
-            body[b'clientDns'] = client_dns
+            body['clientDns'] = client_dns
 
         return self._send_request(http_methods.POST, path, params=params, body=json.dumps(body), config=config)
 
@@ -702,13 +710,13 @@ class VpnClient(bce_base_client.BceBaseClient):
 
         body = {}
         if sslservice_name is not None:
-            body[b'sslVpnServerName'] = sslservice_name
+            body['sslVpnServerName'] = sslservice_name
         if local_routes is not None:
-            body[b'localSubnets'] = local_routes
+            body['localSubnets'] = local_routes
         if address_pool is not None:
-            body[b'remoteSubnet'] = address_pool
+            body['remoteSubnet'] = address_pool
         if client_dns is not None:
-            body[b'clientDns'] = client_dns
+            body['clientDns'] = client_dns
 
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
 
@@ -778,7 +786,8 @@ class VpnClient(bce_base_client.BceBaseClient):
             'sslVpnUsers': []
         }
         for ssluser in sslusers:
-            body[b'sslVpnUsers'].append({
+            print(ssluser)
+            body['sslVpnUsers'].append({
                 'userName': ssluser.user_name,
                 'password': ssluser.password,
                 'description': ssluser.description
@@ -814,10 +823,10 @@ class VpnClient(bce_base_client.BceBaseClient):
         body = {}
 
         if password is not None:
-            body[b'password'] = password
+            body['password'] = password
 
         if description is not None:
-            body[b'description'] = description
+            body['description'] = description
 
         return self._send_request(http_methods.PUT, path, params=params, body=json.dumps(body), config=config)
 

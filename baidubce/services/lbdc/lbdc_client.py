@@ -147,21 +147,21 @@ class LbdcClient(BceBaseClient):
         }
 
         body = {
-            b'name': name,
-            b'type': type,
-            b'ccuCount': ccu_count,
-            b'billing': {
-                b'paymentTiming': billing.payment_timing,
-                b'reservation': {
-                    b'reservationLength': billing.reservation_length
+            'name': name,
+            'type': type,
+            'ccuCount': ccu_count,
+            'billing': {
+                'paymentTiming': billing.payment_timing,
+                'reservation': {
+                    'reservationLength': billing.reservation_length
                 }
             }
         }
         if desc is not None:
-            body[b'desc'] = desc
+            body['desc'] = desc
         if renew is not None:
-            body[b'renewReservation'] = {
-                b'reservationLength': billing.reservation_length
+            body['renewReservation'] = {
+                'reservationLength': billing.reservation_length
             }
         return self._send_request(http_methods.POST, LbdcClient.path, body=json.dumps(body), params=params,
                                   config=config)
@@ -203,7 +203,7 @@ class LbdcClient(BceBaseClient):
         }
 
         body = {
-            b'ccuCount': ccu_count,
+            'ccuCount': ccu_count,
         }
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
@@ -246,9 +246,9 @@ class LbdcClient(BceBaseClient):
         }
 
         body = {
-            b'billing': {
-                b'reservation': {
-                    b'reservationLength': billing.reservation_length
+            'billing': {
+                'reservation': {
+                    'reservationLength': billing.reservation_length
                 }
             }
         }
@@ -337,9 +337,9 @@ class LbdcClient(BceBaseClient):
 
         body = {}
         if name is not None:
-            body[b'name'] = name
+            body['name'] = name
         if desc is not None:
-            body[b'desc'] = desc
+            body['desc'] = desc
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,
                                   config=config)
 
