@@ -1,9 +1,13 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
 
+【版本：v0.9.67】
+涉及产品: cloudflow
+增加cloudflow迁移工具
+
 【版本：v0.9.66】
 涉及产品: BOS
-修复GeneratePresignedUrl使用'../'会list bukcet
+修复generate_presigned_url传入url判断非法字符串
 不强制用户上传md5校验值，由sdk默认计算crc32，用户添加校验字段支持：md5、sha56、crc32、crc32c、crc64_ecma
 涉及产品: ETGateway,LBDC,NAT,VPN
 client实现中body的字节串修改为字符串,VPN create_vpn_conn/update_vpn_conn 新增cgwId参数
@@ -30,6 +34,7 @@ IPv6网关create_ipv6_gateway接口新增tags、resource_group_id、delete_prote
 新增update_ipv6_gateway_delete_protect接口，支持更新IPv6网关释放保护开关;
 涉及产品：EIP 新增创建EIP资源转移接口；新增取消EIP资源转移接口；新增接受EIP资源转移接口；新增拒绝EIP资源转移接口；
 新增查询EIP资源转移列表接口。
+
 
 【版本：v0.9.63】
 涉及产品:BCC
