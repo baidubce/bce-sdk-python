@@ -1341,6 +1341,39 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.PUT, path, json.dumps(body),
                                   params=params, config=config)
 
+    @required(instance_ids=list)
+    def batch_reboot_instance(self, instance_ids=None, force_stop=False, config=None):
+        """
+        Rebooting the instance owned by the user.
+        You can reboot the instance only when the instance is Running,
+        otherwise, it's will get 409 errorCode.
+        This is an asynchronous interface,
+        you can get the latest status by BccClient.get_instance.
+
+        :param instance_ids:
+            The ids of instance.
+        :type instance_ids: list
+
+        :param force_stop:
+            The optional parameter to stop the instance forcibly.If true,
+            it will stop the instance just like power off immediately
+            and it may result in losing important data which have not been written to disk.
+        :type force_stop: boolean
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/instance/batchAction'
+        body = {
+            'instanceIds': instance_ids,
+            'forceStop': force_stop
+        }
+        params = {
+            'reboot': None
+        }
+        return self._send_request(http_methods.PUT, path, json.dumps(body),
+                                  params=params, config=config)
+
     @required(instance_id=str)
     def batch_add_ip(self, instance_id, private_ips=None, secondary_private_ip_address_count=None,
                      allocate_multi_ipv6_addr=None, config=None):
@@ -5879,7 +5912,7 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def list_instance_no_charge(self, marker=None, max_keys=None, internal_ip=None, keypair_id=None,
-                                zone_name=None, client_token=None, config=None):
+                                zone_name=None, instance_ids=None, client_token=None, config=None):
         """
         Return a list of no charge instances owned by the authenticated user.
 
@@ -5907,6 +5940,10 @@ class BccClient(bce_base_client.BceBaseClient):
             get instance list filtered by name of available zone
         :type zone_name: string
 
+        :param instance_ids:
+            The id of instance.
+        :type instance_ids: string
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -5926,6 +5963,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['keypairId'] = keypair_id
         if zone_name is not None:
             params['zoneName'] = zone_name
+        if instance_ids is not None:
+            params['instanceIds'] = instance_ids
         return self._send_request(http_methods.GET, path, params=params, config=config)
 
     def cancel_bid_order(self, order_id, client_token=None, config=None):
