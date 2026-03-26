@@ -87,7 +87,8 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
               vpc_id=(bytes, str),
               speed=(int, long))
     def create_et_gateway(self, name, vpc_id, speed, et_id=None, channel_id=None,
-                          local_cidrs=None, client_token=None, description=None, config=None):
+                          local_cidrs=None, client_token=None, description=None,
+                          tags=None, resource_group_id=None, config=None):
         """
         Create a ET Gateway.
 
@@ -124,6 +125,14 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             the description of ET Gateway
         :type description: string
 
+        :param tags:
+            the list of tag key-value pairs
+        :type tags: list
+
+        :param resource_group_id:
+            the id of resource group
+        :type resource_group_id: string
+
         :type config:
             baidubce.BceClientConfiguration
         :param config:
@@ -152,11 +161,16 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             body['localCidrs'] = local_cidrs
         if description is not None:
             body['description'] = description
+        if tags is not None:
+            body['tags'] = tags
+        if resource_group_id is not None:
+            body['resourceGroupId'] = resource_group_id
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     @required(et_gateway_id=(bytes, str))
     def update_et_gateway(self, et_gateway_id, name=None, description=None,
-                          speed=None, local_cidrs=None, client_token=None, config=None):
+                          speed=None, local_cidrs=None, enable_ipv6=None,
+                          ipv6_local_cidrs=None, client_token=None, config=None):
         """
         Update a ET Gateway.
         :param et_gateway_id:
@@ -179,13 +193,17 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             the list of CIDRs
         :type local_cidrs: list
 
+        :param enable_ipv6:
+            whether IPv6 is enabled, 1 for yes, 0 for no
+        :type enable_ipv6: int
+
+        :param ipv6_local_cidrs:
+            the list of IPv6 CIDRs
+        :type ipv6_local_cidrs: list
+
         :param client_token:
             If the clientToken is not specified by the user, a random String
         :type client_token: string
-
-        :description:
-            the description of ET Gateway
-        :type description: string
 
         :return:
         :rtype baidubce.bce_response.BceResponse
@@ -207,6 +225,10 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             body['speed'] = speed
         if local_cidrs is not None:
             body['localCidrs'] = local_cidrs
+        if enable_ipv6 is not None:
+            body['enableIpv6'] = enable_ipv6
+        if ipv6_local_cidrs is not None:
+            body['ipv6LocalCidrs'] = ipv6_local_cidrs
         return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)

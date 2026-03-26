@@ -1,5 +1,27 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.9.68】
+涉及产品：PEERCONN
+查看对等连接详情接口入参新增role参数
+新增预付费对等连接退订接口
+涉及产品：VPC
+创建专线网关接口新增resourceGroupId参数
+查询专线网关详情接口：GetEtGatewayResponse中修正speed类型为Integer
+查询专线网关列表接口：EtGateway中修正speed类型为Integer
+create_ip_group description不生效修复
+update_ip_set，None值误传修复
+list_ip_set / list_ip_group ipVersion ，IP 版本过滤失效修复
+新增单测
+涉及产品：PROBE
+创建网络探测 (create_probe)：1. 移除@required装饰器中的source_ips和source_ip_num2. 添加dst_ip到@required装饰器中
+更新网络探测 (update_probe)：1. 添加@required装饰器标记probe_id为必填
+涉及产品：ENDPOINT
+create_endpoint接口新增bandwidth必填参数、tags、resource_group_id可选参数;
+修复update_endpoint_enterprise_sg接口Body Key类型错误的Bug;
+list_endpoints参数max_Keys修改为max_keys，符合Python PEP 8命名规范;
+涉及产品：HAVIP
+移除冗余参数
+修复接口method方法
 
 【版本：v0.9.67】
 涉及产品：所有

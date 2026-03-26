@@ -196,6 +196,34 @@ class TestPeerConnClient(unittest.TestCase):
         self.client.close_peerconn_dns_sync(peer_conn_id=PEERCONN_ID,
                                             role='acceptor')
 
+    def test_get_peerconn_with_role(self):
+        """
+        test case for getting peer connection details with role parameter
+        """
+        # 测试发起端视角
+        print(self.client.get_peerconn(peer_conn_id=PEERCONN_ID, role='initiator'))
+        # 测试接受端视角
+        print(self.client.get_peerconn(peer_conn_id=PEERCONN_ID, role='acceptor'))
+
+    def test_update_peerconn_delete_protect(self):
+        """
+        test case for updating peer connection delete protect switch
+        """
+        # 开启释放保护
+        self.client.update_peerconn_delete_protect(peer_conn_id=PEERCONN_ID,
+                                                   delete_protect=True)
+        # 关闭释放保护
+        self.client.update_peerconn_delete_protect(peer_conn_id=PEERCONN_ID,
+                                                   delete_protect=False)
+
+    def test_refund_peerconn(self):
+        """
+        test case for refunding prepaid peer connection
+        """
+        client_token = generate_client_token()
+        self.client.refund_peerconn(peer_conn_id=PEERCONN_ID,
+                                    client_token=client_token)
+
 
 def generate_client_token_by_uuid():
     """
@@ -228,6 +256,9 @@ if __name__ == '__main__':
     # suite.addTest(TestPeerConnClient("test_create_peerconn_diff_region"))
     # suite.addTest(TestPeerConnClient("test_create_peerconn_same_account"))
     # suite.addTest(TestPeerConnClient("test_purchase_reserved_peerconn"))
+    # suite.addTest(TestPeerConnClient("test_update_peerconn_delete_protect"))
+    # suite.addTest(TestPeerConnClient("test_get_peerconn_with_role"))
+    # suite.addTest(TestPeerConnClient("test_refund_peerconn"))
 
     runner = unittest.TextTestRunner()
     runner.run(suite)

@@ -48,9 +48,35 @@ class TestEndpointClient(unittest.TestCase):
         subnet_id = 'sbn-crqu2vxzj049'
         name = 'python-sdk-1'
         service = '77.uservice-a7f5795b.beijing.baidubce.com'
+        bandwidth = 20
         billing = Billing(payment_timing='Postpaid')
         print(self.the_client.create_endpoint(vpc_id=vpc_id, subnet_id=subnet_id, name=name, service=service,
-                                              billing=billing, description="python create"))
+                                              bandwidth=bandwidth, billing=billing, description="python create"))
+
+    def test_create_endpoint_with_tags(self):
+        """
+        test case for create_endpoint with tags and resource_group_id
+        """
+        vpc_id = 'vpc-q1hcnhf7nmve'
+        subnet_id = 'sbn-crqu2vxzj049'
+        name = 'python-sdk-with-tags'
+        service = '77.uservice-a7f5795b.beijing.baidubce.com'
+        bandwidth = 20
+        billing = Billing(payment_timing='Postpaid')
+        tags = [
+            {
+                'tagKey': 'project',
+                'tagValue': 'test'
+            },
+            {
+                'tagKey': 'env',
+                'tagValue': 'production'
+            }
+        ]
+        resource_group_id = 'RESG-UoMgbkuLNjj'
+        print(self.the_client.create_endpoint(vpc_id=vpc_id, subnet_id=subnet_id, name=name, service=service,
+                                              bandwidth=bandwidth, billing=billing, description="python create",
+                                              tags=tags, resource_group_id=resource_group_id))
 
     def test_delete_endpoint(self):
         """

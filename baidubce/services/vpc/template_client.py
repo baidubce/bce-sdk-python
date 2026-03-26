@@ -34,7 +34,7 @@ _logger = logging.getLogger(__name__)
 
 class TemplateClient(bce_base_client.BceBaseClient):
     """
-    Tempalte base sdk client
+    Template base sdk client
     """
 
     prefix = b'/v1'
@@ -273,10 +273,11 @@ class TemplateClient(bce_base_client.BceBaseClient):
             params[b'clientToken'] = client_token
         params[b'modifyAttribute'] = None
 
-        body = {
-            "name": name,
-            "description": description
-        }
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params, config=config)
 
@@ -342,13 +343,13 @@ class TemplateClient(bce_base_client.BceBaseClient):
         params = {"maxKeys": 1000}
 
         if ip_version is not None:
-            params[b'ip_version'] = ip_version
+            params[b'ipVersion'] = ip_version
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:
             params[b'maxKeys'] = max_keys
         return self._send_request(http_methods.GET, path, params=params, config=config)
-    
+
     @required(ip_set_id=(bytes, str))
     def get_ip_set_detail(self, ip_set_id, config=None):
         """
@@ -413,7 +414,7 @@ class TemplateClient(bce_base_client.BceBaseClient):
             "ipVersion": ip_version,
             "ipSetIds": ip_set_ids
         }
-        if description is None:
+        if description is not None:
             body["description"] = description
 
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
@@ -601,7 +602,7 @@ class TemplateClient(bce_base_client.BceBaseClient):
         params = {"maxKeys": 1000}
 
         if ip_version is not None:
-            params[b'ip_version'] = ip_version
+            params[b'ipVersion'] = ip_version
         if marker is not None:
             params[b'marker'] = marker
         if max_keys is not None:

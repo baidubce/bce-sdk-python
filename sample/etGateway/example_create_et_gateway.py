@@ -27,7 +27,10 @@ if __name__ == "__main__":
                                                    local_cidrs=[
                                                        '10.243.87.0/24'],
                                                    et_id="dcphy-478px3km77dh",
-                                                   channel_id="dedicatedconn-i7c1skfd0djs")
+                                                   channel_id="dedicatedconn-i7c1skfd0djs",
+                                                   tags=[{"tagKey": "tagKey",
+                                                          "tagValue": "tagValue"}],
+                                                   resource_group_id="RESG-UoMgbkuLNjj")
 
         et_gateway_id = resp.et_gateway_id
         print("Create et gateway response: %s" % resp)

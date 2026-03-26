@@ -21,7 +21,8 @@ from baidubce.services.endpoint.endpoint_client import EndpointClient
 from baidubce.services.endpoint import model
 
 
-def test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, billing):
+def test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, billing, bandwidth,
+                         description=None, ip_address=None, tags=None, resource_group_id=None):
     """
     Create endpoint in vpc subnet with specified name, service and billing
 
@@ -44,6 +45,21 @@ def test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, bill
         :type billing: Billing
         :param billing: the endpoint creation order configuration
 
+        :type bandwidth: int
+        :param bandwidth: the bandwidth of endpoint
+
+        :type description: str
+        :param description: endpoint's description
+
+        :type ip_address: str
+        :param ip_address: ipv4 address
+
+        :type tags: list
+        :param tags: the list of tags to be bound
+
+        :type resource_group_id: str
+        :param resource_group_id: the id of resource group
+
     Returns:
         None
 
@@ -51,7 +67,9 @@ def test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, bill
         BceHttpClientError: http request error
     """
     try:
-        response = endpoint_client.create_endpoint(vpc_id, subnet_id, name, service, billing)
+        response = endpoint_client.create_endpoint(vpc_id, subnet_id, name, service, billing, bandwidth,
+                                                   description=description, ip_address=ip_address,
+                                                   tags=tags, resource_group_id=resource_group_id)
         print(response)
     except exception.BceHttpClientError as e:
         # 异常处理
@@ -74,5 +92,30 @@ if __name__ == '__main__':
     name = b'test-endpoint'
     # 挂载的服务域名
     service = b'www.test-endpoint-service.com'
-    # 创建服务网卡
-    test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, billing)
+    # 服务网卡带宽
+    bandwidth = 20
+    
+    # Example 1: 基础创建服务网卡（不使用可选参数）
+    print("Example 1 - Basic creation:")
+    test_create_endpoint(endpoint_client, vpc_id, subnet_id, name, service, billing, bandwidth)
+    
+    # Example 2: 创建服务网卡并指定标签、资源组等可选参数
+    print("\nExample 2 - Creation with tags and resource_group_id:")
+    name2 = b'test-endpoint-with-tags'
+    tags = [
+        {
+            'tagKey': 'project',
+            'tagValue': 'test'
+        },
+        {
+            'tagKey': 'env',
+            'tagValue': 'production'
+        }
+    ]
+    resource_group_id = b'RESG-UoMgbkuLNjj'
+    ip_address = b'192.168.0.100'
+    description = b'Test endpoint with tags'
+    
+    test_create_endpoint(endpoint_client, vpc_id, subnet_id, name2, service, billing, bandwidth,
+                        description=description, ip_address=ip_address, 
+                        tags=tags, resource_group_id=resource_group_id)

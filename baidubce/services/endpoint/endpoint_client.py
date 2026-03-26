@@ -103,7 +103,8 @@ class EndpointClient(BceBaseClient):
         path = EndpointClient.path + b'/publicService'
         return self._send_request(http_methods.GET, path, config=config)
 
-    def create_endpoint(self, vpc_id, subnet_id, name, service, billing, description=None, ip_address=None,
+    def create_endpoint(self, vpc_id, subnet_id, name, service, billing, bandwidth, 
+                        description=None, ip_address=None, tags=None, resource_group_id=None,
                         client_token=None, config=None):
         """
 
@@ -129,6 +130,10 @@ class EndpointClient(BceBaseClient):
            order_configuration
         :type billing:Billing
 
+        :param bandwidth:
+            The bandwidth of endpoint.
+        :type bandwidth: int
+
         :param ip_address:
             ip_address ipv4 address
         :type ip_address: str
@@ -136,6 +141,14 @@ class EndpointClient(BceBaseClient):
         :param description:
             description .
         :type description: string
+
+        :param tags:
+            The list of tags to be bound.
+        :type tags: list
+
+        :param resource_group_id:
+            The id of resource group.
+        :type resource_group_id: string
 
         :param client_token:
             An ASCII string whose length is less than 64.
@@ -155,6 +168,7 @@ class EndpointClient(BceBaseClient):
             "subnetId": subnet_id,
             "name": name,
             "service": service,
+            "bandwidth": bandwidth,
             "billing": {
                 "paymentTiming": billing.payment_timing
             }
@@ -163,6 +177,10 @@ class EndpointClient(BceBaseClient):
             body['description'] = description
         if ip_address is not None:
             body['ipAddress'] = ip_address
+        if tags is not None:
+            body['tags'] = tags
+        if resource_group_id is not None:
+            body['resourceGroupId'] = resource_group_id
         return self._send_request(http_methods.POST, EndpointClient.path, body=json.dumps(body), params=params,
                                   config=config)
 
@@ -197,7 +215,7 @@ class EndpointClient(BceBaseClient):
         return self._send_request(http_methods.DELETE, path, params=params, config=config)
 
     def list_endpoints(self, vpc_id, name=None, ip_address=None, status=None, subnet_id=None, service=None, marker=None,
-                       max_Keys=None, config=None):
+                       max_keys=None, config=None):
         """
 
         return all endpoint about vpc
@@ -233,10 +251,10 @@ class EndpointClient(BceBaseClient):
             If the marker is not specified, the list result will listing from the first one.
         :type marker: string
 
-        :param max_Keys:
+        :param max_keys:
             The optional parameter to specifies the max number of list result to return.
             The default value is 1000.
-        :type max_Keys: int
+        :type max_keys: int
 
         :param config:
         :type config: baidubce.BceClientConfiguration
@@ -258,8 +276,8 @@ class EndpointClient(BceBaseClient):
 
         if marker is not None:
             params[b'marker'] = marker
-        if max_Keys is not None:
-            params[b'maxKeys'] = max_Keys
+        if max_keys is not None:
+            params[b'maxKeys'] = max_keys
 
         return self._send_request(http_methods.GET, EndpointClient.path, params=params, config=config)
 
@@ -410,7 +428,7 @@ class EndpointClient(BceBaseClient):
         }
 
         body = {
-            b'enterpriseSecurityGroupIds': enterprise_sg_list
+            'enterpriseSecurityGroupIds': enterprise_sg_list
         }
 
         return self._send_request(http_methods.PUT, path, body=json.dumps(body), params=params,

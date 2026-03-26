@@ -27,6 +27,9 @@ if __name__ == "__main__":
                                                    speed=100,
                                                    local_cidrs=[
                                                        '10.243.87.0/24'],
+                                                   enable_ipv6=1,
+                                                   ipv6_local_cidrs=[
+                                                       '2400:da00:e003:0:15f::/87'],
                                                    client_token=str(uuid.uuid4()))
         print("Update et gateway response: %s", resp)
     except BceHttpClientError as e:

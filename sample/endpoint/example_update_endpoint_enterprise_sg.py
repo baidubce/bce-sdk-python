@@ -41,7 +41,7 @@ def test_update_endpoint_enterprise_sg(endpoint_client, endpoint_id, enterprise_
         BceHttpClientError: http request error
     """
     try:
-        response = endpoint_client.update_endpoint_sg(endpoint_id, enterprise_sg_list)
+        response = endpoint_client.update_endpoint_enterprise_sg(endpoint_id, enterprise_sg_list)
         print(response)
     except exception.BceHttpClientError as e:
         # 异常处理

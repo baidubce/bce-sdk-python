@@ -78,8 +78,7 @@ class ProbeClient(bce_base_client.BceBaseClient):
               subnet_id=(bytes, str),
               protocol=(bytes, str),
               frequency=int,
-              source_ips=list,
-              source_ip_num=int)
+              dst_ip=(bytes, str))
     def create_probe(self, name, vpc_id, subnet_id, protocol,
                      frequency, dst_ip, dst_port=None,
                      source_ips=None, source_ip_num=None,
@@ -227,6 +226,7 @@ class ProbeClient(bce_base_client.BceBaseClient):
         path = utils.append_uri(self.version, b'probe', probe_id)
         return self._send_request(http_methods.GET, path, config=config)
 
+    @required(probe_id=(bytes, str))
     def update_probe(self, probe_id, name=None, description=None,
                      dst_ip=None, dst_port=None, frequency=None,
                      payload=None, client_token=None, config=None):
