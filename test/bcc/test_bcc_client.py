@@ -301,7 +301,8 @@ class TestBccClient(unittest.TestCase):
         #     baidubce.bce_response.BceResponse)
         # print(self.client.list_instances(dedicated_host_id='d-MPgs6jPr'))
         # print(self.client.list_instances(zone_name='cn-bj-b'))
-        print(self.client.list_instances())
+        resp = self.client.list_instances()
+        print(resp.to_map())
         # print(self.client.list_instances(
         #     instance_ids='i-zadG8d4l,i-mOEGqKHc',
         #     instance_names='instance-u4l01f7s,instance-696snyc6',
@@ -2457,7 +2458,7 @@ if __name__ == '__main__':
     # suite.addTest(TestBccClient("test_assign_private_ip_to_instance"))
     # suite.addTest(TestBccClient("test_unassign_private_ip_from_instance"))
 
-    # suite.addTest(TestBccClient("test_list_instances"))
+    suite.addTest(TestBccClient("test_list_instances"))
     # suite.addTest(TestBccClient("test_create_gpu_instance"))
     # suite.addTest(TestBccClient("test_create_fpga_instance"))
     # suite.addTest(TestBccClient("test_list_volumes"))

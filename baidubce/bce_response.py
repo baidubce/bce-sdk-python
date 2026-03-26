@@ -13,6 +13,8 @@
 """
 This module provides a general response class for BCE services.
 """
+import json
+
 from future.utils import iteritems
 from builtins import str
 from builtins import bytes
@@ -60,3 +62,45 @@ class BceResponse(object):
 
     def __repr__(self):
         return utils.print_object(self)
+
+    def to_map(self):
+        """
+
+        :return: dict
+        """
+        result = dict()
+        result['headers'] = self._to_dict(self.metadata)
+        result['statusCode'] = self.status_code
+        result['body'] = self.get_body_map()
+        return result
+
+    def get_body_map(self):
+        """
+        Deserialize self.raw_data JSON string into a Python object.
+        """
+        content = self.raw_data
+        if not content:
+            return {}
+        try:
+            if isinstance(content, dict):
+                return content
+            if isinstance(content, str):
+                content = content.strip()
+            return json.loads(content)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw_content": content}
+
+    @staticmethod
+    def _to_dict(obj):
+        """
+        Recursively convert an object to a dictionary
+        """
+        if isinstance(obj, (list, tuple, set)):
+            return [BceResponse._to_dict(i) for i in obj]
+        elif isinstance(obj, dict):
+            return {k: BceResponse._to_dict(v) for k, v in obj.items()}
+        elif hasattr(obj, "__dict__"):
+            return {k: BceResponse._to_dict(v) for k, v in obj.__dict__.items() if not k.startswith('_')}
+        else:
+            # Return primitive types directly
+            return obj
