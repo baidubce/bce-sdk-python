@@ -1,6 +1,8 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
 【版本：v0.9.68】
+涉及产品：所有
+BceResponse新增to_map()方法将返回转成dict
 涉及产品：PEERCONN
 查看对等连接详情接口入参新增role参数
 新增预付费对等连接退订接口
@@ -24,8 +26,6 @@ list_endpoints参数max_Keys修改为max_keys，符合Python PEP 8命名规范;
 修复接口method方法
 
 【版本：v0.9.67】
-涉及产品：所有
-BceResponse新增to_map()方法将返回转成dict
 涉及产品: cloudflow
 增加cloudflow迁移工具
 涉及产品: BCC
