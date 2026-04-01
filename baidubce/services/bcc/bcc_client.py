@@ -8151,6 +8151,43 @@ class BccClient(bce_base_client.BceBaseClient):
         return self._send_request(http_methods.POST, path, json.dumps(body),
                                   params=params, config=config)
 
+    def query_reserved_instance_price(self, spec_id, spec, offering_type, zone_name,
+                                      scope=None, reserved_instance_count=None,
+                                      price_time_unit=None, reserved_instance_time=None,
+                                      purchase_num=None, client_token=None, config=None):
+        """
+        query_reserved_instance_price
+        """
+        path = b'/v2/reservedInstance/price'
+        params = {
+            'interfaceName': 'apiV2_reservedInstancePrice'
+        }
+        if client_token is None:
+            params['clientToken'] = generate_client_token()
+        else:
+            params['clientToken'] = client_token
+
+        body = {
+            'specId': spec_id,
+            'spec': spec,
+            'offeringType': offering_type,
+            'zoneName': zone_name,
+        }
+        if scope is not None:
+            body['scope'] = scope
+        if reserved_instance_count is not None:
+            body['reservedInstanceCount'] = reserved_instance_count
+        if price_time_unit is not None:
+            body['priceTimeUnit'] = price_time_unit
+        if reserved_instance_time is not None:
+            body['reservedInstanceTime'] = reserved_instance_time
+        if purchase_num is not None:
+            body['purchaseNum'] = purchase_num
+
+        return self._send_request(http_methods.POST, path, json.dumps(body),
+                                  params=params, config=config)
+
+
 
 def generate_client_token_by_uuid():
     """
