@@ -2134,6 +2134,354 @@ class TestBcmClient(unittest.TestCase):
                                                    end_time="2024-03-21T07:33:50Z")
         print(res)
 
+    # ==================== Event Bus Tests ====================
+
+    def test_create_event_bus(self):
+        """
+        test create event bus
+        """
+        res = self.client.create_event_bus(event_bus_name="test-bus",
+                                           event_bus_alias="test bus alias",
+                                           description="test event bus",
+                                           type="custom")
+        print(res)
+
+    def test_update_event_bus(self):
+        """
+        test update event bus
+        """
+        res = self.client.update_event_bus(event_bus_id="eb-xxxxxxxx",
+                                           event_bus_name="test-bus-updated",
+                                           event_bus_alias="updated alias",
+                                           description="updated description",
+                                           type="custom")
+        print(res)
+
+    def test_delete_event_bus(self):
+        """
+        test delete event bus
+        """
+        res = self.client.delete_event_bus(event_bus_id="eb-xxxxxxxx")
+        print(res)
+
+    def test_batch_delete_event_bus(self):
+        """
+        test batch delete event bus
+        """
+        res = self.client.batch_delete_event_bus(event_bus_ids=["eb-xxx1", "eb-xxx2"])
+        print(res)
+
+    def test_get_event_bus_detail(self):
+        """
+        test get event bus detail
+        """
+        res = self.client.get_event_bus_detail(event_bus_id="eb-xxxxxxxx")
+        print(res)
+
+    def test_list_event_bus(self):
+        """
+        test list event bus
+        """
+        res = self.client.list_event_bus(page_no=1, page_size=10,
+                                         order_by="modTime", order="DESC",
+                                         type="custom")
+        print(res)
+
+    def test_get_event_bus_event(self):
+        """
+        test get event bus event
+        """
+        res = self.client.get_event_bus_event(event_bus_id="eb-xxxxxxxx")
+        print(res)
+
+    # ==================== Event Source Tests ====================
+
+    def test_list_event_bus_source(self):
+        """
+        test list event bus source
+        """
+        res = self.client.list_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                page_no=1, page_size=10)
+        print(res)
+
+    def test_create_event_bus_source(self):
+        """
+        test create event bus source
+        """
+        res = self.client.create_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                   event_source_name="test-source",
+                                                   event_source_alias="test source alias",
+                                                   type="custom")
+        print(res)
+
+    def test_update_event_bus_source(self):
+        """
+        test update event bus source
+        """
+        res = self.client.update_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                   event_source_id="es-xxxxxxxx",
+                                                   event_source_name="test-source-updated",
+                                                   event_source_alias="updated alias",
+                                                   type="custom")
+        print(res)
+
+    def test_delete_event_bus_source(self):
+        """
+        test delete event bus source
+        """
+        res = self.client.delete_event_bus_source(event_source_id="es-xxxxxxxx")
+        print(res)
+
+    # ==================== Event Type Tests ====================
+
+    def test_list_event_bus_event_type(self):
+        """
+        test list event bus event type
+        """
+        res = self.client.list_event_bus_event_type(event_source_id="es-xxxxxxxx",
+                                                     page_no=1, page_size=10)
+        print(res)
+
+    def test_get_event_bus_event_detail(self):
+        """
+        test get event bus event detail
+        """
+        res = self.client.get_event_bus_event_detail(event_source_id="es-xxxxxxxx",
+                                                      event_type="custom-event-1")
+        print(res)
+
+    def test_create_event_bus_event(self):
+        """
+        test create event bus event
+        """
+        res = self.client.create_event_bus_event(event_source_id="es-xxxxxxxx",
+                                                  event_type="RepairGpuEccErr",
+                                                  event_alias="GPU显存故障",
+                                                  event_alias_en="GpuEccErr",
+                                                  event_level="CRITICAL",
+                                                  type="cloud",
+                                                  description="GPU memory error event",
+                                                  demo="{}")
+        print(res)
+
+    def test_batch_create_event_bus_event(self):
+        """
+        test batch create event bus event
+        """
+        events = [
+            {
+                "eventSourceId": "es-xxxxxxxx",
+                "eventType": "event1",
+                "eventAlias": "事件1",
+                "eventAliasEn": "event1",
+                "eventLevel": "WARNING",
+                "type": "custom"
+            },
+            {
+                "eventSourceId": "es-xxxxxxxx",
+                "eventType": "event2",
+                "eventAlias": "事件2",
+                "eventAliasEn": "event2",
+                "eventLevel": "CRITICAL",
+                "type": "custom"
+            }
+        ]
+        res = self.client.batch_create_event_bus_event(events=events)
+        print(res)
+
+    def test_update_event_bus_event(self):
+        """
+        test update event bus event
+        """
+        res = self.client.update_event_bus_event(event_source_id="es-xxxxxxxx",
+                                                  event_type="RepairGpuEccErr",
+                                                  event_alias="GPU显存故障-更新",
+                                                  event_level="WARNING")
+        print(res)
+
+    def test_batch_delete_event_bus_event(self):
+        """
+        test batch delete event bus event
+        """
+        events = [
+            {"eventSourceId": "es-xxxxxxxx", "eventType": "event1"},
+            {"eventSourceId": "es-xxxxxxxx", "eventType": "event2"}
+        ]
+        res = self.client.batch_delete_event_bus_event(events=events)
+        print(res)
+
+    # ==================== Event Receive Tests ====================
+
+    def test_recv_event_bus_event(self):
+        """
+        test recv event bus event
+        """
+        events = [
+            {
+                "source": "App_DEMO",
+                "type": "DEMO_EVENT",
+                "eventbusid": "eb-xxxxxxxx",
+                "data": {"info": "info"},
+            }
+        ]
+        res = self.client.recv_event_bus_event(events=events)
+        print(res)
+
+    # ==================== Event Rule Tests ====================
+
+    def test_create_event_bus_rule(self):
+        """
+        test create event bus rule
+        """
+        targets = [
+            {
+                "type": "HTTP",
+                "retryStrategy": "RANDOM_BACKOFF",
+                "params": [
+                    {"value": "http://www.test.com", "resourceKey": "url", "form": "CONSTANT"},
+                    {"value": "POST", "resourceKey": "method", "form": "CONSTANT"},
+                    {"value": "", "resourceKey": "body", "form": "ORIGINAL"},
+                    {"value": "PublicNetwork", "resourceKey": "network", "form": "CONSTANT"}
+                ]
+            }
+        ]
+        res = self.client.create_event_bus_rule(event_bus_id="eb-xxxxxxxx",
+                                                rule_name="test-rule",
+                                                targets=targets,
+                                                filter_pattern="{\"source\":[\"App_DEMO\"]}",
+                                                description="test rule description",
+                                                status="ENABLE")
+        print(res)
+
+    def test_update_event_bus_rule(self):
+        """
+        test update event bus rule
+        """
+        res = self.client.update_event_bus_rule(event_rule_id="er-xxxxxxxx",
+                                                event_bus_id="eb-xxxxxxxx",
+                                                rule_name="test-rule-updated",
+                                                filter_pattern="{\"source\":[\"App_DEMO\"]}",
+                                                description="updated description",
+                                                status="ENABLE")
+        print(res)
+
+    def test_batch_update_event_bus_rule_status(self):
+        """
+        test batch update event bus rule status
+        """
+        res = self.client.batch_update_event_bus_rule_status(
+            event_bus_id="eb-xxxxxxxx",
+            event_rule_ids=["er-xxx1", "er-xxx2"],
+            status="DISABLE")
+        print(res)
+
+    def test_batch_delete_event_bus_rule(self):
+        """
+        test batch delete event bus rule
+        """
+        res = self.client.batch_delete_event_bus_rule(event_bus_id="eb-xxxxxxxx",
+                                                       event_rule_ids=["er-xxx1", "er-xxx2"])
+        print(res)
+
+    def test_list_event_bus_rule(self):
+        """
+        test list event bus rule
+        """
+        res = self.client.list_event_bus_rule(event_bus_id="eb-xxxxxxxx",
+                                              page_no=1, page_size=10,
+                                              status="ENABLE")
+        print(res)
+
+    def test_get_event_bus_rule_detail(self):
+        """
+        test get event bus rule detail
+        """
+        res = self.client.get_event_bus_rule_detail(event_rule_id="er-xxxxxxxx")
+        print(res)
+
+    def test_batch_create_event_bus_rule_target(self):
+        """
+        test batch create event bus rule target
+        """
+        targets = [
+            {
+                "type": "HTTP",
+                "retryStrategy": "RANDOM_BACKOFF",
+                "params": [
+                    {"value": "http://www.test.com", "resourceKey": "url", "form": "CONSTANT"},
+                    {"value": "POST", "resourceKey": "method", "form": "CONSTANT"},
+                    {"value": "", "resourceKey": "body", "form": "ORIGINAL"},
+                    {"value": "PublicNetwork", "resourceKey": "network", "form": "CONSTANT"}
+                ]
+            }
+        ]
+        res = self.client.batch_create_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            targets=targets)
+        print(res)
+
+    def test_batch_update_event_bus_rule_target(self):
+        """
+        test batch update event bus rule target
+        """
+        add_targets = [
+            {
+                "type": "HTTP",
+                "retryStrategy": "RANDOM_BACKOFF",
+                "params": [
+                    {"value": "http://www.test2.com", "resourceKey": "url", "form": "CONSTANT"},
+                    {"value": "POST", "resourceKey": "method", "form": "CONSTANT"},
+                    {"value": "", "resourceKey": "body", "form": "ORIGINAL"}
+                ]
+            }
+        ]
+        res = self.client.batch_update_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            add_targets=add_targets,
+            del_target_ids=["et-xxx1"])
+        print(res)
+
+    def test_batch_delete_event_bus_rule_target(self):
+        """
+        test batch delete event bus rule target
+        """
+        res = self.client.batch_delete_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            target_ids=["et-xxx1", "et-xxx2"])
+        print(res)
+
+    def test_match_event_bus_rule(self):
+        """
+        test match event bus rule
+        """
+        res = self.client.match_event_bus_rule(
+            event='{"source":"App_DEMO","type":"DEMO_EVENT"}',
+            event_pattern='{"source":[{"prefix":"App"}]}')
+        print(res)
+
+    # ==================== Event History Tests ====================
+
+    def test_get_event_bus_historic(self):
+        """
+        test get event bus historic
+        """
+        res = self.client.get_event_bus_historic(event_bus_id="eb-xxxxxxxx",
+                                                  page_no=1, page_size=10,
+                                                  start_time="2024-01-01T00:00:00Z",
+                                                  end_time="2024-12-31T23:59:59Z")
+        print(res)
+
+    def test_get_event_bus_historic_trigger(self):
+        """
+        test get event bus historic trigger
+        """
+        res = self.client.get_event_bus_historic_trigger(event_bus_id="eb-xxxxxxxx",
+                                                          page_no=1, page_size=10,
+                                                          start_time="2024-01-01T00:00:00Z",
+                                                          end_time="2024-12-31T23:59:59Z",
+                                                          status="DELIVERED")
+        print(res)
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
 

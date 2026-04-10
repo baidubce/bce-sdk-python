@@ -40,12 +40,14 @@ class BcmClient(bce_base_client.BceBaseClient):
     prefix = b'/json-api'
     csm_prefix = b'/csm/api'
     event_prefix = b'/event-api'
+    eb_prefix = b'/v1/event-bus'
     version = b'/v1'
     version_v2 = b'/v2'
 
     content_type_header_key = b"content-type"
     content_type_header_value = b"application/json;charset=UTF-8"
     request_id_header_key = b"x-bce-request-id"
+
 
     def __init__(self, config=None):
         bce_base_client.BceBaseClient.__init__(self, config)
@@ -100,6 +102,22 @@ class BcmClient(bce_base_client.BceBaseClient):
         return bce_http_client.send_request(
             config, bce_v1_signer.sign, [bcm_handler.parse_error, body_parser],
             http_method, BcmClient.event_prefix + BcmClient.version + path, body, headers, params)
+
+    def _send_eb_request(self, http_method, path,
+                         body=None, headers=None, params=None, config=None, body_parser=None):
+        config = self._merge_config(config)
+        if body_parser is None:
+            body_parser = handler.parse_json
+        if headers is None:
+            headers = {}
+        if self.content_type_header_key not in headers:
+            headers[self.content_type_header_key] = self.content_type_header_value
+        if self.request_id_header_key not in headers:
+            headers[self.request_id_header_key] = uuid.uuid4()
+
+        return bce_http_client.send_request(
+            config, bce_v1_signer.sign, [bcm_handler.parse_error, body_parser],
+            http_method, BcmClient.eb_prefix + path, body, headers, params)
 
     def get_metric_data(self, user_id=None, scope=None, metric_name=None,
                         dimensions=None, statistics=None, start_time=None,
@@ -5947,4 +5965,1476 @@ class BcmClient(bce_base_client.BceBaseClient):
         path = b'/dimensions/top'
         return self._send_csm_request(http_methods.POST, path, version=b'/v2', body=json.dumps(body))
 
+    # ==================== Event Bus ====================
 
+    def create_event_bus(self, event_bus_name, event_bus_alias=None,
+                         description=None, type=None, config=None):
+        """
+        创建事件总线。
+
+        :param event_bus_name:
+            事件总线名称，不能为空。
+        :type event_bus_name: string
+
+        :param event_bus_alias:
+            事件总线别名。
+        :type event_bus_alias: string
+
+        :param description:
+            事件总线描述信息。
+        :type description: string
+
+        :param type:
+            事件总线类型。
+        :type type: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_name 为空时抛出。
+        """
+        if len(event_bus_name) <= 0:
+            raise ValueError("event_bus_name should not be null")
+
+        body = {
+            "eventBusName": event_bus_name,
+        }
+        if event_bus_alias is not None:
+            body["eventBusAlias"] = event_bus_alias
+        if description is not None:
+            body["description"] = description
+        if type is not None:
+            body["type"] = type
+
+        path = b''
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def update_event_bus(self, event_bus_id, event_bus_name=None,
+                         event_bus_alias=None, description=None, type=None, config=None):
+        """
+        更新事件总线信息。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param event_bus_name:
+            事件总线名称。
+        :type event_bus_name: string
+
+        :param event_bus_alias:
+            事件总线别名。
+        :type event_bus_alias: string
+
+        :param description:
+            事件总线描述信息。
+        :type description: string
+
+        :param type:
+            事件总线类型。
+        :type type: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+        }
+        if event_bus_name is not None:
+            body["eventBusName"] = event_bus_name
+        if event_bus_alias is not None:
+            body["eventBusAlias"] = event_bus_alias
+        if description is not None:
+            body["description"] = description
+        if type is not None:
+            body["type"] = type
+
+        path = b''
+        return self._send_eb_request(http_methods.PUT, path,
+                                     body=json.dumps(body), config=config)
+
+    def delete_event_bus(self, event_bus_id, config=None):
+        """
+        删除指定的事件总线。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+        }
+        path = b''
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_delete_event_bus(self, event_bus_ids, config=None):
+        """
+        批量删除事件总线。
+
+        :param event_bus_ids:
+            事件总线ID列表，不能为空。
+        :type event_bus_ids: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_ids 为空时抛出。
+        """
+        if len(event_bus_ids) <= 0:
+            raise ValueError("event_bus_ids should not be null")
+
+        body = {
+            "eventBusIds": event_bus_ids,
+        }
+        path = b'/batch'
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    def get_event_bus_detail(self, event_bus_id, config=None):
+        """
+        获取事件总线详情。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        path = b''
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def list_event_bus(self, page_no=None, page_size=None,
+                       order_by=None, order=None, type=None,
+                       keyword_type=None, keyword=None, config=None):
+        """
+        分页查询事件总线列表。
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param type:
+            事件总线类型过滤。
+        :type type: string
+
+        :param keyword_type:
+            关键字搜索类型。
+        :type keyword_type: string
+
+        :param keyword:
+            搜索关键字。
+        :type keyword: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        params = {}
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if type is not None:
+            params[b'type'] = type
+        if keyword_type is not None:
+            params[b'keywordType'] = keyword_type
+        if keyword is not None:
+            params[b'keyword'] = keyword
+
+        path = b'/list'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def get_event_bus_event(self, event_bus_id, config=None):
+        """
+        获取事件总线的事件源事件信息。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        path = b'/source-event'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    # ==================== Event Source ====================
+
+    def list_event_bus_source(self, event_bus_id, page_no=None, page_size=None,
+                              order_by=None, order=None,
+                              keyword_type=None, keyword=None, config=None):
+        """
+        分页查询事件总线的事件源列表。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param keyword_type:
+            关键字搜索类型。
+        :type keyword_type: string
+
+        :param keyword:
+            搜索关键字。
+        :type keyword: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if keyword_type is not None:
+            params[b'keywordType'] = keyword_type
+        if keyword is not None:
+            params[b'keyword'] = keyword
+
+        path = b'/source/list'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def create_event_bus_source(self, event_bus_id, event_source_name,
+                                event_source_alias=None, type=None, config=None):
+        """
+        为事件总线创建事件源。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param event_source_name:
+            事件源名称，不能为空。
+        :type event_source_name: string
+
+        :param event_source_alias:
+            事件源别名。
+        :type event_source_alias: string
+
+        :param type:
+            事件源类型。
+        :type type: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 或 event_source_name 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(event_source_name) <= 0:
+            raise ValueError("event_source_name should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+            "eventSourceName": event_source_name,
+        }
+        if event_source_alias is not None:
+            body["eventSourceAlias"] = event_source_alias
+        if type is not None:
+            body["type"] = type
+
+        path = b'/source'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def update_event_bus_source(self, event_bus_id, event_source_id,
+                                event_source_name=None, event_source_alias=None,
+                                type=None, config=None):
+        """
+        更新事件总线的事件源信息。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param event_source_name:
+            事件源名称。
+        :type event_source_name: string
+
+        :param event_source_alias:
+            事件源别名。
+        :type event_source_alias: string
+
+        :param type:
+            事件源类型。
+        :type type: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 或 event_source_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+            "eventSourceId": event_source_id,
+        }
+        if event_source_name is not None:
+            body["eventSourceName"] = event_source_name
+        if event_source_alias is not None:
+            body["eventSourceAlias"] = event_source_alias
+        if type is not None:
+            body["type"] = type
+
+        path = b'/source'
+        return self._send_eb_request(http_methods.PUT, path,
+                                     body=json.dumps(body), config=config)
+
+    def delete_event_bus_source(self, event_source_id, config=None):
+        """
+        删除指定的事件源。
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_source_id 为空时抛出。
+        """
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+
+        body = {
+            "eventSourceId": event_source_id,
+        }
+        path = b'/source'
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    # ==================== Event Type ====================
+
+    def list_event_bus_event_type(self, event_source_id, page_no=None, page_size=None,
+                                  order_by=None, order=None, event_level=None,
+                                  keyword_type=None, keyword=None, config=None):
+        """
+        分页查询事件源下的事件类型列表。
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param event_level:
+            事件级别过滤。
+        :type event_level: string
+
+        :param keyword_type:
+            关键字搜索类型。
+        :type keyword_type: string
+
+        :param keyword:
+            搜索关键字。
+        :type keyword: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_source_id 为空时抛出。
+        """
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+
+        params = {
+            b'eventSourceId': event_source_id,
+        }
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if event_level is not None:
+            params[b'eventLevel'] = event_level
+        if keyword_type is not None:
+            params[b'keywordType'] = keyword_type
+        if keyword is not None:
+            params[b'keyword'] = keyword
+
+        path = b'/event/list'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def get_event_bus_event_detail(self, event_source_id, event_type, config=None):
+        """
+        获取指定事件源下某个事件类型的详情。
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param event_type:
+            事件类型，不能为空。
+        :type event_type: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_source_id 或 event_type 为空时抛出。
+        """
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+        if len(event_type) <= 0:
+            raise ValueError("event_type should not be null")
+
+        params = {
+            b'eventSourceId': event_source_id,
+            b'eventType': event_type,
+        }
+        path = b'/event'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def create_event_bus_event(self, event_source_id, event_type,
+                               event_alias=None, event_alias_en=None, event_level=None,
+                               type=None, description=None, demo=None, config=None):
+        """
+        在指定事件源下创建事件类型。
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param event_type:
+            事件类型标识，不能为空。
+        :type event_type: string
+
+        :param event_alias:
+            事件类型中文别名。
+        :type event_alias: string
+
+        :param event_alias_en:
+            事件类型英文别名。
+        :type event_alias_en: string
+
+        :param event_level:
+            事件级别。
+        :type event_level: string
+
+        :param type:
+            类型。
+        :type type: string
+
+        :param description:
+            事件类型描述信息。
+        :type description: string
+
+        :param demo:
+            事件示例数据。
+        :type demo: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_source_id 或 event_type 为空时抛出。
+        """
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+        if len(event_type) <= 0:
+            raise ValueError("event_type should not be null")
+
+        body = {
+            "eventSourceId": event_source_id,
+            "eventType": event_type,
+        }
+        if event_alias is not None:
+            body["eventAlias"] = event_alias
+        if event_alias_en is not None:
+            body["eventAliasEn"] = event_alias_en
+        if event_level is not None:
+            body["eventLevel"] = event_level
+        if type is not None:
+            body["type"] = type
+        if description is not None:
+            body["description"] = description
+        if demo is not None:
+            body["demo"] = demo
+
+        path = b'/event'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_create_event_bus_event(self, events, config=None):
+        """
+        批量创建事件类型。
+
+        :param events:
+            事件类型列表，不能为空。每个元素应包含 eventSourceId、eventType 等字段。
+        :type events: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 events 为空时抛出。
+        """
+        if len(events) <= 0:
+            raise ValueError("events should not be null")
+
+        body = {
+            "events": events,
+        }
+        path = b'/event/batch'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def update_event_bus_event(self, event_source_id, event_type,
+                               event_alias=None, event_alias_en=None, event_level=None,
+                               type=None, description=None, demo=None, config=None):
+        """
+        更新指定事件源下的事件类型信息。
+
+        :param event_source_id:
+            事件源ID，不能为空。
+        :type event_source_id: string
+
+        :param event_type:
+            事件类型标识，不能为空。
+        :type event_type: string
+
+        :param event_alias:
+            事件类型中文别名。
+        :type event_alias: string
+
+        :param event_alias_en:
+            事件类型英文别名。
+        :type event_alias_en: string
+
+        :param event_level:
+            事件级别。
+        :type event_level: string
+
+        :param type:
+            类型。
+        :type type: string
+
+        :param description:
+            事件类型描述信息。
+        :type description: string
+
+        :param demo:
+            事件示例数据。
+        :type demo: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_source_id 或 event_type 为空时抛出。
+        """
+        if len(event_source_id) <= 0:
+            raise ValueError("event_source_id should not be null")
+        if len(event_type) <= 0:
+            raise ValueError("event_type should not be null")
+
+        body = {
+            "eventSourceId": event_source_id,
+            "eventType": event_type,
+        }
+        if event_alias is not None:
+            body["eventAlias"] = event_alias
+        if event_alias_en is not None:
+            body["eventAliasEn"] = event_alias_en
+        if event_level is not None:
+            body["eventLevel"] = event_level
+        if type is not None:
+            body["type"] = type
+        if description is not None:
+            body["description"] = description
+        if demo is not None:
+            body["demo"] = demo
+
+        path = b'/event'
+        return self._send_eb_request(http_methods.PUT, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_delete_event_bus_event(self, events, config=None):
+        """
+        批量删除事件类型。
+
+        :param events:
+            待删除的事件类型列表，不能为空。每个元素应包含 eventSourceId、eventType 等字段。
+        :type events: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 events 为空时抛出。
+        """
+        if len(events) <= 0:
+            raise ValueError("events should not be null")
+
+        body = {
+            "events": events,
+        }
+        path = b'/event/batch'
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    # ==================== Event Receive ====================
+
+    def recv_event_bus_event(self, events, config=None):
+        """
+        接收并投递事件到事件总线。
+
+        :param events:
+            事件列表，不能为空。每个事件包含事件数据。
+        :type events: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype list
+
+        :raises ValueError: 当 events 为空时抛出。
+        """
+        if len(events) <= 0:
+            raise ValueError("events should not be null")
+
+        body = {
+            "events": events,
+        }
+        path = b'/recv'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config,
+                                     body_parser=bcm_handler.parse_json_list)
+
+    # ==================== Event Rule ====================
+
+    def create_event_bus_rule(self, event_bus_id, rule_name, targets, filter_pattern,
+                              description=None, status=None, config=None):
+        """
+        为事件总线创建事件规则。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param rule_name:
+            规则名称，不能为空。
+        :type rule_name: string
+
+        :param targets:
+            规则触发目标列表，不能为空。
+        :type targets: list
+
+        :param filter_pattern:
+            事件过滤模式，不能为空。
+        :type filter_pattern: string
+
+        :param description:
+            规则描述信息。
+        :type description: string
+
+        :param status:
+            规则状态。
+        :type status: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id、rule_name、targets 或 filter_pattern 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(rule_name) <= 0:
+            raise ValueError("rule_name should not be null")
+        if len(targets) <= 0:
+            raise ValueError("targets should not be null")
+        if len(filter_pattern) <= 0:
+            raise ValueError("filter_pattern should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+            "ruleName": rule_name,
+            "targets": targets,
+            "filterPattern": filter_pattern,
+        }
+        if description is not None:
+            body["description"] = description
+        if status is not None:
+            body["status"] = status
+
+        path = b'/rule'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def update_event_bus_rule(self, event_rule_id, event_bus_id, rule_name, filter_pattern,
+                              description=None, status=None, config=None):
+        """
+        更新事件总线的事件规则。
+
+        :param event_rule_id:
+            事件规则ID，不能为空。
+        :type event_rule_id: string
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param rule_name:
+            规则名称，不能为空。
+        :type rule_name: string
+
+        :param filter_pattern:
+            事件过滤模式，不能为空。
+        :type filter_pattern: string
+
+        :param description:
+            规则描述信息。
+        :type description: string
+
+        :param status:
+            规则状态。
+        :type status: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_rule_id、event_bus_id、rule_name 或 filter_pattern 为空时抛出。
+        """
+        if len(event_rule_id) <= 0:
+            raise ValueError("event_rule_id should not be null")
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(rule_name) <= 0:
+            raise ValueError("rule_name should not be null")
+        if len(filter_pattern) <= 0:
+            raise ValueError("filter_pattern should not be null")
+
+        body = {
+            "eventRuleId": event_rule_id,
+            "eventBusId": event_bus_id,
+            "ruleName": rule_name,
+            "filterPattern": filter_pattern,
+        }
+        if description is not None:
+            body["description"] = description
+        if status is not None:
+            body["status"] = status
+
+        path = b'/rule'
+        return self._send_eb_request(http_methods.PUT, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_update_event_bus_rule_status(self, event_bus_id,
+                                           event_rule_ids, status, config=None):
+        """
+        批量更新事件规则的状态。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param event_rule_ids:
+            事件规则ID列表，不能为空。
+        :type event_rule_ids: list
+
+        :param status:
+            目标状态，不能为空。
+        :type status: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id、event_rule_ids 或 status 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(event_rule_ids) <= 0:
+            raise ValueError("event_rule_ids should not be null")
+        if len(status) <= 0:
+            raise ValueError("status should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+            "eventRuleIds": event_rule_ids,
+            "status": status,
+        }
+        path = b'/rule/status'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_delete_event_bus_rule(self, event_bus_id, event_rule_ids, config=None):
+        """
+        批量删除事件总线下的事件规则。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param event_rule_ids:
+            事件规则ID列表，不能为空。
+        :type event_rule_ids: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 或 event_rule_ids 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+        if len(event_rule_ids) <= 0:
+            raise ValueError("event_rule_ids should not be null")
+
+        body = {
+            "eventBusId": event_bus_id,
+            "eventRuleIds": event_rule_ids,
+        }
+        path = b'/rule'
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    def list_event_bus_rule(self, event_bus_id, page_no=None, page_size=None,
+                            order_by=None, order=None, status=None,
+                            keyword_type=None, keyword=None, config=None):
+        """
+        分页查询事件总线下的事件规则列表。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param status:
+            规则状态过滤。
+        :type status: string
+
+        :param keyword_type:
+            关键字搜索类型。
+        :type keyword_type: string
+
+        :param keyword:
+            搜索关键字。
+        :type keyword: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if status is not None:
+            params[b'status'] = status
+        if keyword_type is not None:
+            params[b'keywordType'] = keyword_type
+        if keyword is not None:
+            params[b'keyword'] = keyword
+
+        path = b'/rule/list'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def get_event_bus_rule_detail(self, event_rule_id, config=None):
+        """
+        获取事件规则详情。
+
+        :param event_rule_id:
+            事件规则ID，不能为空。
+        :type event_rule_id: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_rule_id 为空时抛出。
+        """
+        if len(event_rule_id) <= 0:
+            raise ValueError("event_rule_id should not be null")
+
+        params = {
+            b'eventRuleId': event_rule_id,
+        }
+        path = b'/rule'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def batch_create_event_bus_rule_target(self, event_rule_id, targets, config=None):
+        """
+        为事件规则批量创建触发目标。
+
+        :param event_rule_id:
+            事件规则ID，不能为空。
+        :type event_rule_id: string
+
+        :param targets:
+            触发目标列表，不能为空。
+        :type targets: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_rule_id 或 targets 为空时抛出。
+        """
+        if len(event_rule_id) <= 0:
+            raise ValueError("event_rule_id should not be null")
+        if len(targets) <= 0:
+            raise ValueError("targets should not be null")
+
+        body = {
+            "eventRuleId": event_rule_id,
+            "targets": targets,
+        }
+        path = b'/rule/target'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_update_event_bus_rule_target(self, event_rule_id,
+                                           add_targets=None, edit_targets=None,
+                                           del_target_ids=None, config=None):
+        """
+        批量更新事件规则的触发目标，支持新增、编辑和删除操作。
+
+        :param event_rule_id:
+            事件规则ID，不能为空。
+        :type event_rule_id: string
+
+        :param add_targets:
+            待新增的触发目标列表。
+        :type add_targets: list
+
+        :param edit_targets:
+            待编辑的触发目标列表。
+        :type edit_targets: list
+
+        :param del_target_ids:
+            待删除的触发目标ID列表。
+        :type del_target_ids: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_rule_id 为空时抛出。
+        """
+        if len(event_rule_id) <= 0:
+            raise ValueError("event_rule_id should not be null")
+
+        body = {
+            "eventRuleId": event_rule_id,
+        }
+        if add_targets is not None:
+            body["addTargets"] = add_targets
+        if edit_targets is not None:
+            body["editTargets"] = edit_targets
+        if del_target_ids is not None:
+            body["delTargetIds"] = del_target_ids
+
+        path = b'/rule/target'
+        return self._send_eb_request(http_methods.PUT, path,
+                                     body=json.dumps(body), config=config)
+
+    def batch_delete_event_bus_rule_target(self, event_rule_id, target_ids, config=None):
+        """
+        批量删除事件规则的触发目标。
+
+        :param event_rule_id:
+            事件规则ID，不能为空。
+        :type event_rule_id: string
+
+        :param target_ids:
+            待删除的触发目标ID列表，不能为空。
+        :type target_ids: list
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_rule_id 或 target_ids 为空时抛出。
+        """
+        if len(event_rule_id) <= 0:
+            raise ValueError("event_rule_id should not be null")
+        if len(target_ids) <= 0:
+            raise ValueError("target_ids should not be null")
+
+        body = {
+            "eventRuleId": event_rule_id,
+            "targetIds": target_ids,
+        }
+        path = b'/rule/target'
+        return self._send_eb_request(http_methods.DELETE, path,
+                                     body=json.dumps(body), config=config)
+
+    def match_event_bus_rule(self, event, event_pattern, config=None):
+        """
+        测试事件是否匹配指定的事件规则模式。
+
+        :param event:
+            待匹配的事件数据。
+        :type event: dict
+
+        :param event_pattern:
+            事件过滤模式。
+        :type event_pattern: dict
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+
+        body = {
+            "event": event,
+            "eventPattern": event_pattern,
+        }
+        path = b'/rule/match'
+        return self._send_eb_request(http_methods.POST, path,
+                                     body=json.dumps(body), config=config)
+
+    # ==================== Event History ====================
+
+    def get_event_bus_historic(self, event_bus_id, page_no=None, page_size=None,
+                               order_by=None, order=None, start_time=None, end_time=None,
+                               source=None, event_type=None, event_type_alias=None,
+                               event_id=None, level=None, region=None, config=None):
+        """
+        分页查询事件总线的历史事件记录。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param start_time:
+            查询起始时间。
+        :type start_time: string
+
+        :param end_time:
+            查询结束时间。
+        :type end_time: string
+
+        :param source:
+            事件来源过滤。
+        :type source: string
+
+        :param event_type:
+            事件类型过滤。
+        :type event_type: string
+
+        :param event_type_alias:
+            事件类型别名过滤。
+        :type event_type_alias: string
+
+        :param event_id:
+            事件ID过滤。
+        :type event_id: string
+
+        :param level:
+            事件级别过滤。
+        :type level: string
+
+        :param region:
+            地域过滤。
+        :type region: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if start_time is not None:
+            params[b'startTime'] = start_time
+        if end_time is not None:
+            params[b'endTime'] = end_time
+        if source is not None:
+            params[b'source'] = source
+        if event_type is not None:
+            params[b'eventType'] = event_type
+        if event_type_alias is not None:
+            params[b'eventTypeAlias'] = event_type_alias
+        if event_id is not None:
+            params[b'eventId'] = event_id
+        if level is not None:
+            params[b'level'] = level
+        if region is not None:
+            params[b'region'] = region
+
+        path = b'/historic'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)
+
+    def get_event_bus_historic_trigger(self, event_bus_id, page_no=None, page_size=None,
+                                       order_by=None, order=None, start_time=None, end_time=None,
+                                       source=None, event_type=None, event_type_alias=None,
+                                       event_rule_id=None, event_rule_name=None,
+                                       event_id=None, level=None, status=None,
+                                       region=None, config=None):
+        """
+        分页查询事件总线的历史触发记录。
+
+        :param event_bus_id:
+            事件总线ID，不能为空。
+        :type event_bus_id: string
+
+        :param page_no:
+            页码，默认为1。
+        :type page_no: int
+
+        :param page_size:
+            每页数量，默认为10。
+        :type page_size: int
+
+        :param order_by:
+            排序字段。
+        :type order_by: string
+
+        :param order:
+            排序方式。
+        :type order: string
+
+        :param start_time:
+            查询起始时间。
+        :type start_time: string
+
+        :param end_time:
+            查询结束时间。
+        :type end_time: string
+
+        :param source:
+            事件来源过滤。
+        :type source: string
+
+        :param event_type:
+            事件类型过滤。
+        :type event_type: string
+
+        :param event_type_alias:
+            事件类型别名过滤。
+        :type event_type_alias: string
+
+        :param event_rule_id:
+            事件规则ID过滤。
+        :type event_rule_id: string
+
+        :param event_rule_name:
+            事件规则名称过滤。
+        :type event_rule_name: string
+
+        :param event_id:
+            事件ID过滤。
+        :type event_id: string
+
+        :param level:
+            事件级别过滤。
+        :type level: string
+
+        :param status:
+            触发状态过滤。
+        :type status: string
+
+        :param region:
+            地域过滤。
+        :type region: string
+
+        :param config:
+        :type config: baidubce.BceClientConfiguration
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+
+        :raises ValueError: 当 event_bus_id 为空时抛出。
+        """
+        if len(event_bus_id) <= 0:
+            raise ValueError("event_bus_id should not be null")
+
+        params = {
+            b'eventBusId': event_bus_id,
+        }
+        if page_no is None:
+            params[b'pageNo'] = 1
+        else:
+            params[b'pageNo'] = page_no
+        if page_size is None:
+            params[b'pageSize'] = 10
+        else:
+            params[b'pageSize'] = page_size
+        if order_by is not None:
+            params[b'orderBy'] = order_by
+        if order is not None:
+            params[b'order'] = order
+        if start_time is not None:
+            params[b'startTime'] = start_time
+        if end_time is not None:
+            params[b'endTime'] = end_time
+        if source is not None:
+            params[b'source'] = source
+        if event_type is not None:
+            params[b'eventType'] = event_type
+        if event_type_alias is not None:
+            params[b'eventTypeAlias'] = event_type_alias
+        if event_rule_id is not None:
+            params[b'eventRuleId'] = event_rule_id
+        if event_rule_name is not None:
+            params[b'eventRuleName'] = event_rule_name
+        if event_id is not None:
+            params[b'eventId'] = event_id
+        if level is not None:
+            params[b'level'] = level
+        if status is not None:
+            params[b'status'] = status
+        if region is not None:
+            params[b'region'] = region
+
+        path = b'/historic/trigger'
+        return self._send_eb_request(http_methods.GET, path,
+                                     params=params, config=config)

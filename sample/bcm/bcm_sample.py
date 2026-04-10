@@ -2522,3 +2522,435 @@ if __name__ == '__main__':
                            % (e.last_error.status_code, e.last_error.code, e.last_error.message))
         else:
             __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # ==================== Event Bus Samples ====================
+
+    # create event bus
+    try:
+        response = bcm_client.create_event_bus(event_bus_name="test-bus",
+                                               event_bus_alias="test bus alias",
+                                               description="test event bus",
+                                               type="custom")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update event bus
+    try:
+        response = bcm_client.update_event_bus(event_bus_id="eb-xxxxxxxx",
+                                               event_bus_name="test-bus-updated",
+                                               event_bus_alias="updated alias",
+                                               description="updated description")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete event bus
+    try:
+        response = bcm_client.delete_event_bus(event_bus_id="eb-xxxxxxxx")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch delete event bus
+    try:
+        response = bcm_client.batch_delete_event_bus(event_bus_ids=["eb-xxx1", "eb-xxx2"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus detail
+    try:
+        response = bcm_client.get_event_bus_detail(event_bus_id="eb-xxxxxxxx")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list event bus
+    try:
+        response = bcm_client.list_event_bus(page_no=1, page_size=10,
+                                              order_by="modTime", order="DESC")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus event
+    try:
+        response = bcm_client.get_event_bus_event(event_bus_id="eb-xxxxxxxx")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list event bus source
+    try:
+        response = bcm_client.list_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                     page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create event bus source
+    try:
+        response = bcm_client.create_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                       event_source_name="test-source",
+                                                       event_source_alias="test source alias",
+                                                       type="custom")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update event bus source
+    try:
+        response = bcm_client.update_event_bus_source(event_bus_id="eb-xxxxxxxx",
+                                                       event_source_id="es-xxxxxxxx",
+                                                       event_source_name="test-source-updated")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # delete event bus source
+    try:
+        response = bcm_client.delete_event_bus_source(event_source_id="es-xxxxxxxx")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list event bus event type
+    try:
+        response = bcm_client.list_event_bus_event_type(event_source_id="es-xxxxxxxx",
+                                                         page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus event detail
+    try:
+        response = bcm_client.get_event_bus_event_detail(event_source_id="es-xxxxxxxx",
+                                                          event_type="custom-event-1")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create event bus event
+    try:
+        response = bcm_client.create_event_bus_event(event_source_id="es-xxxxxxxx",
+                                                      event_type="RepairGpuEccErr",
+                                                      event_alias="GPU显存故障",
+                                                      event_alias_en="GpuEccErr",
+                                                      event_level="CRITICAL",
+                                                      type="cloud",
+                                                      description="GPU memory error",
+                                                      demo="{}")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch create event bus event
+    try:
+        response = bcm_client.batch_create_event_bus_event(
+            events=[
+                {"eventSourceId": "es-xxxxxxxx", "eventType": "event1",
+                 "eventAlias": "事件1", "eventLevel": "WARNING", "type": "custom"},
+                {"eventSourceId": "es-xxxxxxxx", "eventType": "event2",
+                 "eventAlias": "事件2", "eventLevel": "CRITICAL", "type": "custom"}
+            ])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update event bus event
+    try:
+        response = bcm_client.update_event_bus_event(event_source_id="es-xxxxxxxx",
+                                                      event_type="RepairGpuEccErr",
+                                                      event_alias="GPU显存故障-更新",
+                                                      event_level="WARNING")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch delete event bus event
+    try:
+        response = bcm_client.batch_delete_event_bus_event(
+            events=[
+                {"eventSourceId": "es-xxxxxxxx", "eventType": "event1"},
+                {"eventSourceId": "es-xxxxxxxx", "eventType": "event2"}
+            ])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # recv event bus event
+    try:
+        response = bcm_client.recv_event_bus_event(
+            events=[
+                {"source": "App_DEMO", "type": "DEMO_EVENT",
+                 "eventbusid": "eb-xxxxxxxx", "data": {"info": "info"}}
+            ])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # create event bus rule
+    try:
+        response = bcm_client.create_event_bus_rule(
+            event_bus_id="eb-xxxxxxxx",
+            rule_name="test-rule",
+            targets=[
+                {
+                    "type": "HTTP",
+                    "retryStrategy": "RANDOM_BACKOFF",
+                    "params": [
+                        {"value": "http://www.test.com", "resourceKey": "url", "form": "CONSTANT"},
+                        {"value": "POST", "resourceKey": "method", "form": "CONSTANT"},
+                        {"value": "", "resourceKey": "body", "form": "ORIGINAL"},
+                        {"value": "PublicNetwork", "resourceKey": "network", "form": "CONSTANT"}
+                    ]
+                }
+            ],
+            filter_pattern="{\"source\":[\"App_DEMO\"]}",
+            description="test rule",
+            status="ENABLE")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # update event bus rule
+    try:
+        response = bcm_client.update_event_bus_rule(event_rule_id="er-xxxxxxxx",
+                                                     event_bus_id="eb-xxxxxxxx",
+                                                     rule_name="test-rule-updated",
+                                                     filter_pattern="{\"source\":[\"App_DEMO\"]}",
+                                                     description="updated rule")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch update event bus rule status
+    try:
+        response = bcm_client.batch_update_event_bus_rule_status(
+            event_bus_id="eb-xxxxxxxx",
+            event_rule_ids=["er-xxx1", "er-xxx2"],
+            status="DISABLE")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch delete event bus rule
+    try:
+        response = bcm_client.batch_delete_event_bus_rule(event_bus_id="eb-xxxxxxxx",
+                                                           event_rule_ids=["er-xxx1", "er-xxx2"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # list event bus rule
+    try:
+        response = bcm_client.list_event_bus_rule(event_bus_id="eb-xxxxxxxx",
+                                                   page_no=1, page_size=10)
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus rule detail
+    try:
+        response = bcm_client.get_event_bus_rule_detail(event_rule_id="er-xxxxxxxx")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch create event bus rule target
+    try:
+        response = bcm_client.batch_create_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            targets=[
+                {
+                    "type": "HTTP",
+                    "retryStrategy": "RANDOM_BACKOFF",
+                    "params": [
+                        {"value": "http://www.test.com", "resourceKey": "url", "form": "CONSTANT"},
+                        {"value": "POST", "resourceKey": "method", "form": "CONSTANT"},
+                        {"value": "", "resourceKey": "body", "form": "ORIGINAL"}
+                    ]
+                }
+            ])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch update event bus rule target
+    try:
+        response = bcm_client.batch_update_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            add_targets=[
+                {
+                    "type": "HTTP",
+                    "retryStrategy": "RANDOM_BACKOFF",
+                    "params": [
+                        {"value": "http://www.test2.com", "resourceKey": "url", "form": "CONSTANT"},
+                        {"value": "POST", "resourceKey": "method", "form": "CONSTANT"}
+                    ]
+                }
+            ],
+            del_target_ids=["et-xxx1"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # batch delete event bus rule target
+    try:
+        response = bcm_client.batch_delete_event_bus_rule_target(
+            event_rule_id="er-xxxxxxxx",
+            target_ids=["et-xxx1", "et-xxx2"])
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # match event bus rule
+    try:
+        response = bcm_client.match_event_bus_rule(
+            event='{"source":"App_DEMO","type":"DEMO_EVENT"}',
+            event_pattern='{"source":[{"prefix":"App"}]}')
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus historic
+    try:
+        response = bcm_client.get_event_bus_historic(event_bus_id="eb-xxxxxxxx",
+                                                      page_no=1, page_size=10,
+                                                      start_time="2024-01-01T00:00:00Z",
+                                                      end_time="2024-12-31T23:59:59Z")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
+
+    # get event bus historic trigger
+    try:
+        response = bcm_client.get_event_bus_historic_trigger(event_bus_id="eb-xxxxxxxx",
+                                                              page_no=1, page_size=10,
+                                                              start_time="2024-01-01T00:00:00Z",
+                                                              end_time="2024-12-31T23:59:59Z",
+                                                              status="DELIVERED")
+        print(response)
+    except BceHttpClientError as e:
+        if isinstance(e.last_error, BceServerError):
+            __logger.error('send request failed. Response %s, code: %s, msg: %s'
+                           % (e.last_error.status_code, e.last_error.code, e.last_error.message))
+        else:
+            __logger.error('send request failed. Unknown exception: %s' % e)
