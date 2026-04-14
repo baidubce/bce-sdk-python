@@ -52,7 +52,6 @@ def _get_connection(protocol, host, port, connection_timeout_in_millis, proxy_ho
             _logger.debug('Using proxy host: %s, port: %d' % (proxy_host, proxy_port))
             conn = http.client.HTTPConnection(host=proxy_host, port=proxy_port,
                                               timeout=connection_timeout_in_millis / 1000)
-            conn.set_tunnel(host, port)
             return conn
         return http.client.HTTPConnection(
             host=host, port=port, timeout=connection_timeout_in_millis / 1000)
