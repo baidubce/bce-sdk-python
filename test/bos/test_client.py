@@ -1463,6 +1463,39 @@ class TestPutBucketLogging(TestClient):
         response = self.bos.put_bucket_logging(self.BUCKET, self.BUCKET, 'log-')
         self.check_headers(response)
 
+    def test_put_bucket_logging_without_target_prefix(self):
+        """test put_bucket_logging with target_prefix=None (now optional)"""
+        response = self.bos.put_bucket_logging(self.BUCKET, self.BUCKET)
+        self.check_headers(response)
+
+    def test_put_bucket_logging_target_prefix_none_explicit(self):
+        """test put_bucket_logging with explicit target_prefix=None should not raise"""
+        err = None
+        try:
+            response = self.bos.put_bucket_logging(self.BUCKET, self.BUCKET, target_prefix=None)
+            self.check_headers(response)
+        except ValueError as e:
+            err = e
+        self.assertIsNone(err)
+
+    def test_put_bucket_logging_source_bucket_none(self):
+        """test put_bucket_logging raises ValueError when source_bucket is None"""
+        err = None
+        try:
+            self.bos.put_bucket_logging(None, self.BUCKET)
+        except ValueError as e:
+            err = e
+        self.assertIsNotNone(err)
+
+    def test_put_bucket_logging_target_bucket_none(self):
+        """test put_bucket_logging raises ValueError when target_bucket is None"""
+        err = None
+        try:
+            self.bos.put_bucket_logging(self.BUCKET, None)
+        except ValueError as e:
+            err = e
+        self.assertIsNotNone(err)
+
 
 class TestGetBucketLogging(TestClient):
     """test get_bucket_logging"""
@@ -2098,6 +2131,69 @@ class TestDecorator(TestClient):
         self.assertRaises(TypeError, MyClass().my_func, a=1, b=[], c=[])
 
 
+class TestPutObjectSymlink(TestClient):
+    """test put_object_symlink with forbid_overwrite optional parameter"""
+
+    def test_put_object_symlink_without_forbid_overwrite(self):
+        """not passing forbid_overwrite should not raise (default None skips @required check)"""
+        err = None
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, b'mysymlink_test')
+        except ValueError as e:
+            err = e
+        self.assertIsNone(err)
+
+    def test_put_object_symlink_forbid_overwrite_explicit_none(self):
+        """explicitly passing forbid_overwrite=None raises ValueError due to @required"""
+        self.assertRaises(
+            ValueError,
+            self.bos.put_object_symlink,
+            self.BUCKET, self.KEY, b'mysymlink_test',
+            forbid_overwrite=None
+        )
+
+    def test_put_object_symlink_forbid_overwrite_true(self):
+        """passing forbid_overwrite=True should pass @required type check"""
+        err = None
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, b'mysymlink_test',
+                                        forbid_overwrite=True)
+        except ValueError as e:
+            err = e
+        except TypeError as e:
+            err = e
+        self.assertIsNone(err)
+
+    def test_put_object_symlink_forbid_overwrite_false(self):
+        """passing forbid_overwrite=False should pass @required type check"""
+        err = None
+        try:
+            self.bos.put_object_symlink(self.BUCKET, self.KEY, b'mysymlink_test',
+                                        forbid_overwrite=False)
+        except ValueError as e:
+            err = e
+        except TypeError as e:
+            err = e
+        self.assertIsNone(err)
+
+    def test_put_object_symlink_forbid_overwrite_wrong_type(self):
+        """passing forbid_overwrite with wrong type raises TypeError"""
+        self.assertRaises(
+            TypeError,
+            self.bos.put_object_symlink,
+            self.BUCKET, self.KEY, b'mysymlink_test',
+            forbid_overwrite='true'
+        )
+
+    def test_put_object_symlink_source_bucket_none(self):
+        """bucket_name=None raises ValueError"""
+        self.assertRaises(
+            ValueError,
+            self.bos.put_object_symlink,
+            None, self.KEY, b'mysymlink_test'
+        )
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -2132,6 +2228,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestGetBucketLifecycle))
     runner.run(unittest.makeSuite(TestPutBucketCors))
     runner.run(unittest.makeSuite(TestGetBucketCors))
+    runner.run(unittest.makeSuite(TestPutObjectSymlink))
  
 run_test()
 cov.stop()

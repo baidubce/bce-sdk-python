@@ -122,6 +122,8 @@ BOS_OBJECT_EXPIRES = b"x-bce-object-expires"
 
 BOS_TAGGING = b"x-bce-tagging"
 
+BOS_TAG_LIST = b"x-bce-tag-list"
+
 BOS_PROCESS = b"x-bce-process"
 
 BOS_BASE_ALLOW_HEADERS = set([BOS_TRAFFIC_LIMIT, BOS_VERSIONING, BOS_TAGGING, BOS_PROCESS, BOS_OBJECT_EXPIRES])

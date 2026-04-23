@@ -190,6 +190,7 @@ def send_request(
     errors = []
     while True:
         conn = None
+        redirect_conn = None
         try:
             # restore the offset of fp body when retrying
             if should_get_new_date is True:
@@ -247,7 +248,6 @@ def send_request(
                         location = headers_map.get('location')
                         _logger.debug('request auto follow redirect location is %s', location)
                         parsed_url = urlparse(location)
-                        redirect_conn = None
                         if protocol.name == baidubce.protocol.HTTP.name:
                             redirect_conn = http.client.HTTPConnection(parsed_url.netloc, 
                             timeout=config.connection_timeout_in_mills / 1000)
@@ -256,7 +256,10 @@ def send_request(
                             timeout=config.connection_timeout_in_mills / 1000)
                         else:
                             raise ValueError('Invalid protocol: %s, either HTTP or HTTPS is expected.' % protocol)
-                        redirect_conn.putrequest("GET", parsed_url.path + "?" + parsed_url.query, 
+                        redirect_uri = parsed_url.path
+                        if parsed_url.query:
+                            redirect_uri += "?" + parsed_url.query
+                        redirect_conn.putrequest("GET", redirect_uri,
                             skip_host=True, skip_accept_encoding=True)
                         redirect_conn.putheader("Host", parsed_url.netloc)
                         redirect_conn.endheaders()
@@ -268,6 +271,8 @@ def send_request(
         except Exception as e:
             if conn is not None:
                 conn.close()
+            if redirect_conn is not None:
+                redirect_conn.close()
 
             # insert ">>>>" before all trace back lines and then save it
             errors.append('\n'.join('>>>>' + line for line in traceback.format_exc().splitlines()))
