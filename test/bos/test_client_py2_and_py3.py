@@ -7315,6 +7315,80 @@ class TestMazBucket(unittest.TestCase):
         self.assertIn("MAZ", meta.metadata.bce_storage_class)
 
 
+class TestSendRequestValidateObjectKey(TestClient):
+    """
+    Verify that _send_request rejects invalid object keys for all APIs,
+    preventing object-level operations from being misrouted to bucket-level.
+    """
+
+    INVALID_KEYS = [
+        ('', 'empty key'),
+        ('..', 'double-dot traversal'),
+        ('../other-bucket/secret', 'leading double-dot traversal'),
+        ('abc/../secret', 'middle double-dot traversal'),
+        ('.', 'single-dot segment'),
+        ('./foo', 'leading single-dot segment'),
+    ]
+
+    def test_get_object_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.get_object(self.BUCKET, key)
+
+    def test_get_object_as_string_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.get_object_as_string(self.BUCKET, key)
+
+    def test_get_object_to_file_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.get_object_to_file(self.BUCKET, key, '/tmp/test_out')
+
+    def test_put_object_from_string_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.put_object_from_string(self.BUCKET, key, 'data')
+
+    def test_copy_object_rejects_invalid_target_key(self):
+        self.bos.put_object_from_string(self.BUCKET, b'valid_src', 'data')
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.copy_object(self.BUCKET, b'valid_src', self.BUCKET, key)
+
+    def test_copy_object_rejects_invalid_source_key(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.copy_object(self.BUCKET, key, self.BUCKET, b'valid_dst')
+
+    def test_delete_object_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.delete_object(self.BUCKET, key)
+
+    def test_delete_object_acl_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.delete_object_acl(self.BUCKET, key)
+
+    def test_get_object_meta_data_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.get_object_meta_data(self.BUCKET, key)
+
+    def test_get_object_acl_rejects_invalid_keys(self):
+        for key, desc in self.INVALID_KEYS:
+            with self.assertRaises((ValueError, BceClientError), msg=desc):
+                self.bos.get_object_acl(self.BUCKET, key)
+
+    def test_valid_key_passes(self):
+        """normal keys should not be blocked by validation"""
+        self.bos.put_object_from_string(self.BUCKET, b'normal/path/file.txt', 'data')
+        self.bos.get_object_as_string(self.BUCKET, b'normal/path/file.txt')
+        self.bos.get_object_meta_data(self.BUCKET, b'normal/path/file.txt')
+        self.bos.delete_object(self.BUCKET, b'normal/path/file.txt')
+
+
 def run_test():
     """start run test"""
     runner = unittest.TextTestRunner()
@@ -7390,6 +7464,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestBucketObjectLock))
     runner.run(unittest.makeSuite(TestObjectTagging))
     runner.run(unittest.makeSuite(TestMazBucket))
+    runner.run(unittest.makeSuite(TestSendRequestValidateObjectKey))
 
     # New branch coverage tests
     runner.run(unittest.makeSuite(TestGetObjectWithVersionId))

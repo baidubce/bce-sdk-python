@@ -1623,6 +1623,7 @@ class BosClient(BceBaseClient):
         """
         source_key = compat.convert_to_bytes(source_key)
         target_key = compat.convert_to_bytes(target_key)
+        bos_handler.validate_object_key(source_key)
         headers = self._prepare_object_headers(
             content_type=content_type,
             user_metadata=user_metadata,
@@ -1942,6 +1943,7 @@ class BosClient(BceBaseClient):
         """
         source_key = compat.convert_to_bytes(source_key)
         target_key = compat.convert_to_bytes(target_key)
+        bos_handler.validate_object_key(source_key)
         headers = self._prepare_object_headers(
                          content_type=content_type,
                          user_metadata=user_metadata,
@@ -3342,6 +3344,8 @@ class BosClient(BceBaseClient):
             body=None, headers=None, params=None,
             config=None, body_parser=None):
         bos_handler.validate_bucket_name(bucket_name)
+        if key is not None:
+            bos_handler.validate_object_key(key)
         config = self._merge_config(config, bucket_name)
 
         path = BosClient._get_path(config, bucket_name, key)
