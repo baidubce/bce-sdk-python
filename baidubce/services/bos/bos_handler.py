@@ -99,6 +99,10 @@ def validate_object_key(key):
             raise ValueError("Invalid object key: key is not valid UTF-8: %s" % e)
     if not key:
         raise ValueError("Invalid object key: key must not be empty")
+    
+    if key == '/' or key == 'v1' or key == 'v1/' or key == 'V1' or key == 'V1/':
+        raise ValueError("Invalid object key: key must not be '/' or 'v1' or 'v1/' or 'V1' or 'V1/'")
+
     for segment in key.split('/'):
         if segment == '..':
             raise ValueError(
