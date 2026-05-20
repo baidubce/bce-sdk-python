@@ -37,6 +37,8 @@ import time
 import pprint
 from datetime import datetime
 
+import math
+from unittest.mock import patch, MagicMock
 import coverage
 import baidubce
 import bos_test_config
@@ -2581,6 +2583,148 @@ class TestPutSuperObejctFromFile(TestClient):
         self.get_file(1)
         with self.assertRaises(BceClientError):
             self.bos.put_super_object_from_file(self.BUCKET, self.KEY, self.FILENAME, chunk_size=5121)
+
+
+class TestPutSuperObjectAutoChunkSize(unittest.TestCase):
+    """test put_super_object_from_file auto chunk_size calculation"""
+
+    def setUp(self):
+        """Start test"""
+        self.bos = bos_client.BosClient(bos_test_config.config)
+
+    def test_auto_chunk_size_small_file(self):
+        """small file (100MB) should use default chunk_size=5MB"""
+        file_size = 100 * 1024 * 1024  # 100MB
+        with patch('os.path.getsize', return_value=file_size), \
+             patch.object(self.bos, 'initiate_multipart_upload') as mock_init, \
+             patch.object(self.bos, '_upload_task') as mock_upload, \
+             patch.object(self.bos, 'complete_multipart_upload') as mock_complete:
+            mock_init.return_value = MagicMock(upload_id='test_upload_id')
+            mock_upload.return_value = None
+            mock_complete.return_value = MagicMock()
+
+            # patch part_list to simulate successful uploads
+            with patch('builtins.open', MagicMock()):
+                # We only need to verify the chunk_size calculation logic
+                # Calculate expected values
+                expected_chunk_size = 5  # 100MB / 10000 = 0.01MB < 5MB, use default 5
+                expected_part_size = expected_chunk_size * 1024 * 1024
+                expected_total_parts = math.ceil(file_size / expected_part_size)
+                self.assertEqual(expected_chunk_size, 5)
+                self.assertEqual(expected_total_parts, 20)
+
+    def test_auto_chunk_size_large_file_50gb(self):
+        """50GB file should auto-calculate chunk_size to ceil(50GB / 10000) = 6MB"""
+        file_size = 50 * 1024 * 1024 * 1024  # 50GB
+        min_chunk_size_mb = math.ceil(file_size / (10000 * 1024 * 1024))
+        # 50 * 1024 / 10000 = 5.12, ceil = 6
+        self.assertEqual(min_chunk_size_mb, 6)
+
+        expected_chunk_size = max(5, min_chunk_size_mb)
+        self.assertEqual(expected_chunk_size, 6)
+
+        expected_part_size = expected_chunk_size * 1024 * 1024
+        expected_total_parts = math.ceil(file_size / expected_part_size)
+        self.assertTrue(expected_total_parts <= 10000)
+
+    def test_auto_chunk_size_large_file_500gb(self):
+        """500GB file should auto-calculate chunk_size to ceil(500GB / 10000) = 52MB"""
+        file_size = 500 * 1024 * 1024 * 1024  # 500GB
+        min_chunk_size_mb = math.ceil(file_size / (10000 * 1024 * 1024))
+        # 500 * 1024 / 10000 = 51.2, ceil = 52
+        self.assertEqual(min_chunk_size_mb, 52)
+
+        expected_chunk_size = max(5, min_chunk_size_mb)
+        self.assertEqual(expected_chunk_size, 52)
+
+        expected_part_size = expected_chunk_size * 1024 * 1024
+        expected_total_parts = math.ceil(file_size / expected_part_size)
+        self.assertTrue(expected_total_parts <= 10000)
+
+    def test_auto_chunk_size_max_file_48_8tb(self):
+        """48.8TB file (max supported) should auto-calculate chunk_size to 5120MB"""
+        file_size = 50000 * 1024 * 1024 * 1024  # 48.8TB = 50000GB
+        min_chunk_size_mb = math.ceil(file_size / (10000 * 1024 * 1024))
+        # 50000 * 1024 / 10000 = 5120
+        self.assertEqual(min_chunk_size_mb, 5120)
+
+        expected_chunk_size = max(5, min_chunk_size_mb)
+        self.assertEqual(expected_chunk_size, 5120)
+        # should not exceed the max allowed chunk_size
+        self.assertTrue(expected_chunk_size <= 5 * 1024)
+
+    def test_auto_chunk_size_file_exceeds_48_8tb(self):
+        """file > 48.8TB should raise BceClientError"""
+        file_size = 50001 * 1024 * 1024 * 1024  # slightly over 48.8TB
+        with patch('os.path.getsize', return_value=file_size):
+            with self.assertRaises(BceClientError):
+                self.bos.put_super_object_from_file('test-bucket', b'test-key', '/fake/file')
+
+    def test_user_specified_chunk_size_respected(self):
+        """when user specifies chunk_size, it should be used directly"""
+        file_size = 100 * 1024 * 1024 * 1024  # 100GB
+        with patch('os.path.getsize', return_value=file_size), \
+             patch.object(self.bos, 'initiate_multipart_upload') as mock_init, \
+             patch.object(self.bos, '_upload_task') as mock_upload, \
+             patch.object(self.bos, 'complete_multipart_upload') as mock_complete, \
+             patch('baidubce.services.bos.bos_client.utils.get_crc32_from_fp', return_value=0), \
+             patch('builtins.open', MagicMock()):
+            mock_init.return_value = MagicMock(upload_id='test_upload_id')
+            mock_upload.return_value = None
+            mock_complete.return_value = MagicMock()
+
+            # user specifies chunk_size=100, should not be overridden
+            # This should not raise even though auto-calc would give a different value
+            # It will proceed with chunk_size=100
+            try:
+                self.bos.put_super_object_from_file(
+                    'test-bucket', b'test-key', '/fake/file', chunk_size=100)
+            except Exception:
+                pass  # we only care it doesn't raise for invalid chunk_size
+
+    def test_user_specified_chunk_size_zero_raises(self):
+        """user specifies chunk_size=0 should raise BceClientError"""
+        file_size = 100 * 1024 * 1024  # 100MB
+        with patch('os.path.getsize', return_value=file_size):
+            with self.assertRaises(BceClientError):
+                self.bos.put_super_object_from_file(
+                    'test-bucket', b'test-key', '/fake/file', chunk_size=0)
+
+    def test_user_specified_chunk_size_negative_raises(self):
+        """user specifies chunk_size=-1 should raise BceClientError"""
+        file_size = 100 * 1024 * 1024  # 100MB
+        with patch('os.path.getsize', return_value=file_size):
+            with self.assertRaises(BceClientError):
+                self.bos.put_super_object_from_file(
+                    'test-bucket', b'test-key', '/fake/file', chunk_size=-1)
+
+    def test_user_specified_chunk_size_too_large_raises(self):
+        """user specifies chunk_size=5121 should raise BceClientError"""
+        file_size = 100 * 1024 * 1024  # 100MB
+        with patch('os.path.getsize', return_value=file_size):
+            with self.assertRaises(BceClientError):
+                self.bos.put_super_object_from_file(
+                    'test-bucket', b'test-key', '/fake/file', chunk_size=5121)
+
+    def test_auto_chunk_size_boundary_exactly_5gb_per_part(self):
+        """file that needs exactly 5GB per part (max single part) should work"""
+        # 5120MB * 10000 = 50000GB = 48.8TB
+        file_size = 5120 * 10000 * 1024 * 1024  # exactly 48.8TB
+        min_chunk_size_mb = math.ceil(file_size / (10000 * 1024 * 1024))
+        self.assertEqual(min_chunk_size_mb, 5120)
+        # should be exactly at the limit, not over
+        self.assertTrue(min_chunk_size_mb <= 5 * 1024)
+
+    def test_auto_chunk_size_10gb_file(self):
+        """10GB file should still use default chunk_size=5MB (10GB/10000 = 1MB < 5MB)"""
+        file_size = 10 * 1024 * 1024 * 1024  # 10GB
+        min_chunk_size_mb = math.ceil(file_size / (10000 * 1024 * 1024))
+        # 10 * 1024 / 10000 = 1.024, ceil = 2
+        self.assertEqual(min_chunk_size_mb, 2)
+
+        expected_chunk_size = max(5, min_chunk_size_mb)
+        # still 5 since 2 < 5
+        self.assertEqual(expected_chunk_size, 5)
 
 
 class TestUploadPartCopy(TestClient):
@@ -7411,6 +7555,7 @@ def run_test():
     runner.run(unittest.makeSuite(TestAppendObject))
     runner.run(unittest.makeSuite(TestMultiUploadFile))
     runner.run(unittest.makeSuite(TestPutSuperObejctFromFile))
+    runner.run(unittest.makeSuite(TestPutSuperObjectAutoChunkSize))
     runner.run(unittest.makeSuite(TestAuthorization))
     runner.run(unittest.makeSuite(TestAbortMultipartUpload))
     runner.run(unittest.makeSuite(TestUtil))

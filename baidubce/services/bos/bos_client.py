@@ -17,6 +17,7 @@ This module provides a client class for BOS.
 import io
 import copy
 import http.client
+import math
 import os
 import json
 import logging
@@ -2221,7 +2222,7 @@ class BosClient(BceBaseClient):
             raise e
 
     @required(bucket_name=(bytes, str), key=(bytes, str), file_name=(bytes, str))
-    def put_super_object_from_file(self, bucket_name, key, file_name, chunk_size=5,
+    def put_super_object_from_file(self, bucket_name, key, file_name, chunk_size=None,
             thread_num=None,
             uploadTaskHandle=None,
             content_type=None,
@@ -2238,15 +2239,26 @@ class BosClient(BceBaseClient):
         """
         Multipart Upload file to bos
 
-        param chunk_size: part size , default part size is 5MB
+        param chunk_size: part size in MB, default will be auto-calculated based on file size.
+                          Minimum is 5MB, maximum is 5120MB (5GB). Maximum 10000 parts allowed.
+                          Maximum file size supported is 48.8TB.
         """
-        # check params
-        if chunk_size > 5 * 1024 or chunk_size <= 0:
-           raise BceClientError("chunk size is valid, it should be more than 0 and not nore than 5120!")
         left_size = os.path.getsize(file_name)
         # if file size more than 48.8TB, reject
         if left_size > 50000 * 1024 * 1024 * 1024:
            raise BceClientError("File size must not be more than 48.8TB!")
+
+        if chunk_size is None:
+            # auto-calculate chunk_size based on file size
+            # minimum chunk_size is 5MB, maximum parts is 10000
+            chunk_size = 5
+            min_chunk_size_mb = math.ceil(left_size / (10000 * 1024 * 1024))
+            if min_chunk_size_mb > chunk_size:
+                chunk_size = min_chunk_size_mb
+
+        # check params
+        if chunk_size > 5 * 1024 or chunk_size <= 0:
+           raise BceClientError("chunk size is invalid, it should be more than 0 and not more than 5120!")
         if thread_num is None or thread_num <= 1:
            thread_num = multiprocessing.cpu_count()
         part_size = chunk_size * 1024 * 1024
