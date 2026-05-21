@@ -5,6 +5,7 @@
 涉及产品: BOS
 修复不规范key导致get类型API失效，key中不允许出现v1字段
 优化put_super_object_from_file函数，不需要用户指定分片大小
+支持请求者付费模式header
 
 【版本：v0.9.71】
 涉及产品: BOS

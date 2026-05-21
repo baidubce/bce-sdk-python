@@ -43,6 +43,7 @@ class BceClientConfiguration(object):
                  path_style_enable=False,
                  auto_follow_redirect=False,
                  under_line_headers=True,
+                 request_payer=False,
                  ):
         self.credentials = credentials
         self.endpoint = compat.convert_to_bytes(endpoint) if endpoint is not None else endpoint
@@ -63,6 +64,9 @@ class BceClientConfiguration(object):
         self.backup_endpoint = compat.convert_to_bytes(backup_endpoint) if backup_endpoint is not None else backup_endpoint
         self.auto_follow_redirect = auto_follow_redirect
         self.under_line_headers = under_line_headers
+        if request_payer is not None and not isinstance(request_payer, bool):
+            raise TypeError(b'request_payer must be a bool value')
+        self.request_payer = request_payer
 
     def merge_non_none_values(self, other):
         """

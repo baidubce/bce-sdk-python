@@ -46,6 +46,7 @@ from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services import bos
 from baidubce.services.bos import bos_handler
+from baidubce.services.bos import common
 from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
@@ -3367,6 +3368,10 @@ class BosClient(BceBaseClient):
         if config.security_token is not None:
             headers = headers or {}
             headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
+
+        if config.request_payer is True:
+            headers = headers or {}
+            headers[http_headers.BOS_REQUEST_PAYER] = common.REQUEST_PAYER_REQUESTER
 
         last_exception = None
         e = None
