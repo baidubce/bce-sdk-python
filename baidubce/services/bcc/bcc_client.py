@@ -1093,6 +1093,7 @@ class BccClient(bce_base_client.BceBaseClient):
 
     def list_instances(self, marker=None, max_keys=None, internal_ip=None, dedicated_host_id=None,
                        zone_name=None, instance_ids=None, instance_names=None, cds_ids=None, ehc_cluster_id=None,
+                       show_rdma_topo=None,
                        deployset_ids=None, security_group_ids=None, payment_timing=None, status=None, tags=None,
                        vpc_id=None, private_ips=None, ipv6_addresses=None, auto_renew=None, fuzzy_instance_name=None,
                        config=None):
@@ -1138,6 +1139,10 @@ class BccClient(bce_base_client.BceBaseClient):
         :param ehc_cluster_id:
             get instance list filtered by id of ehc cluster
         :type ehc_cluster_id: string
+
+        :param show_rdma_topo:
+            filter instance list with rdma topology info
+        :type show_rdma_topo: boolean
 
         :param deployset_ids:
             filter instance list with multiple deployset ids join by ','
@@ -1205,6 +1210,8 @@ class BccClient(bce_base_client.BceBaseClient):
             params['cdsIds'] = cds_ids
         if ehc_cluster_id is not None:
             params['ehcClusterId'] = ehc_cluster_id
+        if show_rdma_topo is not None:
+            params['showRdmaTopo'] = show_rdma_topo
         if deployset_ids is not None:
             params['deploySetIds'] = deployset_ids
         if security_group_ids is not None:
