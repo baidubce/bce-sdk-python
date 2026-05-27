@@ -86,15 +86,13 @@ class EtClient(bce_base_client.BceBaseClient):
             http_method, path, body, headers, params)
 
     def create_et_dcphy(self, name, isp, intf_type, ap_type, ap_addr, user_name, user_phone, user_email,
-                        user_idc, client_token=None, description=None, billing=None, tags=None, config=None):
+                        user_idc, client_token=None, description=None, billing=None, tags=None,
+                        link_delay=None, config=None):
         """
         Create new ET
 
         :param name: the name of ET
         :type name: string
-
-        :param description: description of ET
-        :type description: string
 
         :param isp: the type of isp
         :type isp: string
@@ -120,11 +118,17 @@ class EtClient(bce_base_client.BceBaseClient):
         :param user_idc: Idc of user
         :type user_idc: string
 
+        :param description: description of ET
+        :type description: string
+
         :param billing: billing information, currently only supports prepaid
         :type billing: dict
 
         :param tags: list of tag key-value pairs to be created
         :type tags: list<dict>
+
+        :param link_delay: port link down delay time in milliseconds
+        :type link_delay: int
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -164,15 +168,25 @@ class EtClient(bce_base_client.BceBaseClient):
         if tags is not None:
             body['tags'] = tags
 
+        if link_delay is not None:
+            body['linkDelay'] = link_delay
+
         return self._send_request(http_methods.POST, path, body=json.dumps(body), params=params, config=config)
 
     def update_et_dcphy(self, et_id, name=None, description=None, user_name=None,
-                        user_phone=None, user_email=None, client_token=None, config=None):
+                        user_phone=None, user_email=None, link_delay=None,
+                        client_token=None, config=None):
         """
         Update existed Et
 
         :param et_id: ET ID
         :type et_id: string
+
+        :param name: the name of ET
+        :type name: string
+
+        :param description: description of ET
+        :type description: string
 
         :param user_name: the name of user
         :type user_name: string
@@ -183,11 +197,8 @@ class EtClient(bce_base_client.BceBaseClient):
         :param user_email: email of user
         :type user_email: string
 
-        :param user_idc: Idc of user
-        :type user_idc: string
-
-        :param description: description of ET
-        :type description: string
+        :param link_delay: port link down delay time in milliseconds
+        :type link_delay: int
 
         :param client_token:
             If the clientToken is not specified by the user, a random String
@@ -199,23 +210,27 @@ class EtClient(bce_base_client.BceBaseClient):
         """
         path = utils.append_uri(self.prefix, self.et, et_id)
         params = {}
-        if name is not None:
-            params[b'name'] = name
-        if description is not None:
-            params[b'description'] = description
-        if user_name is not None:
-            params[b'userName'] = user_name
-        if user_phone is not None:
-            params[b'userPhone'] = user_phone
-        if user_email is not None:
-            params[b'userEmail'] = user_email
-
         if client_token is None:
             params[b'clientToken'] = generate_client_token()
         else:
             params[b'clientToken'] = client_token
 
-        return self._send_request(http_methods.PUT, path, params=params, config=config)
+        body = {}
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if user_name is not None:
+            body['userName'] = user_name
+        if user_phone is not None:
+            body['userPhone'] = user_phone
+        if user_email is not None:
+            body['userEmail'] = user_email
+        if link_delay is not None:
+            body['linkDelay'] = link_delay
+
+        return self._send_request(http_methods.PUT, path, body=json.dumps(body),
+                                  params=params, config=config)
 
     def list_et_dcphy(self, status=None, marker=None, max_keys=1000, config=None):
         """

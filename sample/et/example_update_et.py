@@ -24,6 +24,7 @@ if __name__ == "__main__":
                                          user_name='Your name',
                                          user_phone='Your Phone',
                                          user_email='Your Email',
+                                         link_delay=100,
                                          client_token=str(uuid.uuid4()))
         print("update et response: %s" % resp)
     except BceHttpClientError as e:

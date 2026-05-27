@@ -47,6 +47,7 @@ if __name__ == "__main__":
                                          description='Your Et description',
                                          billing=billing,
                                          tags=tags,
+                                         link_delay=100,
                                          client_token=str(uuid.uuid4()))
         print("create et response: %s" % resp.id)
     except BceHttpClientError as e:
