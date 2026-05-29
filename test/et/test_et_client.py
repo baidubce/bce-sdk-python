@@ -137,13 +137,16 @@ class TestEtClient(unittest.TestCase):
                                         '13333333333', '123@123.com', 'BJ|K2',
                                         description='test description',
                                         billing=billing,
-                                        tags=tags)
+                                        tags=tags,
+                                        link_delay=100)
 
     def test_update_et_dcphy(self):
         """
         test case for update_et_dcphy
         """
-        self.the_client.update_et_dcphy('dcphy-2222', name='et_update', user_name='z3', user_phone='13333333336', user_email='123@126.com')
+        self.the_client.update_et_dcphy('dcphy-2222', name='et_update', user_name='z3',
+                                        user_phone='13333333336', user_email='123@126.com',
+                                        link_delay=250, description="测试修改")
 
     def test_list_et_dcphy(self):
         """
