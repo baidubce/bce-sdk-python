@@ -144,7 +144,7 @@ class TestEtClient(unittest.TestCase):
         """
         test case for update_et_dcphy
         """
-        self.the_client.update_et_dcphy('dcphy-j036uaueveg7', name='et_update', user_name='z3',
+        self.the_client.update_et_dcphy('dcphy-2222', name='et_update', user_name='z3',
                                         user_phone='13333333336', user_email='123@126.com',
                                         link_delay=250, description="测试修改")
 
