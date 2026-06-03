@@ -734,8 +734,10 @@ class BosClient(BceBaseClient):
             raise ValueError('generate url the key param error!')
 
         config = self._merge_config(config, bucket_name)
-        headers = headers or {}
-        params = params or {}
+        headers = dict(headers) if headers else {}
+        params = dict(params) if params else {}
+        params.pop(http_headers.AUTHORIZATION.lower(), None)
+        params.pop(http_headers.AUTHORIZATION, None)
 
         # specified  protocol in endpoint > protocal > default protocol in config
         if protocol is not None:
@@ -756,6 +758,9 @@ class BosClient(BceBaseClient):
         if endpoint_port != endpoint_protocol.default_port:
             full_host += b':' + compat.convert_to_bytes(endpoint_port)
         headers[http_headers.HOST] = full_host
+
+        if config.request_payer is True:
+            params[http_headers.BOS_REQUEST_PAYER] = common.REQUEST_PAYER_REQUESTER
 
         path = self._get_path(config, bucket_name, key)
         if httpmethod != http_methods.GET and httpmethod != http_methods.HEAD:
