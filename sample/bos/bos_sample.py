@@ -86,6 +86,7 @@ if __name__ == "__main__":
     conf = bos_sample_conf.config
     conf.proxy_host = '127.0.0.1'
     conf.proxy_port = 8080
+    # conf.request_payer = True    # requester payment model
     bos_proxy_client = BosClient(conf)
 
     ######################################################################################################

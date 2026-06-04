@@ -6,3 +6,5 @@ This module defines string constants for BOS
 ENABLED = "enabled"
 SUSPENDED =  "suspended"
 DISABLED = "disabled"
+
+REQUEST_PAYER_REQUESTER = b"requester"

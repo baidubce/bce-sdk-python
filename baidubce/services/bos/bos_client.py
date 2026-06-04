@@ -46,6 +46,7 @@ from baidubce.http import http_headers
 from baidubce.http import http_methods
 from baidubce.services import bos
 from baidubce.services.bos import bos_handler
+from baidubce.services.bos import common
 from baidubce.services.bos import storage_class
 from baidubce.utils import required
 from baidubce import compat
@@ -733,8 +734,10 @@ class BosClient(BceBaseClient):
             raise ValueError('generate url the key param error!')
 
         config = self._merge_config(config, bucket_name)
-        headers = headers or {}
-        params = params or {}
+        headers = dict(headers) if headers else {}
+        params = dict(params) if params else {}
+        params.pop(http_headers.AUTHORIZATION.lower(), None)
+        params.pop(http_headers.AUTHORIZATION, None)
 
         # specified  protocol in endpoint > protocal > default protocol in config
         if protocol is not None:
@@ -755,6 +758,9 @@ class BosClient(BceBaseClient):
         if endpoint_port != endpoint_protocol.default_port:
             full_host += b':' + compat.convert_to_bytes(endpoint_port)
         headers[http_headers.HOST] = full_host
+
+        if config.request_payer is True:
+            params[http_headers.BOS_REQUEST_PAYER] = common.REQUEST_PAYER_REQUESTER
 
         path = self._get_path(config, bucket_name, key)
         if httpmethod != http_methods.GET and httpmethod != http_methods.HEAD:
@@ -3367,6 +3373,10 @@ class BosClient(BceBaseClient):
         if config.security_token is not None:
             headers = headers or {}
             headers[http_headers.STS_SECURITY_TOKEN] = config.security_token
+
+        if config.request_payer is True:
+            headers = headers or {}
+            headers[http_headers.BOS_REQUEST_PAYER] = common.REQUEST_PAYER_REQUESTER
 
         last_exception = None
         e = None

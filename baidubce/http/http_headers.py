@@ -126,6 +126,8 @@ BOS_TAG_LIST = b"x-bce-tag-list"
 
 BOS_PROCESS = b"x-bce-process"
 
+BOS_REQUEST_PAYER = b"x-bce-request-payer"
+
 BOS_BASE_ALLOW_HEADERS = set([BOS_TRAFFIC_LIMIT, BOS_VERSIONING, BOS_TAGGING, BOS_PROCESS, BOS_OBJECT_EXPIRES])
 
 BOS_IF_MATCH = b"If-Match"

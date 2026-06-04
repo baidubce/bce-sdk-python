@@ -5,6 +5,7 @@
 涉及产品: BOS
 修复不规范key导致get类型API失效，key中不允许出现v1字段
 优化put_super_object_from_file函数，不需要用户指定分片大小
+支持请求者付费模式header与预签名付费header
 涉及产品：BCC
 查询实例列表页支持返回rdma拓扑信息
 磁盘释放保护相关

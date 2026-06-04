@@ -581,6 +581,25 @@ class TestCopyObject(TestClient):
         self.assertEqual(response.metadata.bce_storage_class, "MAZ_STANDARD_IA")
 
 
+class TestGeneratePreSignedUrlUnit(unittest.TestCase):
+    """unit tests for generate_pre_signed_url"""
+
+    def test_generate_pre_signed_url_put_request_payer_in_query(self):
+        """request_payer should be embedded in query for direct URL access"""
+        conf = BceClientConfiguration(
+            credentials=bce_credentials.BceCredentials(b'ak', b'sk'),
+            endpoint=b'bj.bcebos.com',
+            protocol=protocol.HTTP,
+            request_payer=True)
+        client = bos_client.BosClient(conf)
+        url = client.generate_pre_signed_url(
+            b'test-bucket', b'test-object', timestamp=1,
+            expiration_in_seconds=1800, httpmethod=http_methods.PUT)
+
+        self.assertIn(b'x-bce-request-payer=requester', url)
+        self.assertNotIn(b'host%3Bx-bce-request-payer', url.lower())
+
+
 class TestGeneratePreSignedUrl(TestClient):
     """test generate_pre_signed_url function"""
 
@@ -7540,6 +7559,7 @@ def run_test():
 
     runner.run(unittest.makeSuite(TestSelectObject))
     runner.run(unittest.makeSuite(TestCopyObject))
+    runner.run(unittest.makeSuite(TestGeneratePreSignedUrlUnit))
     runner.run(unittest.makeSuite(TestGeneratePreSignedUrl))
     runner.run(unittest.makeSuite(TestValidateObjectKey))
     runner.run(unittest.makeSuite(TestValidateBucketName))
