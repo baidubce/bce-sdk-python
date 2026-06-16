@@ -76,10 +76,15 @@ class TestEtClient(unittest.TestCase):
         """
         client_token = generate_client_token()
 
-        print(self.the_client.recommit_et_channel(et_id, etchannel_id, authorized_users, description,
-                                                  local_ip, name, networks, remote_ip, route_type,
-                                                  vlan_id, enable_ipv6, local_ipv6, remote_ipv6,
-                                                  ipv6_networks, client_token=client_token))
+        print(self.the_client.recommit_et_channel(et_id, etchannel_id, local_ip, name, networks,
+                                                  remote_ip, route_type, vlan_id,
+                                                  authorized_users=authorized_users,
+                                                  description=description,
+                                                  enable_ipv6=enable_ipv6,
+                                                  local_ipv6=local_ipv6,
+                                                  remote_ipv6=remote_ipv6,
+                                                  ipv6_networks=ipv6_networks,
+                                                  client_token=client_token))
 
     def test_update_et_channel(self):
         """
@@ -87,8 +92,9 @@ class TestEtClient(unittest.TestCase):
         """
         client_token = generate_client_token()
 
-        print(self.the_client.update_et_channel(et_id, etchannel_id, description,
-                                                name, client_token=client_token))
+        print(self.the_client.update_et_channel(et_id, etchannel_id, name=name,
+                                                description=description, bgp_route_limit=100,
+                                                client_token=client_token))
 
     def test_delete_et_channel(self):
         """
@@ -138,7 +144,8 @@ class TestEtClient(unittest.TestCase):
                                         description='test description',
                                         billing=billing,
                                         tags=tags,
-                                        link_delay=100)
+                                        link_delay=100,
+                                        auto_renew={'reservationLength': 1, 'reservationTimeUnit': 'month'})
 
     def test_update_et_dcphy(self):
         """
@@ -165,7 +172,8 @@ class TestEtClient(unittest.TestCase):
         test case for create_et_channel
         """
         self.the_client.create_et_channel('dcphy-234r5', '172.1.1.1/24', 'testChannel', '172.1.1.2/24',
-                                          'static-route', 100)
+                                          'static-route', 100,
+                                          tags=[{'tagKey': 'tagKey', 'tagValue': 'tagValue'}])
 
     def test_create_et_channel_route_rule(self):
         """
@@ -243,6 +251,40 @@ class TestEtClient(unittest.TestCase):
 
         print(self.the_client.delete_et_channel_bfd(et_id, etchannel_id, client_token=client_token))
 
+    def test_add_et_channel_users(self):
+        """
+        test case for add et channel users
+        """
+        client_token = generate_client_token()
+        print(self.the_client.add_et_channel_users(et_id, etchannel_id, authorized_users,
+                                                   client_token=client_token))
+
+    def test_remove_et_channel_users(self):
+        """
+        test case for remove et channel users
+        """
+        client_token = generate_client_token()
+        print(self.the_client.remove_et_channel_users(et_id, etchannel_id, authorized_users,
+                                                      client_token=client_token))
+
+    def test_add_et_channel_routes(self):
+        """
+        test case for add et channel routes
+        """
+        client_token = generate_client_token()
+        print(self.the_client.add_et_channel_routes(et_id, etchannel_id, 'static-route',
+                                                    networks=networks,
+                                                    client_token=client_token))
+
+    def test_remove_et_channel_routes(self):
+        """
+        test case for remove et channel routes
+        """
+        client_token = generate_client_token()
+        print(self.the_client.remove_et_channel_routes(et_id, etchannel_id, 'static-route',
+                                                       networks=networks,
+                                                       client_token=client_token))
+
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     #suite.addTest(TestEtClient("test_create_et_dcphy"))
@@ -263,5 +305,9 @@ if __name__ == '__main__':
     #suite.addTest(TestEtClient("test_create_et_channel_bfd"))
     #suite.addTest(TestEtClient("test_update_et_channel_bfd"))
     #suite.addTest(TestEtClient("test_delete_et_channel_bfd"))
+    #suite.addTest(TestEtClient("test_add_et_channel_users"))
+    #suite.addTest(TestEtClient("test_remove_et_channel_users"))
+    #suite.addTest(TestEtClient("test_add_et_channel_routes"))
+    #suite.addTest(TestEtClient("test_remove_et_channel_routes"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

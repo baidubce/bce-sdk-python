@@ -24,6 +24,7 @@ if __name__ == "__main__":
                                            remote_ip="Your CustomerAddress",
                                            route_type="Your RouteType",
                                            vlan_id=100,
+                                           tags=[{'tagKey': 'tagKey', 'tagValue': 'tagValue'}],
                                            client_token=str(uuid.uuid4()))
         print("create et channel response: %s" % resp.id)
     except BceHttpClientError as e:

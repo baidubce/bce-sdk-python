@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-example for update et channel.
+example for remove et channel users
 """
 
 import uuid
@@ -9,18 +10,18 @@ from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
 from baidubce.services.et.et_client import EtClient
 
-
 if __name__ == "__main__":
     ak = "Your AK"
     sk = "Your SK"
-    endpoint = "bcc.bj.baidubce.com"
+    endpoint = 'Your endpoint'
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     client = EtClient(config)
     try:
-        resp = client.update_et_channel(et_id="Your Et ID", et_channel_id="Your Et Channel ID",
-                                           name="name", description="description",
-                                           bgp_route_limit=100, client_token=str(uuid.uuid4()))
-        print("Update et response: %s" % resp)
+        resp = client.remove_et_channel_users(et_id='dcphy-gq65bz9ip712',
+                                              et_channel_id='dedicatedconn-zy9t7n91k0iq',
+                                              authorized_users=['8770d0e94e2728ca81b0ec99db9f4df8'],
+                                              client_token=str(uuid.uuid4()))
+        print("remove et channel users response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

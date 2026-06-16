@@ -35,6 +35,12 @@ if __name__ == "__main__":
             }
         ]
 
+        # 自动续费信息（可选）
+        auto_renew = {
+            'reservationLength': 1,
+            'reservationTimeUnit': 'month'
+        }
+
         resp = client.create_et_dcphy(name="Your Et name",
                                          isp='ISP_CMCC',
                                          intf_type='1G',
@@ -48,6 +54,7 @@ if __name__ == "__main__":
                                          billing=billing,
                                          tags=tags,
                                          link_delay=100,
+                                         auto_renew=auto_renew,
                                          client_token=str(uuid.uuid4()))
         print("create et response: %s" % resp.id)
     except BceHttpClientError as e:

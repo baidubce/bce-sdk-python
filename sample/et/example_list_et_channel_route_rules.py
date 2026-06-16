@@ -18,7 +18,7 @@ if __name__ == '__main__':
     try:
         resp = client.list_et_channel_route_rules(et_id="dcphy-gq65bz9ip712",
                                                   et_channel_id="dedicatedconn-zy9t7n91k0iq",
-                                                  max_Keys=1,
+                                                  max_keys=1,
                                                   dest_address="10.0.0.1/32")
         print("List et channel route rules successfully, response: %s." % resp)
         print("request_id: %s, route_rules: %s." % 
