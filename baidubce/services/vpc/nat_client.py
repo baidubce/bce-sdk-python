@@ -167,7 +167,7 @@ class NatClient(bce_base_client.BceBaseClient):
         if bind_eips is not None:
             body['bindEips'] = bind_eips
         if cu_num is not None:
-            body['cuNum'] = compat.convert_to_string(cu_num)
+            body['cuNum'] = cu_num
         if spec is not None:
             body['spec'] = compat.convert_to_string(spec)
         if tags is not None:
@@ -491,7 +491,7 @@ class NatClient(bce_base_client.BceBaseClient):
             b'clientToken': client_token
         }
         body = {
-            'cuNum': compat.convert_to_string(cu_num)
+            'cuNum': cu_num
         }
 
         return self._send_request(http_methods.PUT,
@@ -913,25 +913,22 @@ class NatClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = utils.append_uri(self.version, 'nat', nat_id, 'snatRule')
-        if client_token is None:
-            client_token = generate_client_token()
-        params = {
-            b'clientToken': client_token
-        }
+        params = {}
         if marker is not None:
             params[b'marker'] = marker
         if maxKeys is not None:
             params[b'maxKeys'] = maxKeys
-        
+
         return self._send_request(http_methods.GET,
                                   path, params=params, config=config)
-    
+
     @required(nat_id=(bytes, str),
               public_ip_address=(bytes, str),
               private_ip_address=(bytes, str),
               protocol=(bytes, str))
-    def create_dnat_rule(self, nat_id, public_ip_address, private_ip_address, protocol, rule_name=None, 
-                         public_port=None, private_port=None, client_token=None, config=None):
+    def create_dnat_rule(self, nat_id, public_ip_address, private_ip_address, protocol, rule_name=None,
+                         public_port=None, private_port=None, public_port_range=None, private_port_range=None,
+                         client_token=None, config=None):
         """
         create dnat rule of a specified nat gateway.
 
@@ -989,9 +986,13 @@ class NatClient(bce_base_client.BceBaseClient):
             'protocol': compat.convert_to_string(protocol),
         }
         if public_port is not None:
-            body['publicPort'] = compat.convert_to_string(public_port)
+            body['publicPort'] = public_port
         if private_port is not None:
-            body['privatePort'] = compat.convert_to_string(private_port)
+            body['privatePort'] = private_port
+        if public_port_range is not None:
+            body['publicPortRange'] = public_port_range
+        if private_port_range is not None:
+            body['privatePortRange'] = private_port_range
         return self._send_request(http_methods.POST,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
@@ -1072,10 +1073,11 @@ class NatClient(bce_base_client.BceBaseClient):
                                   path, params=params, config=config)
     
     @required(nat_id=(bytes, str), rule_id=(bytes, str))
-    def update_dnat_rule(self, nat_id, dnat_rule_id, 
+    def update_dnat_rule(self, nat_id, dnat_rule_id,
                          public_ip_address=None, private_ip_address=None,
-                         rule_name=None, protocol=None, public_port=None, 
-                         private_port=None, client_token=None, config=None):
+                         rule_name=None, protocol=None, public_port=None,
+                         private_port=None, public_port_range=None, private_port_range=None,
+                         client_token=None, config=None):
         """
         update dnat rule of a specified nat gateway.
 
@@ -1141,11 +1143,15 @@ class NatClient(bce_base_client.BceBaseClient):
         if private_ip_address is not None:
             body['privateIpAddress'] = compat.convert_to_string(private_ip_address)
         if public_port is not None:
-            body['publicPort'] = compat.convert_to_string(public_port)
+            body['publicPort'] = public_port
         if private_port is not None:
-            body['privatePort'] = compat.convert_to_string(private_port)
-        
-        return self._send_request(http_methods.POST,
+            body['privatePort'] = private_port
+        if public_port_range is not None:
+            body['publicPortRange'] = public_port_range
+        if private_port_range is not None:
+            body['privatePortRange'] = private_port_range
+
+        return self._send_request(http_methods.PUT,
                                   path, body=json.dumps(body),
                                   params=params, config=config)
         
@@ -1186,16 +1192,12 @@ class NatClient(bce_base_client.BceBaseClient):
         :rtype baidubce.bce_response.BceResponse
         """
         path = utils.append_uri(self.version, 'nat', nat_id, 'dnatRule')
-        if client_token is None:
-            client_token = generate_client_token()
-        params = {
-            b'clientToken': client_token
-        }
+        params = {}
         if marker is not None:
             params[b'marker'] = marker
         if maxKeys is not None:
             params[b'maxKeys'] = maxKeys
-        
+
         return self._send_request(http_methods.GET,
                                   path, params=params, config=config)
 def generate_client_token_by_uuid():
