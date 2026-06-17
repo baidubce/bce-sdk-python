@@ -25,7 +25,6 @@ class JobClient(AIHCBaseClient):
     def DescribeJobs(
         self,
         resourcePoolId,
-        queueID=None,
         queue=None,
         status=None,
         keywordType=None,
@@ -42,7 +41,6 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
-            queueID: 托管资源池需传入该参数，为队列Id（可选，Query参数）
             queue: 训练任务所属队列，通用资源池须填入队列名称，不填时返回所有。托管资源池须填入队列Id（可选，Body参数）
             status: 基于状态筛选任务（可选，Body参数）
             keywordType: 筛选关键字类型（可选，Body参数）
@@ -64,8 +62,6 @@ class JobClient(AIHCBaseClient):
             'action': 'DescribeJobs',
             'resourcePoolId': resourcePoolId,
         }
-        if queueID:
-            params['queueID'] = queueID
 
         body = {}
         if queue is not None:
@@ -130,7 +126,7 @@ class JobClient(AIHCBaseClient):
             body['needDetail'] = needDetail
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def DeleteJob(self, resourcePoolId, jobId):
+    def DeleteJob(self, resourcePoolId, queueID, jobId):
         """
         删除训练任务。
 
@@ -138,8 +134,8 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
-            jobId: string
 
         Returns:
             baidubce.bce_response.BceResponse: 删除任务结果
@@ -152,13 +148,14 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DeleteJob',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
         }
         return self._send_job_request(http_methods.POST, path, body=json.dumps(body), params=params)
 
-    def ModifyJob(self, resourcePoolId, jobId, priority):
+    def ModifyJob(self, resourcePoolId, queueID, jobId, priority):
         """
         更新训练任务。
 
@@ -166,6 +163,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
             priority: 优先级（必填，Body参数），如 "normal"
 
@@ -180,6 +178,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'ModifyJob',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -190,6 +189,7 @@ class JobClient(AIHCBaseClient):
     def DescribeJobEvents(
         self,
         resourcePoolId,
+        queueID,
         jobId,
         startTime=None,
         endTime=None
@@ -201,6 +201,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
             startTime: 获取任务事件的起始时间（可选，Body参数）
             endTime: 获取任务事件的结束时间（可选，Body参数）
@@ -216,6 +217,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJobEvents',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -229,6 +231,7 @@ class JobClient(AIHCBaseClient):
     def DescribeJobLogs(
         self,
         resourcePoolId,
+        queueID,
         jobId,
         podName,
         keywords=None,
@@ -245,6 +248,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
             podName: Pod名称（必填，Body参数）
             keywords: 日志查询关键字（可选，Body参数）
@@ -265,6 +269,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJobLogs',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -294,6 +299,7 @@ class JobClient(AIHCBaseClient):
     def DescribeJobPodEvents(
         self,
         resourcePoolId,
+        queueID,
         jobId,
         podName,
         startTime=None,
@@ -306,6 +312,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
             podName: 训练任务节点名称（必填，Body参数）
             startTime: 事件起始时间，Unix时间格式（可选，Body参数）
@@ -322,6 +329,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribePodEvents',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -339,7 +347,7 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def StopJob(self, resourcePoolId, jobId):
+    def StopJob(self, resourcePoolId, queueID, jobId):
         """
         停止训练任务。
 
@@ -347,6 +355,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
 
         Returns:
@@ -360,6 +369,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'StopJob',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -371,7 +381,7 @@ class JobClient(AIHCBaseClient):
             params=params
         )
 
-    def DescribeJobNodes(self, resourcePoolId, jobId):
+    def DescribeJobNodes(self, resourcePoolId, queueID, jobId):
         """
         查询训练任务所在节点列表。
 
@@ -379,6 +389,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
 
         Returns:
@@ -392,6 +403,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJobNodes',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,
@@ -406,6 +418,7 @@ class JobClient(AIHCBaseClient):
     def DescribeJobWebterminal(
         self,
         resourcePoolId,
+        queueID,
         jobId,
         podName,
         handshakeTimeoutSecond=None,
@@ -418,6 +431,7 @@ class JobClient(AIHCBaseClient):
 
         Args:
             resourcePoolId: 注意区分资源池类型，自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless（必填）
+            queueID: 训练任务所属队列，自运维资源池须填入队列名称，托管资源池须填入队列Id（必填，Query参数）
             jobId: 训练任务ID（必填，Body参数）
             podName: 训练任务节点名称（必填，Body参数）
             handshakeTimeoutSecond: 连接超时参数，单位秒（可选，Body参数）
@@ -434,6 +448,7 @@ class JobClient(AIHCBaseClient):
         params = {
             'action': 'DescribeJobWebterminal',
             'resourcePoolId': resourcePoolId,
+            'queueID': queueID,
         }
         body = {
             'jobId': jobId,

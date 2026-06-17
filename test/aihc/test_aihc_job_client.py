@@ -68,6 +68,7 @@ class TestAIHCClient(unittest.TestCase):
     """
 
     resource_pool_id = 'cce-hcuw9ybk'
+    queue_id = 'default'
     job_id = ''
 
     def setUp(self):
@@ -185,6 +186,7 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.DeleteJob(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -196,6 +198,7 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.StopJob(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -207,6 +210,7 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.DescribeJobEvents(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id
             )
             self.assertIsInstance(response, baidubce.bce_response.BceResponse)
@@ -218,9 +222,9 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.DescribeJobLogs(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id,
                 podName='test-pod',
-                logType='stdout',
                 startTime='2024-01-01 00:00:00',
                 endTime='2024-01-01 23:59:59',
                 chunkSize=1,
@@ -246,6 +250,7 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.DescribeJobPodEvents(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id,
                 podName='test-pod',
                 startTime='2024-01-01 00:00:00',
@@ -273,6 +278,7 @@ class TestAIHCClient(unittest.TestCase):
         try:
             response = self.client.job.ModifyJob(
                 resourcePoolId=self.resource_pool_id,
+                queueID=self.queue_id,
                 jobId=self.job_id,
                 priority='normal'
             )

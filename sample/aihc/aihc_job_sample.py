@@ -139,10 +139,11 @@ def main():
     try:
         __logger.info('--------------------------DescribeJobEvents start-----------------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"
         job_id = "job-xxx"
         start_time = "1758532230"
         end_time = "1758618650"
-        response = aihc_client.job.DescribeJobEvents(resourcePoolId=resource_pool_id, jobId=job_id,
+        response = aihc_client.job.DescribeJobEvents(resourcePoolId=resource_pool_id, queueID=queue_id, jobId=job_id,
                                                      startTime=start_time, endTime=end_time)
         print(json.dumps(to_dict(response), ensure_ascii=False))
     except BceHttpClientError as e:
@@ -156,10 +157,11 @@ def main():
     try:
         __logger.info('--------------------------DescribeJobLogs start---------------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"
         job_id = "job-xxx"
         pod_name = "xxx-test-copy2-master-0"
         keywords = "xxx"
-        response = aihc_client.job.DescribeJobLogs(resourcePoolId=resource_pool_id,
+        response = aihc_client.job.DescribeJobLogs(resourcePoolId=resource_pool_id, queueID=queue_id,
                                                    jobId=job_id,
                                                    keywords=keywords,
                                                    podName=pod_name)
@@ -175,9 +177,10 @@ def main():
     try:
         __logger.info('---------------DescribeJobPodEvents start---------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"
         pod_name = "job-xxx-master-0"
         job_id = "job-xxx"
-        response = aihc_client.job.DescribeJobPodEvents(resourcePoolId=resource_pool_id,
+        response = aihc_client.job.DescribeJobPodEvents(resourcePoolId=resource_pool_id, queueID=queue_id,
                                                         jobId=job_id,
                                                         podName=pod_name,
                                                         )
@@ -220,8 +223,9 @@ def main():
     try:
         __logger.info('-------------------DescribeJobNodes start--------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"
         job_id = "job-xxx"
-        response = aihc_client.job.DescribeJobNodes(resourcePoolId=resource_pool_id, jobId=job_id)
+        response = aihc_client.job.DescribeJobNodes(resourcePoolId=resource_pool_id, queueID=queue_id, jobId=job_id)
         print(json.dumps(to_dict(response), ensure_ascii=False))
     except BceHttpClientError as e:
         if isinstance(e.last_error, BceServerError):
@@ -234,12 +238,14 @@ def main():
     try:
         __logger.info('-------------------DescribeJobWebterminal start--------------------------')
         resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+        queue_id = "default"
         job_id = "job-xxx"
         podName = "xxx-test-bb1-rerun1-master-0"
         handshake_timeout_second = "30"
         ping_timeout_second = "900"
         response = aihc_client.job.DescribeJobWebterminal(
             resourcePoolId=resource_pool_id,
+            queueID=queue_id,
             jobId=job_id,
             podName=podName,
             pingTimeoutSecond=ping_timeout_second,
@@ -257,8 +263,9 @@ def main():
     # try:
     #     __logger.info('----------------------------------DeleteJob start-----------------------------------')
     #     resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+    #     queue_id = "default"
     #     job_id = "job-xxx"
-    #     response = aihc_client.job.DeleteJob(resourcePoolId=resource_pool_id, jobId=job_id)
+    #     response = aihc_client.job.DeleteJob(resourcePoolId=resource_pool_id, queueID=queue_id, jobId=job_id)
     #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
@@ -271,9 +278,11 @@ def main():
     # try:
     #     __logger.info('---------------------------------ModifyJob start----------------------------------')
     #     resource_pool_id = ("cce-xxx")  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+    #     queue_id = "default"
     #     job_id = "job-xxx"
     #     priority = "high"
-    #     response = aihc_client.job.ModifyJob(resourcePoolId=resource_pool_id, jobId=job_id, priority=priority)
+    #     response = aihc_client.job.ModifyJob(resourcePoolId=resource_pool_id, queueID=queue_id,
+    #                                          jobId=job_id, priority=priority)
     #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
@@ -281,7 +290,6 @@ def main():
     #                        % (e.last_error.status_code, e.last_error.code, str(e.last_error)))
     #     else:
     #         __logger.error('send request failed. Unknown exception: %s' % e)
-    #
     # # 创建训练任务
     # try:
     #     __logger.info('---------------------------------CreateJob start------------------------------')
@@ -359,8 +367,9 @@ def main():
     # try:
     #     __logger.info('stop job')
     #     resource_pool_id = "cce-xxx"  # 自运维资源池传递资源池唯一标识（示例：cce-1uji3ib5），托管资源池固定传递 aihc-serverless
+    #     queue_id = "default"
     #     job_id = "job-xxx"
-    #     response = aihc_client.job.StopJob(resourcePoolId=resource_pool_id, jobId=job_id)
+    #     response = aihc_client.job.StopJob(resourcePoolId=resource_pool_id, queueID=queue_id, jobId=job_id)
     #     print(json.dumps(to_dict(response), ensure_ascii=False))
     # except BceHttpClientError as e:
     #     if isinstance(e.last_error, BceServerError):
