@@ -324,6 +324,7 @@ csn_apis = {
         "method": http_methods.PUT,
         "path": "/v1/csn/[csnId]/tgw/[tgwId]",
         "queries": {
+            "client_token": None
         },
         "headers": {
         }

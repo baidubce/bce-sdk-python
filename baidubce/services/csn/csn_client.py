@@ -1065,7 +1065,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(body))
 
-    def update_tgw(self, csn_id=None, tgw_id=None, update_tgw_request=None):
+    def update_tgw(self, csn_id=None, tgw_id=None, update_tgw_request=None, client_token=None):
         """
         更新TGW的名称、描述。
 
@@ -1081,6 +1081,10 @@ class CsnClient(bce_base_client.BceBaseClient):
         :desc
         :type update_tgw_request: json
 
+        :param client_token:
+        :desc 幂等性Token，是一个长度不超过64位的ASCII字符串，详见ClientToken幂等性
+        :type client_token: str
+
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
@@ -1088,6 +1092,7 @@ class CsnClient(bce_base_client.BceBaseClient):
         api_config = self._get_config(csn_apis, "update_tgw")
         self._add_path_param(api_config, "csnId", csn_id)
         self._add_path_param(api_config, "tgwId", tgw_id)
+        self._add_query(api_config, "clientToken", client_token)
 
         return self._send_request(api_config["method"], quote(api_config["path"]).encode("utf8"), api_config["headers"],
                                   api_config["queries"], json.dumps(update_tgw_request))

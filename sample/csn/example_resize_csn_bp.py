@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-example for update csn.
+example for resize csn bp.
 """
 
 import uuid
@@ -19,6 +19,6 @@ if __name__ == "__main__":
     csn_client = csn_client.CsnClient(config)
     try:
         resp = csn_client.resize_csn_bp(csn_bp_id="csn_bp_id", bandwidth=1000, client_token=str(uuid.uuid4()))
-        print("Update csn bp response: %s" % resp)
+        print("Resize csn bp response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

@@ -3,6 +3,8 @@
 example for update tgw.
 """
 
+import uuid
+
 from baidubce.auth.bce_credentials import BceCredentials
 from baidubce.bce_client_configuration import BceClientConfiguration
 from baidubce.exception import BceHttpClientError
@@ -21,7 +23,8 @@ if __name__ == "__main__":
     }
     try:
         resp = csn_client.update_tgw(csn_id="Your csn_id", tgw_id="Your tgw_id",
-                                     update_tgw_request=update_tgw_request)
-        print("Update csn response: %s" % resp)
+                                     update_tgw_request=update_tgw_request,
+                                     client_token=str(uuid.uuid4()))
+        print("Update tgw response: %s" % resp)
     except BceHttpClientError as e:
         print("Exception when calling api: %s" % e)

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     config = BceClientConfiguration(credentials=BceCredentials(access_key_id=ak, secret_access_key=sk),
                                     endpoint=endpoint)
     csn_client = csn_client.CsnClient(config)
-    billing= csn_model.Billing("Prepaid", 1, "month")
+    billing = csn_model.Billing("Prepaid", 1, "month", "ByBandwidth")
     try:
         resp = csn_client.create_csn_bp(name="csn_bp_test", bandwidth=10, geographic_a="China", geographic_b="China",
                                         billing=billing, interwork_type="center",
