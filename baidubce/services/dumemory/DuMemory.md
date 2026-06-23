@@ -1,0 +1,2430 @@
+# DuMemory服务
+
+# 概述
+
+本文档主要介绍 DuMemory（云端记忆）Python SDK 的使用。DuMemory 是基于向量数据库 VectorDB 提供的长期记忆服务，可用于为大模型应用提供持久化的记忆读写、心智模型、指令、文档与实体关系等能力。对外暴露与 [接口速查表](https://cloud.baidu.com/doc/VDB/s/cmpl4uayz) 完全对齐的 API。
+
+> 注意：DuMemory 的鉴权方式不同于其它 BCE 服务，**不使用 AK/SK 签名**，而是通过 HTTP Bearer Token（API Key）进行认证。
+
+# 初始化
+
+## 确认 Endpoint
+
+DuMemory 的服务端点由用户在控制台或自建部署中获取，通常形如：
+
+- 公有云端点：`https://cloud.memory.<region>.baidubce.com/api`
+- 自建/本地部署：`http://127.0.0.1:8888`
+
+API 支持 HTTP 和 HTTPS 两种调用方式。生产环境建议使用 HTTPS。
+
+## 获取 API Key
+
+通过 [百度智能云控制台](https://console.bce.baidu.com) 创建并获取 DuMemory 的 API Key。所有请求会通过下面的请求头传递：
+
+
+## 云记忆 DuMemory API 参考
+本文档参照百度智能云接口文档结构，对 `baidubce/services/dumemory` 包封装的全部接口逐一说明。每个接口均包括：接口说明、请求 URI、请求头域、请求参数、返回头域、返回参数、请求示例、返回示例，以及对应的 SDK 调用方法。
+服务端实现基于 DuMemory HTTP API（OpenAPI 0.6.x / 0.8.x），Python SDK 是其上基于 `hindsight-client` 的同步封装。所有 /v1/default/banks/{bankId}/... 路径中的 default 表示当前默认命名空间，bankId 为记忆库 ID。
+---
+
+## 公共说明
+
+### 公共请求头域
+
+| 参数名称 | 参数类型 | 是否必须 | 示例值 | 描述 |
+| --- | --- | --- | --- | --- |
+| Host | String | 是 | cloud.memory.bj.baidubce.com | 服务域名 |
+| Authorization | String | 是 | Bearer bce-v3/ALTAK-xxx/xxx | Bearer Token；通过 `dumemory_client.new_client(base_url, api_key)` 自动注入 |
+| Content-Type | String | 否 | application/json | 携带请求体的接口必填 |
+| Accept | String | 否 | application/json | 期望返回 JSON |
+
+### 公共返回头域
+
+| 参数名称 | 参数类型 | 示例值 | 描述 |
+| --- | --- | --- | --- |
+| Content-Type | String | application/json | 返回体类型 |
+| Date | String | Mon, 09 Jun 2026 02:30:00 GMT | 服务端时间 |
+
+### SDK 客户端构造
+
+```python
+from baidubce.services.dumemory import dumemory_client
+from baidubce.services.dumemory import dumemory_model
+
+client = dumemory_client.new_client(
+    "https://cloud.memory.bj.baidubce.com/api", "<API_KEY>")
+# 或带超时（秒）
+client = dumemory_client.new_client_with_timeout(
+    "https://cloud.memory.bj.baidubce.com/api", "<API_KEY>", timeout=120)
+```
+
+### 接口总览
+
+| 模块 | 方法 | 路径 | SDK 方法 |
+| --- | --- | --- | --- |
+| 监控 | GET | /health | `health` |
+| 监控 | GET | /version | `version` |
+| 记忆库 | GET | /v1/default/banks | `list_banks` |
+| 记忆库 | POST | /v1/default/banks/{bankId} | `create_bank` |
+| 记忆库 | GET | /v1/default/banks/{bankId}/profile | `get_bank` |
+| 记忆库 | DELETE | /v1/default/banks/{bankId} | `delete_bank` |
+| 记忆库 | GET | /v1/default/banks/{bankId}/config | `get_bank_config` |
+| 记忆库 | PATCH | /v1/default/banks/{bankId}/config | `update_bank_config` |
+| 记忆库 | GET | /v1/default/banks/{bankId}/stats | `get_bank_stats` |
+| 记忆库 | POST | /v1/default/banks/{bankId}/consolidate | `consolidate_bank` |
+| 记忆 | POST | /v1/default/banks/{bankId}/memories | `retain` / `retain_async` |
+| 记忆 | POST | /v1/default/banks/{bankId}/memories/recall | `recall` |
+| 记忆 | POST | /v1/default/banks/{bankId}/reflect | `reflect` |
+| 记忆 | GET | /v1/default/banks/{bankId}/memories/list | `list_memories` |
+| 实体 | GET | /v1/default/banks/{bankId}/entities | `list_entities` |
+| 实体 | GET | /v1/default/banks/{bankId}/entities/graph | `entity_graph` |
+| 文档 | GET | /v1/default/banks/{bankId}/documents | `list_documents` |
+| 文档 | GET | /v1/default/banks/{bankId}/documents/{documentId} | `get_document` |
+| 文档 | PATCH | /v1/default/banks/{bankId}/documents/{documentId} | `update_document` |
+| 文档 | DELETE | /v1/default/banks/{bankId}/documents/{documentId} | `delete_document` |
+| 文档 | GET | /v1/default/banks/{bankId}/documents/{documentId}/chunks | `list_document_chunks` |
+| 心智模型 | GET | /v1/default/banks/{bankId}/mental-models | `list_mental_models` |
+| 心智模型 | POST | /v1/default/banks/{bankId}/mental-models | `create_mental_model` |
+| 心智模型 | GET | /v1/default/banks/{bankId}/mental-models/{modelId} | `get_mental_model` |
+| 心智模型 | PATCH | /v1/default/banks/{bankId}/mental-models/{modelId} | `update_mental_model` |
+| 心智模型 | DELETE | /v1/default/banks/{bankId}/mental-models/{modelId} | `delete_mental_model` |
+| 心智模型 | POST | /v1/default/banks/{bankId}/mental-models/{modelId}/refresh | `refresh_mental_model` |
+| 指令 | GET | /v1/default/banks/{bankId}/directives | `list_directives` |
+| 指令 | POST | /v1/default/banks/{bankId}/directives | `create_directive` |
+| 指令 | GET | /v1/default/banks/{bankId}/directives/{directiveId} | `get_directive` |
+| 指令 | PATCH | /v1/default/banks/{bankId}/directives/{directiveId} | `update_directive` |
+| 指令 | DELETE | /v1/default/banks/{bankId}/directives/{directiveId} | `delete_directive` |
+| 操作 | GET | /v1/default/banks/{bankId}/operations | `list_operations` |
+| 操作 | DELETE | /v1/default/banks/{bankId}/operations/{operationId} | `cancel_operation` |
+| 文件 | POST | /v1/default/banks/{bankId}/files/retain | `files_retain` |
+
+---
+
+## 一、监控
+
+### 1.1 健康检查 Health
+
+**接口说明**
+
+检查服务是否存活；不需要鉴权。
+
+**请求 URI**
+
+```
+GET /health
+Host: cloud.memory.bj.baidubce.com
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+无。
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| status | String | 健康状态，例如 `healthy` |
+| database | String | 数据库连接状态，例如 `connected` |
+
+**请求示例**
+
+```
+GET /health
+Host: cloud.memory.bj.baidubce.com
+```
+
+**返回示例**
+
+```json
+{ "status": "healthy", "database": "connected" }
+```
+
+**SDK 方法**
+
+```python
+out = client.health()
+```
+
+---
+
+### 1.2 服务版本 Version
+
+**接口说明**
+
+返回服务端 API 版本与已启用的特性开关，需要鉴权。
+
+**请求 URI**
+
+```
+GET /version
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+无。
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| api_version | String | 服务端版本号，如 `0.6.2` |
+| features | Object | 特性开关键值对，键为特性名，值为布尔；具体键随服务端版本变化 |
+
+**请求示例**
+
+```
+GET /version
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "api_version": "0.6.2",
+  "features": {
+    "observations": true,
+    "mcp": true,
+    "worker": true,
+    "bank_config_api": true,
+    "file_upload_api": true
+  }
+}
+```
+
+**SDK 方法**
+
+```python
+info = client.version()
+# info.api_version / info.features["observations"]
+```
+
+---
+
+## 二、记忆库 Banks
+
+### 2.1 列出记忆库 ListBanks
+
+**接口说明**
+
+列出当前账号下所有记忆库（bank）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+无。
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| banks | Array<BankListItem> | 记忆库列表，每项包含 `bank_id`、`name` 等基础信息 |
+
+**请求示例**
+
+```
+GET /v1/default/banks
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "banks": [
+    { "bank_id": "demo-bank", "name": "Demo" }
+  ]
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.list_banks()
+```
+
+---
+
+### 2.2 创建/更新记忆库 CreateBank
+
+**接口说明**
+
+按 `bankId` 创建记忆库；若已存在则按请求体更新元信息（名字、使命、人格特质等）。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| name | String | 否 | RequestBody | 显示名称 |
+| disposition | Object | 否 | RequestBody | 综合人格特质 |
+| disposition_skepticism | Integer | 否 | RequestBody | 怀疑性 0-100 |
+| disposition_literalism | Integer | 否 | RequestBody | 字面性 0-100 |
+| disposition_empathy | Integer | 否 | RequestBody | 共情性 0-100 |
+| mission | String | 否 | RequestBody | Agent 使命 |
+| background | String | 否 | RequestBody | 背景描述 |
+| reflect_mission | String | 否 | RequestBody | reflect 自定义使命 |
+| retain_mission | String | 否 | RequestBody | retain 自定义使命 |
+| retain_extraction_mode | String | 否 | RequestBody | 抽取模式 |
+| retain_custom_instructions | String | 否 | RequestBody | retain 自定义指令 |
+| retain_chunk_size | Integer | 否 | RequestBody | 切片大小 |
+| enable_observations | Boolean | 否 | RequestBody | 是否启用观察 |
+| observations_mission | String | 否 | RequestBody | 观察使命 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| bank_id | String | 记忆库 ID |
+| name | String | 名称 |
+| disposition | Object | 人格特质 |
+| mission | String | 使命 |
+| background | String | 背景，可空 |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{
+  "name": "Demo Bank",
+  "mission": "Help me remember everything"
+}
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "name": "Demo Bank",
+  "disposition": {},
+  "mission": "Help me remember everything"
+}
+```
+
+**SDK 方法**
+
+```python
+req = dumemory_model.new_create_bank_request(
+    name="Demo Bank",
+    mission="Help me remember everything",
+)
+out = client.create_bank("demo-bank", req)
+```
+
+---
+
+### 2.3 查看记忆库 GetBank
+
+**接口说明**
+
+按 `bankId` 获取记忆库的 profile（名称、人格、使命、背景）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/profile
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+参见 2.2 返回参数。
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/profile
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "name": "Demo Bank",
+  "disposition": {},
+  "mission": "Help me remember everything",
+  "background": null
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_bank("demo-bank")
+```
+
+---
+
+### 2.4 删除记忆库 DeleteBank
+
+**接口说明**
+
+删除指定记忆库及其下全部数据，操作不可恢复。
+
+**请求 URI**
+
+```
+DELETE /v1/default/banks/{bankId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| success | Boolean | 是否成功 |
+| message | String | 信息描述 |
+
+**请求示例**
+
+```
+DELETE /v1/default/banks/demo-bank
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "success": true, "message": "deleted" }
+```
+
+**SDK 方法**
+
+```python
+out = client.delete_bank("demo-bank")
+```
+
+---
+
+### 2.5 获取记忆库配置 GetBankConfig
+
+**接口说明**
+
+获取记忆库的完整配置（合并所有继承层级）和当前 bank 自身的覆盖项。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/config
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| bank_id | String | 记忆库 ID |
+| config | Object | 合并所有继承后的最终配置 |
+| overrides | Object | 当前 bank 自有的覆盖项 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/config
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "config": { "llm_provider": "openai" },
+  "overrides": {}
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_bank_config("demo-bank")
+```
+
+---
+
+### 2.6 更新记忆库配置 UpdateBankConfig
+
+**接口说明**
+
+按需覆盖 bank 级配置。Key 支持 Python 字段名（如 `llm_provider`）或环境变量名（如 `HINDSIGHT_API_LLM_PROVIDER`），仅可覆盖支持层级化的字段。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/config
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| updates | Object | 是 | RequestBody | 要覆盖的配置键值对 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+参见 2.5 返回参数。
+
+**请求示例**
+
+```
+PATCH /v1/default/banks/demo-bank/config
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "updates": { "llm_provider": "openai" } }
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "config": { "llm_provider": "openai" },
+  "overrides": { "llm_provider": "openai" }
+}
+```
+
+**SDK 方法**
+
+```python
+upd = dumemory_model.new_bank_config_update({
+    "llm_provider": "openai",
+})
+out = client.update_bank_config("demo-bank", upd)
+```
+
+---
+
+### 2.7 记忆库统计 GetBankStats
+
+**接口说明**
+
+返回 bank 级的节点/链接/文档/操作等统计指标。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/stats
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| bank_id | String | 记忆库 ID |
+| total_nodes | Integer | 节点数 |
+| total_links | Integer | 关系数 |
+| total_documents | Integer | 文档数 |
+| nodes_by_fact_type | Object<String,Integer> | 各类节点计数 |
+| links_by_link_type | Object<String,Integer> | 各类关系计数 |
+| links_by_fact_type | Object<String,Integer> | 关系按事实类型计数 |
+| links_breakdown | Object | 关系明细 |
+| pending_operations | Integer | 排队操作数 |
+| failed_operations | Integer | 失败操作数 |
+| operations_by_status | Object<String,Integer> | 异步操作分状态计数（可选） |
+| last_consolidated_at | String | 上次整合时间，可空 |
+| pending_consolidation | Integer | 待整合的源记忆数（可选） |
+| failed_consolidation | Integer | 整合失败的源记忆数（可选） |
+| total_observations | Integer | 总观察数（可选） |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/stats
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "total_nodes": 124,
+  "total_links": 56,
+  "total_documents": 8,
+  "nodes_by_fact_type": { "Person": 12 },
+  "links_by_link_type": { "knows": 6 },
+  "links_by_fact_type": {},
+  "links_breakdown": {},
+  "pending_operations": 0,
+  "failed_operations": 0
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_bank_stats("demo-bank")
+```
+
+---
+
+### 2.8 触发整合 ConsolidateBank
+
+**接口说明**
+
+手动触发一次记忆整合（observations）。整合是异步任务，接口返回任务 ID。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/consolidate
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| body | Object | 否 | RequestBody | 服务端 0.6.x 版本可省略请求体；0.8.x 起支持可选过滤参数 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| operation_id | String | 异步任务 ID，可用 `ListOperations` 跟踪 |
+| deduplicated | Boolean | 是否复用了同一个等待中的任务（可选） |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/consolidate
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "operation_id": "op-abc-123", "deduplicated": false }
+```
+
+**SDK 方法**
+
+```python
+out = client.consolidate_bank("demo-bank")
+```
+
+---
+
+## 三、记忆 Memory
+
+### 3.1 写入记忆 Retain / RetainAsync
+
+**接口说明**
+
+向指定 bank 写入一组记忆条目，可选同步或异步处理。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/memories
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| items | Array<MemoryItem> | 是 | RequestBody | 记忆条目数组 |
+| items[].content | String | 是 | RequestBody | 记忆正文 |
+| items[].timestamp | String | 否 | RequestBody | ISO 时间戳 |
+| items[].context | String | 否 | RequestBody | 上下文 |
+| items[].metadata | Object<String,String> | 否 | RequestBody | 元数据 |
+| items[].document_id | String | 否 | RequestBody | 关联的文档 ID |
+| items[].tags | Array<String> | 否 | RequestBody | 标签 |
+| items[].strategy | String | 否 | RequestBody | 写入策略 |
+| items[].update_mode | String | 否 | RequestBody | 更新模式 |
+| async | Boolean | 否 | RequestBody | 异步处理标记 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| success | Boolean | 是否成功 |
+| bank_id | String | 记忆库 ID |
+| items_count | Integer | 写入条目数 |
+| async | Boolean | 是否异步处理 |
+| operation_id | String | 异步主任务 ID（可空） |
+| operation_ids | Array<String> | 异步任务 ID 列表（可空） |
+| usage | Object | Token 用量（可空） |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/memories
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{
+  "items": [
+    { "content": "今天和小明在楼下喝了咖啡。", "tags": ["life"] }
+  ]
+}
+```
+
+**返回示例**
+
+```json
+{
+  "success": true,
+  "bank_id": "demo-bank",
+  "items_count": 1,
+  "async": false
+}
+```
+
+**SDK 方法**
+
+```python
+items = [dumemory_model.new_memory_item("今天和小明在楼下喝了咖啡。")]
+out = client.retain("demo-bank", dumemory_model.new_retain_request(items))
+# 异步:
+out = client.retain_async("demo-bank", dumemory_model.new_retain_request(items))
+```
+
+---
+
+### 3.2 召回记忆 Recall
+
+**接口说明**
+
+按自然语言 query 检索记忆，可附带类型、标签、tag_groups 等过滤条件。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/memories/recall
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| query | String | 是 | RequestBody | 查询语句 |
+| types | Array<String> | 否 | RequestBody | 节点/事实类型过滤 |
+| budget | Object | 否 | RequestBody | 检索预算 |
+| max_tokens | Integer | 否 | RequestBody | 返回 token 上限 |
+| trace | Boolean | 否 | RequestBody | 是否返回检索 trace |
+| query_timestamp | String | 否 | RequestBody | 时间相关查询的基准时间 |
+| include | Object | 否 | RequestBody | 控制是否包含实体、源记忆等 |
+| tags | Array<String> | 否 | RequestBody | 标签过滤 |
+| tags_match | String | 否 | RequestBody | 标签匹配模式：`any` `all` `any_strict` `all_strict` |
+| tag_groups | Array<Object> | 否 | RequestBody | 多组标签条件 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| results | Array<RecallResult> | 命中结果 |
+| trace | Object | 检索 trace（可选） |
+| entities | Object<String,EntityState> | 关联实体（可选） |
+| chunks | Object<String,ChunkData> | 关联文档片段（可选） |
+| source_facts | Object<String,RecallResult> | 源事实（可选） |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/memories/recall
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "query": "我和小明喝过几次咖啡？" }
+```
+
+**返回示例**
+
+```json
+{
+  "results": [
+    { "id": "m-1", "content": "今天和小明在楼下喝了咖啡。", "score": 0.92 }
+  ]
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.recall("demo-bank",
+    dumemory_model.new_recall_request(query="我和小明喝过几次咖啡？"))
+```
+
+---
+
+### 3.3 反思 Reflect
+
+**接口说明**
+
+基于召回记忆生成结构化或 markdown 形式的回答；支持指定 fact_types、tag_groups 等过滤项。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/reflect
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| query | String | 是 | RequestBody | 反思问题 |
+| budget | Object | 否 | RequestBody | 检索预算 |
+| context | String | 否 | RequestBody | 附加上下文 |
+| max_tokens | Integer | 否 | RequestBody | 返回 token 上限 |
+| include | Object | 否 | RequestBody | 是否包含 trace、引用等 |
+| response_schema | Object | 否 | RequestBody | 期望的 JSON 输出 schema |
+| tags | Array<String> | 否 | RequestBody | 标签过滤 |
+| tags_match | String | 否 | RequestBody | 标签匹配模式 |
+| tag_groups | Array<Object> | 否 | RequestBody | 多组标签条件 |
+| fact_types | Array<String> | 否 | RequestBody | 事实类型过滤 |
+| exclude_mental_models | Boolean | 否 | RequestBody | 是否排除全部心智模型 |
+| exclude_mental_model_ids | Array<String> | 否 | RequestBody | 指定要排除的心智模型 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| text | String | Markdown 文本 |
+| based_on | Object | 引用的记忆（可选） |
+| structured_output | Object | 结构化输出（按 response_schema） |
+| usage | Object | Token 用量（可选） |
+| trace | Object | 推理 trace（可选） |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/reflect
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "query": "总结我和小明的关系" }
+```
+
+**返回示例**
+
+```json
+{ "text": "你和小明经常一起喝咖啡，关系亲近。" }
+```
+
+**SDK 方法**
+
+```python
+out = client.reflect("demo-bank",
+    dumemory_model.new_reflect_request(query="总结我和小明的关系"))
+```
+
+---
+
+### 3.4 列出记忆 ListMemories
+
+**接口说明**
+
+分页列出 bank 下的记忆单元，支持按类型、查询关键词、整合状态过滤。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/memories/list?type=&q=&consolidation_state=&limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| type | String | 否 | Query 参数 | 节点/事实类型 |
+| q | String | 否 | Query 参数 | 关键词模糊匹配 |
+| consolidation_state | String | 否 | Query 参数 | 整合状态过滤 |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<Object> | 记忆单元列表 |
+| total | Integer | 总条数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/memories/list?limit=20&offset=0
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [], "total": 0, "limit": 20, "offset": 0 }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_memories("demo-bank",
+    dumemory_model.ListMemoriesOptions(limit=20))
+```
+
+---
+
+## 四、实体 Entities
+
+### 4.1 列出实体 ListEntities
+
+**接口说明**
+
+分页列出 bank 内的实体（人/物/概念）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/entities?limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<EntityListItem> | 实体列表 |
+| total | Integer | 总数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/entities?limit=10
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [], "total": 0, "limit": 10, "offset": 0 }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_entities("demo-bank", limit=10, offset=0)
+```
+
+---
+
+### 4.2 实体关系图 EntityGraph
+
+**接口说明**
+
+返回 bank 内实体的图结构（节点 + 边），便于可视化关系网络。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/entities/graph?limit=&min_count=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| limit | Integer | 否 | Query 参数 | 节点数量上限 |
+| min_count | Integer | 否 | Query 参数 | 入度下限 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| nodes | Array<Object> | 节点 |
+| edges | Array<Object> | 边 |
+| total_entities | Integer | 实体总数 |
+| total_edges | Integer | 边总数 |
+| limit | Integer | 节点数上限 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/entities/graph?limit=50&min_count=2
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "nodes": [], "edges": [], "total_entities": 0, "total_edges": 0, "limit": 50 }
+```
+
+**SDK 方法**
+
+```python
+out = client.entity_graph("demo-bank", limit=50, min_count=2)
+```
+
+---
+
+## 五、文档 Documents
+
+### 5.1 列出文档 ListDocuments
+
+**接口说明**
+
+分页列出 bank 下的文档，支持关键词、标签过滤。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/documents?q=&tags=&tags_match=&limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| q | String | 否 | Query 参数 | 关键词 |
+| tags | Array<String> | 否 | Query 参数 | 标签过滤（多次出现） |
+| tags_match | String | 否 | Query 参数 | 标签匹配模式 |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<Object> | 文档列表 |
+| total | Integer | 总数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/documents?limit=10
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [], "total": 0, "limit": 10, "offset": 0 }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_documents("demo-bank",
+    dumemory_model.ListDocumentsOptions(limit=10))
+```
+
+---
+
+### 5.2 获取文档 GetDocument
+
+**接口说明**
+
+按文档 ID 获取详情，包括原文、tags、关联节点统计、retain 参数等。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/documents/{documentId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| documentId | String | 是 | URL 参数 | 文档 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| id | String | 文档 ID |
+| bank_id | String | 记忆库 ID |
+| original_text | String | 原文 |
+| content_hash | String | 内容哈希 |
+| created_at | String | 创建时间 |
+| updated_at | String | 更新时间 |
+| memory_unit_count | Integer | 派生的记忆单元数 |
+| nodes_by_fact_type | Object<String,Integer> | 节点按事实类型计数 |
+| tags | Array<String> | 标签 |
+| document_metadata | Object | 文档元数据 |
+| retain_params | Object | retain 时使用的参数 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/documents/doc-123
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "id": "doc-123",
+  "bank_id": "demo-bank",
+  "original_text": "...",
+  "content_hash": "abc",
+  "created_at": "2026-06-01T10:00:00Z",
+  "updated_at": "2026-06-01T10:00:00Z",
+  "memory_unit_count": 5
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_document("demo-bank", "doc-123")
+```
+
+---
+
+### 5.3 更新文档 UpdateDocument
+
+**接口说明**
+
+仅支持修改文档的 tags。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/documents/{documentId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| documentId | String | 是 | URL 参数 | 文档 ID |
+| tags | Array<String> | 否 | RequestBody | 全量替换 tags |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| success | Boolean | 是否成功 |
+
+**请求示例**
+
+```
+PATCH /v1/default/banks/demo-bank/documents/doc-123
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "tags": ["personal", "coffee"] }
+```
+
+**返回示例**
+
+```json
+{ "success": true }
+```
+
+**SDK 方法**
+
+```python
+req = dumemory_model.new_update_document_request(tags=["personal", "coffee"])
+out = client.update_document("demo-bank", "doc-123", req)
+```
+
+---
+
+### 5.4 删除文档 DeleteDocument
+
+**接口说明**
+
+删除文档及其派生的记忆单元。
+
+**请求 URI**
+
+```
+DELETE /v1/default/banks/{bankId}/documents/{documentId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| documentId | String | 是 | URL 参数 | 文档 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| success | Boolean | 是否成功 |
+| message | String | 信息描述 |
+| document_id | String | 已删文档 ID |
+| memory_units_deleted | Integer | 同时删除的记忆单元数 |
+
+**请求示例**
+
+```
+DELETE /v1/default/banks/demo-bank/documents/doc-123
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "success": true, "message": "deleted", "document_id": "doc-123", "memory_units_deleted": 5 }
+```
+
+**SDK 方法**
+
+```python
+out = client.delete_document("demo-bank", "doc-123")
+```
+
+---
+
+### 5.5 列出文档分块 ListDocumentChunks
+
+**接口说明**
+
+分页列出文档的分块（chunk）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/documents/{documentId}/chunks?limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| documentId | String | 是 | URL 参数 | 文档 ID |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<ChunkResponse> | 分块列表（chunk_id / chunk_index / chunk_text / created_at） |
+| total | Integer | 总数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/documents/doc-123/chunks?limit=20
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [], "total": 0, "limit": 20, "offset": 0 }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_document_chunks("demo-bank", "doc-123", limit=20, offset=0)
+```
+
+---
+
+## 六、心智模型 Mental Models
+
+### 6.1 列出心智模型 ListMentalModels
+
+**接口说明**
+
+列出 bank 下的心智模型。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/mental-models?tags=&tags_match=&detail=&limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| tags | Array<String> | 否 | Query 参数 | 标签过滤 |
+| tags_match | String | 否 | Query 参数 | 标签匹配模式 |
+| detail | String | 否 | Query 参数 | 详情级别（如 `summary`/`full`） |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<MentalModelResponse> | 心智模型列表 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/mental-models?limit=20
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [] }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_mental_models("demo-bank",
+    dumemory_model.ListMentalModelsOptions(limit=20))
+```
+
+---
+
+### 6.2 创建心智模型 CreateMentalModel
+
+**接口说明**
+
+创建一个由 `source_query` 驱动生成的心智模型。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/mental-models
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| id | String | 否 | RequestBody | 自定义 ID |
+| name | String | 是 | RequestBody | 名称 |
+| source_query | String | 是 | RequestBody | 生成内容用的查询语句 |
+| tags | Array<String> | 否 | RequestBody | 标签 |
+| max_tokens | Integer | 否 | RequestBody | 生成上限 |
+| trigger | Object | 否 | RequestBody | 触发条件 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| 同 GetMentalModel 返回 | - | 返回创建后的模型详情 |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/mental-models
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "name": "User Profile", "source_query": "Who is the user?" }
+```
+
+**返回示例**
+
+```json
+{ "id": "mm-1", "bank_id": "demo-bank", "name": "User Profile" }
+```
+
+**SDK 方法**
+
+```python
+out = client.create_mental_model("demo-bank",
+    dumemory_model.new_create_mental_model_request("User Profile", "Who is the user?"))
+```
+
+---
+
+### 6.3 查看心智模型 GetMentalModel
+
+**接口说明**
+
+按 ID 获取心智模型详情，包括内容、最近一次刷新时间等。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/mental-models/{modelId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| modelId | String | 是 | URL 参数 | 心智模型 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| id | String | 模型 ID |
+| bank_id | String | 记忆库 ID |
+| name | String | 名称 |
+| source_query | String | 源查询 |
+| content | String | 已生成的内容 |
+| tags | Array<String> | 标签 |
+| max_tokens | Integer | 生成上限 |
+| trigger | Object | 触发器 |
+| last_refreshed_at | String | 上次刷新时间 |
+| created_at | String | 创建时间 |
+| reflect_response | Object | 最近一次 reflect 结果 |
+| is_stale | Boolean | 是否过期 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/mental-models/mm-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "id": "mm-1", "bank_id": "demo-bank", "name": "User Profile" }
+```
+
+**SDK 方法**
+
+```python
+out = client.get_mental_model("demo-bank", "mm-1")
+```
+
+---
+
+### 6.4 更新心智模型 UpdateMentalModel
+
+**接口说明**
+
+修改心智模型的名称、查询、触发条件等。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/mental-models/{modelId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| modelId | String | 是 | URL 参数 | 心智模型 ID |
+| name | String | 否 | RequestBody | 新名称 |
+| source_query | String | 否 | RequestBody | 新查询 |
+| max_tokens | Integer | 否 | RequestBody | 生成上限 |
+| tags | Array<String> | 否 | RequestBody | 标签 |
+| trigger | Object | 否 | RequestBody | 触发条件 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+参见 6.3。
+
+**请求示例**
+
+```
+PATCH /v1/default/banks/demo-bank/mental-models/mm-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "name": "User Profile v2" }
+```
+
+**返回示例**
+
+```json
+{ "id": "mm-1", "bank_id": "demo-bank", "name": "User Profile v2" }
+```
+
+**SDK 方法**
+
+```python
+req = dumemory_model.new_update_mental_model_request(name="User Profile v2")
+out = client.update_mental_model("demo-bank", "mm-1", req)
+```
+
+---
+
+### 6.5 删除心智模型 DeleteMentalModel
+
+**接口说明**
+
+按 ID 删除心智模型。
+
+**请求 URI**
+
+```
+DELETE /v1/default/banks/{bankId}/mental-models/{modelId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| modelId | String | 是 | URL 参数 | 心智模型 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+由服务端返回任意 JSON 对象（一般含 `success`/`message`）。
+
+**请求示例**
+
+```
+DELETE /v1/default/banks/demo-bank/mental-models/mm-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "success": true }
+```
+
+**SDK 方法**
+
+```python
+out = client.delete_mental_model("demo-bank", "mm-1")
+```
+
+---
+
+### 6.6 刷新心智模型 RefreshMentalModel
+
+**接口说明**
+
+异步触发一次心智模型重新生成。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/mental-models/{modelId}/refresh
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| modelId | String | 是 | URL 参数 | 心智模型 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| operation_id | String | 异步任务 ID |
+| status | String | 任务状态 |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/mental-models/mm-1/refresh
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "operation_id": "op-1", "status": "pending" }
+```
+
+**SDK 方法**
+
+```python
+out = client.refresh_mental_model("demo-bank", "mm-1")
+```
+
+---
+
+## 七、指令 Directives
+
+### 7.1 列出指令 ListDirectives
+
+**接口说明**
+
+列出 bank 下的提示指令。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/directives?tags=&tags_match=&active_only=&limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| tags | Array<String> | 否 | Query 参数 | 标签过滤 |
+| tags_match | String | 否 | Query 参数 | 标签匹配模式 |
+| active_only | Boolean | 否 | Query 参数 | 仅返回激活的 |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<DirectiveResponse> | 指令列表 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/directives?active_only=true
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "items": [] }
+```
+
+**SDK 方法**
+
+```python
+out = client.list_directives("demo-bank",
+    dumemory_model.ListDirectivesOptions(active_only=True))
+```
+
+---
+
+### 7.2 创建指令 CreateDirective
+
+**接口说明**
+
+为 bank 添加一条提示指令，会被注入到 reflect 等流程的提示词中。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/directives
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| name | String | 是 | RequestBody | 指令名称 |
+| content | String | 是 | RequestBody | 指令内容 |
+| priority | Integer | 否 | RequestBody | 优先级，越大越先注入 |
+| is_active | Boolean | 否 | RequestBody | 是否生效，默认 true |
+| tags | Array<String> | 否 | RequestBody | 标签 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| id | String | 指令 ID |
+| bank_id | String | 记忆库 ID |
+| name | String | 名称 |
+| content | String | 内容 |
+| priority | Integer | 优先级 |
+| is_active | Boolean | 是否生效 |
+| tags | Array<String> | 标签 |
+| created_at | String | 创建时间 |
+| updated_at | String | 更新时间 |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/directives
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "name": "tone", "content": "用中文回答" }
+```
+
+**返回示例**
+
+```json
+{ "id": "dir-1", "bank_id": "demo-bank", "name": "tone", "content": "用中文回答" }
+```
+
+**SDK 方法**
+
+```python
+out = client.create_directive("demo-bank",
+    dumemory_model.new_create_directive_request("tone", "用中文回答"))
+```
+
+---
+
+### 7.3 查看指令 GetDirective
+
+**接口说明**
+
+按 ID 查询指令详情。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/directives/{directiveId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| directiveId | String | 是 | URL 参数 | 指令 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+参见 7.2 返回参数。
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/directives/dir-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "id": "dir-1", "bank_id": "demo-bank", "name": "tone", "content": "用中文回答" }
+```
+
+**SDK 方法**
+
+```python
+out = client.get_directive("demo-bank", "dir-1")
+```
+
+---
+
+### 7.4 更新指令 UpdateDirective
+
+**接口说明**
+
+按 ID 更新指令的字段（任何字段均为可选）。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/directives/{directiveId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| directiveId | String | 是 | URL 参数 | 指令 ID |
+| name | String | 否 | RequestBody | 新名称 |
+| content | String | 否 | RequestBody | 新内容 |
+| priority | Integer | 否 | RequestBody | 优先级 |
+| is_active | Boolean | 否 | RequestBody | 是否生效 |
+| tags | Array<String> | 否 | RequestBody | 全量替换标签 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+参见 7.2。
+
+**请求示例**
+
+```
+PATCH /v1/default/banks/demo-bank/directives/dir-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{ "is_active": false }
+```
+
+**返回示例**
+
+```json
+{ "id": "dir-1", "bank_id": "demo-bank", "is_active": false }
+```
+
+**SDK 方法**
+
+```python
+req = dumemory_model.new_update_directive_request(is_active=False)
+out = client.update_directive("demo-bank", "dir-1", req)
+```
+
+---
+
+### 7.5 删除指令 DeleteDirective
+
+**接口说明**
+
+按 ID 删除指令。
+
+**请求 URI**
+
+```
+DELETE /v1/default/banks/{bankId}/directives/{directiveId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| directiveId | String | 是 | URL 参数 | 指令 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+服务端返回 `{ "success": true, "message": "..." }`。
+
+**请求示例**
+
+```
+DELETE /v1/default/banks/demo-bank/directives/dir-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "success": true, "message": "deleted" }
+```
+
+**SDK 方法**
+
+```python
+out = client.delete_directive("demo-bank", "dir-1")
+```
+
+---
+
+## 八、操作 Operations
+
+### 8.1 列出后台操作 ListOperations
+
+**接口说明**
+
+分页列出 bank 下的异步操作（retain、consolidation、refresh 等）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/operations?status=&type=&limit=&offset=&exclude_parents=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| status | String | 否 | Query 参数 | 状态过滤：`pending` `processing` `completed` `failed` `cancelled` |
+| type | String | 否 | Query 参数 | 操作类型过滤 |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+| exclude_parents | Boolean | 否 | Query 参数 | 是否排除父任务 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| bank_id | String | 记忆库 ID |
+| total | Integer | 总数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+| operations | Array<OperationResponse> | 操作列表（id / task_type / status / created_at / progress 等） |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/operations?status=pending&limit=20
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "bank_id": "demo-bank",
+  "total": 0,
+  "limit": 20,
+  "offset": 0,
+  "operations": []
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.list_operations("demo-bank",
+    dumemory_model.ListOperationsOptions(status="pending", limit=20))
+```
+
+---
+
+### 8.2 取消后台操作 CancelOperation
+
+**接口说明**
+
+取消单个异步操作。
+
+**请求 URI**
+
+```
+DELETE /v1/default/banks/{bankId}/operations/{operationId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| operationId | String | 是 | URL 参数 | 操作 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| success | Boolean | 是否成功 |
+| message | String | 信息描述 |
+| operation_id | String | 操作 ID |
+
+**请求示例**
+
+```
+DELETE /v1/default/banks/demo-bank/operations/op-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{ "success": true, "message": "cancelled", "operation_id": "op-1" }
+```
+
+**SDK 方法**
+
+```python
+out = client.cancel_operation("demo-bank", "op-1")
+```
+
+---
+
+## 九、文件 Files
+
+### 9.1 文件上传写入 FilesRetain
+
+**接口说明**
+
+通过 multipart/form-data 上传文件并自动转写为记忆，返回每个文件对应的异步任务 ID。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/files/retain
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: multipart/form-data; boundary=...
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| files | File[] | 是 | Form 字段 | 一个或多个待上传文件 |
+| request | String | 否 | Form 字段 | 序列化后的 RetainRequest JSON |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| operation_ids | Array<String> | 每个文件对应的异步任务 ID，可用 `ListOperations` 跟踪 |
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/files/retain
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: multipart/form-data; boundary=----X
+
+------X
+Content-Disposition: form-data; name="files"; filename="note.pdf"
+Content-Type: application/pdf
+
+<binary>
+------X--
+```
+
+**返回示例**
+
+```json
+{ "operation_ids": ["op-1"] }
+```
+
+**SDK 方法**
+
+```python
+with open("note.pdf", "rb") as f:
+    out = client.files_retain("demo-bank", [("note.pdf", f.read())], "")
+```
+
+---
+
+## 附录 A：错误处理
+
+错误统一通过 hindsight 客户端抛出的 `ApiException` 暴露，可读取 `status` 与响应体：
+
+```python
+from hindsight_client_api.exceptions import ApiException
+
+try:
+    out = client.get_bank("demo-bank")
+except ApiException as e:
+    print("status=%s body=%s" % (e.status, e.body))
+```
+
+## 附录 B：版本兼容
+
+- 服务端 0.6.x 与 0.8.x 在 `/version` 返回的 `features` 字段不一致；SDK 的 `version()` 直接透传 hindsight 返回的模型，调用方按需访问 `info.features`。
+- `consolidate_bank` 在 0.6.x 不支持请求体，0.8.x 起支持。SDK 调用时不传请求体即兼容两端。

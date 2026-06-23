@@ -33,6 +33,11 @@ setup(
                       'future>=0.6.0',
                       'six>=1.4.0',
                       'crc32c>=2.2.post0'],
+    extras_require={
+        # Optional dependency for the DuMemory (Cloud Memory) service.
+        # hindsight-client requires Python >=3.8 and pydantic v2.
+        'dumemory': ['hindsight-client>=0.8.3'],
+    },
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     packages=['baidubce',
               'baidubce.auth',
@@ -98,6 +103,7 @@ setup(
               'baidubce.services.ca',
               'baidubce.services.bls',
               'baidubce.services.cloudflow',
+              'baidubce.services.dumemory',
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
