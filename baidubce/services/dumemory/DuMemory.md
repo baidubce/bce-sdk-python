@@ -76,6 +76,8 @@ client = dumemory_client.new_client_with_timeout(
 | 记忆 | POST | /v1/default/banks/{bankId}/memories/recall | `recall` |
 | 记忆 | POST | /v1/default/banks/{bankId}/reflect | `reflect` |
 | 记忆 | GET | /v1/default/banks/{bankId}/memories/list | `list_memories` |
+| 记忆 | GET | /v1/default/banks/{bankId}/memories/{memoryId} | `get_memory` |
+| 记忆 | GET | /v1/default/banks/{bankId}/tags | `list_tags` |
 | 实体 | GET | /v1/default/banks/{bankId}/entities | `list_entities` |
 | 实体 | GET | /v1/default/banks/{bankId}/entities/graph | `entity_graph` |
 | 文档 | GET | /v1/default/banks/{bankId}/documents | `list_documents` |
@@ -97,6 +99,19 @@ client = dumemory_client.new_client_with_timeout(
 | 操作 | GET | /v1/default/banks/{bankId}/operations | `list_operations` |
 | 操作 | DELETE | /v1/default/banks/{bankId}/operations/{operationId} | `cancel_operation` |
 | 文件 | POST | /v1/default/banks/{bankId}/files/retain | `files_retain` |
+| 范围隔离 | POST | /v1/default/banks/{bankId}/memories | `retain_with_scope` |
+| 范围隔离 | POST | /v1/default/banks/{bankId}/memories/recall | `recall_with_scope` |
+| 范围隔离 | POST | /v1/default/banks/{bankId}/reflect | `reflect_with_scope` |
+| 范围隔离 | GET | /v1/default/banks/{bankId}/memories/{memoryId} | `get_memory_with_scope` |
+| 范围隔离 | GET | /v1/default/banks/{bankId}/tags | `list_tags_with_scope` |
+| 范围隔离 | GET | /v1/default/banks/{bankId}/documents | `list_documents_with_scope` |
+| 范围隔离 | PATCH | /v1/default/banks/{bankId}/documents/{documentId} | `update_document_tags_with_scope` |
+| 范围隔离 | GET | /v1/default/banks/{bankId}/directives | `list_directives_with_scope` |
+| 范围隔离 | POST | /v1/default/banks/{bankId}/directives | `create_directive_with_scope` |
+| 范围隔离 | PATCH | /v1/default/banks/{bankId}/directives/{directiveId} | `update_directive_with_scope` |
+| 范围隔离 | GET | /v1/default/banks/{bankId}/mental-models | `list_mental_models_with_scope` |
+| 范围隔离 | POST | /v1/default/banks/{bankId}/mental-models | `create_mental_model_with_scope` |
+| 范围隔离 | PATCH | /v1/default/banks/{bankId}/mental-models/{modelId} | `update_mental_model_with_scope` |
 
 ---
 
@@ -1062,6 +1077,143 @@ Authorization: Bearer bce-v3/ALTAK-xxx/xxx
 ```python
 out = client.list_memories("demo-bank",
     dumemory_model.ListMemoriesOptions(limit=20))
+```
+
+---
+
+### 3.5 获取记忆 GetMemory
+
+**接口说明**
+
+按 `memoryId` 获取单条记忆的完整详情（含内容、标签、来源、时间戳等）。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/memories/{memoryId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| memoryId | String | 是 | URL 参数 | 记忆单元 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| id | String | 记忆单元 ID |
+| content | String | 记忆文本内容 |
+| tags | Array<String> | 记忆标签，包含 `user_id:*` / `agent_id:*` 等范围标签 |
+| document_id | String | 关联文档 ID（可选） |
+| type | String | 记忆类型 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/memories/m-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "id": "m-1",
+  "content": "小明喜欢喝美式咖啡。",
+  "tags": ["user_id:u1", "topic:coffee"]
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_memory("demo-bank", "m-1")
+```
+
+---
+
+### 3.6 列出标签 ListTags
+
+**接口说明**
+
+分页列出 bank 中当前可用的标签及其出现次数，支持按前缀模糊匹配与数据源过滤。用于快速探索标签空间或联动前端选择器。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/tags?q=&source=&limit=&offset=
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| q | String | 否 | Query 参数 | 标签前缀/关键词，支持 `*` 通配 |
+| source | String | 否 | Query 参数 | 数据源，取值 `memories` / `documents` / `directives` / `mental_models` |
+| limit | Integer | 否 | Query 参数 | 分页大小 |
+| offset | Integer | 否 | Query 参数 | 偏移量 |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| items | Array<TagItem> | 标签条目列表，每项包含 `tag` 与 `count` |
+| total | Integer | 总条数 |
+| limit | Integer | 分页大小 |
+| offset | Integer | 偏移量 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/tags?q=user_id:u1*&source=memories&limit=20
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "items": [
+    { "tag": "user_id:u1", "count": 12 },
+    { "tag": "topic:coffee", "count": 3 }
+  ],
+  "total": 2,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.list_tags("demo-bank",
+    dumemory_model.ListTagsOptions(q="user_id:u1*", source="memories", limit=20))
 ```
 
 ---
@@ -2407,6 +2559,488 @@ Content-Type: application/pdf
 ```python
 with open("note.pdf", "rb") as f:
     out = client.files_retain("demo-bank", [("note.pdf", f.read())], "")
+```
+
+---
+
+## 十、范围隔离 Scoped APIs
+
+范围隔离通过给记忆、文档、指令、心智模型追加实体标签（`user_id:*` / `agent_id:*` / `app_id:*` / `run_id:*`），实现同一记忆库内多用户/多智能体/多应用/多会话的数据隔离。所有 `*_with_scope` 方法在下发上游前，都会：
+
+1. 校验 `EntityScope` 至少设置一个 ID，否则抛出 `MissingEntityScopeError`（别名 `ErrMissingEntityScope`）；
+2. 依 `user_id → agent_id → app_id → run_id` 顺序拼装范围标签；
+3. 将范围标签合并进请求体或查询参数，保序去重；
+4. 对读接口（recall/reflect/list_*）将 `tags_match` 从空/`any` 收敛为 `all_strict`，确保范围标签全部命中且过滤掉未标签化的全局数据。
+
+### EntityScope
+
+```python
+from baidubce.services.dumemory import dumemory_model
+
+scope = dumemory_model.EntityScope(
+    user_id="u1", agent_id="a1", app_id="app1", run_id="r1")
+scope.tags()   # ["user_id:u1", "agent_id:a1", "app_id:app1", "run_id:r1"]
+scope.validate()  # 无返回；空 scope 抛 MissingEntityScopeError
+```
+
+| 字段 | 参数类型 | 描述 |
+| --- | --- | --- |
+| user_id | String | 用户 ID；映射为 `user_id:<id>` 标签 |
+| agent_id | String | 智能体 ID；映射为 `agent_id:<id>` 标签 |
+| app_id | String | 应用 ID；映射为 `app_id:<id>` 标签 |
+| run_id | String | 会话/运行 ID；映射为 `run_id:<id>` 标签 |
+
+### 10.1 范围写入记忆 RetainWithScope
+
+**接口说明**
+
+在 `Retain` 基础上，把范围标签追加到每条 `items[i].tags` 与 `document_tags` 中；调用方原有标签保序去重后与范围标签合并。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/memories
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+Content-Type: application/json
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围；至少一个 ID |
+| items | Array<MemoryItem> | 是 | RequestBody | 记忆单元列表；SDK 自动合并范围标签 |
+| document_tags | Array<String> | 否 | RequestBody | 批量文档标签；SDK 自动合并范围标签 |
+| async | Boolean | 否 | RequestBody | 是否异步；`retain_with_scope` 默认同步 |
+
+**返回参数**
+
+同 3.1 Retain。
+
+**请求示例**
+
+```
+POST /v1/default/banks/demo-bank/memories
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+Content-Type: application/json
+
+{
+  "items": [
+    { "content": "喜欢简洁的技术解释", "tags": ["topic:preference", "user_id:u1", "app_id:app1"] }
+  ],
+  "document_tags": ["source:example", "user_id:u1", "app_id:app1"]
+}
+```
+
+**返回示例**
+
+```json
+{ "success": true, "bank_id": "demo-bank", "items_count": 1, "async": false }
+```
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+item = dumemory_model.new_memory_item(
+    content="喜欢简洁的技术解释", tags=["topic:preference"])
+req = dumemory_model.new_retain_request(items=[item], document_tags=["source:example"])
+out = client.retain_with_scope("demo-bank", scope, req)
+```
+
+---
+
+### 10.2 范围召回记忆 RecallWithScope
+
+**接口说明**
+
+在 `Recall` 基础上追加范围标签，并将 `tags_match` 从空/`any` 收敛为 `all_strict`。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/memories/recall
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| query | String | 是 | RequestBody | 召回查询 |
+| tags | Array<String> | 否 | RequestBody | 标签过滤；SDK 自动合并范围标签 |
+| tags_match | String | 否 | RequestBody | 默认收敛为 `all_strict`；`exact` 等值保留 |
+
+**返回参数**
+
+同 3.2 Recall。
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+req = dumemory_model.new_recall_request(
+    query="用户偏好什么风格？", tags=["topic:preference"])
+out = client.recall_with_scope("demo-bank", scope, req)
+```
+
+---
+
+### 10.3 范围反思 ReflectWithScope
+
+**接口说明**
+
+在 `Reflect` 基础上追加范围标签并强制 `all_strict`；用于按实体范围对记忆做归纳/总结。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/reflect
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| query | String | 是 | RequestBody | 反思查询 |
+| tags | Array<String> | 否 | RequestBody | 标签过滤；SDK 自动合并范围标签 |
+| tags_match | String | 否 | RequestBody | 默认收敛为 `all_strict` |
+
+**返回参数**
+
+同 3.3 Reflect。
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", agent_id="a1")
+req = dumemory_model.new_reflect_request(query="总结用户当前的工作偏好")
+out = client.reflect_with_scope("demo-bank", scope, req)
+```
+
+---
+
+### 10.4 范围获取记忆 GetMemoryWithScope
+
+**接口说明**
+
+上游接口不支持标签过滤；本方法仅校验 `EntityScope`，随后调用 `GetMemory`。调用方可自行检查返回中的 `tags` 字段是否包含范围标签。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/memories/{memoryId}
+```
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1")
+out = client.get_memory_with_scope("demo-bank", "m-1", scope)
+```
+
+---
+
+### 10.5 范围列出标签 ListTagsWithScope
+
+**接口说明**
+
+在 `ListTags` 基础上，若调用方未显式提供 `q`，则用范围标签中的第一个加通配符（例如 `user_id:u1*`）作为查询前缀。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/tags?q=&source=&limit=&offset=
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| q | String | 否 | Query 参数 | 未设置时 SDK 自动填 `<first_scope_tag>*` |
+| source | String | 否 | Query 参数 | 与 3.6 相同 |
+| limit / offset | Integer | 否 | Query 参数 | 分页参数 |
+
+**返回参数**
+
+同 3.6 ListTags。
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1")
+out = client.list_tags_with_scope("demo-bank", scope,
+    dumemory_model.ListTagsOptions(source="memories", limit=20))
+```
+
+---
+
+### 10.6 范围列出文档 ListDocumentsWithScope
+
+**接口说明**
+
+在 `ListDocuments` 基础上追加范围标签，并将 `tags_match` 收敛为 `all_strict`。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/documents?tags=&tags_match=&limit=&offset=
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | Query 参数 | SDK 自动合并范围标签 |
+| tags_match | String | 否 | Query 参数 | 默认 `all_strict`；`exact` 等值保留 |
+
+**返回参数**
+
+同 5.1 ListDocuments。
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", run_id="r1")
+out = client.list_documents_with_scope("demo-bank", scope,
+    dumemory_model.ListDocumentsOptions(tags=["source:example"], limit=20))
+```
+
+---
+
+### 10.7 范围更新文档标签 UpdateDocumentTagsWithScope
+
+**接口说明**
+
+在 `UpdateDocument` 基础上，把范围标签合并进请求体 `tags`。上游会把文档标签下传给关联的记忆单元，并将派生观察置为待重算。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/documents/{documentId}
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| documentId | String | 是 | URL 参数 | 文档 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | RequestBody | SDK 自动合并范围标签 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+req = dumemory_model.new_update_document_request(tags=["source:example", "topic:preference"])
+out = client.update_document_tags_with_scope("demo-bank", "doc-1", scope, req)
+```
+
+---
+
+### 10.8 范围列出指令 ListDirectivesWithScope
+
+**接口说明**
+
+在 `ListDirectives` 基础上追加范围标签，并将 `tags_match` 收敛为 `all_strict`。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/directives?tags=&tags_match=&active_only=&limit=&offset=
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | Query 参数 | SDK 自动合并范围标签 |
+| tags_match | String | 否 | Query 参数 | 默认 `all_strict` |
+| active_only | Boolean | 否 | Query 参数 | 是否仅激活 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", agent_id="a1")
+out = client.list_directives_with_scope("demo-bank", scope,
+    dumemory_model.ListDirectivesOptions(tags=["topic:style"], active_only=True, limit=20))
+```
+
+---
+
+### 10.9 范围创建指令 CreateDirectiveWithScope
+
+**接口说明**
+
+在 `CreateDirective` 基础上，把范围标签合并进请求体 `tags`。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/directives
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| name | String | 是 | RequestBody | 指令名称 |
+| content | String | 是 | RequestBody | 指令内容 |
+| tags | Array<String> | 否 | RequestBody | SDK 自动合并范围标签 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", agent_id="a1")
+req = dumemory_model.new_create_directive_request(
+    name="scoped-tone", content="使用简洁、务实的表达。", tags=["topic:style"])
+out = client.create_directive_with_scope("demo-bank", scope, req)
+```
+
+---
+
+### 10.10 范围更新指令 UpdateDirectiveWithScope
+
+**接口说明**
+
+在 `UpdateDirective` 基础上，把范围标签合并进请求体 `tags`。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/directives/{directiveId}
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| directiveId | String | 是 | URL 参数 | 指令 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | RequestBody | SDK 自动合并范围标签 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", agent_id="a1")
+req = dumemory_model.new_update_directive_request(tags=["topic:style", "state:active"])
+out = client.update_directive_with_scope("demo-bank", "dir-1", scope, req)
+```
+
+---
+
+### 10.11 范围列出心智模型 ListMentalModelsWithScope
+
+**接口说明**
+
+在 `ListMentalModels` 基础上追加范围标签，并将 `tags_match` 收敛为 `all_strict`。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/mental-models?tags=&tags_match=&detail=&limit=&offset=
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | Query 参数 | SDK 自动合并范围标签 |
+| tags_match | String | 否 | Query 参数 | 默认 `all_strict` |
+| detail | String | 否 | Query 参数 | 返回详情级别，例如 `full` |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+out = client.list_mental_models_with_scope("demo-bank", scope,
+    dumemory_model.ListMentalModelsOptions(tags=["topic:preference"], limit=20))
+```
+
+---
+
+### 10.12 范围创建心智模型 CreateMentalModelWithScope
+
+**接口说明**
+
+在 `CreateMentalModel` 基础上，把范围标签合并进请求体 `tags`。
+
+**请求 URI**
+
+```
+POST /v1/default/banks/{bankId}/mental-models
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| name | String | 是 | RequestBody | 模型名称 |
+| source_query | String | 是 | RequestBody | 生成心智模型的源问题 |
+| tags | Array<String> | 否 | RequestBody | SDK 自动合并范围标签 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+req = dumemory_model.new_create_mental_model_request(
+    name="用户偏好模型", source_query="用户在工作中偏好什么？", tags=["topic:preference"])
+out = client.create_mental_model_with_scope("demo-bank", scope, req)
+```
+
+---
+
+### 10.13 范围更新心智模型 UpdateMentalModelWithScope
+
+**接口说明**
+
+在 `UpdateMentalModel` 基础上，把范围标签合并进请求体 `tags`。
+
+**请求 URI**
+
+```
+PATCH /v1/default/banks/{bankId}/mental-models/{modelId}
+```
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| modelId | String | 是 | URL 参数 | 心智模型 ID |
+| scope | EntityScope | 是 | SDK 参数 | 实体范围 |
+| tags | Array<String> | 否 | RequestBody | SDK 自动合并范围标签 |
+
+**SDK 方法**
+
+```python
+scope = dumemory_model.EntityScope(user_id="u1", app_id="app1")
+req = dumemory_model.new_update_mental_model_request(tags=["topic:preference", "state:active"])
+out = client.update_mental_model_with_scope("demo-bank", "mm-1", scope, req)
 ```
 
 ---

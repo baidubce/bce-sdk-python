@@ -123,6 +123,7 @@ def _install_hindsight_stubs():
         ]),
         "memory_api": ("MemoryApi", [
             "retain_memories", "recall_memories", "reflect", "list_memories",
+            "get_memory", "list_tags",
         ]),
         "documents_api": ("DocumentsApi", [
             "list_documents", "get_document", "update_document",
@@ -639,6 +640,251 @@ class FilesTest(unittest.TestCase):
         self.assertEqual(kw["request"], payload)
 
 
+class TagScopedTest(unittest.TestCase):
+    """Cover the entity-scope tag-isolation SDK surface."""
+
+    def test_entity_scope_tags_order(self):
+        """Verify EntityScope.tags returns ids in the canonical order."""
+        scope = dumemory_model.EntityScope(
+            user_id="u1", agent_id="a1", app_id="app1", run_id="r1")
+        self.assertEqual(
+            scope.tags(),
+            ["user_id:u1", "agent_id:a1", "app_id:app1", "run_id:r1"],
+        )
+
+    def test_entity_scope_requires_at_least_one_id(self):
+        """Verify empty EntityScope raises MissingEntityScopeError."""
+        scope = dumemory_model.EntityScope()
+        self.assertRaises(
+            dumemory_model.MissingEntityScopeError, scope.validate)
+        self.assertRaises(
+            dumemory_model.MissingEntityScopeError, scope.tags)
+        # Alias matches the Go SDK identifier.
+        self.assertIs(dumemory_model.ErrMissingEntityScope,
+                      dumemory_model.MissingEntityScopeError)
+
+    def test_merge_tags_dedups_preserves_order(self):
+        """Verify merge_tags drops empties, dedups, keeps first-seen order."""
+        self.assertEqual(
+            dumemory_model.merge_tags(
+                ["a", "", "b"], ["b", "c", None]),
+            ["a", "b", "c"],
+        )
+        self.assertIsNone(dumemory_model.merge_tags(None, None))
+        self.assertIsNone(dumemory_model.merge_tags([], [""]))
+
+    def test_scoped_tags_match_defaults(self):
+        """Verify scoped_tags_match collapses unset/any to all_strict."""
+        self.assertEqual(dumemory_model.scoped_tags_match(None),
+                         "all_strict")
+        self.assertEqual(dumemory_model.scoped_tags_match(""), "all_strict")
+        self.assertEqual(dumemory_model.scoped_tags_match("any"),
+                         "all_strict")
+        self.assertEqual(dumemory_model.scoped_tags_match("exact"), "exact")
+
+    def _scope(self):
+        """Build a sample scope used across the dispatch tests."""
+        return dumemory_model.EntityScope(user_id="u1", app_id="app1")
+
+    def _expected_tags(self, extra=None):
+        """Return the expected ordered tag list (extras first, scope after)."""
+        extra = list(extra or [])
+        return extra + ["user_id:u1", "app_id:app1"]
+
+    def test_retain_with_scope_merges_item_and_document_tags(self):
+        """Verify retain_with_scope appends scope to items and document_tags."""
+        cli = _new_client()
+        item = dumemory_model.MemoryItem(
+            content="hi", tags=["topic:coffee"])
+        req = dumemory_model.RetainRequest(
+            items=[item], document_tags=["doc:batch"])
+        cli.retain_with_scope("b", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "retain_memories")
+        body = kw["retain_request"]
+        self.assertEqual(body.items[0].tags,
+                         self._expected_tags(["topic:coffee"]))
+        self.assertEqual(body.document_tags,
+                         self._expected_tags(["doc:batch"]))
+
+    def test_retain_with_scope_validates_scope(self):
+        """Verify retain_with_scope raises on an empty scope."""
+        cli = _new_client()
+        scope = dumemory_model.EntityScope()
+        req = dumemory_model.RetainRequest(items=[])
+        self.assertRaises(
+            dumemory_model.MissingEntityScopeError,
+            cli.retain_with_scope, "b", scope, req)
+
+    def test_recall_with_scope_defaults_tags_match(self):
+        """Verify recall_with_scope merges tags and forces all_strict."""
+        cli = _new_client()
+        req = dumemory_model.RecallRequest(
+            query="coffee", tags=["topic:coffee"])
+        cli.recall_with_scope("b", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "recall_memories")
+        body = kw["recall_request"]
+        self.assertEqual(body.tags, self._expected_tags(["topic:coffee"]))
+        self.assertEqual(body.tags_match, "all_strict")
+
+    def test_recall_with_scope_preserves_explicit_tags_match(self):
+        """Verify caller-supplied tags_match other than 'any' is kept."""
+        cli = _new_client()
+        req = dumemory_model.RecallRequest(query="x", tags_match="exact")
+        cli.recall_with_scope("b", self._scope(), req)
+        _, _, kw = _last_call()
+        self.assertEqual(kw["recall_request"].tags_match, "exact")
+
+    def test_reflect_with_scope_defaults_tags_match(self):
+        """Verify reflect_with_scope merges tags and forces all_strict."""
+        cli = _new_client()
+        req = dumemory_model.ReflectRequest(
+            query="coffee", tags=["topic:coffee"])
+        cli.reflect_with_scope("b", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "reflect")
+        body = kw["reflect_request"]
+        self.assertEqual(body.tags, self._expected_tags(["topic:coffee"]))
+        self.assertEqual(body.tags_match, "all_strict")
+
+    def test_get_memory_with_scope_dispatches_get_memory(self):
+        """Verify get_memory_with_scope just validates and calls get_memory."""
+        cli = _new_client()
+        cli.get_memory_with_scope("b", "m1", self._scope())
+        api, method, kw = _last_call()
+        self.assertEqual((api, method), ("MemoryApi", "get_memory"))
+        self.assertEqual(kw["memory_id"], "m1")
+
+    def test_list_tags_with_scope_defaults_query_to_first_scope_tag(self):
+        """Verify list_tags_with_scope synthesises ``q`` from the scope."""
+        cli = _new_client()
+        cli.list_tags_with_scope(
+            "b", self._scope(),
+            dumemory_model.ListTagsOptions(source="memories", limit=20))
+        api, method, kw = _last_call()
+        self.assertEqual((api, method), ("MemoryApi", "list_tags"))
+        self.assertEqual(kw["q"], "user_id:u1*")
+        self.assertEqual(kw["source"], "memories")
+        self.assertEqual(kw["limit"], 20)
+
+    def test_list_tags_with_scope_preserves_explicit_q(self):
+        """Verify explicit ``q`` overrides the scope-tag default."""
+        cli = _new_client()
+        cli.list_tags_with_scope(
+            "b", self._scope(),
+            dumemory_model.ListTagsOptions(q="custom*"))
+        _, _, kw = _last_call()
+        self.assertEqual(kw["q"], "custom*")
+
+    def test_list_documents_with_scope_merges_tags_and_match(self):
+        """Verify list_documents_with_scope unpacks merged tags and match."""
+        cli = _new_client()
+        opts = dumemory_model.ListDocumentsOptions(
+            tags=["topic:coffee"], limit=10)
+        cli.list_documents_with_scope("b", self._scope(), opts)
+        api, method, kw = _last_call()
+        self.assertEqual((api, method), ("DocumentsApi", "list_documents"))
+        self.assertEqual(kw["tags"],
+                         self._expected_tags(["topic:coffee"]))
+        self.assertEqual(kw["tags_match"], "all_strict")
+        self.assertEqual(kw["limit"], 10)
+
+    def test_list_documents_with_scope_preserves_explicit_tags_match(self):
+        """Verify caller-set tags_match value is preserved."""
+        cli = _new_client()
+        opts = dumemory_model.ListDocumentsOptions(tags_match="exact")
+        cli.list_documents_with_scope(
+            "b", dumemory_model.EntityScope(user_id="u1"), opts)
+        _, _, kw = _last_call()
+        self.assertEqual(kw["tags_match"], "exact")
+
+    def test_update_document_tags_with_scope_merges_tags(self):
+        """Verify update_document_tags_with_scope appends scope tags."""
+        cli = _new_client()
+        req = dumemory_model.UpdateDocumentRequest(tags=["topic:coffee"])
+        cli.update_document_tags_with_scope(
+            "b", "doc1", self._scope(), req)
+        api, method, kw = _last_call()
+        self.assertEqual((api, method),
+                         ("DocumentsApi", "update_document"))
+        self.assertEqual(kw["document_id"], "doc1")
+        self.assertEqual(kw["update_document_request"].tags,
+                         self._expected_tags(["topic:coffee"]))
+
+    def test_list_directives_with_scope_merges_tags_and_match(self):
+        """Verify list_directives_with_scope unpacks merged tags."""
+        cli = _new_client()
+        opts = dumemory_model.ListDirectivesOptions(tags=["topic:coffee"])
+        cli.list_directives_with_scope("b", self._scope(), opts)
+        api, method, kw = _last_call()
+        self.assertEqual((api, method),
+                         ("DirectivesApi", "list_directives"))
+        self.assertEqual(kw["tags"],
+                         self._expected_tags(["topic:coffee"]))
+        self.assertEqual(kw["tags_match"], "all_strict")
+
+    def test_create_directive_with_scope_merges_tags(self):
+        """Verify create_directive_with_scope appends scope tags."""
+        cli = _new_client()
+        req = dumemory_model.CreateDirectiveRequest(
+            name="n", content="c", tags=["topic:coffee"])
+        cli.create_directive_with_scope("b", self._scope(), req)
+        api, method, kw = _last_call()
+        self.assertEqual((api, method),
+                         ("DirectivesApi", "create_directive"))
+        self.assertEqual(kw["create_directive_request"].tags,
+                         self._expected_tags(["topic:coffee"]))
+
+    def test_update_directive_with_scope_merges_tags(self):
+        """Verify update_directive_with_scope appends scope tags."""
+        cli = _new_client()
+        req = dumemory_model.UpdateDirectiveRequest(tags=["topic:coffee"])
+        cli.update_directive_with_scope(
+            "b", "dir1", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "update_directive")
+        self.assertEqual(kw["directive_id"], "dir1")
+        self.assertEqual(kw["update_directive_request"].tags,
+                         self._expected_tags(["topic:coffee"]))
+
+    def test_list_mental_models_with_scope_merges_tags_and_match(self):
+        """Verify list_mental_models_with_scope unpacks merged tags."""
+        cli = _new_client()
+        opts = dumemory_model.ListMentalModelsOptions(tags=["topic:coffee"])
+        cli.list_mental_models_with_scope("b", self._scope(), opts)
+        api, method, kw = _last_call()
+        self.assertEqual((api, method),
+                         ("MentalModelsApi", "list_mental_models"))
+        self.assertEqual(kw["tags"],
+                         self._expected_tags(["topic:coffee"]))
+        self.assertEqual(kw["tags_match"], "all_strict")
+
+    def test_create_mental_model_with_scope_merges_tags(self):
+        """Verify create_mental_model_with_scope appends scope tags."""
+        cli = _new_client()
+        req = dumemory_model.CreateMentalModelRequest(
+            name="m", source_query="coffee", tags=["topic:coffee"])
+        cli.create_mental_model_with_scope("b", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "create_mental_model")
+        self.assertEqual(kw["create_mental_model_request"].tags,
+                         self._expected_tags(["topic:coffee"]))
+
+    def test_update_mental_model_with_scope_merges_tags(self):
+        """Verify update_mental_model_with_scope appends scope tags."""
+        cli = _new_client()
+        req = dumemory_model.UpdateMentalModelRequest(
+            tags=["topic:coffee"])
+        cli.update_mental_model_with_scope(
+            "b", "mm1", self._scope(), req)
+        _, method, kw = _last_call()
+        self.assertEqual(method, "update_mental_model")
+        self.assertEqual(kw["mental_model_id"], "mm1")
+        self.assertEqual(kw["update_mental_model_request"].tags,
+                         self._expected_tags(["topic:coffee"]))
+
+
 class CoverageTest(unittest.TestCase):
     """Sanity check that the test-suite covers every public SDK method."""
 
@@ -656,6 +902,7 @@ class CoverageTest(unittest.TestCase):
             "get_bank_config", "update_bank_config", "get_bank_stats",
             "consolidate_bank",
             "retain", "retain_async", "recall", "reflect", "list_memories",
+            "get_memory", "list_tags",
             "list_entities", "entity_graph",
             "list_documents", "get_document", "update_document",
             "delete_document", "list_document_chunks",
@@ -666,6 +913,13 @@ class CoverageTest(unittest.TestCase):
             "update_directive", "delete_directive",
             "list_operations", "cancel_operation",
             "files_retain",
+            "retain_with_scope", "recall_with_scope", "reflect_with_scope",
+            "get_memory_with_scope", "list_tags_with_scope",
+            "list_documents_with_scope", "update_document_tags_with_scope",
+            "list_directives_with_scope", "create_directive_with_scope",
+            "update_directive_with_scope",
+            "list_mental_models_with_scope", "create_mental_model_with_scope",
+            "update_mental_model_with_scope",
         }
         missing = public_methods - tested
         self.assertFalse(

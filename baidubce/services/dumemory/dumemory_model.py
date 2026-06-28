@@ -194,3 +194,120 @@ class ListOperationsOptions(_Options):
         self.limit = limit
         self.offset = offset
         self.exclude_parents = exclude_parents
+
+
+class ListTagsOptions(_Options):
+    """Query options for ``list_tags_with_scope``."""
+
+    def __init__(self, q=None, source=None, limit=None, offset=None):
+        self.q = q
+        self.source = source
+        self.limit = limit
+        self.offset = offset
+
+
+# -------------------- entity scope for tag-scoped memory APIs ------------- #
+
+MISSING_ENTITY_SCOPE_MESSAGE = (
+    "At least one entity ID (user_id, agent_id, app_id, or run_id) is "
+    "required."
+)
+
+
+class MissingEntityScopeError(ValueError):
+    """Raised when an :class:`EntityScope` has no entity id set.
+
+    Mirrors the Go SDK's ``ErrMissingEntityScope``. Subclassing
+    :class:`ValueError` keeps backwards-compatible behavior for callers that
+    only catch ``ValueError`` from bad inputs.
+    """
+
+    def __init__(self, message=None):
+        """Initialize with the standard scope-missing message."""
+        super(MissingEntityScopeError, self).__init__(
+            message or MISSING_ENTITY_SCOPE_MESSAGE)
+
+
+# Convenience alias that matches the Go SDK identifier ``ErrMissingEntityScope``.
+ErrMissingEntityScope = MissingEntityScopeError
+
+
+_DEFAULT_SCOPED_TAGS_MATCH = "all_strict"
+
+
+class EntityScope(object):
+    """Identifies the entity boundary used by the scoped memory APIs.
+
+    At least one of ``user_id``, ``agent_id``, ``app_id`` or ``run_id`` must
+    be set. Non-empty fields are converted into tag strings of the form
+    ``user_id:<id>``, ``agent_id:<id>``, ``app_id:<id>`` and ``run_id:<id>``.
+    The order of the resulting tags is stable and matches the Go SDK.
+    """
+
+    __slots__ = ("user_id", "agent_id", "app_id", "run_id")
+
+    def __init__(self, user_id="", agent_id="", app_id="", run_id=""):
+        """Store the four scope ids, defaulting any unset value to ``""``."""
+        self.user_id = user_id or ""
+        self.agent_id = agent_id or ""
+        self.app_id = app_id or ""
+        self.run_id = run_id or ""
+
+    def validate(self):
+        """Raise :class:`MissingEntityScopeError` if no entity id is set."""
+        if not (self.user_id or self.agent_id
+                or self.app_id or self.run_id):
+            raise MissingEntityScopeError()
+
+    def tags(self):
+        """Return the ordered list of scope tags after validation."""
+        self.validate()
+        out = []
+        if self.user_id:
+            out.append("user_id:" + self.user_id)
+        if self.agent_id:
+            out.append("agent_id:" + self.agent_id)
+        if self.app_id:
+            out.append("app_id:" + self.app_id)
+        if self.run_id:
+            out.append("run_id:" + self.run_id)
+        return out
+
+
+def new_entity_scope(user_id="", agent_id="", app_id="", run_id=""):
+    """Build an :class:`EntityScope`. Kept for parity with other ``new_*``."""
+    return EntityScope(user_id=user_id, agent_id=agent_id,
+                       app_id=app_id, run_id=run_id)
+
+
+def merge_tags(base, extra):
+    """Return ``base`` followed by ``extra`` with empty tags and dups removed.
+
+    Preserves first-seen order. ``None`` is treated as an empty list. Returns
+    ``None`` when the combined list is empty so the upstream API call omits
+    the field entirely.
+    """
+    base = list(base) if base else []
+    extra = list(extra) if extra else []
+    if not base and not extra:
+        return None
+    seen = set()
+    out = []
+    for tag in base + extra:
+        if not tag or tag in seen:
+            continue
+        seen.add(tag)
+        out.append(tag)
+    return out or None
+
+
+def scoped_tags_match(tags_match):
+    """Return ``tags_match`` unless it is unset or the upstream default.
+
+    When ``tags_match`` is empty / ``None`` / ``"any"`` the scoped APIs must
+    use ``"all_strict"`` so all scope tags match and untagged global rows
+    are excluded.
+    """
+    if tags_match and tags_match != "any":
+        return tags_match
+    return _DEFAULT_SCOPED_TAGS_MATCH

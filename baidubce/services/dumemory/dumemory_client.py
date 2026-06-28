@@ -386,6 +386,189 @@ class DuMemoryClient(object):
         return _run_async(self._operations.cancel_operation(
             bank_id=bank_id, operation_id=operation_id, **self._kw()))
 
+    # ============================= 范围隔离 ============================= #
+    # Tag-based entity scope APIs. Each method appends the scope tags onto
+    # the underlying request/options before delegating to the matching
+    # non-scoped method. See ``EntityScope`` for the tag layout.
+
+    def get_memory(self, bank_id, memory_id):
+        """GET /v1/default/banks/{bankId}/memories/{memoryId}."""
+        return _run_async(self._memory.get_memory(
+            bank_id=bank_id, memory_id=memory_id, **self._kw()))
+
+    def list_tags(self, bank_id, options=None):
+        """GET /v1/default/banks/{bankId}/tags."""
+        return _run_async(self._memory.list_tags(
+            bank_id=bank_id,
+            **self._kw(**self._options_kwargs(options))))
+
+    def retain_with_scope(self, bank_id, scope, request):
+        """Retain memories after appending entity scope tags.
+
+        Scope tags are merged into each ``items[i].tags`` and into
+        ``document_tags`` so batch-level documents stay aligned with their
+        memory units. Caller-supplied tags are preserved and de-duplicated.
+        """
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.RetainRequest, request)
+        items = getattr(body, "items", None) or []
+        for item in items:
+            base = getattr(item, "tags", None)
+            merged = dumemory_model.merge_tags(base, scope_tags)
+            try:
+                item.tags = merged
+            except Exception:  # noqa: BLE001 - dict-like fallback
+                pass
+        try:
+            body.document_tags = dumemory_model.merge_tags(
+                getattr(body, "document_tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.retain(bank_id, body)
+
+    def recall_with_scope(self, bank_id, scope, request):
+        """Recall memories within an entity scope.
+
+        ``tags_match`` defaults to ``all_strict`` for scoped calls when the
+        caller left it unset or at the upstream default ``any``.
+        """
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.RecallRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+            body.tags_match = dumemory_model.scoped_tags_match(
+                getattr(body, "tags_match", None))
+        except Exception:  # noqa: BLE001
+            pass
+        return self.recall(bank_id, body)
+
+    def reflect_with_scope(self, bank_id, scope, request):
+        """Reflect (synthesize) within an entity scope.
+
+        Same ``tags_match`` defaulting as :meth:`recall_with_scope`.
+        """
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.ReflectRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+            body.tags_match = dumemory_model.scoped_tags_match(
+                getattr(body, "tags_match", None))
+        except Exception:  # noqa: BLE001
+            pass
+        return self.reflect(bank_id, body)
+
+    def get_memory_with_scope(self, bank_id, memory_id, scope):
+        """Fetch a memory after validating the scope.
+
+        The upstream endpoint does not accept tag filters; callers can verify
+        the returned ``tags`` field contains the expected scope.
+        """
+        scope.validate()
+        return self.get_memory(bank_id, memory_id)
+
+    def list_tags_with_scope(self, bank_id, scope, options=None):
+        """List tags visible within an entity scope.
+
+        When ``options.q`` is empty the query is scoped to the first scope
+        tag plus a ``*`` wildcard (for example ``user_id:123*``).
+        """
+        scope_tags = scope.tags()
+        if options is None:
+            options = dumemory_model.ListTagsOptions()
+        if not getattr(options, "q", None) and scope_tags:
+            options.q = scope_tags[0] + "*"
+        return self.list_tags(bank_id, options)
+
+    def list_documents_with_scope(self, bank_id, scope, options=None):
+        """List documents filtered by entity scope."""
+        scope_tags = scope.tags()
+        if options is None:
+            options = dumemory_model.ListDocumentsOptions()
+        options.tags = dumemory_model.merge_tags(options.tags, scope_tags)
+        options.tags_match = dumemory_model.scoped_tags_match(
+            options.tags_match)
+        return self.list_documents(bank_id, options)
+
+    def update_document_tags_with_scope(self, bank_id, document_id, scope,
+                                        request):
+        """Update document tags after appending entity scope tags."""
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.UpdateDocumentRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.update_document(bank_id, document_id, body)
+
+    def list_directives_with_scope(self, bank_id, scope, options=None):
+        """List directives filtered by entity scope."""
+        scope_tags = scope.tags()
+        if options is None:
+            options = dumemory_model.ListDirectivesOptions()
+        options.tags = dumemory_model.merge_tags(options.tags, scope_tags)
+        options.tags_match = dumemory_model.scoped_tags_match(
+            options.tags_match)
+        return self.list_directives(bank_id, options)
+
+    def create_directive_with_scope(self, bank_id, scope, request):
+        """Create a directive after appending entity scope tags."""
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.CreateDirectiveRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.create_directive(bank_id, body)
+
+    def update_directive_with_scope(self, bank_id, directive_id, scope,
+                                    request):
+        """Update a directive after appending entity scope tags."""
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.UpdateDirectiveRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.update_directive(bank_id, directive_id, body)
+
+    def list_mental_models_with_scope(self, bank_id, scope, options=None):
+        """List mental models filtered by entity scope."""
+        scope_tags = scope.tags()
+        if options is None:
+            options = dumemory_model.ListMentalModelsOptions()
+        options.tags = dumemory_model.merge_tags(options.tags, scope_tags)
+        options.tags_match = dumemory_model.scoped_tags_match(
+            options.tags_match)
+        return self.list_mental_models(bank_id, options)
+
+    def create_mental_model_with_scope(self, bank_id, scope, request):
+        """Create a mental model after appending entity scope tags."""
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.CreateMentalModelRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.create_mental_model(bank_id, body)
+
+    def update_mental_model_with_scope(self, bank_id, model_id, scope,
+                                       request):
+        """Update a mental model after appending entity scope tags."""
+        scope_tags = scope.tags()
+        body = self._coerce(dumemory_model.UpdateMentalModelRequest, request)
+        try:
+            body.tags = dumemory_model.merge_tags(
+                getattr(body, "tags", None), scope_tags)
+        except Exception:  # noqa: BLE001
+            pass
+        return self.update_mental_model(bank_id, model_id, body)
+
     # =============================== 文件 =============================== #
 
     def files_retain(self, bank_id, files, request):
