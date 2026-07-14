@@ -21,6 +21,9 @@ if __name__ == "__main__":
     try:
         resp = et_gateway_client.create_health_check(client_token=str(uuid.uuid4()),
                                                      et_gateway_id="dcgw-4ds9x3kmds88",
+                                                     dcphy_id="dcphy-axwuruqsn6af",
+                                                     channel_id="dedicatedconn-jbxquurmvghc",
+                                                     subnet_id="sbn-pmibbccz3g7t",
                                                      health_check_source_ip=None,
                                                      health_check_type=None,
                                                      health_check_port=None,

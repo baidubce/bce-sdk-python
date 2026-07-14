@@ -85,7 +85,7 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
 
     @required(name=(bytes, str),
               vpc_id=(bytes, str),
-              speed=(int, long))
+              speed=compat.integer_types)
     def create_et_gateway(self, name, vpc_id, speed, et_id=None, channel_id=None,
                           local_cidrs=None, client_token=None, description=None,
                           tags=None, resource_group_id=None, config=None):
@@ -392,11 +392,13 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
         path = utils.append_uri(self._get_path(), et_gateway_id)
         return self._send_request(http_methods.GET, path, config=config)
 
-    @required(et_gateway_id=(bytes, str), health_check_interval=(int, long), health_check_threshold=(int, long),
-              unhealth_threshold=(int, long))
+    @required(et_gateway_id=(bytes, str), health_check_interval=compat.integer_types,
+              health_check_threshold=compat.integer_types,
+              unhealth_threshold=compat.integer_types)
     def create_health_check(self, et_gateway_id, health_check_interval, health_check_threshold, unhealth_threshold,
                             health_check_source_ip=None, health_check_type=None, health_check_port=None,
-                            auto_generate_route_rule=None, client_token=None, config=None):
+                            auto_generate_route_rule=None, client_token=None, config=None, dcphy_id=None,
+                            channel_id=None, subnet_id=None):
         """
         Create Health Check.
         :param et_gateway_id:
@@ -435,6 +437,18 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             the optional parameter to specify a unique client token
         :type client_token: string
 
+        :param dcphy_id:
+            the optional physical dedicated line id
+        :type dcphy_id: string
+
+        :param channel_id:
+            the optional dedicated channel id
+        :type channel_id: string
+
+        :param subnet_id:
+            the optional subnet id
+        :type subnet_id: string
+
         :param config:
         :type config: baidubce.BceClientConfiguration
 
@@ -461,6 +475,12 @@ class EtGatewayClient(bce_base_client.BceBaseClient):
             body['healthCheckPort'] = health_check_port
         if auto_generate_route_rule is not None:
             body['autoGenerateRouteRule'] = auto_generate_route_rule
+        if dcphy_id is not None:
+            body['dcphyId'] = dcphy_id
+        if channel_id is not None:
+            body['channelId'] = channel_id
+        if subnet_id is not None:
+            body['subnetId'] = subnet_id
         return self._send_request(http_methods.POST, path, params=param, body=json.dumps(body), config=config)
 
     @staticmethod
