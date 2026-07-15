@@ -145,6 +145,9 @@ class TestETGatewayClient(unittest.TestCase):
         client_token = generate_client_token()
         self.client.create_health_check(client_token=client_token,
                                         et_gateway_id=ET_GATEWAY_ID,
+                                        dcphy_id=ET_ID,
+                                        channel_id=CHANNEL_ID,
+                                        subnet_id='sbn-pmibbccz3g7t',
                                         health_check_source_ip=None,
                                         health_check_type=None,
                                         health_check_port=None,
