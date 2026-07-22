@@ -104,6 +104,7 @@ setup(
               'baidubce.services.bls',
               'baidubce.services.cloudflow',
               'baidubce.services.dumemory',
+              'baidubce.services.eo',
               ],
     url='http://bce.baidu.com',
     license='Apache License 2.0',
