@@ -381,6 +381,11 @@ class DuMemoryClient(object):
             bank_id=bank_id,
             **self._kw(**self._options_kwargs(options))))
 
+    def get_operation_status(self, bank_id, operation_id):
+        """GET /v1/default/banks/{bankId}/operations/{operationId}."""
+        return _run_async(self._operations.get_operation_status(
+            bank_id=bank_id, operation_id=operation_id, **self._kw()))
+
     def cancel_operation(self, bank_id, operation_id):
         """DELETE /v1/default/banks/{bankId}/operations/{operationId}."""
         return _run_async(self._operations.cancel_operation(

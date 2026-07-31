@@ -97,6 +97,7 @@ client = dumemory_client.new_client_with_timeout(
 | 指令 | PATCH | /v1/default/banks/{bankId}/directives/{directiveId} | `update_directive` |
 | 指令 | DELETE | /v1/default/banks/{bankId}/directives/{directiveId} | `delete_directive` |
 | 操作 | GET | /v1/default/banks/{bankId}/operations | `list_operations` |
+| 操作 | GET | /v1/default/banks/{bankId}/operations/{operationId} | `get_operation_status` |
 | 操作 | DELETE | /v1/default/banks/{bankId}/operations/{operationId} | `cancel_operation` |
 | 文件 | POST | /v1/default/banks/{bankId}/files/retain | `files_retain` |
 | 范围隔离 | POST | /v1/default/banks/{bankId}/memories | `retain_with_scope` |
@@ -2434,7 +2435,79 @@ out = client.list_operations("demo-bank",
 
 ---
 
-### 8.2 取消后台操作 CancelOperation
+### 8.2 获取后台操作状态 GetOperationStatus
+
+**接口说明**
+
+按 `operationId` 获取单个异步操作的执行状态、进度、结果或错误信息。适用于轮询 retain、consolidation、refresh 等后台任务。
+
+**请求 URI**
+
+```
+GET /v1/default/banks/{bankId}/operations/{operationId}
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer <API_KEY>
+```
+
+**请求头域**
+
+除公共头域外，无其它特殊头域。
+
+**请求参数**
+
+| 参数名称 | 参数类型 | 是否必须 | 参数位置 | 描述 |
+| --- | --- | --- | --- | --- |
+| bankId | String | 是 | URL 参数 | 记忆库 ID |
+| operationId | String | 是 | URL 参数 | 操作 ID |
+
+**返回头域**
+
+除公共头域外，无其它特殊头域。
+
+**返回参数**
+
+| 参数名称 | 参数类型 | 描述 |
+| --- | --- | --- |
+| id | String | 操作 ID |
+| bank_id | String | 记忆库 ID |
+| task_type | String | 操作类型，例如 retain、consolidation、refresh |
+| status | String | 操作状态：`pending` `processing` `completed` `failed` `cancelled` |
+| progress | Number | 当前进度（服务端返回时） |
+| result | Object | 操作结果（完成时可用） |
+| error | String | 错误信息（失败时可用） |
+| created_at | String | 创建时间 |
+| updated_at | String | 最近更新时间 |
+
+**请求示例**
+
+```
+GET /v1/default/banks/demo-bank/operations/op-1
+Host: cloud.memory.bj.baidubce.com
+Authorization: Bearer bce-v3/ALTAK-xxx/xxx
+```
+
+**返回示例**
+
+```json
+{
+  "id": "op-1",
+  "bank_id": "demo-bank",
+  "task_type": "retain",
+  "status": "completed",
+  "progress": 1.0,
+  "result": { "items_count": 1 }
+}
+```
+
+**SDK 方法**
+
+```python
+out = client.get_operation_status("demo-bank", "op-1")
+```
+
+---
+
+### 8.3 取消后台操作 CancelOperation
 
 **接口说明**
 

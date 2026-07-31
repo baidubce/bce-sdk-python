@@ -139,7 +139,7 @@ def _install_hindsight_stubs():
             "update_directive", "delete_directive",
         ]),
         "operations_api": ("OperationsApi", [
-            "list_operations", "cancel_operation",
+            "list_operations", "get_operation_status", "cancel_operation",
         ]),
         "entities_api": ("EntitiesApi", [
             "list_entities", "get_entity_graph",
@@ -608,6 +608,16 @@ class OperationsTest(unittest.TestCase):
         self.assertEqual(kw["status"], "pending")
         self.assertEqual(kw["limit"], 5)
 
+    def test_get_operation_status(self):
+        """Verify get operation status behavior."""
+        cli = _new_client()
+        cli.get_operation_status("b", "op")
+        api, method, kw = _last_call()
+        self.assertEqual((api, method),
+                         ("OperationsApi", "get_operation_status"))
+        self.assertEqual(kw["bank_id"], "b")
+        self.assertEqual(kw["operation_id"], "op")
+
     def test_cancel_operation(self):
         """Verify cancel operation behavior."""
         cli = _new_client()
@@ -911,7 +921,7 @@ class CoverageTest(unittest.TestCase):
             "refresh_mental_model",
             "list_directives", "create_directive", "get_directive",
             "update_directive", "delete_directive",
-            "list_operations", "cancel_operation",
+            "list_operations", "get_operation_status", "cancel_operation",
             "files_retain",
             "retain_with_scope", "recall_with_scope", "reflect_with_scope",
             "get_memory_with_scope", "list_tags_with_scope",
