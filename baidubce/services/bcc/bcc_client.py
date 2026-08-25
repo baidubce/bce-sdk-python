@@ -3241,6 +3241,172 @@ class BccClient(bce_base_client.BceBaseClient):
         path = b'/snapshot/%s' % snapshot_id
         return self._send_request(http_methods.DELETE, path, config=config)
 
+    @required(instance_id=(bytes, str),  # ***Unicode***
+              name=(bytes, str))  # ***Unicode***
+    def create_instance_snapshot(self,
+                                 instance_id,
+                                 name,
+                                 desc=None,
+                                 volumes=None,
+                                 retention_in_days=None,
+                                 res_group_id=None,
+                                 tags=None,
+                                 config=None):
+        """
+        Creating an instance snapshot (a consistent snapshot group) for the specified instance.
+        All the parameters are carried by the JSON request body instead of the query string.
+        This is an asynchronous interface,
+        you can get the latest status by BccClient.list_instance_snapshot.
+
+        :param instance_id:
+            The id of the instance which the instance snapshot will be created from.
+        :type instance_id: string
+
+        :param name:
+            The name for the instance snapshot that will be created.
+        :type name: string
+
+        :param desc:
+            The optional parameter to describe the information of the new instance snapshot.
+        :type desc: string
+
+        :param volumes:
+            The optional list of the volume id to be included in the instance snapshot.
+            If it's not specified, all the volumes of the instance will be included.
+        :type volumes: list<string>
+
+        :param retention_in_days:
+            The optional parameter to specify how many days the instance snapshot will be retained.
+        :type retention_in_days: int
+
+        :param res_group_id:
+            The optional parameter to specify the id of the resource group.
+        :type res_group_id: string
+
+        :param tags:
+            The optional list of tag to be bonded.
+        :type tags: list<bcc_model.TagModel>
+
+        :return:
+            The response body contains inSnapshotId(string) and snapshotIds(list<string>).
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/insnap/create'
+        body = {
+            'instanceId': instance_id,
+            'name': name
+        }
+        if desc is not None:
+            body['desc'] = desc
+        if volumes is not None:
+            body['volumes'] = volumes
+        if retention_in_days is not None:
+            body['retentionInDays'] = retention_in_days
+        if res_group_id is not None:
+            body['resGroupId'] = res_group_id
+        if tags is not None:
+            tag_list = [tag if isinstance(tag, dict) else tag.__dict__ for tag in tags]
+            body['tags'] = tag_list
+        return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
+
+    @required(delete_insnap_ids=list)
+    def delete_instance_snapshot(self, delete_insnap_ids, config=None):
+        """
+        Deleting the specified instance snapshots.
+        All the parameters are carried by the JSON request body instead of the query string.
+        There is no response body for this interface.
+
+        :param delete_insnap_ids:
+            The list of the instance snapshot id which will be deleted.
+        :type delete_insnap_ids: list<string>
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/insnap/delete'
+        body = {
+            'deleteInsnapIds': delete_insnap_ids
+        }
+        return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
+
+    @required(name=(bytes, str))  # ***Unicode***
+    def rename_instance_snapshot(self, insnap_ids, name, config=None):
+        """
+        Renaming the specified instance snapshots.
+        All the parameters are carried by the JSON request body instead of the query string.
+        There is no response body for this interface.
+
+        :param insnap_ids:
+            The list of the instance snapshot id which will be renamed.
+        :type insnap_ids: list<string>
+
+        :param name:
+            The new name for the specified instance snapshots.
+        :type name: string
+
+        :return:
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/insnap/rename'
+        body = {
+            'name': name
+        }
+        if insnap_ids is not None:
+            body['insnapIds'] = insnap_ids
+        return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
+
+    def list_instance_snapshot(self, marker=None, max_keys=None, instance_ids=None,
+                               instance_snapshot_ids=None, config=None):
+        """
+        Listing the instance snapshots owned by the authenticated user.
+        All the parameters, including marker and maxKeys, are carried by the JSON
+        request body instead of the query string.
+
+        :param marker:
+            The optional parameter marker specified in the original request to specify
+            where in the results to begin listing.
+            Together with the marker, specifies the list result which listing should begin.
+            If the marker is not specified, the list result will listing from the first one.
+        :type marker: string
+
+        :param max_keys:
+            The optional parameter to specifies the max number of list result to return.
+        :type max_keys: int
+
+        :param instance_ids:
+            The optional list of the instance id used to filter the result.
+        :type instance_ids: list<string>
+
+        :param instance_snapshot_ids:
+            The optional list of the instance snapshot id used to filter the result.
+        :type instance_snapshot_ids: list<string>
+
+        :return:
+            The response body contains marker(string), isTruncated(bool),
+            nextMarker(string), maxKeys(int) and instanceSnapshots(list).
+            Every item of instanceSnapshots contains instanceSnapshotId,
+            instanceSnapshotName, instanceSnapshotSizeInGiB, createdTime,
+            instanceSnapshotStatus, instanceId and snapshots(list).
+            Every item of snapshots contains snapshotId, snapshotName,
+            snapshotSizeInGiB, snapshotStatus, volumeId, instanceSnapshotId,
+            creationMethod, description, createdTime, expiredTime, encrypted,
+            imageId, includeDataVolumes, progress and tags. Attention:
+            includeDataVolumes, progress and tags are always null because they are
+            not returned by this interface.
+        :rtype baidubce.bce_response.BceResponse
+        """
+        path = b'/snapshot/insnap/list'
+        body = {}
+        if marker is not None:
+            body['marker'] = marker
+        if max_keys is not None:
+            body['maxKeys'] = max_keys
+        if instance_ids is not None:
+            body['instanceIds'] = instance_ids
+        if instance_snapshot_ids is not None:
+            body['instanceSnapshotIds'] = instance_snapshot_ids
+        return self._send_request(http_methods.POST, path, json.dumps(body), config=config)
+
     @required(name=(bytes, str),  # ***Unicode***
               rules=list)
     def create_security_group(self,

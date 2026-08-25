@@ -207,3 +207,48 @@ class FileSystemModel(object):
         self.mountAds = mountAds
         self.path = path
         self.protocol = protocol
+
+
+class InstanceSnapshotStatus(object):
+    """
+    This class define the status of an instance snapshot (consistent snapshot group).
+
+    Attention: it is a totally different enum from SnapshotStatus which is used by
+    the sub snapshots inside the group. This one keeps the raw lowercase values
+    returned by the server, and note that ERROR_DELETING is the only one spelled
+    with an underline.
+    """
+    CREATING = 'creating'
+    ACTIVE = 'active'
+    ROLLBACK = 'rollback'
+    ERROR_ROLLBACK = 'errorRollback'
+    DELETING = 'deleting'
+    ERROR_DELETING = 'error_deleting'
+    ERROR_DELETE = 'errorDelete'
+    DELETED = 'deleted'
+    ERROR = 'error'
+    UNKNOWN = 'unknown'
+
+
+class SnapshotStatus(object):
+    """
+    This class define the status of a single volume snapshot, which is used by the
+    sub snapshots (the "snapshots" field) inside an instance snapshot group.
+
+    Attention: the values are capitalized, they do NOT overlap with
+    InstanceSnapshotStatus.
+    """
+    AVAILABLE = 'Available'
+    CREATING = 'Creating'
+    NOT_AVAILABLE = 'NotAvailable'
+    CREATED_FAILED = 'CreatedFailed'
+
+
+class SnapshotCreationMethod(object):
+    """
+    This class define how a snapshot was created.
+    """
+    MANUAL = 'MANUAL'
+    AUTO = 'AUTO'
+    MIGRATION = 'MIGRATION'
+    UNKNOWN = 'UNKNOWN'
