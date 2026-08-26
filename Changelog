@@ -1,5 +1,16 @@
 发行说明：记录每次SDK更新的说明，最新版本的SDK包含以前所有版本的更新内容。
 ---------------------------------------------------------------------
+【版本：v0.9.79】
+涉及产品：BEC
+接入新产品BEC（百度边缘计算），对齐Go SDK，全部接口走V1路径，新增虚机服务（VM Service）和虚机实例（VM Instance）管理能力：
+- 虚机服务：创建/查询列表/查询详情/更新/删除虚机服务，启停虚机服务（vm_service_action，action取start/stop），批量删除/批量操作虚机服务，获取服务监控指标，在服务下创建实例
+- 虚机实例：查询列表/查询详情/更新/删除虚机实例，按节点查询实例列表
+- 实例生命周期：启动/停止/重启实例（operate_vm_deployment，action取start/stop/restart），重装系统（reinstall_vm_instance）
+- 安全组管理：批量绑定/解绑安全组（bind_security_group，action取bind/unbind）
+- 网络管理：创建辅助私网IP、释放辅助私网IP
+- 监控与配置：获取实例监控指标、获取实例配置信息
+- 新增数据模型：Reservation、AutoRenew、DeploymentInstance、SystemVolumeConfig、VolumeConfig、KeyConfig、DnsConfig、Tag、IpAddress、Networks、NetworkConfig、NetworkConfigUpdateVmInstance、GpuRequest、ReplicaTemplate、InstancesBinding
+
 【版本：v0.9.78】
 设计产品：BCC
 新增实例快照创建、删除、修改名称、列表接口
