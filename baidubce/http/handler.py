@@ -69,7 +69,8 @@ def parse_error(http_response, response):
     body = http_response.read()
     if body:
         d = json.loads(compat.convert_to_string(body))
-        bse = BceServerError(d['message'], code=d['code'], request_id=d['requestId'])
+        request_id = d.get('requestId') or d.get('request_id')
+        bse = BceServerError(d['message'], code=d['code'], request_id=request_id)
     if bse is None:
         bse = BceServerError(http_response.reason, request_id=response.metadata.bce_request_id)
     bse.status_code = http_response.status

@@ -53,6 +53,7 @@ setup(
               'baidubce.services.aihc.modules.model',
               'baidubce.services.aihc.modules.service',
               'baidubce.services.aihc.modules.resource_pool',
+              'baidubce.services.aihc.modules.workflow',
               'baidubce.services.autoscaling',
               'baidubce.services.bos',
               'baidubce.services.bts',

@@ -11,6 +11,21 @@
 - 监控与配置：获取实例监控指标、获取实例配置信息
 - 新增数据模型：Reservation、AutoRenew、DeploymentInstance、SystemVolumeConfig、VolumeConfig、KeyConfig、DnsConfig、Tag、IpAddress、Networks、NetworkConfig、NetworkConfigUpdateVmInstance、GpuRequest、ReplicaTemplate、InstancesBinding
 
+涉及产品：AIHC
+新增工作流模板模块，支持以下接口：
+重试工作流运行实例（RetryPipelineRun）
+查询工作流运行详情（DescribePipelineRun）
+查询工作流运行列表（DescribePipelineRuns）
+查询工作流模版详情（DescribePipeline）
+查询工作流模版列表（DescribePipelines）
+删除工作流运行实例（DeletePipelineRun）
+删除工作流模版（DeletePipeline）
+运行工作流（CreatePipelineRun）
+查询工作流运行节点列表（DescribePipelineRunNodes）
+停止指定的工作流运行（StopPipelineRun）
+更新工作流模版（UpdatePipeline）
+创建工作流模版（CreatePipeline）
+
 【版本：v0.9.78】
 设计产品：BCC
 新增实例快照创建、删除、修改名称、列表接口

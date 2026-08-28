@@ -23,6 +23,7 @@ from baidubce.services.aihc.modules.model.model_client import ModelClient
 from baidubce.services.aihc.modules.service.service_client import ServiceClient
 from baidubce.services.aihc.modules.dev_instance.dev_instance_client import DevInstanceClient
 from baidubce.services.aihc.modules.resource_pool.resource_pool_client import ResourcePoolClient
+from baidubce.services.aihc.modules.workflow.workflow_client import WorkflowClient
 
 
 def create_typed_proxy_method(target_client, method_name):
@@ -97,6 +98,7 @@ class AihcClient:
         self.service = ServiceClient(config)
         self.dev_instance = DevInstanceClient(config)
         self.resource_pool = ResourcePoolClient(config)
+        self.workflow = WorkflowClient(config)
         
         # 动态创建代理方法
         self._setup_proxy_methods()
@@ -150,6 +152,13 @@ class AihcClient:
             'DescribeResourcePools', 'DescribeResourcePool', 'DescribeResourcePoolOverview',
             'DescribeResourcePoolConfiguration', 'DescribeQueues', 'DescribeQueue'
         ]
+
+        # 工作流模板相关接口
+        workflow_methods = [
+            'CreatePipeline', 'UpdatePipeline', 'StopPipelineRun', 'DescribePipelineRunNodes',
+            'CreatePipelineRun', 'DeletePipeline', 'DeletePipelineRun', 'DescribePipelines',
+            'DescribePipeline', 'DescribePipelineRuns', 'DescribePipelineRun', 'RetryPipelineRun',
+        ]
         
         # 为每个方法创建代理
         for method_name in job_methods:
@@ -169,3 +178,6 @@ class AihcClient:
         
         for method_name in resource_pool_methods:
             setattr(self, method_name, create_typed_proxy_method(self.resource_pool, method_name))
+
+        for method_name in workflow_methods:
+            setattr(self, method_name, create_typed_proxy_method(self.workflow, method_name))
