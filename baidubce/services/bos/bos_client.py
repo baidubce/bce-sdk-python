@@ -954,6 +954,8 @@ class BosClient(BceBaseClient):
             raise TypeError('range should be a list or a tuple')
         if len(range) != 2:
             raise ValueError('range should have length of 2')
+        if range[1] is None:
+            return {http_headers.RANGE: b'bytes=%d-' % range[0]}
         return {http_headers.RANGE: b'bytes=%d-%d' % tuple(range)}
 
 
@@ -999,7 +1001,7 @@ class BosClient(BceBaseClient):
 
         :param bucket_name:
         :param key:
-        :param range:
+        :param range: Inclusive (start, end) byte offsets; (start, None) reads to EOF.
         :param traffic_limit:
         :param version_id:
         :param cond_read_write:
@@ -1093,7 +1095,7 @@ class BosClient(BceBaseClient):
 
         :param bucket_name:
         :param key:
-        :param range:
+        :param range: Inclusive (start, end) byte offsets; (start, None) reads to EOF.
         :param config:
         :return:
         """
@@ -1120,7 +1122,7 @@ class BosClient(BceBaseClient):
         :param file_name: None
 
         :type range: tuple
-        :param range: (0,9) represent get object contents of 0-9 in bytes. 10 bytes date in total.
+        :param range: (0,9) reads bytes 0-9 inclusive; (start, None) reads from start to EOF.
         :return:
             **HTTP Response**
         """
