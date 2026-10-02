@@ -18,6 +18,7 @@ import copy
 import json
 import logging
 
+from baidubce import compat
 from baidubce.auth import bce_v1_signer
 from baidubce.bce_base_client import BceBaseClient
 from baidubce.exception import BceClientError
@@ -66,7 +67,7 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name)
         if create_instance_args is None:
             create_instance_args = CreateInstanceArgs()
         return self._send_request(http_methods.PUT, path=path, config=config,
@@ -85,7 +86,7 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name)
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
     def list_instances(self, config=None):
@@ -113,7 +114,7 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name)
         return self._send_request(http_methods.GET, path=path, config=config)
 
     # ------------- table operation -----------
@@ -133,7 +134,8 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name)
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(create_table_args, default=create_table_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -154,7 +156,8 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name)
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=json.dumps(update_table_args, default=update_table_args_2_dict),
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -173,7 +176,8 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name)
         return self._send_request(http_methods.DELETE, path=path, config=config)
 
     def show_table(self, instance_name, table_name, config=None):
@@ -190,7 +194,8 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name)
         return self._send_request(http_methods.GET, path=path, config=config)
 
     def list_tables(self, instance_name, config=None):
@@ -205,7 +210,7 @@ class BtsClient(BceBaseClient):
         :return:
         :rtype baidubce.bce_response.BceResponse
         """
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/tables"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) + b"/tables"
         return self._send_request(http_methods.GET, path=path, config=config)
 
     # ------------- row operation -----------
@@ -248,7 +253,8 @@ class BtsClient(BceBaseClient):
             raise ex
 
         body = json.dumps(row_data)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/row"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=body,
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -295,7 +301,8 @@ class BtsClient(BceBaseClient):
                 raise ex
 
         body = json.dumps({'rows': rows_data})
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/rows"
         return self._send_request(http_methods.PUT, path=path, config=config,
                                   body=body,
                                   headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -337,7 +344,8 @@ class BtsClient(BceBaseClient):
             raise ex
 
         body = json.dumps(delete_row_data)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/row"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                               body=body,
                               headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -380,7 +388,8 @@ class BtsClient(BceBaseClient):
 
         batch_delete_row_data = {'rows': rows_data}
         body = json.dumps(batch_delete_row_data)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/rows"
         return self._send_request(http_methods.DELETE, path=path, config=config,
                                 body=body,
                                 headers={http_headers.CONTENT_TYPE: http_content_types.JSON})
@@ -426,7 +435,8 @@ class BtsClient(BceBaseClient):
                     raise BceClientError(INVALID_ARGS_ERROR)
 
         body = json.dumps(get_row_data)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/row"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/row"
         response = self._send_request(http_methods.POST, path=path, config=config,
                                     body=body,
                                     headers={http_headers.CONTENT_TYPE: http_content_types.JSON,
@@ -483,7 +493,8 @@ class BtsClient(BceBaseClient):
             raise BceClientError(INVALID_ARGS_ERROR)
 
         body = json.dumps(batch_get_row_data)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/rows"
         response = self._send_request(http_methods.POST, path=path, config=config,
                                     body=body,
                                     headers={http_headers.CONTENT_TYPE: http_content_types.JSON,
@@ -529,7 +540,8 @@ class BtsClient(BceBaseClient):
             scan_args_dict["stopRowkey"] = _encode(scan_args_dict["stopRowkey"])
 
         body = json.dumps(scan_args_dict)
-        path = bts.URL_PREFIX + b"/" + instance_name + b"/table/" + table_name + b"/rows"
+        path = bts.URL_PREFIX + b"/" + compat.convert_to_bytes(instance_name) \
+            + b"/table/" + compat.convert_to_bytes(table_name) + b"/rows"
         response = self._send_request(http_methods.GET, path=path, config=config,
                                     body=body,
                                     headers={http_headers.CONTENT_TYPE: http_content_types.JSON})

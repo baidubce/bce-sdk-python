@@ -91,6 +91,43 @@ class TestBtsClient(unittest.TestCase):
         )
         self.bts_client = bts.BtsClient(config)
 
+    def test_text_instance_names(self):
+        for name in (u"ins01", b"ins01"):
+            for method, suffix in (("create_instance", b""),
+                                   ("drop_instance", b""),
+                                   ("show_instance", b""),
+                                   ("list_tables", b"/tables")):
+                self.bts_client._send_request = mock.Mock()
+                getattr(self.bts_client, method)(name)
+                path = self.bts_client._send_request.call_args[1]["path"]
+                self.assertEqual(path, b"/v1/instance/ins01" + suffix)
+
+    def test_text_table_names(self):
+        cases = (
+            ("create_table", CreateTableArgs(), b""),
+            ("update_table", UpdateTableArgs(), b""),
+            ("drop_table", None, b""),
+            ("show_table", None, b""),
+            ("put_row", Row("key"), b"/row"),
+            ("batch_put_row", BatchPutRowArgs(), b"/rows"),
+            ("delete_row", QueryRowArgs("key"), b"/row"),
+            ("batch_delete_row", BatchQueryRowArgs(), b"/rows"),
+            ("get_row", QueryRowArgs("key"), b"/row"),
+            ("batch_get_row", BatchQueryRowArgs(), b"/rows"),
+            ("scan", {}, b"/rows"),
+        )
+        for instance in (u"ins01", b"ins01"):
+            for table in (u"table01", b"table01"):
+                for method, argument, suffix in cases:
+                    self.bts_client._send_request = mock.Mock(
+                        return_value=MockHttpResponse(200))
+                    args = (instance, table)
+                    if argument is not None:
+                        args += (argument,)
+                    getattr(self.bts_client, method)(*args)
+                    path = self.bts_client._send_request.call_args[1]["path"]
+                    self.assertEqual(path, b"/v1/instance/ins01/table/table01" + suffix)
+
     def test_create_instance(self):
         """
         test case for create_instance
