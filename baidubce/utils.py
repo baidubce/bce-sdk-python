@@ -70,7 +70,7 @@ def get_md5_from_fp(fp, offset=0, length=-1, buf_size=8192):
     if offset:
         fp.seek(offset)
     md5 = hashlib.md5()
-    while True:
+    while length != 0:
         bytes_to_read = buf_size
         if bytes_to_read > length > 0:
             bytes_to_read = length
@@ -109,7 +109,7 @@ def get_sha256_from_fp(fp, offset=0, length=-1, buf_size=8192):
     if offset:
         fp.seek(offset)
     sha256 = hashlib.sha256()
-    while True:
+    while length != 0:
         bytes_to_read = buf_size
         if bytes_to_read > length > 0:
             bytes_to_read = length
@@ -148,7 +148,7 @@ def get_crc32_from_fp(fp, offset=0, length=-1, buf_size=8192):
     if offset:
         fp.seek(offset)
     crc = 0
-    while True:
+    while length != 0:
         bytes_to_read = buf_size
         if bytes_to_read > length > 0:
             bytes_to_read = length
@@ -256,7 +256,7 @@ def get_crc32c_from_fp(fp, offset=0, length=-1, buf_size=8192):
     if offset:
         fp.seek(offset)
     crc = 0
-    while True:
+    while length != 0:
         bytes_to_read = buf_size
         if bytes_to_read > length > 0:
             bytes_to_read = length
@@ -377,7 +377,7 @@ def get_crc64_ecma_from_fp(fp, offset=0, length=-1, buf_size=8192):
     if offset:
         fp.seek(offset)
     crc = CRC64ECMA(0)
-    while True:
+    while length != 0:
         bytes_to_read = buf_size
         if bytes_to_read > length > 0:
             bytes_to_read = length
